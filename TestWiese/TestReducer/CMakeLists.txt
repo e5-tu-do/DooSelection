@@ -1,3 +1,3 @@
 add_executable(GrimReaperKS_2011_OwnTuple ReducerMainKS_2011_OwnTuple.cpp)
-target_link_libraries(GrimReaperKS_2011_OwnTuple Reducer IDTranslator Utils ${ALL_LIBRARIES})
+target_link_libraries(GrimReaperKS_2011_OwnTuple dsReducer ${ALL_LIBRARIES})
 

@@ -19,6 +19,14 @@
 class TFile;
 class TLeaf;
 
+/**
+ * @namespace dooselection::reducer
+ * @brief Reducer namespace
+ *
+ * Detailed description.
+ *
+ */
+
 /*
  * basic usage:
  *

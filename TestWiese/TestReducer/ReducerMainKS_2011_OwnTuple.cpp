@@ -1,4 +1,4 @@
-#include "Reducer.h"
+
 
 // from STL
 
@@ -9,10 +9,8 @@
 #include "TCut.h"
 
 // from project
-#include "Utils.h"
-#include "MsgStream.h"
-#include "BkgCategorizerReducer.h"
-
+#include "dooselection/reducer/Reducer.h"
+#include "dooselection/reducer/BkgCategorizerReducer.h"
 
 bool VetoMass(Double_t wrong_mother_mass, Double_t dau_alt_mass, Double_t cut_value,
               Double_t dau1_E, Double_t dau1_p, Double_t dau1_px, Double_t dau1_py, Double_t dau1_pz,

@@ -23,9 +23,10 @@
 #include "TTreeFormula.h"
 #include "TRandom.h"
 
-// from project
-#include "MsgStream.h"
+// from DooCore
+#include <doocore/io/MsgStream.h>
 
+using namespace doocore::io;
 using namespace std;
 
 bool Reducer::abort_loop_ = false;

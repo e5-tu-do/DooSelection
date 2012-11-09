@@ -7,6 +7,11 @@
 // from ROOT
 #include "TRandom3.h"
 
+// from DooCore
+#include <doocore/io/MsgStream.h>
+
+using namespace doocore::io;
+
 int ShufflerReducer::RegisterShuffler() {
   shufflers_.push_back(std::pair<int, ShuffleLeafVec>(0,ShuffleLeafVec()));
   return shufflers_.size()-1;

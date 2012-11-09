@@ -9,14 +9,14 @@
 #include "TMath.h"
 #include "TCut.h"
 
-// from project
-#include "Utils.h"
-#include "MsgStream.h"
+// from DooCore
+#include <doocore/io/MsgStream.h>
 
-// From Uli
-#include "IDTranslator.h"
+// From project
+#include "dooselection/mctools/idtranslator/IDTranslator.h"
 
 using std::pair;
+using namespace doocore::io;
 
 BkgCategorizerReducer::BkgCategorizerReducer() : 
   background_category_leaf_(NULL),

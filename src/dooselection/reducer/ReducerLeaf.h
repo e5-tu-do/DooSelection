@@ -9,9 +9,6 @@
 #include "TTree.h"
 #include "TTreeFormula.h"
 
-// from Utils
-#include "MsgStream.h"
-
 // forward decalarations
 class TLeaf;
 
