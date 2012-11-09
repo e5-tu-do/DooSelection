@@ -6,6 +6,22 @@
 
 #include "TROOT.h"
 
+/**
+ * @namespace dooselection::mctools
+ * @brief Tools for Monte Carlo (MC)
+ *
+ * This namespace contains tools used together with Monte Carlo (MC) data. That
+ * includes tools used to extract and analyse MC information stored in tuples.
+ */
+
+/**
+ * @namespace dooselection::mctools::IDTranslator
+ * @brief IDTranslator analyzing decay matrices in MC tuples
+ *
+ * This namespace contains tools used together with Monte Carlo (MC) data. That
+ * includes tools used to extract and analyse MC information stored in tuples.
+ */
+
 namespace dooselection {
 namespace mctools {
 
