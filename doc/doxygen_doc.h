@@ -105,6 +105,6 @@
  */
 
 /**
- * @namespace doocore
+ * @namespace dooselection
  * @brief Global DooSelection namespace
  */

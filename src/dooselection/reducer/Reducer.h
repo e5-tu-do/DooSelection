@@ -1,5 +1,5 @@
-#ifndef REDUCER_H
-#define REDUCER_H
+#ifndef DOOSELECTION_REDUCER_REDUCER_H
+#define DOOSELECTION_REDUCER_REDUCER_H
 
 // from STL
 #include <set>
@@ -23,9 +23,11 @@ class TLeaf;
  * @namespace dooselection::reducer
  * @brief Reducer namespace
  *
- * Detailed description.
- *
+ * This namespace contains all Reducer functionality.
  */
+
+namespace dooselection {
+namespace reducer {
 
 /*
  * basic usage:
@@ -340,5 +342,8 @@ const ReducerLeaf<T>& Reducer::GetLeafByName(const TString& name, const std::vec
   std::cerr << "ERROR in Reducer::GetLeafByName(const TString&, const std::vector<ReducerLeaf<T> >&): Leaf " << name << " not found." << std::endl;
   throw 10;
 }
+  
+} // namespace reducer
+} // namespace dooselection
 
-#endif // REDUCER_H
+#endif // DOOSELECTION_REDUCER_REDUCER_H
