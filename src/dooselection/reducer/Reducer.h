@@ -26,26 +26,17 @@ class TLeaf;
  * This namespace contains all Reducer functionality.
  */
 
+/**
+ * @class dooselection::reducer::Reducer
+ * @brief Tool to modify, extend and reduce tuples
+ *
+ * The Reducer can be used to apply selections to tuples, transform variables, 
+ * add new variables and higher level information into ROOT tuples. It features
+ * a best candidate selection.
+ */
+
 namespace dooselection {
 namespace reducer {
-
-/*
- * basic usage:
- *
- * Reducer r;
- * r.set_input_file_path("RootTest/Test.root");
- * r.set_input_tree_path("Bd/DecayTree");
- * r.set_interim_file_path("RootTest/InterimTest.root");
- * r.set_output_file_path("RootTest/OutputTest.root");
- * r.set_output_tree_path("Bd2JpsiKS");
- * r.set_cut_string("B0_M>5000 && B0_M<5500");
- *
- * r.Initialize();
- * // define new cuts via Reducer::CreateFloatLeaf(...)
- * r.Run();
- * r.Finalize();
- *
- */
 class Reducer {
  /** \publicsection */
  public:
