@@ -1,5 +1,5 @@
-#ifndef SHUFFLERREDUCER_H
-#define SHUFFLERREDUCER_H
+#ifndef DOOSELECTION_REDUCER_SHUFFLERREDUCER_H
+#define DOOSELECTION_REDUCER_SHUFFLERREDUCER_H
 
 // from STL
 #include <utility>
@@ -106,5 +106,5 @@ private:
 } // namespace reducer
 } // namespace dooselection
 
-#endif // SHUFFLERREDUCER_H
+#endif // DOOSELECTION_REDUCER_SHUFFLERREDUCER_H
 

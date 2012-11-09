@@ -1,5 +1,5 @@
-#ifndef REDUCERLEAF_H
-#define REDUCERLEAF_H
+#ifndef DOOSELECTION_REDUCER_REDUCERLEAF_H
+#define DOOSELECTION_REDUCER_REDUCERLEAF_H
 
 // from STL
 #include <iostream>
@@ -348,4 +348,4 @@ TString ReducerLeaf<T>::LeafString() const {
 }
 
 
-#endif // REDUCERLEAF_H
+#endif // DOOSELECTION_REDUCER_REDUCERLEAF_H

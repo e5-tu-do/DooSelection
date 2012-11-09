@@ -17,7 +17,7 @@
 
 using std::pair;
 using namespace doocore::io;
-
+using namespace dooselection::mctools;
 
 namespace dooselection {
 namespace reducer {

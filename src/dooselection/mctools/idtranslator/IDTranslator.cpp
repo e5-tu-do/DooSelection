@@ -4,6 +4,9 @@
 
 using namespace std;
 
+namespace dooselection {
+namespace mctools {
+
 string IDTranslator::convertMCID(Float_t ID, bool real_names, bool only_abs){
   if (only_abs){
     ID = abs(ID);
@@ -158,3 +161,6 @@ string IDTranslator::makedecaystring (Float_t decaymatrix[][25], int rows, int c
   for (int j=column-1; j>0; j--)   decaystring += ")";
   return decaystring;
 }
+
+} //namespace mctools
+} //namespace dooselection
