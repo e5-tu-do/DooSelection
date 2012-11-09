@@ -18,6 +18,10 @@
 using std::pair;
 using namespace doocore::io;
 
+
+namespace dooselection {
+namespace reducer {
+
 BkgCategorizerReducer::BkgCategorizerReducer() : 
   background_category_leaf_(NULL),
   background_category_lptr_(NULL),
@@ -101,3 +105,7 @@ void BkgCategorizerReducer::UpdateSpecialLeaves() {
   }
   UpdateFurtherSpecialLeaves();
 }
+
+} // namespace reducer
+} // namespace dooselection
+

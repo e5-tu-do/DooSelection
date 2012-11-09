@@ -20,6 +20,9 @@
  *  be implemented in the derived class to implement further complex leaves. 
  *  This implementation follows the Template Method Design Pattern.
  **/
+
+namespace dooselection {
+namespace reducer {
 class BkgCategorizerReducer : virtual public Reducer {
 public:
   /**
@@ -138,6 +141,10 @@ private:
    **/
   int                   max_number_decays_;
 };
+
+} // namespace reducer
+} // namespace dooselection
+
 
 #endif // BKGCATEGORIZERREDUCER_H
 

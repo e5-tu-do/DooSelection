@@ -29,6 +29,8 @@
 using namespace doocore::io;
 using namespace std;
 
+namespace dooselection {
+namespace reducer {
 bool Reducer::abort_loop_ = false;
 
 Reducer::Reducer() : 
@@ -442,4 +444,8 @@ void Reducer::HandleSigInt(int param) {
   
   abort_loop_ = true;
 }
+
+} // namespace reducer
+} // namespace dooselection
+
       

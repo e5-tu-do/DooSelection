@@ -12,6 +12,9 @@
 
 using namespace doocore::io;
 
+namespace dooselection {
+namespace reducer {
+
 int ShufflerReducer::RegisterShuffler() {
   shufflers_.push_back(std::pair<int, ShuffleLeafVec>(0,ShuffleLeafVec()));
   return shufflers_.size()-1;
@@ -101,4 +104,7 @@ void ShufflerReducer::UpdateSpecialLeaves() {
     }
   }
 }
+
+} // namespace reducer
+} // namespace dooselection
 

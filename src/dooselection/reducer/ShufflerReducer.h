@@ -11,7 +11,7 @@
 // from project
 #include "Reducer.h"
 
-/** @class ShufflerReducer
+/** @class dooselection::reducer::ShufflerReducer
  *  @brief Derived Reducer to shuffle given leaves into new leaves
  *
  *  This is a Reducer derived from Reducer. It is used if a set of given 
@@ -34,6 +34,9 @@
  *  shuffling of pi1 and pi2 will be the same for both sets. The second shuffler
  *  is independent and will generate an own sequence.
  **/
+
+namespace dooselection {
+namespace reducer {
 class ShufflerReducer : virtual public Reducer {
   typedef std::vector<ReducerLeaf<Float_t>*> LeafPtrVec;
   typedef std::vector<const ReducerLeaf<Float_t>*> ConstLeafPtrVec;
@@ -99,6 +102,9 @@ private:
    */
   TRandom3 r_;
 };
+
+} // namespace reducer
+} // namespace dooselection
 
 #endif // SHUFFLERREDUCER_H
 

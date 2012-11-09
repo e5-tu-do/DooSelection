@@ -12,6 +12,8 @@
 #include "dooselection/reducer/Reducer.h"
 #include "dooselection/reducer/BkgCategorizerReducer.h"
 
+using namespace dooselection::reducer;
+
 bool VetoMass(Double_t wrong_mother_mass, Double_t dau_alt_mass, Double_t cut_value,
               Double_t dau1_E, Double_t dau1_p, Double_t dau1_px, Double_t dau1_py, Double_t dau1_pz,
               Double_t dau2_E, Double_t dau2_p, Double_t dau2_px, Double_t dau2_py, Double_t dau2_pz,
