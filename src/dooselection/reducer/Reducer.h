@@ -77,17 +77,17 @@ class Reducer {
    */
   template<class T>
   void SetEventNumberLeaf(const ReducerLeaf<T>& leaf) {
-    event_number_leaf_ptr_ = new ReducerLeaf<Int_t>(leaf.name(), leaf.title(), leaf.type(), leaf.tree());
+    event_number_leaf_ptr_ = new ReducerLeaf<ULong64_t>(leaf.name(), leaf.title(), leaf.type(), leaf.tree());
     event_number_leaf_ptr_->set_branch_address(leaf.branch_address());
   }
   template<class T>
   void SetRunNumberLeaf(const ReducerLeaf<T>& leaf) {
-    run_number_leaf_ptr_ = new ReducerLeaf<Int_t>(leaf.name(), leaf.title(), leaf.type(), leaf.tree());
+    run_number_leaf_ptr_ = new ReducerLeaf<ULong64_t>(leaf.name(), leaf.title(), leaf.type(), leaf.tree());
     run_number_leaf_ptr_->set_branch_address(leaf.branch_address());
   }
   template<class T>
   void SetBestCandidateLeaf(const ReducerLeaf<T>& leaf) {
-    best_candidate_leaf_ptr_ = new ReducerLeaf<Float_t>(leaf.name(), leaf.title(), leaf.type(), leaf.tree());
+    best_candidate_leaf_ptr_ = new ReducerLeaf<Double_t>(leaf.name(), leaf.title(), leaf.type(), leaf.tree());
     best_candidate_leaf_ptr_->set_branch_address(leaf.branch_address());
   }
   
@@ -96,6 +96,9 @@ class Reducer {
    */
   const ReducerLeaf<Float_t>& GetInterimLeafByName(const TString& name) const {
     return GetLeafByName<Float_t>(name, interim_leaves_);
+  }
+  const ReducerLeaf<Double_t>& GetDoubleLeafByName(const TString& name) const {
+    return GetLeafByName<Double_t>(name, double_leaves_);
   }
   const ReducerLeaf<Float_t>& GetFloatLeafByName(const TString& name) const {
     return GetLeafByName<Float_t>(name, float_leaves_);
@@ -107,7 +110,23 @@ class Reducer {
   /*
    * create new leaves.
    */
-  ReducerLeaf<Float_t>& CreateFloatLeaf(TString name, TString title, TString type, Float_t default_value=0.0) {    
+  ReducerLeaf<Double_t>& CreateDoubleLeaf(TString name, TString title, TString type, Double_t default_value=0.0) {
+    ReducerLeaf<Double_t>* new_leaf = new ReducerLeaf<Double_t>(name, title, type, interim_tree_, default_value);
+    double_leaves_.push_back(new_leaf);
+    return *new_leaf;
+  }
+  ReducerLeaf<Double_t>& CreateDoubleLeaf(TString name, Double_t default_value=0.0) {
+    ReducerLeaf<Double_t>* new_leaf = new ReducerLeaf<Double_t>(name, name, "Double_t", interim_tree_, default_value);
+    double_leaves_.push_back(new_leaf);
+    return *new_leaf;
+  }
+  template<class T>
+  ReducerLeaf<Double_t>& CreateDoubleCopyLeaf(TString name, const ReducerLeaf<T>& leaf_to_copy, double c=1.0) {
+    ReducerLeaf<Double_t>& new_leaf = CreateDoubleLeaf(name, name, "Double_t");
+    new_leaf.Equal(leaf_to_copy, c);
+    return new_leaf;
+  }
+  ReducerLeaf<Float_t>& CreateFloatLeaf(TString name, TString title, TString type, Float_t default_value=0.0) {
     ReducerLeaf<Float_t>* new_leaf = new ReducerLeaf<Float_t>(name, title, type, interim_tree_, default_value);
     float_leaves_.push_back(new_leaf);
     return *new_leaf;
@@ -154,6 +173,9 @@ class Reducer {
     }
     
     for (std::vector<ReducerLeaf<Float_t>* >::const_iterator it = interim_leaves_.begin(); it != interim_leaves_.end(); ++it) {
+      if ((*it)->name() == name) return true;
+    }
+    for (std::vector<ReducerLeaf<Double_t>* >::const_iterator it = double_leaves_.begin(); it != double_leaves_.end(); ++it) {
       if ((*it)->name() == name) return true;
     }
     for (std::vector<ReducerLeaf<Float_t>* >::const_iterator it = float_leaves_.begin(); it != float_leaves_.end(); ++it) {
@@ -211,8 +233,8 @@ class Reducer {
    * members needed for best candidate selection
    *
    */
-  ReducerLeaf<Int_t> * event_number_leaf_ptr_;
-  ReducerLeaf<Int_t> * run_number_leaf_ptr_;
+  ReducerLeaf<ULong64_t> * event_number_leaf_ptr_;
+  ReducerLeaf<ULong64_t> * run_number_leaf_ptr_;
   
   /**
    *  @brief Currently selected entry of interim tree during best candidate selection
@@ -271,6 +293,7 @@ class Reducer {
     selected_entry_ = i;
     tree->GetEntry(i);
     UpdateAllValues<Float_t>(float_leaves_);
+    UpdateAllValues<Double_t>(double_leaves_);
     UpdateAllValues<Int_t>(int_leaves_);
     UpdateSpecialLeaves();
   }
@@ -299,9 +322,15 @@ class Reducer {
   
   std::vector< std::pair<TString,TString> > name_mapping_;
   
-  std::vector<ReducerLeaf<Float_t>* > interim_leaves_; ///< vector of all leaves in the interim tree
-  std::vector<ReducerLeaf<Float_t>* > float_leaves_;   ///< new float leaves for output tree 
-  std::vector<ReducerLeaf<Int_t>* >   int_leaves_;     ///< new int leaves for output tree 
+  std::vector<ReducerLeaf<Float_t>* >  interim_leaves_; ///< vector of all leaves in the interim tree
+  std::vector<ReducerLeaf<Float_t>* >  float_leaves_;   ///< new float leaves for output tree
+
+  /**
+   *  @brief Container of newly created double leaves.
+   */
+  std::vector<ReducerLeaf<Double_t>* > double_leaves_;
+  
+  std::vector<ReducerLeaf<Int_t>* >    int_leaves_;     ///< new int leaves for output tree
   
   TFile* input_file_;
   TTree* input_tree_;
@@ -315,7 +344,7 @@ class Reducer {
    * members needed for best candidate selection
    *
    */
-  ReducerLeaf<Float_t> * best_candidate_leaf_ptr_;
+  ReducerLeaf<Double_t> * best_candidate_leaf_ptr_;
   
   static bool abort_loop_;
   
