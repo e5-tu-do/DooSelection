@@ -9,6 +9,9 @@
 #include "TTree.h"
 #include "TTreeFormula.h"
 
+// from DooCore
+#include "doocore/io/MsgStream.h"
+
 // forward decalarations
 class TLeaf;
 
@@ -20,6 +23,8 @@ enum ReducerLeafOperations {
   kEqualLeaf,
 };
 
+namespace dooselection {
+namespace reducer {
 /**
  * ReducerLeaf class
  *
@@ -233,8 +238,26 @@ T ReducerLeaf<T>::GetValue() const {
       return static_cast<T>(*((Int_t*)branch_address_));
     } else if (type_ == "Float_t") {
       return static_cast<T>(*((Float_t*)branch_address_));
+    } else if (type_ == "Double_t") {
+      return static_cast<T>(*((Double_t*)branch_address_));
+    } else if (type_ == "UInt_t") {
+      return static_cast<T>(*((UInt_t*)branch_address_));
+    } else if (type_ == "Bool_t") {
+      return static_cast<T>(*((Bool_t*)branch_address_));
+    } else if (type_ == "Long64_t") {
+      return static_cast<T>(*((Long64_t*)branch_address_));
+    } else if (type_ == "ULong64_t") {
+      return static_cast<T>(*((ULong64_t*)branch_address_));
+    } else if (type_ == "Short_t") {
+      return static_cast<T>(*((Short_t*)branch_address_));
+    } else if (type_ == "UShort_t") {
+      return static_cast<T>(*((UShort_t*)branch_address_));
+    } else if (type_ == "Char_t") {
+      return static_cast<T>(*((Char_t*)branch_address_));
+    } else if (type_ == "UChar_t") {
+      return static_cast<T>(*((UChar_t*)branch_address_));
     } else {
-      std::cerr << "ERROR in T ReducerLeaf<T>::GetValue(): leaf type is unknown." << std::endl;
+      doocore::io::serr << "ERROR in T ReducerLeaf<T>::GetValue(): Leaf type " << type_ << " in leaf " << name_ << " is unknown. Do not know how to handle that." << doocore::io::endmsg;
     }
   }
 }
@@ -336,10 +359,28 @@ TString ReducerLeaf<T>::LeafString() const {
   TString postfix = "";
   if (type_ == "Float_t") {
     postfix = "/F";
+  } else if (type_ == "Double_t") {
+    postfix = "/D";
   } else if (type_ == "Int_t") {
     postfix = "/I";
+  } else if (type_ == "UInt_t") {
+    postfix = "/i";
+  } else if (type_ == "Bool_t") {
+    postfix = "/O";
+  } else if (type_ == "Long64_t") {
+    postfix = "/L";
+  } else if (type_ == "ULong64_t") {
+    postfix = "/l";
+  } else if (type_ == "Short_t") {
+    postfix = "/S";
+  } else if (type_ == "UShort_t") {
+    postfix = "/s";
+  } else if (type_ == "Char_t") {
+    postfix = "/B";
+  } else if (type_ == "UChar_t") {
+    postfix = "/b";
   } else {
-    std::cerr << "Warning in ReducerLeaf<T>::LeafString(): Encountered unknown leaf type " << type_ << std::endl;
+    doocore::io::serr << "Error in ReducerLeaf<T>::LeafString(): Encountered unknown leaf type " << type_ << " in leaf " << name_ << doocore::io::endmsg;
   }
   
   TString leaf_string = title_ + postfix;
@@ -347,5 +388,7 @@ TString ReducerLeaf<T>::LeafString() const {
   return leaf_string;
 }
 
+} // namespace reducer
+} // namespace dooselection
 
 #endif // DOOSELECTION_REDUCER_REDUCERLEAF_H
