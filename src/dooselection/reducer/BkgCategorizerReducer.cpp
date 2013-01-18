@@ -38,7 +38,11 @@ void BkgCategorizerReducer::PrepareSpecialBranches() {
   std::string decaystring = "";
   
   sinfo << "Starting analysis of MC associated decays." << endmsg;
-  
+ 
+  if (decay_matrix_length_leaf_ == NULL) {
+    serr << "Decay matrix length not set! BkgCategorizerReducer can no longer work. Set via BkgCategorizerReducer::set_decay_matrix_length_leaf(...)!" << endmsg;
+  }
+ 
   TBranch* br_matrix = interim_tree_->GetBranch(decay_matrix_name_.c_str());
   if (br_matrix != NULL) {
     decay_matrix_length_lptr_ = (Int_t*)decay_matrix_length_leaf_->branch_address();
