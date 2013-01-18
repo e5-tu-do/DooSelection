@@ -25,6 +25,8 @@ namespace reducer {
 BkgCategorizerReducer::BkgCategorizerReducer() : 
   background_category_leaf_(NULL),
   background_category_lptr_(NULL),
+  decay_matrix_length_leaf_(NULL),
+  decay_matrix_length_lptr_(NULL),
   decay_depth_leaf_(NULL),
   decay_counter_(),
   max_number_decays_(40) 
@@ -39,14 +41,17 @@ void BkgCategorizerReducer::PrepareSpecialBranches() {
   
   TBranch* br_matrix = interim_tree_->GetBranch(decay_matrix_name_.c_str());
   if (br_matrix != NULL) {
+    decay_matrix_length_lptr_ = (Int_t*)decay_matrix_length_leaf_->branch_address();
     br_matrix->SetAddress(&decay_matrix_);    
     TBranch* br_depth  = interim_tree_->GetBranch(decay_depth_leaf_->name());
-        
+    int matrix_length = 0;
+    //interim_tree_->SetBranchAddress(decay_matrix_length_leaf_->name(), &matrix_length);
+    
     // Fill the map with decay-strings
     for (Int_t ev = 0; ev < interim_tree_->GetEntries(); ev++) {
       interim_tree_->GetEntry(ev);
       if (!(decay_depth_leaf_->GetValue() < 1)){
-        std::string decay_string = IDTranslator::makedecaystring(decay_matrix_, rows_, columns_, 0, 0, decaystring, true, true);
+        std::string decay_string = IDTranslator::makedecaystring(decay_matrix_, *decay_matrix_length_lptr_, columns_, 0, 0, decaystring, true, true);
         std::map<std::string,int>::const_iterator iter = decay_counter_.find(decay_string);
 
         if (iter == decay_counter_.end()) {
@@ -73,11 +78,10 @@ void BkgCategorizerReducer::PrepareSpecialBranches() {
       decay_vector_.push_back(std::pair<int,std::string>(decay_counter_[max_key],max_key));
       sinfo << "Number: " << i+1 << ", Decay: " << decay_vector_.at(i).second << ", Count: " << decay_vector_.at(i).first << endmsg;
       decay_counter_.erase(max_key);  
-    }
+    } 
     
-  background_category_lptr_ = (Int_t*)background_category_leaf_->branch_address();
-  
-  sinfo << "Background categories according to this table will be put into leaf " << background_category_leaf_->name() << endmsg;
+    background_category_lptr_ = (Int_t*)background_category_leaf_->branch_address();
+    sinfo << "Background categories according to this table will be put into leaf " << background_category_leaf_->name() << endmsg;
   } else {
     swarn << "Decay matrix not found. Skipping analysis." << endmsg;
   }
@@ -88,7 +92,7 @@ void BkgCategorizerReducer::PrepareSpecialBranches() {
 void BkgCategorizerReducer::UpdateSpecialLeaves() {
   if (decay_depth_leaf_ != NULL) {
     if (!(decay_depth_leaf_->GetValue() < 1)) {
-      std::string decaystring = IDTranslator::makedecaystring(decay_matrix_, rows_, columns_, 0, 0, "", true, true);
+      std::string decaystring = IDTranslator::makedecaystring(decay_matrix_, *decay_matrix_length_lptr_, columns_, 0, 0, "", true, true);
       int j = 0;
       while(j < max_number_decays_ && j < decay_vector_.size() && decaystring != decay_vector_.at(j).second){
         j++;

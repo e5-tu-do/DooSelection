@@ -44,6 +44,14 @@ public:
    **/
   void set_background_category_leaf(ReducerLeaf<Int_t>& leaf) { background_category_leaf_ = &leaf; }
   /**
+   *  @brief Setter for decay_matrix_length_
+   **/
+  template<class T>
+  void set_decay_matrix_length_leaf(const ReducerLeaf<T>& leaf) {
+    decay_matrix_length_leaf_ = new ReducerLeaf<Int_t>(leaf.name(), leaf.title(), leaf.type(), leaf.tree());
+    decay_matrix_length_leaf_->set_branch_address(leaf.branch_address());
+  }
+  /**
    *  @brief Setter for decay_depth_leaf_
    **/
   template<class T>
@@ -104,6 +112,14 @@ private:
    *  @brief Pointer for contents of leaf background_category_leaf_ (for convienence)
    **/
   Int_t*                background_category_lptr_;
+  /**
+   *  @brief Leaf for decay matrix length from TupleToolMCDecayTree
+   **/
+  ReducerLeaf<Int_t>*   decay_matrix_length_leaf_;
+  /**
+   *  @brief Pointer for contents of leaf decay_matrix_length_leaf_ (for performance)
+   **/
+  Int_t*                decay_matrix_length_lptr_;
   /**
    *  @brief Leaf for decay depth from TupleToolMCDecayTree
    **/
