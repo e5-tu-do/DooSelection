@@ -49,6 +49,9 @@ Reducer::~Reducer(){
   for (std::vector<ReducerLeaf<Float_t>* >::const_iterator it = interim_leaves_.begin(); it != interim_leaves_.end(); ++it) {
     delete *it;
   }
+  for (std::vector<ReducerLeaf<Double_t>* >::const_iterator it = double_leaves_.begin(); it != double_leaves_.end(); ++it) {
+    delete *it;
+  }
   for (std::vector<ReducerLeaf<Float_t>* >::const_iterator it = float_leaves_.begin(); it != float_leaves_.end(); ++it) {
     delete *it;
   }
@@ -81,6 +84,7 @@ void Reducer::Run(){
   std::cout << "Initializing new branches of output tree" << std::endl;
   InitializeOutputBranches<Float_t>(output_tree_, interim_leaves_);
   InitializeOutputBranches<Float_t>(output_tree_, float_leaves_);
+  InitializeOutputBranches<Double_t>(output_tree_, double_leaves_);
   InitializeOutputBranches<Int_t>(output_tree_, int_leaves_);
 
   PrepareSpecialBranches();
@@ -316,12 +320,12 @@ unsigned int Reducer::GetBestCandidate(TTree* tree, unsigned int pos_event_start
      * quite confident it does what it is supposed to do.
      */
     
-    Int_t run_number_before             = run_number_leaf_ptr_->GetValue();
-    Int_t event_number_before           = event_number_leaf_ptr_->GetValue();
+    ULong64_t run_number_before          = run_number_leaf_ptr_->GetValue();
+    ULong64_t event_number_before        = event_number_leaf_ptr_->GetValue();
     //Float_t best_candidate_value_before = *best_candidate_value_ptr_;
-    Float_t best_candidate_value_before = best_candidate_leaf_ptr_->GetValue();
-    Float_t best_candidate_value_min    = -1.0;
-    Int_t best_candidate                = -1;
+    Double_t best_candidate_value_before = best_candidate_leaf_ptr_->GetValue();
+    Double_t best_candidate_value_min    = -1.0;
+    Int_t best_candidate                 = -1;
     
     // while we're still in the tuple and inside the current event...
     while (i<num_entries && run_number_before == run_number_leaf_ptr_->GetValue() && event_number_before == event_number_leaf_ptr_->GetValue()) {
