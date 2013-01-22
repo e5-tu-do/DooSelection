@@ -8,7 +8,7 @@
 #include <map>
 #include <utility>
 
-/** \class BkgCategorizerReducer
+/** \class dooselection::reducer::BkgCategorizerReducer
  *  \brief Derived Reducer to generate background categories based on TupleToolMCDecayTree
  *
  *  This is a Reducer derived from Reducer. It implements 
