@@ -15,7 +15,9 @@
 // from DooCore
 #include "doocore/io/MsgStream.h"
 #include "doocore/io/EasyTuple.h"
-#include "doocore/builder/EasyPdf.h"
+
+// from DooFit
+#include "doofit/builder/EasyPdf/EasyPdf.h"
 
 // from here
 
@@ -73,7 +75,7 @@ namespace selection{
     	if (debug_mode_) doocore::io::serr << "-debug- " << "Created new SelectionTuple: '" << title_ << "'..." << doocore::io::endmsg;
     }
 
-    SelectionTuple(std::string name, std::string title, doocore::io::EasyTuple* etuple, doocore::builder::EasyPdf* epdf, double fit_range_min, double fit_range_max, std::vector<std::string> components, bool debug_mode=false):
+    SelectionTuple(std::string name, std::string title, doocore::io::EasyTuple* etuple, doofit::builder::EasyPdf* epdf, double fit_range_min, double fit_range_max, std::vector<std::string> components, bool debug_mode=false):
    	debug_mode_(debug_mode),
    	dataset_exists_(false),
    	name_(name),
@@ -245,7 +247,7 @@ namespace selection{
     std::string title_;
 
     doocore::io::EasyTuple* etuple_;
-    doocore::builder::EasyPdf* epdf_;
+    doofit::builder::EasyPdf* epdf_;
     RooDataSet* dataset_;
 
     // using mc truth information
