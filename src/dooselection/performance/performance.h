@@ -26,7 +26,7 @@ class SelectionClassifier;
 namespace dooselection{
 namespace performance{
   
-std::map<std::string, double> NumberOfEvents(SelectionTuple &stuple, std::string cut, bool debug_mode=false);
+std::map<std::string, double> NumberOfEvents(SelectionTuple &stuple, std::string cut_string, bool debug_mode=false);
 
 } // namespace performance
 } // namespace dooselection
