@@ -21,6 +21,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "$ENV{DOOCORESYS}/cmake/Modules/")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "$ENV{DOOFITSYS}/cmake/Modules/")
 
 set(BASEPATH "${CMAKE_SOURCE_DIR}/src")
 include_directories(${BASEPATH})
@@ -37,6 +38,7 @@ install(FILES external/FindDooSelection.cmake DESTINATION cmake/Modules)
 FIND_PACKAGE(Boost 1.48 COMPONENTS program_options filesystem regex thread system random REQUIRED)
 find_package(ROOT REQUIRED)
 find_package(DooCore REQUIRED)
+find_package(DooFit REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIR})
 link_directories(${Boost_LIBRARY_DIR})
@@ -44,9 +46,12 @@ link_directories(${Boost_LIBRARY_DIR})
 include_directories(${DooCore_INCLUDE_DIR})
 link_directories(${DooCore_LIBRARY_DIR})
 
+include_directories(${DooFit_INCLUDE_DIR})
+link_directories(${DooFit_LIBRARY_DIR})
+
 include_directories(${ROOT_INCLUDE_DIR})
 
-set(ALL_LIBRARIES ${DooCore_LIBRARIES} ${ROOT_LIBRARIES} ${ROOFIT_LIBRARIES} ${Boost_LIBRARIES})
+set(ALL_LIBRARIES ${DooFit_LIBRARIES} ${DooCore_LIBRARIES} ${ROOT_LIBRARIES} ${ROOFIT_LIBRARIES} ${Boost_LIBRARIES})
 
 add_subdirectory(src)
 add_subdirectory(python)

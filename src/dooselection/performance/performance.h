@@ -2,7 +2,8 @@
 #define DOOSELECTION_PERFORMANCE_H
 
 // from STL
-#include <vector>
+#include <map>
+#include <string>
 
 // from ROOT
 
@@ -13,14 +14,21 @@
 // from BOOST
 
 // from DooCore
-#include "doocore/io/MsgStream.h"
 
-// from here
+// from DooFit
+
+// from DooSelection
 
 // forward declarations
+class SelectionTuple;
+class SelectionClassifier;
 
-namespace selection{
+namespace dooselection{
+namespace performance{
   
-} // namespace selection
+std::map<std::string, double> NumberOfEvents(SelectionTuple &stuple, std::string cut, bool debug_mode=false);
+
+} // namespace performance
+} // namespace dooselection
 
 #endif // DOOSELECTION_PERFORMANCE_H

@@ -1,5 +1,5 @@
-#ifndef DOOSELECTION_PERFORMANCE_SELECTIONCLASSIFIER_H
-#define DOOSELECTION_PERFORMANCE_SELECTIONCLASSIFIER_H
+#ifndef DOOSELECTION_PERFORMANCE_SELECTIONCLASSIFIER_SELECTIONCLASSIFIER_H
+#define DOOSELECTION_PERFORMANCE_SELECTIONCLASSIFIER_SELECTIONCLASSIFIER_H
 
 // from STL
 #include <vector>
@@ -20,9 +20,30 @@
 
 // forward declarations
 
-namespace selection{
+namespace dooselection{
+namespace performance{
   class SelectionClassifier{
    public:
+		SelectionClassifier(std::string name, std::string title, double range_min, double range_max, bool debug_mode=false):
+    debug_mode_(debug_mode),
+    use_number_of_steps_(false),
+    use_step_size_(false),
+    use_user_defined_steps_(false),
+    name_(name),
+    title_(title),
+    cut_operator_(""),
+    best_cut_string_(""),
+    number_of_steps_(0),
+    best_cut_value_(0.0),
+    range_min_(range_min),
+    range_max_(range_max),
+    step_size_(0.0),
+		steps_()
+    {
+    	if (debug_mode_) doocore::io::serr << "-debug- " << "Created new SelectionClassifier '" << title << "'..." << doocore::io::endmsg;
+    	if (debug_mode_) doocore::io::serr << "-debug- " << "\t range: " << range_min_ << "-" << range_max_ << doocore::io::endmsg;
+    }
+
     SelectionClassifier(std::string name, std::string title, double range_min, double range_max, std::string cut_operator, double best_cut_value, int number_of_steps, bool debug_mode=false):
     debug_mode_(debug_mode),
     use_number_of_steps_(true),
@@ -36,7 +57,7 @@ namespace selection{
     best_cut_value_(best_cut_value),
     range_min_(range_min),
     range_max_(range_max),
-    step_size_(1),
+    step_size_(0.0),
 		steps_()
     {
     	if (debug_mode_) doocore::io::serr << "-debug- " << "Created new SelectionClassifier '" << title << "'..." << doocore::io::endmsg;
@@ -52,7 +73,7 @@ namespace selection{
     	}
     	steps_.push_back(range_max_);
     	std::string temp = "["+boost::lexical_cast<std::string>(range_min_);
-    	for(std::vector<std::string>::iterator it = steps_.begin()+1; it != steps_.end(); it++){
+    	for(std::vector<double>::iterator it = steps_.begin()+1; it != steps_.end(); it++){
   			temp+=boost::lexical_cast<std::string>(*it);
 			}
 			temp+="]";
@@ -68,7 +89,7 @@ namespace selection{
     title_(title),
     cut_operator_(cut_operator),
     best_cut_string_(""),
-    number_of_steps_(10),
+    number_of_steps_(0),
     best_cut_value_(best_cut_value),
     range_min_(range_min),
     range_max_(range_max),
@@ -87,7 +108,7 @@ namespace selection{
     	}
 
     	std::string temp = "["+boost::lexical_cast<std::string>(range_min_);
-    	for(std::vector<std::string>::iterator it = steps_.begin()+1; it != steps_.end(); it++){
+    	for(std::vector<double>::iterator it = steps_.begin()+1; it != steps_.end(); it++){
   			temp+=boost::lexical_cast<std::string>(*it);
 			}
 			temp+="]";
@@ -103,11 +124,11 @@ namespace selection{
     title_(title),
     cut_operator_(""),
     best_cut_string_(""),
-    number_of_steps_(10),
-    best_cut_value_(0),
+    number_of_steps_(0),
+    best_cut_value_(0.0),
     range_min_(range_min),
     range_max_(range_max),
-    step_size_(1),
+    step_size_(0.0),
 		steps_(steps)
     {
       if (debug_mode_) doocore::io::serr << "-debug- " << "Created new SelectionClassifier '" << title << "'..." << doocore::io::endmsg;
@@ -117,7 +138,7 @@ namespace selection{
     	if (debug_mode_) doocore::io::serr << "-debug- " << "\t best cut string: " << best_cut_string_ << doocore::io::endmsg;
 
     	std::string temp = "["+boost::lexical_cast<std::string>(range_min_);
-    	for(std::vector<std::string>::iterator it = steps_.begin()+1; it != steps_.end(); it++){
+    	for(std::vector<double>::iterator it = steps_.begin()+1; it != steps_.end(); it++){
   			temp+=boost::lexical_cast<std::string>(*it);
 			}
 			temp+="]";
@@ -134,10 +155,10 @@ namespace selection{
     cut_operator_(""),
     best_cut_string_(best_cut_string),
     number_of_steps_(number_of_steps),
-    best_cut_value_(0),
+    best_cut_value_(0.0),
     range_min_(range_min),
     range_max_(range_max),
-    step_size_(1),
+    step_size_(0.0),
 		steps_()
     {
     	if (debug_mode_) doocore::io::serr << "-debug- " << "Created new SelectionClassifier '" << title << "'..." << doocore::io::endmsg;
@@ -151,7 +172,7 @@ namespace selection{
     	}
     	steps_.push_back(range_max_);
     	std::string temp = "["+boost::lexical_cast<std::string>(range_min_);
-    	for(std::vector<std::string>::iterator it = steps_.begin()+1; it != steps_.end(); it++){
+    	for(std::vector<double>::iterator it = steps_.begin()+1; it != steps_.end(); it++){
   			temp+=boost::lexical_cast<std::string>(*it);
 			}
 			temp+="]";
@@ -167,8 +188,8 @@ namespace selection{
     title_(title),
     cut_operator_(""),
     best_cut_string_(best_cut_string),
-    number_of_steps_(10),
-    best_cut_value_(0),
+    number_of_steps_(0),
+    best_cut_value_(0.0),
     range_min_(range_min),
     range_max_(range_max),
     step_size_(step_size),
@@ -184,7 +205,7 @@ namespace selection{
     	}
 
     	std::string temp = "["+boost::lexical_cast<std::string>(range_min_);
-    	for(std::vector<std::string>::iterator it = steps_.begin()+1; it != steps_.end(); it++){
+    	for(std::vector<double>::iterator it = steps_.begin()+1; it != steps_.end(); it++){
   			temp+=boost::lexical_cast<std::string>(*it);
 			}
 			temp+="]";
@@ -200,11 +221,11 @@ namespace selection{
     title_(title),
     cut_operator_(""),
     best_cut_string_(best_cut_string),
-    number_of_steps_(10),
-    best_cut_value_(0),
+    number_of_steps_(0),
+    best_cut_value_(0.0),
     range_min_(range_min),
     range_max_(range_max),
-    step_size_(1),
+    step_size_(0),
 		steps_(steps)
     {
     	if (debug_mode_) doocore::io::serr << "-debug- " << "Created new SelectionClassifier '" << title << "'..." << doocore::io::endmsg;
@@ -212,7 +233,7 @@ namespace selection{
     	if (debug_mode_) doocore::io::serr << "-debug- " << "\t best cut string: " << best_cut_string_ << doocore::io::endmsg;
 
     	std::string temp = "["+boost::lexical_cast<std::string>(range_min_);
-    	for(std::vector<std::string>::iterator it = steps_.begin()+1; it != steps_.end(); it++){
+    	for(std::vector<double>::iterator it = steps_.begin()+1; it != steps_.end(); it++){
   			temp+=boost::lexical_cast<std::string>(*it);
 			}
 			temp+="]";
@@ -261,15 +282,19 @@ namespace selection{
     	return title_;
     }
     std::string cut_operator(){
+    	if (cut_operator_=="") doocore::io::serr << "-SelectionClassifier- " << "No cut operator given" << doocore::io::endmsg;
     	return cut_operator_;
     }
     std::string best_cut_string(){
+    	if (best_cut_string_=="") doocore::io::serr << "-SelectionClassifier- " << "No best cut string given" << doocore::io::endmsg;
     	return best_cut_string_;
     }
     int number_of_steps(){
+    	if (number_of_steps_==0) doocore::io::serr << "-SelectionClassifier- " << "No number of steps given" << doocore::io::endmsg;
     	return number_of_steps_;
     }
     double best_cut_value(){
+    	if (best_cut_value_==0.0) doocore::io::serr << "-SelectionClassifier- " << "No best cut value given" << doocore::io::endmsg;
     	return best_cut_value_;
     }
     double range_min(){
@@ -279,9 +304,11 @@ namespace selection{
     	return range_max_;
     }
     double step_size(){
+    	if (step_size_==0.0) doocore::io::serr << "-SelectionClassifier- " << "No step size given" << doocore::io::endmsg;
     	return step_size_;
     }
     std::vector<double> steps(){
+    	if(steps_.empty()) doocore::io::serr << "-SelectionClassifier- " << "No steps vector given" << doocore::io::endmsg;
     	return steps_;
     }
 
@@ -307,6 +334,7 @@ namespace selection{
     std::vector<double> steps_;
 
   };
-} // namespace selection
+} // namespace performance
+} // namespace dooselection
 
-#endif // DOOSELECTION_PERFORMANCE_SELECTIONCLASSIFIER_H
+#endif // DOOSELECTION_PERFORMANCE_SELECTIONCLASSIFIER_SELECTIONCLASSIFIER_H
