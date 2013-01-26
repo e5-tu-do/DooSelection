@@ -20,12 +20,14 @@
 // from DooSelection
 
 // forward declarations
-class SelectionTuple;
-class SelectionClassifier;
 
 namespace dooselection{
 namespace performance{
-  
+
+// internal namespace forward declarations
+class SelectionTuple;
+class SelectionClassifier;
+
 std::map<std::string, double> NumberOfEvents(SelectionTuple &stuple, std::string cut_string, bool debug_mode=false);
 
 } // namespace performance

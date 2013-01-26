@@ -4,6 +4,7 @@
 
 // from STL
 #include <vector>
+#include <map>
 #include <string>
 
 // from ROOT
@@ -48,18 +49,20 @@ std::map<std::string, double> NumberOfEvents(SelectionTuple &stuple, std::string
     if (debug_mode) stuple.epdf()->Pdf("pdf").printCompactTree();
 
     // cut on data
-    RooAbsData* data;
-    if (cut_string==""){
-      data = stuple.dataset();
-    }
-    else{
-      data = stuple.dataset()->reduce(TString(cut_string));
-    }
+    // RooAbsData* data;
+    // if (cut_string==""){
+    //   data = stuple.dataset();
+    // }
+    // else{
+    //   data = stuple.dataset()->reduce(TString(cut_string));
+    // }
     
-    for(std::map<std::string, std::string>::iterator it = stuple.map_of_components_and_pdfs().begin(); it != stuple.map_of_components_and_pdfs().end(); it++){
-      doocore::io::sout << "First: " << it->first << " Second " << it->second << doocore::io::endmsg;
+    doocore::io::serr << "1" << doocore::io::endmsg;
+    for(std::map<std::string, std::string>::const_iterator it = stuple.map_of_components_and_pdfs().begin(); it != stuple.map_of_components_and_pdfs().end(); ++it){
+      doocore::io::sout << "First: " << (*it).first << ", Second: " << (*it).second << doocore::io::endmsg;
     }
 
+    doocore::io::serr << "2" << doocore::io::endmsg;
     return components_and_yields;
   }
   else{
