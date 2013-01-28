@@ -8,6 +8,7 @@
 // from ROOT
 
 // from RooFit
+#include "RooDataSet.h"
 
 // from TMVA
 
@@ -23,18 +24,17 @@
 // from here
 
 // forward declarations
-class RooDataSet;
 
 namespace dooselection{
 namespace performance{
   class SelectionTuple{
    public:
-    SelectionTuple(std::string name, std::string title, doocore::io::EasyTuple* etuple, std::map<std::string, std::string> map_of_components_and_cuts, bool debug_mode=false):
+    SelectionTuple(std::string name, std::string title, doocore::io::EasyTuple etuple, std::map<std::string, std::string> map_of_components_and_cuts, bool debug_mode=false):
    	debug_mode_(debug_mode),
    	name_(name),
     title_(title),
     etuple_(etuple),
-    dataset_(NULL),
+    dataset_(),
     dataset_exists_(false),
     use_mc_(true),
     map_of_components_and_cuts_(map_of_components_and_cuts),
@@ -44,19 +44,19 @@ namespace performance{
     sweight_range_max_(1),
     use_fit_(false),
     map_of_components_and_pdfs_(),
-    epdf_(NULL),
+    epdf_(),
     fit_range_min_(-1),
     fit_range_max_(1)
     {
     	if (debug_mode_) doocore::io::serr << "-debug- " << "Created new SelectionTuple: '" << title_ << "'..." << doocore::io::endmsg;
     }
 
-    SelectionTuple(std::string name, std::string title, doocore::io::EasyTuple* etuple, std::map<std::string, std::string> map_of_components_and_sweights, double sweight_range_min, double sweight_range_max, bool debug_mode=false):
+    SelectionTuple(std::string name, std::string title, doocore::io::EasyTuple etuple, std::map<std::string, std::string> map_of_components_and_sweights, double sweight_range_min, double sweight_range_max, bool debug_mode=false):
    	debug_mode_(debug_mode),
    	name_(name),
     title_(title),
     etuple_(etuple),
-    dataset_(NULL),
+    dataset_(),
     dataset_exists_(false),
     use_mc_(false),
     map_of_components_and_cuts_(),
@@ -66,19 +66,19 @@ namespace performance{
     sweight_range_max_(sweight_range_max),
     use_fit_(false),
     map_of_components_and_pdfs_(),
-    epdf_(NULL),
+    epdf_(),
     fit_range_min_(-1),
     fit_range_max_(1)
     {
     	if (debug_mode_) doocore::io::serr << "-debug- " << "Created new SelectionTuple: '" << title_ << "'..." << doocore::io::endmsg;
     }
 
-    SelectionTuple(std::string name, std::string title, doocore::io::EasyTuple* etuple, doofit::builder::EasyPdf* epdf, std::map<std::string, std::string> map_of_components_and_pdfs, double fit_range_min, double fit_range_max, bool debug_mode=false):
+    SelectionTuple(std::string name, std::string title, doocore::io::EasyTuple etuple, doofit::builder::EasyPdf epdf, std::map<std::string, std::string> map_of_components_and_pdfs, double fit_range_min, double fit_range_max, bool debug_mode=false):
    	debug_mode_(debug_mode),
    	name_(name),
     title_(title),
     etuple_(etuple),
-    dataset_(NULL),
+    dataset_(),
     dataset_exists_(false),
     use_mc_(false),
     map_of_components_and_cuts_(),
@@ -92,7 +92,7 @@ namespace performance{
     fit_range_min_(fit_range_min),
     fit_range_max_(fit_range_max)
     {
-    	if (debug_mode_) doocore::io::serr << "-debug- " << "Created new SelectionTuple: '" << title_ << "'..." << doocore::io::endmsg;
+      if (debug_mode_) doocore::io::serr << "-debug- " << "Created new SelectionTuple: '" << title_ << "'..." << doocore::io::endmsg;
     }
     
     ~SelectionTuple(){};
@@ -115,7 +115,7 @@ namespace performance{
       use_sweights_ = true;
       use_fit_ = false;
     }
-    void set_fit_parameter(doofit::builder::EasyPdf* epdf, std::map<std::string, std::string> map_of_components_and_pdfs, double fit_range_min, double fit_range_max){
+    void set_fit_parameter(doofit::builder::EasyPdf epdf, std::map<std::string, std::string> map_of_components_and_pdfs, double fit_range_min, double fit_range_max){
     	epdf_=epdf;
     	map_of_components_and_pdfs_=map_of_components_and_pdfs;
     	fit_range_min_=fit_range_min;
@@ -146,59 +146,59 @@ namespace performance{
     }
 
     // GETTER
-    bool debug_mode(){
+    const bool debug_mode(){
     	return debug_mode_;
     }
-    std::string name(){
+    const std::string name(){
     	return name_;
     }
-    std::string title(){
+    const std::string title(){
       return title_;
     }
-    doocore::io::EasyTuple* etuple(){
+    const doocore::io::EasyTuple& etuple(){
     	return etuple_;
     }
-    RooDataSet* dataset(){
+    const RooDataSet& dataset(){
       if (dataset_exists_){
-        return &(etuple_->dataset());
+        return (etuple_.dataset());
       }
       else{
-        dataset_ = &(etuple_->ConvertToDataSet());
+        dataset_ = (etuple_.ConvertToDataSet());
         dataset_exists_=true;
-        return &(etuple_->dataset());
+        return (etuple_.dataset());
       }
     }
-    bool use_mc(){
+    const bool use_mc(){
       return use_mc_;
     }
-    std::map<std::string, std::string> map_of_components_and_cuts(){
+    const std::map<std::string, std::string>& map_of_components_and_cuts(){
     	return map_of_components_and_cuts_;
     }
-    bool use_sweights(){
+    const bool use_sweights(){
       return use_sweights_;
     }
-    std::map<std::string, std::string> map_of_components_and_sweights(){
+    const std::map<std::string, std::string>& map_of_components_and_sweights(){
     	return map_of_components_and_sweights_;
     }
-    double sweight_min(){
+    const double sweight_min(){
       return sweight_range_min_;
     }
-    double sweight_max(){
+    const double sweight_max(){
       return sweight_range_max_;
     }
-    bool use_fit(){
+    const bool use_fit(){
       return use_fit_;
     }
-    std::map<std::string, std::string> map_of_components_and_pdfs(){
+    const std::map<std::string, std::string>& map_of_components_and_pdfs() const{
     	return map_of_components_and_pdfs_;
     }
-    doofit::builder::EasyPdf* epdf(){
+    doofit::builder::EasyPdf& epdf(){
     	return epdf_;
     }
-    double fit_range_min(){
+    const double fit_range_min(){
       return fit_range_min_;
     }
-    double fit_range_max(){
+    const double fit_range_max(){
       return fit_range_max_;
     }
 
@@ -209,8 +209,8 @@ namespace performance{
    	std::string name_;
     std::string title_;
 
-    doocore::io::EasyTuple* etuple_;
-    RooDataSet* dataset_;
+    doocore::io::EasyTuple etuple_;
+    RooDataSet dataset_;
     bool dataset_exists_;
 
     // using mc truth information
@@ -229,7 +229,7 @@ namespace performance{
     bool use_fit_;
 
     std::map<std::string, std::string> map_of_components_and_pdfs_;
-    doofit::builder::EasyPdf* epdf_;
+    doofit::builder::EasyPdf epdf_;
     double fit_range_min_;
     double fit_range_max_;
   };

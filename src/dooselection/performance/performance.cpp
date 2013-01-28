@@ -34,6 +34,7 @@ namespace performance{
 std::map<std::string, double> NumberOfEvents(SelectionTuple &stuple, std::string cut_string, bool debug_mode){
   if (debug_mode) doocore::io::serr << "-debug- " << "starting doocore::performance::NumberOfEvents() with cut '" << cut_string << "'..." << doocore::io::endmsg;
   std::map<std::string, double> components_and_yields;
+  components_and_yields["bla"] = 10.;
 
   if(stuple.use_mc()){
     doocore::io::serr << "-NumberOfEvents(SelectionTuple &stuple, std::string cut, bool debug_mode)- MC not yet implemented" << doocore::io::endmsg;
@@ -46,7 +47,7 @@ std::map<std::string, double> NumberOfEvents(SelectionTuple &stuple, std::string
   else if(stuple.use_fit()){
     if (debug_mode) doocore::io::serr << "-debug- " << "...using a fit..." << doocore::io::endmsg;
     if (debug_mode) doocore::io::serr << "-debug- " << "...with PDF:" << doocore::io::endmsg;
-    if (debug_mode) stuple.epdf()->Pdf("pdf").printCompactTree();
+    // if (debug_mode) stuple.epdf().Pdf("pdf").printCompactTree();
 
     // cut on data
     // RooAbsData* data;
@@ -61,7 +62,6 @@ std::map<std::string, double> NumberOfEvents(SelectionTuple &stuple, std::string
     for(std::map<std::string, std::string>::const_iterator it = stuple.map_of_components_and_pdfs().begin(); it != stuple.map_of_components_and_pdfs().end(); ++it){
       doocore::io::sout << "First: " << (*it).first << ", Second: " << (*it).second << doocore::io::endmsg;
     }
-
     doocore::io::serr << "2" << doocore::io::endmsg;
     return components_and_yields;
   }
