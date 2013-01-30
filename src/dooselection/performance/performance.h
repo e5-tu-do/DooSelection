@@ -4,6 +4,7 @@
 // from STL
 #include <map>
 #include <string>
+#include <vector>
 
 // from ROOT
 
@@ -28,7 +29,11 @@ namespace performance{
 class SelectionTuple;
 class SelectionClassifier;
 
-std::map<std::string, double> NumberOfEvents(SelectionTuple &stuple, std::string cut_string, bool debug_mode=false);
+std::map<std::string, double> NumberOfEventsPerComponent(SelectionTuple &stuple, std::string cut_string, bool debug_mode=false);
+
+double FoM(SelectionTuple &stuple, std::string signal_component, std::string background_component, std::string cut_string, std::string figure_of_merit="Significance", bool debug_mode=false);
+
+std::vector< std::pair<double, double> > FoMDistribution(SelectionTuple &stuple, SelectionClassifier &classifier, std::string signal_component, std::string background_component, std::string figure_of_merit="Significance", bool debug_mode=false);
 
 } // namespace performance
 } // namespace dooselection

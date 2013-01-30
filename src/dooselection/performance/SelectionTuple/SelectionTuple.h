@@ -43,6 +43,7 @@ namespace performance{
     sweight_range_min_(-1),
     sweight_range_max_(1),
     use_fit_(false),
+    observable_name_(),
     map_of_components_and_pdfs_(),
     map_of_components_and_yields_(),
     epdf_(),
@@ -66,6 +67,7 @@ namespace performance{
     sweight_range_min_(sweight_range_min),
     sweight_range_max_(sweight_range_max),
     use_fit_(false),
+    observable_name_(),
     map_of_components_and_pdfs_(),
     map_of_components_and_yields_(),
     epdf_(),
@@ -75,7 +77,7 @@ namespace performance{
     	if (debug_mode_) doocore::io::serr << "-debug- " << "Created new SelectionTuple: '" << title_ << "'..." << doocore::io::endmsg;
     }
 
-    SelectionTuple(std::string name, std::string title, doocore::io::EasyTuple* etuple, doofit::builder::EasyPdf* epdf, std::map<std::string, std::string> map_of_components_and_pdfs, std::map<std::string, std::string> map_of_components_and_yields, double fit_range_min, double fit_range_max, bool debug_mode=false):
+    SelectionTuple(std::string name, std::string title, doocore::io::EasyTuple* etuple, doofit::builder::EasyPdf* epdf, std::string observable_name, std::map<std::string, std::string> map_of_components_and_pdfs, std::map<std::string, std::string> map_of_components_and_yields, double fit_range_min, double fit_range_max, bool debug_mode=false):
    	debug_mode_(debug_mode),
    	name_(name),
     title_(title),
@@ -89,6 +91,7 @@ namespace performance{
     sweight_range_min_(-1),
     sweight_range_max_(1),
     use_fit_(true),
+    observable_name_(observable_name),
     map_of_components_and_pdfs_(map_of_components_and_pdfs),
     map_of_components_and_yields_(map_of_components_and_yields),
     epdf_(epdf),
@@ -118,8 +121,9 @@ namespace performance{
       use_sweights_ = true;
       use_fit_ = false;
     }
-    void set_fit_parameter(doofit::builder::EasyPdf* epdf, std::map<std::string, std::string> map_of_components_and_pdfs, std::map<std::string, std::string> map_of_components_and_yields, double fit_range_min, double fit_range_max){
+    void set_fit_parameter(doofit::builder::EasyPdf* epdf, std::string observable_name, std::map<std::string, std::string> map_of_components_and_pdfs, std::map<std::string, std::string> map_of_components_and_yields, double fit_range_min, double fit_range_max){
     	epdf_=epdf;
+      observable_name_=observable_name;
     	map_of_components_and_pdfs_=map_of_components_and_pdfs;
       map_of_components_and_yields_=map_of_components_and_yields;
     	fit_range_min_=fit_range_min;
@@ -193,6 +197,9 @@ namespace performance{
     const bool use_fit(){
       return use_fit_;
     }
+    const std::string observable_name(){
+      return observable_name_;
+    }
     const std::map<std::string, std::string>& map_of_components_and_pdfs() const{
       return map_of_components_and_pdfs_;
     }
@@ -235,6 +242,7 @@ namespace performance{
     // using mass fit
     bool use_fit_;
 
+    std::string observable_name_;
     std::map<std::string, std::string> map_of_components_and_pdfs_;
     std::map<std::string, std::string> map_of_components_and_yields_;
     doofit::builder::EasyPdf* epdf_;

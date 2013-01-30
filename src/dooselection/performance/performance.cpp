@@ -35,24 +35,25 @@
 namespace dooselection{
 namespace performance{
 
-std::map<std::string, double> NumberOfEvents(SelectionTuple &stuple, std::string cut_string, bool debug_mode){
-  if (debug_mode) if (cut_string!="") doocore::io::serr << "-debug- " << "starting doocore::performance::NumberOfEvents() with cut '" << cut_string << "'..." << doocore::io::endmsg;
+// ==============================
+// NUMBER OF EVENTS PER COMPONENT
+// ==============================
+std::map<std::string, double> NumberOfEventsPerComponent(SelectionTuple &stuple, std::string cut_string, bool debug_mode){
+  if (debug_mode) if (cut_string!="") doocore::io::serr << "-debug- " << "starting doocore::performance::NumberOfEvents() with cut '" << cut_string << "'…" << doocore::io::endmsg;
   if (debug_mode) if (cut_string=="") doocore::io::serr << "-debug- " << "starting doocore::performance::NumberOfEvents() without cut" << doocore::io::endmsg;
   std::map<std::string, double> components_and_yield_values;
-  components_and_yield_values["bla"] = 10.;
 
   if(stuple.use_mc()){
-    doocore::io::serr << "-NumberOfEvents(SelectionTuple &stuple, std::string cut, bool debug_mode)- MC not yet implemented" << doocore::io::endmsg;
+    doocore::io::serr << "-ERROR- \t NumberOfEvents(SelectionTuple &stuple, std::string cut, bool debug_mode)- MC not yet implemented" << doocore::io::endmsg;
     return components_and_yield_values;
   } 
   else if(stuple.use_sweights()){
-    doocore::io::serr << "-NumberOfEvents(SelectionTuple &stuple, std::string cut, bool debug_mode)- sWeights not yet implemented" << doocore::io::endmsg;
+    doocore::io::serr << "-ERROR- \t NumberOfEvents(SelectionTuple &stuple, std::string cut, bool debug_mode)- sWeights not yet implemented" << doocore::io::endmsg;
     return components_and_yield_values;
   }
   else if(stuple.use_fit()){
-    if (debug_mode) doocore::io::serr << "-debug- " << "...using a fit..." << doocore::io::endmsg;
-    if (debug_mode) doocore::io::serr << "-debug- " << "...with PDF:" << doocore::io::endmsg;
-    
+    if (debug_mode) doocore::io::serr << "-debug- \t" << "using a fit…" << doocore::io::endmsg;
+    if (debug_mode) doocore::io::serr << "-debug- \t" << "with PDF:" << doocore::io::endmsg;
     if (debug_mode) stuple.epdf().Pdf("pdf").printCompactTree();
 
     // cut on data
@@ -74,35 +75,116 @@ std::map<std::string, double> NumberOfEvents(SelectionTuple &stuple, std::string
     RooArgList plot_pdfs;
     plot_pdfs.add(stuple.epdf().Pdf("pdf"));
 
-    doocore::io::serr << "loop over component and pdfs map" << doocore::io::endmsg;
     for(std::map<std::string, std::string>::const_iterator it = stuple.map_of_components_and_pdfs().begin(); it != stuple.map_of_components_and_pdfs().end(); ++it){
-      doocore::io::sout << "Component: " << (*it).first << ", Yield: " << (*it).second << doocore::io::endmsg;
+      if (debug_mode) doocore::io::serr << "-debug- \t" << "Component: " << (*it).first << ", Yield: " << (*it).second << doocore::io::endmsg;
       plot_pdfs.add(stuple.epdf().Pdf((*it).second));
     }
-    doocore::io::serr << "end of loop" << doocore::io::endmsg;
 
     doofit::plotting::PlotConfig plot_cfg("plot_cfg");
-    doofit::plotting::Plot plot(plot_cfg, stuple.epdf().Var("B0_LOKI_MASS_JpsiKSConstr"), *data, plot_pdfs, "mass_"+cut_string);
+    doofit::plotting::Plot plot(plot_cfg, stuple.epdf().Var(stuple.observable_name()), *data, plot_pdfs, stuple.observable_name()+"_"+cut_string);
     plot.PlotIt();
 
-    doocore::io::serr << "loop over component and yields map" << doocore::io::endmsg;
     for(std::map<std::string, std::string>::const_iterator it = stuple.map_of_components_and_yields().begin(); it != stuple.map_of_components_and_yields().end(); ++it){
-      doocore::io::sout << "Component: " << (*it).first << ", PDF: " << (*it).second << doocore::io::endmsg;
+      if (debug_mode) doocore::io::serr << "-debug- \t" << "Component: " << (*it).first << ", PDF: " << (*it).second << doocore::io::endmsg;
       components_and_yield_values[(*it).first]=stuple.epdf().Var((*it).second).getValV();
     }
-    doocore::io::serr << "end of loop" << doocore::io::endmsg;
     
-    doocore::io::serr << "loop over component and yield values map" << doocore::io::endmsg;
     for(std::map<std::string, double>::const_iterator it = components_and_yield_values.begin(); it != components_and_yield_values.end(); ++it){
-      doocore::io::sout << "Component: " << (*it).first << ", Yield Value: " << (*it).second << doocore::io::endmsg;
+      if (debug_mode) doocore::io::serr << "-debug- \t" << "Component: " << (*it).first << ", Yield value: " << (*it).second << doocore::io::endmsg;
     }
-    doocore::io::serr << "end of loop" << doocore::io::endmsg;
 
     return components_and_yield_values;
   }
   else{
 
   }
+}
+
+// =====================
+// FIGURE OF MERIT (FoM)
+// =====================
+/// calculate FoM for a single cut value
+double FoM(SelectionTuple &stuple, std::string signal_component, std::string background_component, std::string cut_string, std::string figure_of_merit, bool debug_mode){
+  if (debug_mode) doocore::io::serr << "-debug- " << "starting doocore::performance::FoM()…" << doocore::io::endmsg;
+  if ((stuple.map_of_components_and_yields().at(signal_component)==0) || (stuple.map_of_components_and_yields().at(background_component)==0)) doocore::io::serr << "-ERROR- \t" << "Signal or background component to not exist in SelectionTuple '" << stuple.title() << "'!" << doocore::io::endmsg;
+  if (debug_mode) doocore::io::serr << "-debug- \t" << "cut '" << cut_string << "'…" << doocore::io::endmsg;
+  if (debug_mode) doocore::io::serr << "-debug- \t" << "figure of merit '" << figure_of_merit << "'…" << doocore::io::endmsg;
+  if (debug_mode) doocore::io::serr << "-debug- \t" << "signal component '" << signal_component << "'…" << doocore::io::endmsg;
+  if (debug_mode) doocore::io::serr << "-debug- \t" << "background component '" << background_component << "'…" << doocore::io::endmsg;
+
+  double fom_value;
+  std::map<std::string, double> number_of_events_per_component = NumberOfEventsPerComponent(stuple, cut_string, debug_mode);
+  std::map<std::string, double> max_number_of_events_per_component;
+
+  double number_of_signal_events = number_of_events_per_component[signal_component];
+  double number_of_background_events = number_of_events_per_component[background_component];
+  double maximal_number_of_signal_events;
+  double maximal_number_of_background_events;
+
+  if ((figure_of_merit == "Signal Efficiency") || (figure_of_merit == "Background Rejection")){
+    max_number_of_events_per_component = NumberOfEventsPerComponent(stuple, "", debug_mode);
+    maximal_number_of_signal_events = max_number_of_events_per_component[signal_component];
+    maximal_number_of_background_events = max_number_of_events_per_component[background_component];
+  }
+
+  if (figure_of_merit == "Significance"){
+    fom_value = number_of_signal_events/sqrt(number_of_signal_events+number_of_background_events);
+  }
+  else if (figure_of_merit == "Weighted Significance"){
+    const double alpha = 100;
+    number_of_signal_events = number_of_signal_events/alpha;
+    fom_value = number_of_signal_events/sqrt(number_of_signal_events+number_of_background_events);
+  }
+  else if (figure_of_merit == "Purity"){
+    fom_value = number_of_signal_events/(number_of_signal_events+number_of_background_events);
+  }
+  else if (figure_of_merit == "Punzi"){
+    const double alpha = 2;
+    fom_value = number_of_signal_events/((alpha/2)+sqrt(number_of_background_events));
+  }
+  else if (figure_of_merit == "Signal Efficiency"){
+    fom_value = number_of_signal_events/maximal_number_of_signal_events;
+  }
+  else if (figure_of_merit == "Background Rejection"){
+    fom_value = (1-(number_of_background_events/maximal_number_of_background_events));
+  }
+  else{
+    doocore::io::serr << "Please define a valid figure of merit!" << doocore::io::endmsg;
+    doocore::io::serr << "Possible FoMs are: Significance, Weighted Significance, Purity, Punzi, Signal Efficiency, and Background Rejection" << doocore::io::endmsg;
+    abort;
+  }
+  if (debug_mode) doocore::io::serr << "-debug- \t" << figure_of_merit << ": " << fom_value << doocore::io::endmsg;
+  return fom_value;
+}
+
+/// calculate FoM distribution for different cut values in a given range
+std::vector< std::pair<double, double> > FoMDistribution(SelectionTuple &stuple, SelectionClassifier &classifier, std::string signal_component, std::string background_component, std::string figure_of_merit, bool debug_mode){
+  if (debug_mode) doocore::io::serr << "-debug- " << "starting doocore::performance::FoMDistribution() ..." << doocore::io::endmsg;
+  std::vector<double> steps = classifier.steps();
+  
+  std::pair<double, double> xy_values;
+  std::vector< std::pair<double, double> > vector_of_xy_values;
+
+  std::string cut_string;
+
+  double fom_value = 0;
+
+  for(std::vector<double>::iterator it = steps.begin(); it != steps.end(); it++){
+    cut_string=classifier.name()+classifier.cut_operator()+boost::lexical_cast<std::string>(*it);
+    if (debug_mode) doocore::io::serr << "-debug- " << "cut string: " << cut_string << doocore::io::endmsg;
+  }
+
+  // for (double cut_value = classifier.range_min(); cut_value < classifier.range_max(); cut_value+=1) 
+  // {
+  //   fom_value = FoM(stuple, signal_component, background_component, cut_string, figure_of_merit, debug_mode);
+
+  //   if (std::isfinite(fom_value)){
+  //       xy_values.first = cut_value - 1/2;
+  //       xy_values.second = fom_value;
+  //       vector_of_xy_values.push_back(xy_values);
+  //   }
+  // }
+  return vector_of_xy_values;
 }
 
 } // namespace performance
