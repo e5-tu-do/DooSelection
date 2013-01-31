@@ -8,6 +8,8 @@
 #include <string>
 
 // from ROOT
+#include "TCanvas.h"
+#include "TAxis.h"
 
 // from RooFit
 #include "RooAbsPdf.h"
@@ -22,6 +24,7 @@
 
 // from DooCore
 #include "doocore/io/MsgStream.h"
+#include "doocore/lutils/lutils.h"
 
 // from DooFit
 #include "doofit/builder/EasyPdf/EasyPdf.h"
@@ -161,7 +164,8 @@ double FoM(SelectionTuple &stuple, std::string signal_component, std::string bac
 std::vector< std::pair<double, double> > FoMDistribution(SelectionTuple &stuple, SelectionClassifier &classifier, std::string signal_component, std::string background_component, std::string figure_of_merit, bool debug_mode){
   if (debug_mode) doocore::io::serr << "-debug- " << "starting doocore::performance::FoMDistribution() ..." << doocore::io::endmsg;
   std::vector<double> steps = classifier.steps();
-  
+  double step_size = steps.at(1)-steps.at(0);
+
   std::pair<double, double> xy_values;
   std::vector< std::pair<double, double> > vector_of_xy_values;
 
@@ -171,20 +175,112 @@ std::vector< std::pair<double, double> > FoMDistribution(SelectionTuple &stuple,
 
   for(std::vector<double>::iterator it = steps.begin(); it != steps.end(); it++){
     cut_string=classifier.name()+classifier.cut_operator()+boost::lexical_cast<std::string>(*it);
-    if (debug_mode) doocore::io::serr << "-debug- " << "cut string: " << cut_string << doocore::io::endmsg;
+    fom_value = FoM(stuple, signal_component, background_component, cut_string, figure_of_merit, debug_mode);
+
+    if (std::isfinite(fom_value)){
+        xy_values.first = (*it) - step_size/2;
+        xy_values.second = fom_value;
+        vector_of_xy_values.push_back(xy_values);
+    }
   }
 
-  // for (double cut_value = classifier.range_min(); cut_value < classifier.range_max(); cut_value+=1) 
-  // {
-  //   fom_value = FoM(stuple, signal_component, background_component, cut_string, figure_of_merit, debug_mode);
-
-  //   if (std::isfinite(fom_value)){
-  //       xy_values.first = cut_value - 1/2;
-  //       xy_values.second = fom_value;
-  //       vector_of_xy_values.push_back(xy_values);
-  //   }
-  // }
   return vector_of_xy_values;
+}
+
+/// plot FoM distribution in a given range
+void PlotFoMDistribution(std::vector< std::pair<double, double> > fom_distribution, SelectionClassifier& classifier, std::string figure_of_merit, std::string output_prefix, bool debug_mode){
+  if (debug_mode) doocore::io::serr << "-debug- " << "starting selection::PlotFoMDistribution() ..." << doocore::io::endmsg;
+  doocore::lutils::setStyle();
+
+  int entries = fom_distribution.size();
+
+  double x_values[entries];
+  double y_values[entries];
+
+  // fill arrays
+  for(unsigned int i = 0; i < entries; ++i) {
+    x_values[i] = fom_distribution.at(i).first;
+    y_values[i] = fom_distribution.at(i).second;
+  }
+
+  TCanvas canvas("canvas", "canvas", 800, 600);
+  TGraph xy_graph(entries, x_values, y_values);
+
+  xy_graph.SetTitle("");
+  xy_graph.GetXaxis()->SetTitle(TString(classifier.name()));
+  xy_graph.GetYaxis()->SetTitle(TString(figure_of_merit));
+
+  xy_graph.Draw("ac*");
+
+  doocore::lutils::printPlot (&canvas, figure_of_merit+"_"+classifier.title(), output_prefix+"/FigureOfMerit/");
+}
+
+/// plot FoM distribution in a given range
+void PlotFoMDistribution(SelectionTuple& stuple, SelectionClassifier& classifier, std::string signal_component, std::string background_component, std::string figure_of_merit, std::string output_prefix, bool debug_mode){
+  PlotFoMDistribution(FoMDistribution(stuple, classifier, signal_component, background_component, figure_of_merit, debug_mode), classifier, figure_of_merit, output_prefix, debug_mode);
+}
+
+// =======================================
+// RECEIVER OPERATING CHARACTERISTIC (ROC)
+// =======================================
+/// calculate ROC for a given classifier
+std::vector< std::pair<double, double> > ROC(SelectionTuple &stuple, SelectionClassifier& classifier, std::string signal_component, std::string background_component, bool debug_mode){
+  if (debug_mode) doocore::io::serr << "-debug- " << "starting doocore::performance::ROC ..." << doocore::io::endmsg;
+  std::vector<double> steps = classifier.steps();
+  double step_size = steps.at(1)-steps.at(0);
+
+  std::pair<double, double> xy_values;
+  std::vector< std::pair<double, double> > vector_of_xy_values;
+
+  std::string cut_string;
+
+  double signal_efficiency = 0.;
+  double background_rejection = 0.;
+
+  for(std::vector<double>::iterator it = steps.begin(); it != steps.end(); it++){
+    cut_string=classifier.name()+classifier.cut_operator()+boost::lexical_cast<std::string>(*it);
+    signal_efficiency = FoM(stuple, signal_component, background_component, cut_string, "Signal Efficiency", debug_mode);
+    background_rejection = FoM(stuple, signal_component, background_component, cut_string, "Background Rejection", debug_mode);
+
+    if (std::isfinite(signal_efficiency) || (std::isfinite(background_rejection))){
+        xy_values.first = signal_efficiency;
+        xy_values.second = background_rejection;
+        vector_of_xy_values.push_back(xy_values);
+    }
+  }
+  return vector_of_xy_values;
+}
+
+// plot ROC Curve
+void PlotROCCurve(std::vector< std::pair<double, double> > roc, std::string classifier_name, std::string output_prefix, bool debug_mode){
+  if (debug_mode) doocore::io::serr << "-debug- " << "starting doocore::performance::PlotROCCurve() ..." << doocore::io::endmsg;
+  doocore::lutils::setStyle();
+
+  int entries = roc.size();
+
+  double x_values[entries];
+  double y_values[entries];
+
+  // fill arrays
+  for(unsigned int i = 0; i < entries; ++i) {
+    x_values[i] = roc.at(i).first;
+    y_values[i] = roc.at(i).second;
+  }
+
+  TCanvas canvas("canvas", "canvas", 800, 600);
+  TGraph xy_graph(entries, x_values, y_values);
+
+  xy_graph.SetTitle("ROC Curve");
+  xy_graph.GetXaxis()->SetTitle("Signal Efficiency");
+  xy_graph.GetYaxis()->SetTitle("Background Rejection");
+
+  xy_graph.Draw("ac*");
+
+  doocore::lutils::printPlot (&canvas, "ROC_"+classifier_name, output_prefix+"/FigureOfMerit/");
+}
+
+void PlotROCCurve(SelectionTuple &stuple, SelectionClassifier& classifier, std::string signal_component, std::string background_component, bool debug_mode){
+  PlotROCCurve(ROC(stuple, classifier, signal_component, background_component, debug_mode), classifier.title(), stuple.title(), debug_mode);
 }
 
 } // namespace performance

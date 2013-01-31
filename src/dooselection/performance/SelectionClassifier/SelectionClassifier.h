@@ -227,7 +227,7 @@ namespace performance{
     range_min_(range_min),
     range_max_(range_max),
     step_size_(0),
-		steps_(steps)
+	steps_(steps)
     {
     	if (debug_mode_) doocore::io::serr << "-debug- " << "Created new SelectionClassifier '" << title << "'..." << doocore::io::endmsg;
     	if (debug_mode_) doocore::io::serr << "-debug- \t" << "range: " << range_min_ << "-" << range_max_ << doocore::io::endmsg;
