@@ -56,8 +56,8 @@ std::map<std::string, double> NumberOfEventsPerComponent(SelectionTuple &stuple,
   }
   else if(stuple.use_fit()){
     if (debug_mode) doocore::io::serr << "-debug- \t" << "using a fit…" << doocore::io::endmsg;
-    if (debug_mode) doocore::io::serr << "-debug- \t" << "with PDF:" << doocore::io::endmsg;
-    if (debug_mode) stuple.epdf().Pdf("pdf").printCompactTree();
+    // if (debug_mode) doocore::io::serr << "-debug- \t" << "with PDF:" << doocore::io::endmsg;
+    // if (debug_mode) stuple.epdf().Pdf("pdf").printCompactTree();
 
     // cut on data
     RooAbsData* data;
