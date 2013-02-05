@@ -166,6 +166,9 @@ namespace performance{
     doocore::io::EasyTuple& etuple(){
     	return *etuple_;
     }
+    TTree* tree(){
+      return &(etuple_->tree());
+    }
     RooDataSet& dataset(){
       if (dataset_exists_){
         return (etuple_->dataset());

@@ -34,9 +34,19 @@ class SelectionClassifier;
 // ==============================
 std::map<std::string, double> NumberOfEventsPerComponent(SelectionTuple &stuple, std::string cut_string, bool debug_mode=false);
 
-// =====================
+// =======================
+// CLASSIFIER DISTRIBUTION
+// =======================
+void PlotClassiferDistribution(SelectionTuple& stuple, SelectionClassifier& classifier, int nbins=100, bool debug_mode=false);
+
+// ===============
+//  CUT EFFICIENCY
+// ===============
+void PlotCutEfficiency(SelectionTuple& stuple, SelectionClassifier& classifier, std::string figure_of_merit="Significance", int nbins=100, bool debug_mode=false);
+
+// ==============
 // FIGURE OF MERIT (FoM)
-// =====================
+// ==============
 /// calculate FoM for a single cut value
 double FoM(SelectionTuple& stuple, std::string signal_component, std::string background_component, std::string cut_string, std::string figure_of_merit="Significance", bool debug_mode=false);
 
@@ -45,11 +55,11 @@ std::vector< std::pair<double, double> > FoMDistribution(SelectionTuple& stuple,
 
 /// plot FoM distribution in a given range
 void PlotFoMDistribution(std::vector< std::pair<double, double> > fom_distribution, SelectionClassifier& classifier, std::string figure_of_merit="Significance", std::string output_prefix="", bool debug_mode=false);
-void PlotFoMDistribution(SelectionTuple& stuple, SelectionClassifier& classifier, std::string signal_component, std::string background_component, std::string figure_of_merit="Significance", std::string output_prefix="", bool debug_mode=false);
+void PlotFoMDistribution(SelectionTuple& stuple, SelectionClassifier& classifier, std::string signal_component, std::string background_component, std::string figure_of_merit="Significance", bool debug_mode=false);
 
-// =======================================
+// ===========================
 // RECEIVER OPERATING CHARACTERISTIC (ROC)
-// =======================================
+// ===========================
 /// calculate ROC for a given classifier
 std::vector< std::pair<double, double> > ROC(SelectionTuple& stuple, SelectionClassifier& classifier, std::string signal_component, std::string background_component, bool debug_mode=false);
 

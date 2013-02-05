@@ -24,7 +24,7 @@ namespace dooselection{
 namespace performance{
   class SelectionClassifier{
    public:
-    SelectionClassifier(std::string name, std::string title, double range_min, double range_max, bool debug_mode=false):
+    SelectionClassifier(std::string name, std::string title, double range_min=0.0, double range_max=0.0, bool debug_mode=false):
     debug_mode_(debug_mode),
     use_number_of_steps_(false),
     use_step_size_(false),
@@ -251,7 +251,7 @@ namespace performance{
       cut_operator_=cut_operator;
     }
     void set_best_cut_string(std::string best_cut_string){
-    	best_cut_string=best_cut_string_;
+    	best_cut_string_=best_cut_string;
     }
     void set_number_of_steps(int number_of_steps){
     	number_of_steps_=number_of_steps;
