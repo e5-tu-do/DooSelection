@@ -30,8 +30,8 @@ namespace performance{
   class SelectionTuple{
    public:
     SelectionTuple(std::string name, std::string title, doocore::io::EasyTuple* etuple, std::map<std::string, std::string> map_of_components_and_cuts, bool debug_mode=false):
-   	debug_mode_(debug_mode),
-   	name_(name),
+    debug_mode_(debug_mode),
+    name_(name),
     title_(title),
     etuple_(etuple),
     dataset_(),
@@ -54,8 +54,8 @@ namespace performance{
     }
 
     SelectionTuple(std::string name, std::string title, doocore::io::EasyTuple* etuple, std::map<std::string, std::string> map_of_components_and_sweights, double sweight_range_min, double sweight_range_max, bool debug_mode=false):
-   	debug_mode_(debug_mode),
-   	name_(name),
+    debug_mode_(debug_mode),
+    name_(name),
     title_(title),
     etuple_(etuple),
     dataset_(),
@@ -78,8 +78,8 @@ namespace performance{
     }
 
     SelectionTuple(std::string name, std::string title, doocore::io::EasyTuple* etuple, doofit::builder::EasyPdf* epdf, std::string observable_name, std::map<std::string, std::string> map_of_components_and_pdfs, std::map<std::string, std::string> map_of_components_and_yields, double fit_range_min, double fit_range_max, bool debug_mode=false):
-   	debug_mode_(debug_mode),
-   	name_(name),
+    debug_mode_(debug_mode),
+    name_(name),
     title_(title),
     etuple_(etuple),
     dataset_(),

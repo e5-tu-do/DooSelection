@@ -171,10 +171,10 @@ void PlotClassiferDistribution(SelectionTuple& stuple, SelectionClassifier& clas
     if (debug_mode) doocore::io::serr << "-debug- " << "2" << doocore::io::endmsg;
 
     /// calculate range of classifier distribution
-    // std::pair<double,double> minmax = doocore::lutils::MedianLimitsForTuple(*tree, classifier.name());
-    std::pair<double,double> minmax;
-    minmax.first = 3.23303;
-    minmax.second = 6483.23;
+    std::pair<double,double> minmax = doocore::lutils::MedianLimitsForTuple(*tree, classifier.name());
+    // std::pair<double,double> minmax;
+    // minmax.first = 3.23303;
+    // minmax.second = 6483.23;
 
     if (debug_mode) doocore::io::serr << "-debug- \t" << classifier.title() << ": min " << minmax.first << " max " << minmax.second << doocore::io::endmsg;
 
@@ -246,8 +246,11 @@ void PlotCutEfficiency(SelectionTuple& stuple, SelectionClassifier& classifier, 
   if (debug_mode) doocore::io::serr << "-debug- \t" << "classifier "<< classifier.title() << doocore::io::endmsg;
   if (debug_mode) doocore::io::serr << "-debug- \t" << "cut string "<< classifier.best_cut_string() << doocore::io::endmsg;
   
-  TH1D* hist_without_cuts = new TH1D("hist_without_cuts", "hist_without_cuts", 100, 5220, 5320);
-  TH1D* hist_with_cuts = new TH1D("hist_with_cuts", "hist_with_cuts", 100, 5220, 5320);
+  double massrange_min = 5220.;
+  double massrange_max = 5500.;
+  doocore::io::swarn << "-dooselection::performance::PlotCutEfficiency- \t" << "Check correct mass range! (min: " << massrange_min << ", max: " << massrange_max << ")" << doocore::io::endmsg;
+  TH1D* hist_without_cuts = new TH1D("hist_without_cuts", "hist_without_cuts", 100, massrange_min, massrange_max);
+  TH1D* hist_with_cuts = new TH1D("hist_with_cuts", "hist_with_cuts", 100, massrange_min, massrange_max);
 
   std::map<std::string, double> events_per_component = NumberOfEventsPerComponent(stuple, classifier.best_cut_string(), debug_mode);
 
@@ -260,6 +263,7 @@ void PlotCutEfficiency(SelectionTuple& stuple, SelectionClassifier& classifier, 
   TCanvas* canvas= new TCanvas("canvas", "canvas", 800, 600);
 
   std::string mass_variable = "B0_LOKI_MASS_JpsiKSConstr";
+  doocore::io::swarn << "-dooselection::performance::PlotCutEfficiency- \t" << "Check correct mass variable! (" << mass_variable << ")" << doocore::io::endmsg;
 
   stuple.tree()->Draw(TString(mass_variable)+">>hist_without_cuts");
   hist_without_cuts->SetLineColor(kBlack);
@@ -273,7 +277,7 @@ void PlotCutEfficiency(SelectionTuple& stuple, SelectionClassifier& classifier, 
   hist_with_cuts->SetFillStyle(3003);
   
   TString label = Form(TString("#splitline{#splitline{#splitline{#bf{")+ classifier.title() +"}}{Signal events: %.0f}}{Background events: %.0f}}{#splitline{#splitline{Signal efficiency: %.2f %}{Background Rejection: %.2f %}}{"+figure_of_merit+": %.3f}}",signal_events, background_events, signal_efficiency*100, background_rejection*100, fom_value);
-  TLatex latex_label(0.18, 0.84, label);
+  TLatex latex_label(0.5, 0.84, label);
   latex_label.SetNDC();
   latex_label.SetTextSize(0.02);
   latex_label.SetTextColor(1);
