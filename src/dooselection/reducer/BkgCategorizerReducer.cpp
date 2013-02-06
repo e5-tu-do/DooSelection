@@ -39,7 +39,7 @@ void BkgCategorizerReducer::PrepareSpecialBranches() {
   
   sinfo << "Starting analysis of MC associated decays." << endmsg;
  
-  if (decay_matrix_length_leaf_ == NULL) {
+  if (decay_matrix_length_leaf_ == NULL && decay_matrix_length_leaf_ != NULL) {
     serr << "Decay matrix length not set! BkgCategorizerReducer can no longer work. Set via BkgCategorizerReducer::set_decay_matrix_length_leaf(...)!" << endmsg;
   }
  
