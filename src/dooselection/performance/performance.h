@@ -38,6 +38,7 @@ std::map<std::string, double> NumberOfEventsPerComponent(SelectionTuple &stuple,
 // CLASSIFIER DISTRIBUTION
 // =======================
 void PlotClassiferDistribution(SelectionTuple& stuple, SelectionClassifier& classifier, int nbins=100, bool debug_mode=false);
+void PlotClassiferDistributionOLD(SelectionTuple& stuple, SelectionClassifier& classifier, int nbins=100, bool debug_mode=false);
 
 // ===============
 //  CUT EFFICIENCY

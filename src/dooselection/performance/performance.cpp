@@ -46,12 +46,12 @@ namespace performance{
 // NUMBER OF EVENTS PER COMPONENT
 // ==============================
 std::map<std::string, double> NumberOfEventsPerComponent(SelectionTuple &stuple, std::string cut_string, bool debug_mode){
-  if (debug_mode) if (cut_string!="") doocore::io::serr << "-debug- " << "starting doocore::performance::NumberOfEvents() with cut '" << cut_string << "'…" << doocore::io::endmsg;
-  if (debug_mode) if (cut_string=="") doocore::io::serr << "-debug- " << "starting doocore::performance::NumberOfEvents() without cut" << doocore::io::endmsg;
+  if (debug_mode) if (cut_string!="") doocore::io::serr << "-debug- " << "starting doocore::performance::NumberOfEventsPerComponent() with cut '" << cut_string << "'…" << doocore::io::endmsg;
+  if (debug_mode) if (cut_string=="") doocore::io::serr << "-debug- " << "starting doocore::performance::NumberOfEventsPerComponent() without cut" << doocore::io::endmsg;
   std::map<std::string, double> components_and_yield_values;
 
   if(stuple.use_mc()){
-    doocore::io::serr << "-ERROR- \t" << "NumberOfEvents(SelectionTuple &stuple, std::string cut, bool debug_mode)- MC not yet implemented" << doocore::io::endmsg;
+    doocore::io::serr << "-ERROR- \t" << "NumberOfEventsPerComponent(SelectionTuple &stuple, std::string cut_string, bool debug_mode)- MC not yet implemented" << doocore::io::endmsg;
     return components_and_yield_values;
   } 
   else if(stuple.use_sweights()){
@@ -116,11 +116,10 @@ std::map<std::string, double> NumberOfEventsPerComponent(SelectionTuple &stuple,
     else{
       stuple.epdf().Pdf("pdf").getParameters(data)->readFromFile(TString(handover_filename));
     }
-    
     stuple.epdf().Pdf("pdf").fitTo(*data, RooFit::Minimizer("Minuit2", "minimize"), RooFit::NumCPU(16), RooFit::Strategy(2), RooFit::Extended());
     stuple.epdf().Pdf("pdf").getParameters(data)->writeToFile(TString(handover_filename));
     stuple.epdf().Pdf("pdf").getParameters(data)->writeToFile(TString("FitResults_")+cut_string+".out");
-    doocore::io::tools::ReplaceScientificNotationInFile(handover_filename, true);
+    if (cut_string!="") doocore::io::tools::ReplaceScientificNotationInFile(handover_filename, debug_mode);
 
     // plot
     RooArgList plot_pdfs;
@@ -180,7 +179,7 @@ void PlotClassiferDistribution(SelectionTuple& stuple, SelectionClassifier& clas
 
     if (debug_mode) doocore::io::serr << "-debug- " << "3" << doocore::io::endmsg;
     /// prepare TTree variable handling
-    double classifier_value;    
+    float classifier_value;    
     tree->SetBranchAddress(TString(classifier.name()), &classifier_value);
 
     /// vector of histogram pointers
@@ -222,11 +221,12 @@ void PlotClassiferDistribution(SelectionTuple& stuple, SelectionClassifier& clas
         vector_of_histograms.at(i)->SetFillStyle(3005);
         vector_of_histograms.at(i)->SetMinimum(0);
         vector_of_histograms.at(i)->SetXTitle(TString(classifier.name()));
+        vector_of_histograms.at(i)->Draw();
       }
     }
 
     TCanvas* canvas = new TCanvas("canvas", "canvas", 800, 600);
-    doocore::lutils::drawNormalizedOrdered(vector_of_histograms);
+    // doocore::lutils::drawNormalizedOrdered(vector_of_histograms);
     doocore::lutils::printPlot(canvas, classifier.title()+"_distribution", stuple.title()+"/ClassifierDistribution/");
   }
   else if (stuple.use_fit()){
@@ -234,6 +234,68 @@ void PlotClassiferDistribution(SelectionTuple& stuple, SelectionClassifier& clas
   }
   else{
     doocore::io::serr << "-PlotClassiferDistribution(SelectionTuple &stuple, SelectionClassifier classifier, int nbins, bool debug_mode)- error hello67" << doocore::io::endmsg;
+  }
+}
+
+void PlotClassiferDistributionOLD(SelectionTuple& stuple, SelectionClassifier& classifier, int nbins, bool debug_mode){
+  if (debug_mode) doocore::io::serr << "-debug- " << "starting selection::PlotClassiferDistributionOLD() ..." << doocore::io::endmsg;
+  doocore::lutils::setStyle("LHCb");
+  if (stuple.use_sweights()){
+    
+    TTree * tree = stuple.tree();
+
+    double sig_sweight, bkg_sweight;
+    float classifier_value;
+    int nentries = tree->GetEntries();
+    std::pair<double,double> minmax = doocore::lutils::MedianLimitsForTuple(*tree, classifier.name());
+    if (debug_mode) doocore::io::serr << "-debug- " << "min " << minmax.first << " max " << minmax.second << doocore::io::endmsg;
+
+    tree->SetBranchAddress(TString("sweight_sig"), &sig_sweight);
+    tree->SetBranchAddress(TString("sweight_bkg"), &bkg_sweight);
+    tree->SetBranchAddress(TString(classifier.name()), &classifier_value);
+    
+    TH1D* sig_hist = new TH1D("sig_hist", "sig_hist", nbins, minmax.first , minmax.second);
+    TH1D* bkg_hist = new TH1D("bkg_hist", "bkg_hist", nbins, minmax.first , minmax.second);
+
+    for (int i = 0; i < nentries; ++i)
+    {
+      tree->GetEvent(i);
+
+      sig_hist->Fill(classifier_value, sig_sweight);
+      bkg_hist->Fill(classifier_value, bkg_sweight);
+    }    
+
+    sig_hist->SetLineColor(kBlue);
+    sig_hist->SetMarkerColor(kBlue);
+    sig_hist->SetFillColor(kBlue-9);
+    sig_hist->SetFillStyle(3005);
+    sig_hist->SetMinimum(0);
+    sig_hist->SetXTitle(TString(classifier.name()));
+
+    bkg_hist->SetLineColor(kRed);
+    bkg_hist->SetMarkerColor(kRed);
+    bkg_hist->SetFillColor(kRed-9);
+    bkg_hist->SetFillStyle(3004);
+    bkg_hist->SetMinimum(0);
+    bkg_hist->SetXTitle(TString(classifier.name()));
+
+    TCanvas* canvas = new TCanvas("canvas", "canvas", 800, 600);
+  
+    doocore::lutils::drawNormalizedOrdered(sig_hist, bkg_hist);
+    doocore::lutils::printPlot (canvas, classifier.title()+"_distribution", stuple.title()+"/ClassifierDistribution/");
+
+    delete sig_hist;
+    delete bkg_hist;
+    delete canvas;
+  }
+  else if (stuple.use_mc()){
+    doocore::io::serr << "-SelectionTuple- not yet implemented" << doocore::io::endmsg;
+  } 
+  else if (stuple.use_fit()){
+    doocore::io::serr << "-SelectionTuple- not yet implemented" << doocore::io::endmsg;
+  }
+  else{
+    doocore::io::serr << "-SelectionTuple- error hello67" << doocore::io::endmsg;
   }
 }
 
