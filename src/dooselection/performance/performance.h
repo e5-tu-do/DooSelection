@@ -43,7 +43,9 @@ void PlotClassiferDistributionOLD(SelectionTuple& stuple, SelectionClassifier& c
 // ===============
 //  CUT EFFICIENCY
 // ===============
-void PlotCutEfficiency(SelectionTuple& stuple, SelectionClassifier& classifier, std::string figure_of_merit="Significance", int nbins=100, bool debug_mode=false);
+void PlotCutEfficiency(SelectionTuple& stuple, SelectionClassifier& classifier, std::string cut_string, std::string figure_of_merit="Significance", std::string output_prefix="", int nbins=100, bool logscale=false, bool debug_mode=false);
+void PlotCutEfficiency(SelectionTuple& stuple, SelectionClassifier& classifier, std::string figure_of_merit="Significance", int nbins=100, bool logscale=false, bool debug_mode=false);
+void PlotCutEfficiencyScan(SelectionTuple& stuple, SelectionClassifier& classifier, std::string figure_of_merit="Significance", int nbins=100, bool logscale=false, bool debug_mode=false);
 
 // ==============
 // FIGURE OF MERIT (FoM)
