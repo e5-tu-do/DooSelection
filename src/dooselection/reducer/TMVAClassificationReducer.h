@@ -45,6 +45,18 @@ class TMVAClassificationReducer : virtual public Reducer {
 		tmva_xml_file_ 	= tmva_xml_file;
 	}
   
+  template<class T>
+  void SetTMVAVariable(const std::string& var_name, const ReducerLeaf<T>& leaf) {
+    if (tmva_xml_file_.Length() > 0) {
+      if (leaf.type() == "Float_t") {
+        tmva_reader_->AddVariable(var_name, leaf.branch_address());
+      } else {
+        ReducerLeaf<Float_t>& tmva_float_copy_leaf = CreateFloatCopyLeaf(leaf.name()+"_tmvafloatcopy", leaf);
+        tmva_reader_->AddVariable(var_name, (Float_t*)tmva_float_copy_leaf.branch_address());
+      }
+    }
+  }
+  
   void SetTMVAVariable(const std::string& var_name, Float_t* addr) {
     if (tmva_xml_file_.Length() > 0) tmva_reader_->AddVariable(var_name.c_str(), addr);
   }
