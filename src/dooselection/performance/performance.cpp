@@ -60,16 +60,17 @@ std::map<std::string, double> NumberOfEventsPerComponent(SelectionTuple &stuple,
     int nbins = 100;
 
     /// loop over components
-    for(std::map< std::string, std::string >::const_iterator it = stuple.map_of_components_and_sweights().begin(); it != stuple.map_of_components_and_sweights().end(); it++){
+    std::map< std::string, std::string > map_of_components_and_sweights = stuple.map_of_components_and_sweights();
+    for(std::map< std::string, std::string >::const_iterator ita = map_of_components_and_sweights.begin(); ita != map_of_components_and_sweights.end(); ita++){
       double number_of_events = 0.;
 
       /// set sweight for current component
-      std::string sweight = (*it).second;
+      std::string sweight = (*ita).second;
       if (debug_mode) doocore::io::serr << "-debug- \t" << "sweight: " << sweight << doocore::io::endmsg;
       
-      TH1D* hist = new TH1D("hist", "hist", nbins, stuple.sweight_min(), stuple.sweight_max());
+      TH1D hist("hist", "hist", nbins, stuple.sweight_min(), stuple.sweight_max());
 
-      TCanvas * canvas = new TCanvas("canvas", "canvas", 800, 600);
+      TCanvas canvas("canvas", "canvas", 800, 600);
       stuple.tree()->Draw(TString(sweight)+">>hist", TString(cut_string));
 
       double sum_of_sweights = 0.;
@@ -78,17 +79,17 @@ std::map<std::string, double> NumberOfEventsPerComponent(SelectionTuple &stuple,
 
       for (int i = 1; i < nbins; ++i)
       {
-        bin_content = hist->GetBinContent(i);
-        bin_center = hist->GetBinCenter(i);
+        bin_content = hist.GetBinContent(i);
+        bin_center = hist.GetBinCenter(i);
         sum_of_sweights += bin_center*bin_content;
       }
       number_of_events = sum_of_sweights;
-      components_and_yield_values[(*it).first]=number_of_events;
+      components_and_yield_values[(*ita).first]=number_of_events;
 
-      if (debug_mode) doocore::io::serr << "-debug- \t" << "Sum of " << (*it).first << " events: " << number_of_events << " @cut: " << cut_string << doocore::io::endmsg;
+      if (debug_mode) doocore::io::serr << "-debug- \t" << "Sum of " << (*ita).first << " events: " << number_of_events << " @cut: " << cut_string << doocore::io::endmsg;
 
-      delete hist;
-      delete canvas;
+      //delete hist;
+      //delete canvas;
     }
     return components_and_yield_values;
   }
@@ -170,10 +171,10 @@ void PlotClassiferDistribution(SelectionTuple& stuple, SelectionClassifier& clas
     if (debug_mode) doocore::io::serr << "-debug- " << "2" << doocore::io::endmsg;
 
     /// calculate range of classifier distribution
-    std::pair<double,double> minmax = doocore::lutils::MedianLimitsForTuple(*tree, classifier.name());
-    // std::pair<double,double> minmax;
-    // minmax.first = 3.23303;
-    // minmax.second = 6483.23;
+    // std::pair<double,double> minmax = doocore::lutils::MedianLimitsForTuple(*tree, classifier.name());
+    std::pair<double,double> minmax;
+    minmax.first = classifier.range_min();
+    minmax.second = classifier.range_max();
 
     if (debug_mode) doocore::io::serr << "-debug- \t" << classifier.title() << ": min " << minmax.first << " max " << minmax.second << doocore::io::endmsg;
 
@@ -247,7 +248,10 @@ void PlotClassiferDistributionOLD(SelectionTuple& stuple, SelectionClassifier& c
     double sig_sweight, bkg_sweight;
     float classifier_value;
     int nentries = tree->GetEntries();
-    std::pair<double,double> minmax = doocore::lutils::MedianLimitsForTuple(*tree, classifier.name());
+    // std::pair<double,double> minmax = doocore::lutils::MedianLimitsForTuple(*tree, classifier.name());
+    std::pair<double,double> minmax;
+    minmax.first = classifier.range_min();
+    minmax.second = classifier.range_max();
     if (debug_mode) doocore::io::serr << "-debug- " << "min " << minmax.first << " max " << minmax.second << doocore::io::endmsg;
 
     tree->SetBranchAddress(TString("sweight_sig"), &sig_sweight);
@@ -257,8 +261,11 @@ void PlotClassiferDistributionOLD(SelectionTuple& stuple, SelectionClassifier& c
     TH1D* sig_hist = new TH1D("sig_hist", "sig_hist", nbins, minmax.first , minmax.second);
     TH1D* bkg_hist = new TH1D("bkg_hist", "bkg_hist", nbins, minmax.first , minmax.second);
 
-    for (int i = 0; i < nentries; ++i)
-    {
+    // for (int i = 0; i < nentries; ++i){
+    for (int i = 0; i < 10000; ++i){
+      if ((i%10000)==0){
+        doocore::io::sout << "Event #" << i << doocore::io::endmsg;
+      }
       tree->GetEvent(i);
 
       sig_hist->Fill(classifier_value, sig_sweight);
@@ -354,7 +361,7 @@ void PlotCutEfficiency(SelectionTuple& stuple, SelectionClassifier& classifier, 
 }
 
 void PlotCutEfficiency(SelectionTuple& stuple, SelectionClassifier& classifier, std::string figure_of_merit, int nbins, bool logscale, bool debug_mode){
-  PlotCutEfficiency(stuple, classifier, classifier.best_cut_string(), figure_of_merit, "best_cut", nbins, debug_mode);
+  PlotCutEfficiency(stuple, classifier, classifier.best_cut_string(), figure_of_merit, "best_cut", nbins, logscale, debug_mode);
 }
 
 void PlotCutEfficiencyScan(SelectionTuple& stuple, SelectionClassifier& classifier, std::string figure_of_merit, int nbins, bool logscale, bool debug_mode){
@@ -375,7 +382,7 @@ void PlotCutEfficiencyScan(SelectionTuple& stuple, SelectionClassifier& classifi
   for (int i = 0; i < number_of_scan_points; ++i)
   {
     cut_string = classifier.name()+classifier.cut_operator()+boost::lexical_cast<std::string>(scan_points.at(i));
-    PlotCutEfficiency(stuple, classifier, cut_string, figure_of_merit, boost::lexical_cast<std::string>(scan_points.at(i)), nbins, debug_mode);
+    PlotCutEfficiency(stuple, classifier, cut_string, figure_of_merit, boost::lexical_cast<std::string>(scan_points.at(i)), nbins, logscale, debug_mode);
   }
 }
 
@@ -396,51 +403,53 @@ double FoM(SelectionTuple &stuple, std::string signal_component, std::string bac
   std::map<std::string, double> number_of_events_per_component = NumberOfEventsPerComponent(stuple, cut_string, debug_mode);
   std::map<std::string, double> max_number_of_events_per_component;
 
-  double number_of_signal_events = number_of_events_per_component[signal_component];
-  double number_of_background_events = number_of_events_per_component[background_component];
-  double maximal_number_of_signal_events;
-  double maximal_number_of_background_events;
+  // double number_of_signal_events = number_of_events_per_component[signal_component];
+  // double number_of_background_events = number_of_events_per_component[background_component];
+  // double maximal_number_of_signal_events;
+  // double maximal_number_of_background_events;
 
-  if ((figure_of_merit == "Signal Efficiency") || (figure_of_merit == "Background Rejection")){
-    max_number_of_events_per_component = NumberOfEventsPerComponent(stuple, "", debug_mode);
-    maximal_number_of_signal_events = max_number_of_events_per_component[signal_component];
-    maximal_number_of_background_events = max_number_of_events_per_component[background_component];
-  }
+  // if ((figure_of_merit == "Signal Efficiency") || (figure_of_merit == "Background Rejection")){
+  //   max_number_of_events_per_component = NumberOfEventsPerComponent(stuple, "", debug_mode);
+  //   maximal_number_of_signal_events = max_number_of_events_per_component[signal_component];
+  //   maximal_number_of_background_events = max_number_of_events_per_component[background_component];
+  // }
 
-  if (figure_of_merit == "Significance"){
-    fom_value = number_of_signal_events/sqrt(number_of_signal_events+number_of_background_events);
-  }
-  else if (figure_of_merit == "Weighted Significance"){
-    const double alpha = 100;
-    number_of_signal_events = number_of_signal_events/alpha;
-    fom_value = number_of_signal_events/sqrt(number_of_signal_events+number_of_background_events);
-  }
-  else if (figure_of_merit == "Purity"){
-    fom_value = number_of_signal_events/(number_of_signal_events+number_of_background_events);
-  }
-  else if (figure_of_merit == "Punzi"){
-    const double alpha = 2;
-    fom_value = number_of_signal_events/((alpha/2)+sqrt(number_of_background_events));
-  }
-  else if (figure_of_merit == "Signal Efficiency"){
-    fom_value = number_of_signal_events/maximal_number_of_signal_events;
-  }
-  else if (figure_of_merit == "Background Rejection"){
-    fom_value = (1-(number_of_background_events/maximal_number_of_background_events));
-  }
-  else{
-    doocore::io::serr << "Please define a valid figure of merit!" << doocore::io::endmsg;
-    doocore::io::serr << "Possible FoMs are: Significance, Weighted Significance, Purity, Punzi, Signal Efficiency, and Background Rejection" << doocore::io::endmsg;
-    abort;
-  }
-  if (debug_mode) doocore::io::serr << "-debug- \t" << figure_of_merit << ": " << fom_value << doocore::io::endmsg;
-  return fom_value;
+  // if (figure_of_merit == "Significance"){
+  //   fom_value = number_of_signal_events/sqrt(number_of_signal_events+number_of_background_events);
+  // }
+  // else if (figure_of_merit == "Weighted Significance"){
+  //   const double alpha = 100;
+  //   number_of_signal_events = number_of_signal_events/alpha;
+  //   fom_value = number_of_signal_events/sqrt(number_of_signal_events+number_of_background_events);
+  // }
+  // else if (figure_of_merit == "Purity"){
+  //   fom_value = number_of_signal_events/(number_of_signal_events+number_of_background_events);
+  // }
+  // else if (figure_of_merit == "Punzi"){
+  //   const double alpha = 2.;
+  //   fom_value = number_of_signal_events/((alpha/2)+sqrt(number_of_background_events));
+  // }
+  // else if (figure_of_merit == "Signal Efficiency"){
+  //   fom_value = number_of_signal_events/maximal_number_of_signal_events;
+  // }
+  // else if (figure_of_merit == "Background Rejection"){
+  //   fom_value = (1.-(number_of_background_events/maximal_number_of_background_events));
+  // }
+  // else{
+  //   doocore::io::serr << "Please define a valid figure of merit!" << doocore::io::endmsg;
+  //   doocore::io::serr << "Possible FoMs are: Significance, Weighted Significance, Purity, Punzi, Signal Efficiency, and Background Rejection" << doocore::io::endmsg;
+  //   abort;
+  // }
+  // if (debug_mode) doocore::io::serr << "-debug- \t" << figure_of_merit << ": " << fom_value << doocore::io::endmsg;
+  // return fom_value;
+  return 5.;
 }
 
 /// calculate FoM distribution for different cut values in a given range
 std::vector< std::pair<double, double> > FoMDistribution(SelectionTuple &stuple, SelectionClassifier &classifier, std::string signal_component, std::string background_component, std::string figure_of_merit, bool debug_mode){
   if (debug_mode) doocore::io::serr << "-debug- " << "starting doocore::performance::FoMDistribution() ..." << doocore::io::endmsg;
-  std::vector<double> steps = classifier.steps();
+  //std::vector<double> steps = classifier.steps();
+  std::vector<double> steps(5,0);
   double step_size = steps.at(1)-steps.at(0);
 
   std::pair<double, double> xy_values;
@@ -450,15 +459,23 @@ std::vector< std::pair<double, double> > FoMDistribution(SelectionTuple &stuple,
 
   double fom_value = 0;
 
-  for(std::vector<double>::iterator it = steps.begin(); it != steps.end(); it++){
-    cut_string=classifier.name()+classifier.cut_operator()+boost::lexical_cast<std::string>(*it);
-    fom_value = FoM(stuple, signal_component, background_component, cut_string, figure_of_merit, debug_mode);
-
-    if (std::isfinite(fom_value)){
-        xy_values.first = (*it) - step_size/2;
-        xy_values.second = fom_value;
-        vector_of_xy_values.push_back(xy_values);
+  for(std::vector<double>::const_iterator it = steps.begin(); it != steps.end(); it++){
+    doocore::io::sout << "FOM VECTOR" << doocore::io::endmsg;
+    doocore::io::sout << "FOM VECTOR STEPS SIZE " << steps.size() << doocore::io::endmsg;
+    for (int i = 0; i < steps.size(); ++i)
+    {
+      doocore::io::sout << "\t" << steps.at(i) << doocore::io::endmsg;
     }
+    cut_string=classifier.name()+classifier.cut_operator()+"0";
+    // cut_string=classifier.name()+classifier.cut_operator()+boost::lexical_cast<std::string>(*it);
+    fom_value = FoM(stuple, signal_component, background_component, cut_string, figure_of_merit, debug_mode);
+    doocore::io::sout << "FOM VECTOR STEPS SIZE " << steps.size() << doocore::io::endmsg;
+    // if (std::isfinite(fom_value)){
+    //     //xy_values.first = (*it) - step_size/2;
+    //     xy_values.first = 5.;
+    //     xy_values.second = fom_value;
+    //     vector_of_xy_values.push_back(xy_values);
+    // }
   }
 
   return vector_of_xy_values;
@@ -466,7 +483,7 @@ std::vector< std::pair<double, double> > FoMDistribution(SelectionTuple &stuple,
 
 /// plot FoM distribution in a given range
 void PlotFoMDistribution(std::vector< std::pair<double, double> > fom_distribution, SelectionClassifier& classifier, std::string figure_of_merit, std::string output_prefix, bool debug_mode){
-  if (debug_mode) doocore::io::serr << "-debug- " << "starting selection::PlotFoMDistribution() ..." << doocore::io::endmsg;
+  if (debug_mode) doocore::io::serr << "-debug- " << "starting dooselection::performance::PlotFoMDistribution() ..." << doocore::io::endmsg;
   doocore::lutils::setStyle();
 
   int entries = fom_distribution.size();
@@ -514,7 +531,12 @@ std::vector< std::pair<double, double> > ROC(SelectionTuple &stuple, SelectionCl
   double signal_efficiency = 0.;
   double background_rejection = 0.;
 
-  for(std::vector<double>::iterator it = steps.begin(); it != steps.end(); it++){
+  for(std::vector<double>::const_iterator it = steps.begin(); it != steps.end(); it++){
+    doocore::io::sout << "ROC VECTOR" << doocore::io::endmsg;
+    for (int i = 0; i < steps.size(); ++i)
+    {
+      doocore::io::sout << "\t" << steps.at(i) << doocore::io::endmsg;
+    }
     cut_string=classifier.name()+classifier.cut_operator()+boost::lexical_cast<std::string>(*it);
     signal_efficiency = FoM(stuple, signal_component, background_component, cut_string, "Signal Efficiency", debug_mode);
     background_rejection = FoM(stuple, signal_component, background_component, cut_string, "Background Rejection", debug_mode);

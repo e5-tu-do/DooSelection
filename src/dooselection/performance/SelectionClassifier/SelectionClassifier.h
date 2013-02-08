@@ -58,7 +58,7 @@ namespace performance{
     range_min_(range_min),
     range_max_(range_max),
     step_size_(0.0),
-		steps_()
+    steps_()
     {
     	if (debug_mode_) doocore::io::serr << "-debug- " << "Created new SelectionClassifier '" << title << "'..." << doocore::io::endmsg;
     	if (debug_mode_) doocore::io::serr << "-debug- \t" << "range: " << range_min_ << "-" << range_max_ << doocore::io::endmsg;
@@ -69,15 +69,15 @@ namespace performance{
     	step_size_=(range_max_-range_min_)/number_of_steps;
     	for (int i = 0; i < number_of_steps; ++i)
     	{
-    		steps_.push_back(range_min_+i*step_size_);
+    	  steps_.push_back(range_min_+i*step_size_);
     	}
     	steps_.push_back(range_max_);
     	std::string temp = "["+boost::lexical_cast<std::string>(range_min_);
     	for(std::vector<double>::iterator it = steps_.begin()+1; it != steps_.end(); it++){
-  			temp+=", ";
-            temp+=boost::lexical_cast<std::string>(*it);
-			}
-			temp+="]";
+        temp+=", ";
+        temp+=boost::lexical_cast<std::string>(*it);
+	}
+	temp+="]";
     	if (debug_mode_) doocore::io::serr << "-debug- \t" << "scan points: " << temp << "'" << doocore::io::endmsg;
     }
 

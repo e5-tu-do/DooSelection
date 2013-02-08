@@ -220,10 +220,13 @@ namespace performance{
     }
 
    private:
-   	// MEMBER VARIABLES
-   	bool debug_mode_;
+    SelectionTuple(const SelectionTuple&){};
+    SelectionTuple& operator=  (const SelectionTuple&){};
 
-   	std::string name_;
+    // MEMBER VARIABLES
+    bool debug_mode_;
+
+    std::string name_;
     std::string title_;
 
     doocore::io::EasyTuple* etuple_;
