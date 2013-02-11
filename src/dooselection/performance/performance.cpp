@@ -87,9 +87,6 @@ std::map<std::string, double> NumberOfEventsPerComponent(SelectionTuple &stuple,
       components_and_yield_values[(*ita).first]=number_of_events;
 
       if (debug_mode) doocore::io::serr << "-debug- \t" << "Sum of " << (*ita).first << " events: " << number_of_events << " @cut: " << cut_string << doocore::io::endmsg;
-
-      //delete hist;
-      //delete canvas;
     }
     return components_and_yield_values;
   }
@@ -151,12 +148,12 @@ std::map<std::string, double> NumberOfEventsPerComponent(SelectionTuple &stuple,
 // =======================
 // CLASSIFIER DISTRIBUTION
 // =======================
-void PlotClassiferDistribution(SelectionTuple& stuple, SelectionClassifier& classifier, int nbins, bool debug_mode){
-  if (debug_mode) doocore::io::serr << "-debug- " << "starting doocore::performance::PlotClassiferDistribution()…" << doocore::io::endmsg;
+void PlotClassifierDistribution(SelectionTuple& stuple, SelectionClassifier& classifier, int nbins, bool debug_mode){
+  if (debug_mode) doocore::io::serr << "-debug- " << "starting doocore::performance::PlotClassifierDistribution()…" << doocore::io::endmsg;
   doocore::lutils::setStyle("LHCb");
 
   if (stuple.use_mc()){
-      doocore::io::serr << "-ERROR- \t PlotClassiferDistribution(SelectionTuple &stuple, SelectionClassifier classifier, int nbins, bool debug_mode)- MC not yet implemented" << doocore::io::endmsg;
+      doocore::io::serr << "-ERROR- \t PlotClassifierDistribution(SelectionTuple &stuple, SelectionClassifier classifier, int nbins, bool debug_mode)- MC not yet implemented" << doocore::io::endmsg;
   } 
   else if (stuple.use_sweights()){
     if (debug_mode) doocore::io::serr << "-debug- \t" << "using sweigths…" << doocore::io::endmsg;
@@ -171,10 +168,10 @@ void PlotClassiferDistribution(SelectionTuple& stuple, SelectionClassifier& clas
     if (debug_mode) doocore::io::serr << "-debug- " << "2" << doocore::io::endmsg;
 
     /// calculate range of classifier distribution
-    // std::pair<double,double> minmax = doocore::lutils::MedianLimitsForTuple(*tree, classifier.name());
-    std::pair<double,double> minmax;
-    minmax.first = classifier.range_min();
-    minmax.second = classifier.range_max();
+    std::pair<double,double> minmax = doocore::lutils::MedianLimitsForTuple(*tree, classifier.name());
+    // std::pair<double,double> minmax;
+    // minmax.first = classifier.range_min();
+    // minmax.second = classifier.range_max();
 
     if (debug_mode) doocore::io::serr << "-debug- \t" << classifier.title() << ": min " << minmax.first << " max " << minmax.second << doocore::io::endmsg;
 
@@ -231,15 +228,15 @@ void PlotClassiferDistribution(SelectionTuple& stuple, SelectionClassifier& clas
     doocore::lutils::printPlot(canvas, classifier.title()+"_distribution", stuple.title()+"/ClassifierDistribution/");
   }
   else if (stuple.use_fit()){
-    doocore::io::serr << "-ERROR- \t PlotClassiferDistribution(SelectionTuple &stuple, SelectionClassifier classifier, int nbins, bool debug_mode)- Fit not yet implemented" << doocore::io::endmsg;
+    doocore::io::serr << "-ERROR- \t PlotClassifierDistribution(SelectionTuple &stuple, SelectionClassifier classifier, int nbins, bool debug_mode)- Fit not yet implemented" << doocore::io::endmsg;
   }
   else{
-    doocore::io::serr << "-PlotClassiferDistribution(SelectionTuple &stuple, SelectionClassifier classifier, int nbins, bool debug_mode)- error hello67" << doocore::io::endmsg;
+    doocore::io::serr << "-PlotClassifierDistribution(SelectionTuple &stuple, SelectionClassifier classifier, int nbins, bool debug_mode)- error hello67" << doocore::io::endmsg;
   }
 }
 
-void PlotClassiferDistributionOLD(SelectionTuple& stuple, SelectionClassifier& classifier, int nbins, bool debug_mode){
-  if (debug_mode) doocore::io::serr << "-debug- " << "starting selection::PlotClassiferDistributionOLD() ..." << doocore::io::endmsg;
+void PlotClassifierDistributionOLD(SelectionTuple& stuple, SelectionClassifier& classifier, int nbins, bool debug_mode){
+  if (debug_mode) doocore::io::serr << "-debug- " << "starting selection::PlotClassifierDistributionOLD() ..." << doocore::io::endmsg;
   doocore::lutils::setStyle("LHCb");
   if (stuple.use_sweights()){
     
@@ -248,10 +245,10 @@ void PlotClassiferDistributionOLD(SelectionTuple& stuple, SelectionClassifier& c
     double sig_sweight, bkg_sweight;
     float classifier_value;
     int nentries = tree->GetEntries();
-    // std::pair<double,double> minmax = doocore::lutils::MedianLimitsForTuple(*tree, classifier.name());
-    std::pair<double,double> minmax;
-    minmax.first = classifier.range_min();
-    minmax.second = classifier.range_max();
+    std::pair<double,double> minmax = doocore::lutils::MedianLimitsForTuple(*tree, classifier.name());
+    // std::pair<double,double> minmax;
+    // minmax.first = classifier.range_min();
+    // minmax.second = classifier.range_max();
     if (debug_mode) doocore::io::serr << "-debug- " << "min " << minmax.first << " max " << minmax.second << doocore::io::endmsg;
 
     tree->SetBranchAddress(TString("sweight_sig"), &sig_sweight);
@@ -261,10 +258,10 @@ void PlotClassiferDistributionOLD(SelectionTuple& stuple, SelectionClassifier& c
     TH1D* sig_hist = new TH1D("sig_hist", "sig_hist", nbins, minmax.first , minmax.second);
     TH1D* bkg_hist = new TH1D("bkg_hist", "bkg_hist", nbins, minmax.first , minmax.second);
 
-    // for (int i = 0; i < nentries; ++i){
-    for (int i = 0; i < 10000; ++i){
+    if (debug_mode) doocore::io::serr << "-debug- " << "Loop over tree…" << doocore::io::endmsg;
+    for (int i = 0; i < 1000; ++i){
       if ((i%10000)==0){
-        doocore::io::sout << "Event #" << i << doocore::io::endmsg;
+        if (debug_mode) doocore::io::serr << "-debug- \t" << "#" << i << doocore::io::endmsg;
       }
       tree->GetEvent(i);
 
@@ -389,6 +386,10 @@ void PlotCutEfficiencyScan(SelectionTuple& stuple, SelectionClassifier& classifi
 // =====================
 // FIGURE OF MERIT (FoM)
 // =====================
+double HelpFoM(){
+
+}
+
 /// calculate FoM for a single cut value
 double FoM(SelectionTuple &stuple, std::string signal_component, std::string background_component, std::string cut_string, std::string figure_of_merit, bool debug_mode){
   if (debug_mode) doocore::io::serr << "-debug- " << "starting doocore::performance::FoM()…" << doocore::io::endmsg;
@@ -403,82 +404,99 @@ double FoM(SelectionTuple &stuple, std::string signal_component, std::string bac
   std::map<std::string, double> number_of_events_per_component = NumberOfEventsPerComponent(stuple, cut_string, debug_mode);
   std::map<std::string, double> max_number_of_events_per_component;
 
-  // double number_of_signal_events = number_of_events_per_component[signal_component];
-  // double number_of_background_events = number_of_events_per_component[background_component];
-  // double maximal_number_of_signal_events;
-  // double maximal_number_of_background_events;
+  double number_of_signal_events = number_of_events_per_component[signal_component];
+  double number_of_background_events = number_of_events_per_component[background_component];
+  double maximal_number_of_signal_events;
+  double maximal_number_of_background_events;
 
-  // if ((figure_of_merit == "Signal Efficiency") || (figure_of_merit == "Background Rejection")){
-  //   max_number_of_events_per_component = NumberOfEventsPerComponent(stuple, "", debug_mode);
-  //   maximal_number_of_signal_events = max_number_of_events_per_component[signal_component];
-  //   maximal_number_of_background_events = max_number_of_events_per_component[background_component];
-  // }
+  if ((figure_of_merit == "Signal Efficiency") || (figure_of_merit == "Background Rejection")){
+    max_number_of_events_per_component = NumberOfEventsPerComponent(stuple, "", debug_mode);
+    maximal_number_of_signal_events = max_number_of_events_per_component[signal_component];
+    maximal_number_of_background_events = max_number_of_events_per_component[background_component];
+  }
 
-  // if (figure_of_merit == "Significance"){
-  //   fom_value = number_of_signal_events/sqrt(number_of_signal_events+number_of_background_events);
-  // }
-  // else if (figure_of_merit == "Weighted Significance"){
-  //   const double alpha = 100;
-  //   number_of_signal_events = number_of_signal_events/alpha;
-  //   fom_value = number_of_signal_events/sqrt(number_of_signal_events+number_of_background_events);
-  // }
-  // else if (figure_of_merit == "Purity"){
-  //   fom_value = number_of_signal_events/(number_of_signal_events+number_of_background_events);
-  // }
-  // else if (figure_of_merit == "Punzi"){
-  //   const double alpha = 2.;
-  //   fom_value = number_of_signal_events/((alpha/2)+sqrt(number_of_background_events));
-  // }
-  // else if (figure_of_merit == "Signal Efficiency"){
-  //   fom_value = number_of_signal_events/maximal_number_of_signal_events;
-  // }
-  // else if (figure_of_merit == "Background Rejection"){
-  //   fom_value = (1.-(number_of_background_events/maximal_number_of_background_events));
-  // }
-  // else{
-  //   doocore::io::serr << "Please define a valid figure of merit!" << doocore::io::endmsg;
-  //   doocore::io::serr << "Possible FoMs are: Significance, Weighted Significance, Purity, Punzi, Signal Efficiency, and Background Rejection" << doocore::io::endmsg;
-  //   abort;
-  // }
-  // if (debug_mode) doocore::io::serr << "-debug- \t" << figure_of_merit << ": " << fom_value << doocore::io::endmsg;
-  // return fom_value;
+  if (figure_of_merit == "Significance"){
+    fom_value = number_of_signal_events/sqrt(number_of_signal_events+number_of_background_events);
+  }
+  else if (figure_of_merit == "Weighted Significance"){
+    const double alpha = 100.;
+    number_of_signal_events = number_of_signal_events/alpha;
+    fom_value = number_of_signal_events/sqrt(number_of_signal_events+number_of_background_events);
+  }
+  else if (figure_of_merit == "Purity"){
+    fom_value = number_of_signal_events/(number_of_signal_events+number_of_background_events);
+  }
+  else if (figure_of_merit == "Punzi"){
+    const double alpha = 2.;
+    fom_value = number_of_signal_events/((alpha/2)+sqrt(number_of_background_events));
+  }
+  else if (figure_of_merit == "Signal Efficiency"){
+    fom_value = number_of_signal_events/maximal_number_of_signal_events;
+  }
+  else if (figure_of_merit == "Background Rejection"){
+    fom_value = (1.-(number_of_background_events/maximal_number_of_background_events));
+  }
+  else{
+    doocore::io::serr << "Please define a valid figure of merit!" << doocore::io::endmsg;
+    doocore::io::serr << "Possible FoMs are: Significance, Weighted Significance, Purity, Punzi, Signal Efficiency, and Background Rejection" << doocore::io::endmsg;
+    abort;
+  }
+  if (debug_mode) doocore::io::serr << "-debug- \t" << figure_of_merit << ": " << fom_value << doocore::io::endmsg;
+  return fom_value;
   return 5.;
 }
 
 /// calculate FoM distribution for different cut values in a given range
 std::vector< std::pair<double, double> > FoMDistribution(SelectionTuple &stuple, SelectionClassifier &classifier, std::string signal_component, std::string background_component, std::string figure_of_merit, bool debug_mode){
   if (debug_mode) doocore::io::serr << "-debug- " << "starting doocore::performance::FoMDistribution() ..." << doocore::io::endmsg;
-  //std::vector<double> steps = classifier.steps();
-  std::vector<double> steps(5,0);
+  std::vector<double> steps = classifier.steps();
+  const int nsteps = steps.size();
+
+  for (unsigned int i = 0; i < nsteps; ++i){
+    if (debug_mode) doocore::io::serr << "-debug- \t" << steps.at(i) << doocore::io::endmsg;
+  }
+
+  if (debug_mode) doocore::io::serr << "-debug- " << "vector size: " << nsteps << doocore::io::endmsg;
   double step_size = steps.at(1)-steps.at(0);
 
   std::pair<double, double> xy_values;
-  std::vector< std::pair<double, double> > vector_of_xy_values;
+  std::vector< std::pair<double, double> >* vector_of_xy_values = new std::vector< std::pair<double, double> >();
 
   std::string cut_string;
 
   double fom_value = 0;
 
-  for(std::vector<double>::const_iterator it = steps.begin(); it != steps.end(); it++){
-    doocore::io::sout << "FOM VECTOR" << doocore::io::endmsg;
-    doocore::io::sout << "FOM VECTOR STEPS SIZE " << steps.size() << doocore::io::endmsg;
-    for (int i = 0; i < steps.size(); ++i)
-    {
-      doocore::io::sout << "\t" << steps.at(i) << doocore::io::endmsg;
-    }
-    cut_string=classifier.name()+classifier.cut_operator()+"0";
-    // cut_string=classifier.name()+classifier.cut_operator()+boost::lexical_cast<std::string>(*it);
+  if (debug_mode) doocore::io::serr << "-debug- \t" << "loop over " << nsteps << " steps" << doocore::io::endmsg;
+  for (unsigned int j = 0; j < nsteps; ++j){
+    if (debug_mode) doocore::io::serr << "-debug- \t" << "size " << nsteps << doocore::io::endmsg;
+    if (debug_mode) doocore::io::serr << "-debug- \t" << j << " / " << steps.at(j) << doocore::io::endmsg;
+    cut_string=classifier.name()+classifier.cut_operator()+boost::lexical_cast<std::string>(steps.at(j));
     fom_value = FoM(stuple, signal_component, background_component, cut_string, figure_of_merit, debug_mode);
-    doocore::io::sout << "FOM VECTOR STEPS SIZE " << steps.size() << doocore::io::endmsg;
-    // if (std::isfinite(fom_value)){
-    //     //xy_values.first = (*it) - step_size/2;
-    //     xy_values.first = 5.;
-    //     xy_values.second = fom_value;
-    //     vector_of_xy_values.push_back(xy_values);
-    // }
+
+    if (std::isfinite(fom_value)){
+        xy_values.first = steps.at(j) - step_size/2;
+        xy_values.second = fom_value;
+        vector_of_xy_values->push_back(xy_values);
+    }
   }
 
-  return vector_of_xy_values;
+  // don't know why, but the iterator gets destroit during loop...
+  // for(std::vector<double>::const_iterator it = classifier.steps().begin(); it != classifier.steps().end(); it++){
+  //   for (int i = 0; i < classifier.steps().size(); ++i)
+  //   {
+  //     doocore::io::sout << "vector " << classifier.steps().at(i) << "/" << *it << doocore::io::endmsg;
+  //   }
+  //   cut_string=classifier.name()+classifier.cut_operator()+boost::lexical_cast<std::string>(*it);
+  //   fom_value = FoM(stuple, signal_component, background_component, cut_string, figure_of_merit, debug_mode);
+
+  //   if (std::isfinite(fom_value)){
+  //       xy_values.first = (*it) - step_size/2;
+  //       xy_values.second = fom_value;
+  //       vector_of_xy_values.push_back(xy_values);
+  //   }
+  // }
+
+  return *vector_of_xy_values;
 }
 
 /// plot FoM distribution in a given range
@@ -531,22 +549,35 @@ std::vector< std::pair<double, double> > ROC(SelectionTuple &stuple, SelectionCl
   double signal_efficiency = 0.;
   double background_rejection = 0.;
 
-  for(std::vector<double>::const_iterator it = steps.begin(); it != steps.end(); it++){
-    doocore::io::sout << "ROC VECTOR" << doocore::io::endmsg;
-    for (int i = 0; i < steps.size(); ++i)
-    {
-      doocore::io::sout << "\t" << steps.at(i) << doocore::io::endmsg;
-    }
-    cut_string=classifier.name()+classifier.cut_operator()+boost::lexical_cast<std::string>(*it);
+  if (debug_mode) doocore::io::serr << "-debug- \t" << "loop over steps" << doocore::io::endmsg;
+  for (unsigned int i = 0; i < steps.size(); ++i)
+  {
+    if (debug_mode) doocore::io::serr << "-debug- \t" << steps.at(i) << doocore::io::endmsg;
+    cut_string=classifier.name()+classifier.cut_operator()+boost::lexical_cast<std::string>(steps.at(i));
     signal_efficiency = FoM(stuple, signal_component, background_component, cut_string, "Signal Efficiency", debug_mode);
     background_rejection = FoM(stuple, signal_component, background_component, cut_string, "Background Rejection", debug_mode);
 
     if (std::isfinite(signal_efficiency) || (std::isfinite(background_rejection))){
+        xy_values.first = steps.at(i) - step_size/2;
         xy_values.first = signal_efficiency;
         xy_values.second = background_rejection;
         vector_of_xy_values.push_back(xy_values);
     }
   }
+
+  // don't know why, but the iterator gets destroit during loop...
+  // for(std::vector<double>::const_iterator it = classifier.steps().begin(); it != classifier.steps().end(); it++){
+  //   cut_string=classifier.name()+classifier.cut_operator()+boost::lexical_cast<std::string>(*it);
+  //   signal_efficiency = FoM(stuple, signal_component, background_component, cut_string, "Signal Efficiency", debug_mode);
+  //   background_rejection = FoM(stuple, signal_component, background_component, cut_string, "Background Rejection", debug_mode);
+
+  //   if (std::isfinite(signal_efficiency) || (std::isfinite(background_rejection))){
+  //       xy_values.first = signal_efficiency;
+  //       xy_values.second = background_rejection;
+  //       vector_of_xy_values.push_back(xy_values);
+  //   }
+  // }
+
   return vector_of_xy_values;
 }
 
