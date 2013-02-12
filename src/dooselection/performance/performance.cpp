@@ -191,8 +191,7 @@ void PlotClassifierDistribution(SelectionTuple& stuple, SelectionClassifier& cla
     }
 
     /// loop over tree and fill histogramms with entries
-    int nentries = stuple.tree().GetEntries();
-    for (int i = 0; i < nentries; ++i)
+    for (int i = 0; i < stuple.tree().GetEntries(); ++i)
     {
       if ((i%10000)==0){
         if (debug_mode) doocore::io::serr << "-debug- \t" << "#" << i << doocore::io::endmsg;
@@ -238,7 +237,7 @@ void PlotClassifierDistributionOLD(SelectionTuple& stuple, SelectionClassifier& 
     
     double sig_sweight, bkg_sweight;
     float classifier_value;
-    int nentries = stuple.tree().GetEntries();
+
     std::pair<double,double> minmax = doocore::lutils::MedianLimitsForTuple(stuple.tree(), classifier.name());
     if (debug_mode) doocore::io::serr << "-debug- " << "min " << minmax.first << " max " << minmax.second << doocore::io::endmsg;
 
@@ -250,7 +249,7 @@ void PlotClassifierDistributionOLD(SelectionTuple& stuple, SelectionClassifier& 
     TH1D* bkg_hist = new TH1D("bkg_hist", "bkg_hist", nbins, minmax.first , minmax.second);
 
     if (debug_mode) doocore::io::serr << "-debug- " << "Loop over tree…" << doocore::io::endmsg;
-    for (int i = 0; i < 1000; ++i){
+    for (int i = 0; i < stuple.tree().GetEntries(); ++i){
       if ((i%10000)==0){
         if (debug_mode) doocore::io::serr << "-debug- \t" << "#" << i << doocore::io::endmsg;
       }
@@ -336,9 +335,9 @@ void PlotCutEfficiency(SelectionTuple& stuple, SelectionClassifier& classifier, 
   hist_with_cuts->SetLineStyle(3);
   hist_with_cuts->SetFillColor(kBlue);
   hist_with_cuts->SetFillStyle(3003);
-  
-  TString label = Form(TString("#splitline{#splitline{#splitline{#bf{")+ classifier.title() +"}}{Signal events: %.0f}}{Background events: %.0f}}{#splitline{#splitline{Signal efficiency: %.2f %}{Background Rejection: %.2f %}}{"+figure_of_merit+": %.3f}}",signal_events, background_events, signal_efficiency*100, background_rejection*100, fom_value);
-  TLatex latex_label(0.5, 0.84, label);
+
+  TString label = Form(TString("#splitline{#splitline{#splitline{#splitline{#splitline{#splitline{#bf{")+ classifier.title() +"}}{Cut: "+cut_string+"}}{Signal events: %.0f}}{Background events: %.0f}}{Signal efficiency: %.2f %}}{Background Rejection: %.2f %}}{"+figure_of_merit+": %.3f}",signal_events, background_events, signal_efficiency*100, background_rejection*100, fom_value);
+  TLatex latex_label(0.5, 0.74, label);
   latex_label.SetNDC();
   latex_label.SetTextSize(0.02);
   latex_label.SetTextColor(1);
