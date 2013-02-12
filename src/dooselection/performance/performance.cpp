@@ -11,6 +11,7 @@
 #include "TCanvas.h"
 #include "TAxis.h"
 #include "TH1D.h"
+#include "TFile.h"
 #include "TTree.h"
 
 // from RooFit
@@ -69,9 +70,9 @@ std::map<std::string, double> NumberOfEventsPerComponent(SelectionTuple &stuple,
       if (debug_mode) doocore::io::serr << "-debug- \t" << "sweight: " << sweight << doocore::io::endmsg;
       
       TH1D hist("hist", "hist", nbins, stuple.sweight_min(), stuple.sweight_max());
-
       TCanvas canvas("canvas", "canvas", 800, 600);
-      stuple.tree()->Draw(TString(sweight)+">>hist", TString(cut_string));
+
+      stuple.tree().Draw(TString(sweight)+">>hist", TString(cut_string));
 
       double sum_of_sweights = 0.;
       double bin_content = 0.;
@@ -104,7 +105,7 @@ std::map<std::string, double> NumberOfEventsPerComponent(SelectionTuple &stuple,
       data = stuple.dataset().reduce(TString(cut_string));
     }
     
-    // fit
+    /// fit
     std::string handover_filename = "FitParameter.txt";
     std::string nocut_startingvalues_file = "StartingValues_NoCut.txt";
 
@@ -160,25 +161,14 @@ void PlotClassifierDistribution(SelectionTuple& stuple, SelectionClassifier& cla
     /// number of bins
     nbins = 100;
 
-    if (debug_mode) doocore::io::serr << "-debug- " << "1" << doocore::io::endmsg;
-    /// TTree
-    TTree * tree = stuple.tree();
-    int nentries = tree->GetEntries();
-
-    if (debug_mode) doocore::io::serr << "-debug- " << "2" << doocore::io::endmsg;
-
     /// calculate range of classifier distribution
-    std::pair<double,double> minmax = doocore::lutils::MedianLimitsForTuple(*tree, classifier.name());
-    // std::pair<double,double> minmax;
-    // minmax.first = classifier.range_min();
-    // minmax.second = classifier.range_max();
+    std::pair<double,double> minmax = doocore::lutils::MedianLimitsForTuple(stuple.tree(), classifier.name());
 
     if (debug_mode) doocore::io::serr << "-debug- \t" << classifier.title() << ": min " << minmax.first << " max " << minmax.second << doocore::io::endmsg;
 
-    if (debug_mode) doocore::io::serr << "-debug- " << "3" << doocore::io::endmsg;
     /// prepare TTree variable handling
     float classifier_value;    
-    tree->SetBranchAddress(TString(classifier.name()), &classifier_value);
+    stuple.tree().SetBranchAddress(TString(classifier.name()), &classifier_value);
 
     /// vector of histogram pointers
     std::vector<TH1*> vector_of_histograms;
@@ -188,28 +178,29 @@ void PlotClassifierDistribution(SelectionTuple& stuple, SelectionClassifier& cla
     for(std::map< std::string, std::string >::const_iterator it = stuple.map_of_components_and_sweights().begin(); it != stuple.map_of_components_and_sweights().end(); it++){
       std::string name = (*it).first;
       std::string sweight = (*it).second;
+      double* nsweight;
 
       if (debug_mode) doocore::io::serr << "-debug- \t" << "sweight: " << sweight << doocore::io::endmsg;
-
-      double* nsweight;
-      if (debug_mode) doocore::io::serr << "-debug- " << "4" << doocore::io::endmsg;
-      tree->SetBranchAddress(TString(sweight), nsweight);
+     
+      stuple.tree().SetBranchAddress(TString(sweight), nsweight);
 
       TH1D* hist = new TH1D(TString("hist_")+name, TString("hist_")+name, nbins, minmax.first , minmax.second);
+
       vector_of_histograms.push_back(hist);
       vector_of_doubles.push_back(nsweight);
     }
 
     /// loop over tree and fill histogramms with entries
+    int nentries = stuple.tree().GetEntries();
     for (int i = 0; i < nentries; ++i)
     {
-      if (debug_mode) doocore::io::serr << "-debug- \t" << "event #" << i << doocore::io::endmsg;
-      tree->GetEvent(i);
+      if ((i%10000)==0){
+        if (debug_mode) doocore::io::serr << "-debug- \t" << "#" << i << doocore::io::endmsg;
+      }
+      stuple.tree().GetEvent(i);
 
       /// loop over histograms and components
-
       for (unsigned int i = 0; i < vector_of_histograms.size(); ++i){
-        if (debug_mode) doocore::io::serr << "-debug- " << "5" << doocore::io::endmsg;
         vector_of_histograms.at(i)->Fill(classifier_value, *vector_of_doubles.at(i));
 
         int color = 201+i*4;
@@ -221,6 +212,11 @@ void PlotClassifierDistribution(SelectionTuple& stuple, SelectionClassifier& cla
         vector_of_histograms.at(i)->SetXTitle(TString(classifier.name()));
         vector_of_histograms.at(i)->Draw();
       }
+    }
+
+    stuple.tree().ResetBranchAddress(stuple.tree().GetBranch(TString(classifier.name())));
+    for(std::map< std::string, std::string >::const_iterator it = stuple.map_of_components_and_sweights().begin(); it != stuple.map_of_components_and_sweights().end(); it++){
+      stuple.tree().ResetBranchAddress(stuple.tree().GetBranch(TString((*it).second)));
     }
 
     TCanvas* canvas = new TCanvas("canvas", "canvas", 800, 600);
@@ -240,21 +236,16 @@ void PlotClassifierDistributionOLD(SelectionTuple& stuple, SelectionClassifier& 
   doocore::lutils::setStyle("LHCb");
   if (stuple.use_sweights()){
     
-    TTree * tree = stuple.tree();
-
     double sig_sweight, bkg_sweight;
     float classifier_value;
-    int nentries = tree->GetEntries();
-    std::pair<double,double> minmax = doocore::lutils::MedianLimitsForTuple(*tree, classifier.name());
-    // std::pair<double,double> minmax;
-    // minmax.first = classifier.range_min();
-    // minmax.second = classifier.range_max();
+    int nentries = stuple.tree().GetEntries();
+    std::pair<double,double> minmax = doocore::lutils::MedianLimitsForTuple(stuple.tree(), classifier.name());
     if (debug_mode) doocore::io::serr << "-debug- " << "min " << minmax.first << " max " << minmax.second << doocore::io::endmsg;
 
-    tree->SetBranchAddress(TString("sweight_sig"), &sig_sweight);
-    tree->SetBranchAddress(TString("sweight_bkg"), &bkg_sweight);
-    tree->SetBranchAddress(TString(classifier.name()), &classifier_value);
-    
+    stuple.tree().SetBranchAddress(TString("sweight_sig"), &sig_sweight);
+    stuple.tree().SetBranchAddress(TString("sweight_bkg"), &bkg_sweight);
+    stuple.tree().SetBranchAddress(TString(classifier.name()), &classifier_value);
+
     TH1D* sig_hist = new TH1D("sig_hist", "sig_hist", nbins, minmax.first , minmax.second);
     TH1D* bkg_hist = new TH1D("bkg_hist", "bkg_hist", nbins, minmax.first , minmax.second);
 
@@ -263,11 +254,14 @@ void PlotClassifierDistributionOLD(SelectionTuple& stuple, SelectionClassifier& 
       if ((i%10000)==0){
         if (debug_mode) doocore::io::serr << "-debug- \t" << "#" << i << doocore::io::endmsg;
       }
-      tree->GetEvent(i);
+      stuple.tree().GetEvent(i);
 
       sig_hist->Fill(classifier_value, sig_sweight);
       bkg_hist->Fill(classifier_value, bkg_sweight);
     }    
+    stuple.tree().ResetBranchAddress(stuple.tree().GetBranch(TString("sweight_sig")));
+    stuple.tree().ResetBranchAddress(stuple.tree().GetBranch(TString("sweight_bkg")));
+    stuple.tree().ResetBranchAddress(stuple.tree().GetBranch(TString(classifier.name())));
 
     sig_hist->SetLineColor(kBlue);
     sig_hist->SetMarkerColor(kBlue);
@@ -332,12 +326,12 @@ void PlotCutEfficiency(SelectionTuple& stuple, SelectionClassifier& classifier, 
   std::string mass_variable = "B0_LOKI_MASS_JpsiKSConstr";
   doocore::io::swarn << "-dooselection::performance::PlotCutEfficiency- \t" << "Check correct mass variable! (" << mass_variable << ")" << doocore::io::endmsg;
 
-  stuple.tree()->Draw(TString(mass_variable)+">>hist_without_cuts");
+  stuple.tree().Draw(TString(mass_variable)+">>hist_without_cuts");
   hist_without_cuts->SetLineColor(kBlack);
   if (!logscale) hist_without_cuts->SetMinimum(0);
   hist_without_cuts->SetXTitle(TString(mass_variable));
 
-  stuple.tree()->Draw(TString(mass_variable)+">>hist_with_cuts", TString(cut_string), "same");
+  stuple.tree().Draw(TString(mass_variable)+">>hist_with_cuts", TString(cut_string), "same");
   hist_with_cuts->SetLineColor(kBlue);
   hist_with_cuts->SetLineStyle(3);
   hist_with_cuts->SetFillColor(kBlue);
@@ -386,10 +380,6 @@ void PlotCutEfficiencyScan(SelectionTuple& stuple, SelectionClassifier& classifi
 // =====================
 // FIGURE OF MERIT (FoM)
 // =====================
-double HelpFoM(){
-
-}
-
 /// calculate FoM for a single cut value
 double FoM(SelectionTuple &stuple, std::string signal_component, std::string background_component, std::string cut_string, std::string figure_of_merit, bool debug_mode){
   if (debug_mode) doocore::io::serr << "-debug- " << "starting doocore::performance::FoM()…" << doocore::io::endmsg;
@@ -406,8 +396,8 @@ double FoM(SelectionTuple &stuple, std::string signal_component, std::string bac
 
   double number_of_signal_events = number_of_events_per_component[signal_component];
   double number_of_background_events = number_of_events_per_component[background_component];
-  double maximal_number_of_signal_events;
-  double maximal_number_of_background_events;
+  double maximal_number_of_signal_events = -1.0;
+  double maximal_number_of_background_events = -1.0;
 
   if ((figure_of_merit == "Signal Efficiency") || (figure_of_merit == "Background Rejection")){
     max_number_of_events_per_component = NumberOfEventsPerComponent(stuple, "", debug_mode);
@@ -450,53 +440,25 @@ double FoM(SelectionTuple &stuple, std::string signal_component, std::string bac
 std::vector< std::pair<double, double> > FoMDistribution(SelectionTuple &stuple, SelectionClassifier &classifier, std::string signal_component, std::string background_component, std::string figure_of_merit, bool debug_mode){
   if (debug_mode) doocore::io::serr << "-debug- " << "starting doocore::performance::FoMDistribution() ..." << doocore::io::endmsg;
   std::vector<double> steps = classifier.steps();
-  const int nsteps = steps.size();
-
-  for (unsigned int i = 0; i < nsteps; ++i){
-    if (debug_mode) doocore::io::serr << "-debug- \t" << steps.at(i) << doocore::io::endmsg;
-  }
-
-  if (debug_mode) doocore::io::serr << "-debug- " << "vector size: " << nsteps << doocore::io::endmsg;
   double step_size = steps.at(1)-steps.at(0);
 
   std::pair<double, double> xy_values;
-  std::vector< std::pair<double, double> >* vector_of_xy_values = new std::vector< std::pair<double, double> >();
+  std::vector< std::pair<double, double> > vector_of_xy_values;
 
   std::string cut_string;
-
   double fom_value = 0;
 
-  if (debug_mode) doocore::io::serr << "-debug- \t" << "loop over " << nsteps << " steps" << doocore::io::endmsg;
-  for (unsigned int j = 0; j < nsteps; ++j){
-    if (debug_mode) doocore::io::serr << "-debug- \t" << "size " << nsteps << doocore::io::endmsg;
-    if (debug_mode) doocore::io::serr << "-debug- \t" << j << " / " << steps.at(j) << doocore::io::endmsg;
-    cut_string=classifier.name()+classifier.cut_operator()+boost::lexical_cast<std::string>(steps.at(j));
+  for(std::vector<double>::const_iterator it = steps.begin(); it != steps.end(); it++){
+    cut_string=classifier.name()+classifier.cut_operator()+boost::lexical_cast<std::string>(*it);
     fom_value = FoM(stuple, signal_component, background_component, cut_string, figure_of_merit, debug_mode);
 
     if (std::isfinite(fom_value)){
-        xy_values.first = steps.at(j) - step_size/2;
+        xy_values.first = (*it) - step_size/2;
         xy_values.second = fom_value;
-        vector_of_xy_values->push_back(xy_values);
+        vector_of_xy_values.push_back(xy_values);
     }
   }
-
-  // don't know why, but the iterator gets destroit during loop...
-  // for(std::vector<double>::const_iterator it = classifier.steps().begin(); it != classifier.steps().end(); it++){
-  //   for (int i = 0; i < classifier.steps().size(); ++i)
-  //   {
-  //     doocore::io::sout << "vector " << classifier.steps().at(i) << "/" << *it << doocore::io::endmsg;
-  //   }
-  //   cut_string=classifier.name()+classifier.cut_operator()+boost::lexical_cast<std::string>(*it);
-  //   fom_value = FoM(stuple, signal_component, background_component, cut_string, figure_of_merit, debug_mode);
-
-  //   if (std::isfinite(fom_value)){
-  //       xy_values.first = (*it) - step_size/2;
-  //       xy_values.second = fom_value;
-  //       vector_of_xy_values.push_back(xy_values);
-  //   }
-  // }
-
-  return *vector_of_xy_values;
+  return vector_of_xy_values;
 }
 
 /// plot FoM distribution in a given range
@@ -549,35 +511,18 @@ std::vector< std::pair<double, double> > ROC(SelectionTuple &stuple, SelectionCl
   double signal_efficiency = 0.;
   double background_rejection = 0.;
 
-  if (debug_mode) doocore::io::serr << "-debug- \t" << "loop over steps" << doocore::io::endmsg;
-  for (unsigned int i = 0; i < steps.size(); ++i)
-  {
-    if (debug_mode) doocore::io::serr << "-debug- \t" << steps.at(i) << doocore::io::endmsg;
-    cut_string=classifier.name()+classifier.cut_operator()+boost::lexical_cast<std::string>(steps.at(i));
+  for(std::vector<double>::const_iterator it = steps.begin(); it != steps.end(); it++){
+    cut_string=classifier.name()+classifier.cut_operator()+boost::lexical_cast<std::string>(*it);
     signal_efficiency = FoM(stuple, signal_component, background_component, cut_string, "Signal Efficiency", debug_mode);
     background_rejection = FoM(stuple, signal_component, background_component, cut_string, "Background Rejection", debug_mode);
 
     if (std::isfinite(signal_efficiency) || (std::isfinite(background_rejection))){
-        xy_values.first = steps.at(i) - step_size/2;
+        xy_values.first = (*it) - step_size/2;
         xy_values.first = signal_efficiency;
         xy_values.second = background_rejection;
         vector_of_xy_values.push_back(xy_values);
     }
   }
-
-  // don't know why, but the iterator gets destroit during loop...
-  // for(std::vector<double>::const_iterator it = classifier.steps().begin(); it != classifier.steps().end(); it++){
-  //   cut_string=classifier.name()+classifier.cut_operator()+boost::lexical_cast<std::string>(*it);
-  //   signal_efficiency = FoM(stuple, signal_component, background_component, cut_string, "Signal Efficiency", debug_mode);
-  //   background_rejection = FoM(stuple, signal_component, background_component, cut_string, "Background Rejection", debug_mode);
-
-  //   if (std::isfinite(signal_efficiency) || (std::isfinite(background_rejection))){
-  //       xy_values.first = signal_efficiency;
-  //       xy_values.second = background_rejection;
-  //       vector_of_xy_values.push_back(xy_values);
-  //   }
-  // }
-
   return vector_of_xy_values;
 }
 

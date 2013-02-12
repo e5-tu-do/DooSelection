@@ -6,6 +6,7 @@
 #include <map>
 
 // from ROOT
+#include "TTree.h"
 
 // from RooFit
 #include "RooDataSet.h"
@@ -166,8 +167,8 @@ namespace performance{
     doocore::io::EasyTuple& etuple(){
     	return *etuple_;
     }
-    TTree* tree(){
-      return &(etuple_->tree());
+    TTree& tree(){
+      return etuple_->tree();
     }
     RooDataSet& dataset(){
       if (dataset_exists_){
