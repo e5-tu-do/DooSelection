@@ -123,7 +123,7 @@ void Reducer::Run(){
     if (isatty(fileno(stdout))) {
       //std::cout << (i+1) << std::endl;
       //std::cout << (i+1)%1000 << std::endl;
-      if ((i%1000) == 0) {
+      if ((i%200) == 0) {
         double frac = static_cast<double> (i)/num_entries*100.0;
         printf("Progress %.2f %         \xd", frac);
         fflush(stdout);

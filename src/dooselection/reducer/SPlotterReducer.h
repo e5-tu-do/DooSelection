@@ -34,7 +34,7 @@ class RooDataSet;
  *  Consider the following example:
  *
  *  @code
- *  SPlotFit2 spf(my_pdfs, dummy_dataset);
+ *  doofit::fitter::splot::SPlotFit2 spf(my_pdfs, dummy_dataset);
  *  spf.set_num_cpu(8);
  *  spf.set_use_minos(true);
  *
