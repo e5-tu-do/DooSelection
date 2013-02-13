@@ -44,15 +44,25 @@ class Reducer {
   Reducer( std::string const& );
   virtual ~Reducer();
 
+  /** @name Main running functions for Reducer
+   *  These functions to let the Reducer run
+   */
+  ///@{
   void Initialize();
-  void PrepareIntitialTree();
-  void PrepareFinalTree();
   void Run();
   void Finalize();
+  ///@}
+
+  void PrepareIntitialTree();
+  void PrepareFinalTree();
   
   void ReadConfigFile();
   void WriteConfigFile() const;
   
+  /** @name I/O configuration
+   *  These functions control input/output files and trees
+   */
+  ///@{
   void set_input_file_path(TString const&);
   void set_input_tree_path(TString const&);
   
@@ -60,14 +70,15 @@ class Reducer {
   
   void set_output_file_path(TString const&);
   void set_output_tree_path(TString const&);
-  
+  ///@}
+
   void add_branch_keep(TString const&);
   void add_branch_omit(TString const&);
   
   void set_cut_string(TString const&);
   void add_cut_string(TString const&);
   TString const& cut_string() const;
-
+  
   void AddNameMapping(TString old_name, TString new_name) {
     name_mapping_.push_back(std::pair<TString,TString>(old_name, new_name));
   }
@@ -90,7 +101,7 @@ class Reducer {
     best_candidate_leaf_ptr_ = new ReducerLeaf<Double_t>(leaf.name(), leaf.title(), leaf.type(), leaf.tree());
     best_candidate_leaf_ptr_->set_branch_address(leaf.branch_address());
   }
-  
+
   /*
    * get leaves of different leaf vectors.
    */
