@@ -72,12 +72,22 @@ class Reducer {
   void set_output_tree_path(TString const&);
   ///@}
 
+  /** @name Branch keeping/omitting
+   *  Functions to control which branches to keep/omit
+   */
+  ///@{
   void add_branch_keep(TString const&);
   void add_branch_omit(TString const&);
+  ///@}
   
+  /** @name Cut string functions
+   *  Functions for setting/extending the cut string
+   */
+  ///@{
   void set_cut_string(TString const&);
   void add_cut_string(TString const&);
   TString const& cut_string() const;
+  ///@}
   
   void AddNameMapping(TString old_name, TString new_name) {
     name_mapping_.push_back(std::pair<TString,TString>(old_name, new_name));
