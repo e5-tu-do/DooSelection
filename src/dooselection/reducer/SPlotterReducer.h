@@ -34,7 +34,19 @@ class RooDataSet;
  *  Consider the following example:
  *
  *  @code
- *  ...
+ *  SPlotFit2 spf(my_pdfs, dummy_dataset);
+ *  spf.set_num_cpu(8);
+ *  spf.set_use_minos(true);
+ *
+ *  dooselection::reducer::SPlotterReducer spr(spf, my_observables_argset);
+ *  spr.set_input_file_path(argv[1]);
+ *  spr.set_input_tree_path(argv[2]);
+ *  spr.set_output_file_path("test.root");
+ *  spr.set_output_tree_path("Bd2JpsiKS");
+ *  spr.set_cut_string("B0_BKGCAT==20");
+ *  spr.Initialize();
+ *  spr.Run();
+ *  spr.Finalize();
  *  @endcode
  **/
 namespace dooselection {
