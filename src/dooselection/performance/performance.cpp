@@ -110,22 +110,24 @@ std::map<std::string, double> NumberOfEventsPerComponent(SelectionTuple &stuple,
     std::string nocut_startingvalues_file = "StartingValues_NoCut.txt";
 
     if (cut_string==""){
+      doocore::io::tools::ReplaceScientificNotationInFile(nocut_startingvalues_file, debug_mode);
       stuple.epdf().Pdf("pdf").getParameters(data)->readFromFile(TString(nocut_startingvalues_file));
     }
     else{
+      doocore::io::tools::ReplaceScientificNotationInFile(handover_filename, debug_mode);
       stuple.epdf().Pdf("pdf").getParameters(data)->readFromFile(TString(handover_filename));
     }
     stuple.epdf().Pdf("pdf").fitTo(*data, RooFit::Minimizer("Minuit2", "minimize"), RooFit::NumCPU(16), RooFit::Strategy(2), RooFit::Extended());
     stuple.epdf().Pdf("pdf").getParameters(data)->writeToFile(TString(handover_filename));
     stuple.epdf().Pdf("pdf").getParameters(data)->writeToFile(TString("FitResults_")+cut_string+".out");
-    if (cut_string!="") doocore::io::tools::ReplaceScientificNotationInFile(handover_filename, debug_mode);
+    doocore::io::tools::ReplaceScientificNotationInFile(handover_filename, debug_mode);
 
     // plot
     RooArgList plot_pdfs;
     plot_pdfs.add(stuple.epdf().Pdf("pdf"));
 
     for(std::map<std::string, std::string>::const_iterator it = stuple.map_of_components_and_pdfs().begin(); it != stuple.map_of_components_and_pdfs().end(); ++it){
-      if (debug_mode) doocore::io::serr << "-debug- \t" << "Component: " << (*it).first << ", Yield: " << (*it).second << doocore::io::endmsg;
+      if (debug_mode) doocore::io::serr << "-debug- \t" << "Component: " << (*it).first << ", PDF: " << (*it).second << doocore::io::endmsg;
       plot_pdfs.add(stuple.epdf().Pdf((*it).second));
     }
 
@@ -134,7 +136,7 @@ std::map<std::string, double> NumberOfEventsPerComponent(SelectionTuple &stuple,
     plot.PlotIt();
 
     for(std::map<std::string, std::string>::const_iterator it = stuple.map_of_components_and_yields().begin(); it != stuple.map_of_components_and_yields().end(); ++it){
-      if (debug_mode) doocore::io::serr << "-debug- \t" << "Component: " << (*it).first << ", PDF: " << (*it).second << doocore::io::endmsg;
+      if (debug_mode) doocore::io::serr << "-debug- \t" << "Component: " << (*it).first << ", Yield: " << (*it).second << doocore::io::endmsg;
       components_and_yield_values[(*it).first]=stuple.epdf().Var((*it).second).getValV();
     }
     
@@ -299,7 +301,7 @@ void PlotClassifierDistributionOLD(SelectionTuple& stuple, SelectionClassifier& 
 // ===============
 //  CUT EFFICIENCY
 // ===============
-void PlotCutEfficiency(SelectionTuple& stuple, SelectionClassifier& classifier, std::string cut_string, std::string figure_of_merit, std::string output_prefix, int nbins, bool logscale, bool debug_mode){
+void PlotCutEfficiency(SelectionTuple& stuple, SelectionClassifier& classifier, std::string cut_string, std::string signal_component, std::string background_component, std::string figure_of_merit, std::string output_prefix, int nbins, bool logscale, bool debug_mode){
   doocore::lutils::setStyle("LHCb");
   if (debug_mode) doocore::io::serr << "-debug- " << "starting selection::PlotCutEfficiency() ..." << doocore::io::endmsg;
   if (debug_mode) doocore::io::serr << "-debug- \t" << "classifier "<< classifier.title() << doocore::io::endmsg;
@@ -313,24 +315,26 @@ void PlotCutEfficiency(SelectionTuple& stuple, SelectionClassifier& classifier, 
 
   std::map<std::string, double> events_per_component = NumberOfEventsPerComponent(stuple, cut_string, debug_mode);
 
-  double signal_events = events_per_component["signal"];
-  double background_events = events_per_component["background"];
-  double signal_efficiency = FoM(stuple, "signal", "background", cut_string, "Signal Efficiency", debug_mode);
-  double background_rejection = FoM(stuple, "signal", "background", cut_string, "Background Rejection", debug_mode);
-  double fom_value = FoM(stuple, "signal", "background", cut_string, figure_of_merit, debug_mode);
+  double signal_events = events_per_component[signal_component];
+  double background_events = events_per_component[background_component];
+  double signal_efficiency = FoM(stuple, signal_component, background_component, cut_string, "Signal Efficiency", debug_mode);
+  double background_rejection = FoM(stuple, signal_component, background_component, cut_string, "Background Rejection", debug_mode);
+  double fom_value = FoM(stuple, signal_component, background_component, cut_string, figure_of_merit, debug_mode);
 
-  TCanvas* canvas= new TCanvas("canvas", "canvas", 800, 600);
-  if (logscale) canvas->SetLogy();
-
+  
   std::string mass_variable = "B0_LOKI_MASS_JpsiKSConstr";
   doocore::io::swarn << "-dooselection::performance::PlotCutEfficiency- \t" << "Check correct mass variable! (" << mass_variable << ")" << doocore::io::endmsg;
+  // plot
+  TCanvas* canvas= new TCanvas("canvas", "canvas", 800, 600);
 
   stuple.tree().Draw(TString(mass_variable)+">>hist_without_cuts");
+  
   hist_without_cuts->SetLineColor(kBlack);
-  if (!logscale) hist_without_cuts->SetMinimum(0);
+  hist_without_cuts->SetMinimum(0);
   hist_without_cuts->SetXTitle(TString(mass_variable));
 
   stuple.tree().Draw(TString(mass_variable)+">>hist_with_cuts", TString(cut_string), "same");
+  
   hist_with_cuts->SetLineColor(kBlue);
   hist_with_cuts->SetLineStyle(3);
   hist_with_cuts->SetFillColor(kBlue);
@@ -345,16 +349,34 @@ void PlotCutEfficiency(SelectionTuple& stuple, SelectionClassifier& classifier, 
   latex_label.Draw();
 
   doocore::lutils::printPlot(canvas, classifier.title()+"_"+output_prefix, stuple.title()+"/CutEfficiency/");
+
+  // plot logarithmic
+  TCanvas* canvas_log = new TCanvas("canvas_log", "canvas_log", 800, 600);
+  if (logscale){
+    canvas_log->SetLogy();
+
+    stuple.tree().Draw(TString(mass_variable)+">>hist_without_cuts");
+    
+    hist_without_cuts->SetMinimum(10);
+
+    stuple.tree().Draw(TString(mass_variable)+">>hist_with_cuts", TString(cut_string), "same");
+
+    latex_label.Draw();
+
+    doocore::lutils::printPlot(canvas_log, classifier.title()+"_"+output_prefix+"_log", stuple.title()+"/CutEfficiency/");
+  }
+
   delete hist_without_cuts;
   delete hist_with_cuts;
   delete canvas;
+  delete canvas_log;
 }
 
-void PlotCutEfficiency(SelectionTuple& stuple, SelectionClassifier& classifier, std::string figure_of_merit, int nbins, bool logscale, bool debug_mode){
-  PlotCutEfficiency(stuple, classifier, classifier.best_cut_string(), figure_of_merit, "best_cut", nbins, logscale, debug_mode);
+void PlotCutEfficiency(SelectionTuple& stuple, SelectionClassifier& classifier, std::string signal_component, std::string background_component, std::string figure_of_merit, int nbins, bool logscale, bool debug_mode){
+  PlotCutEfficiency(stuple, classifier, classifier.best_cut_string(), signal_component, background_component, figure_of_merit, "best_cut", nbins, logscale, debug_mode);
 }
 
-void PlotCutEfficiencyScan(SelectionTuple& stuple, SelectionClassifier& classifier, std::string figure_of_merit, int nbins, bool logscale, bool debug_mode){
+void PlotCutEfficiencyScan(SelectionTuple& stuple, SelectionClassifier& classifier, std::string signal_component, std::string background_component, std::string figure_of_merit, int nbins, bool logscale, bool debug_mode){
   doocore::lutils::setStyle("LHCb");
   if (debug_mode) doocore::io::serr << "-debug- " << "starting selection::PlotCutEfficiencyScan() ..." << doocore::io::endmsg;
   if (debug_mode) doocore::io::serr << "-debug- \t" << "classifier "<< classifier.title() << doocore::io::endmsg;
@@ -372,7 +394,7 @@ void PlotCutEfficiencyScan(SelectionTuple& stuple, SelectionClassifier& classifi
   for (int i = 0; i < number_of_scan_points; ++i)
   {
     cut_string = classifier.name()+classifier.cut_operator()+boost::lexical_cast<std::string>(scan_points.at(i));
-    PlotCutEfficiency(stuple, classifier, cut_string, figure_of_merit, boost::lexical_cast<std::string>(scan_points.at(i)), nbins, logscale, debug_mode);
+    PlotCutEfficiency(stuple, classifier, cut_string, signal_component, background_component, figure_of_merit, boost::lexical_cast<std::string>(scan_points.at(i)), nbins, logscale, debug_mode);
   }
 }
 
@@ -424,6 +446,9 @@ double FoM(SelectionTuple &stuple, std::string signal_component, std::string bac
   }
   else if (figure_of_merit == "Background Rejection"){
     fom_value = (1.-(number_of_background_events/maximal_number_of_background_events));
+  }
+  else if (figure_of_merit == "Signal"){
+    fom_value = number_of_signal_events;
   }
   else{
     doocore::io::serr << "Please define a valid figure of merit!" << doocore::io::endmsg;
@@ -546,7 +571,9 @@ void PlotROCCurve(std::vector< std::pair<double, double> > roc, std::string clas
 
   xy_graph.SetTitle("ROC Curve");
   xy_graph.GetXaxis()->SetTitle("Signal Efficiency");
+  xy_graph.GetXaxis()->SetLimits(0.,1.);
   xy_graph.GetYaxis()->SetTitle("Background Rejection");
+  xy_graph.GetYaxis()->SetLimits(0.,1.);
 
   xy_graph.Draw("ac*");
 
