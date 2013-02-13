@@ -83,9 +83,11 @@ class Reducer {
     name_mapping_.push_back(std::pair<TString,TString>(old_name, new_name));
   }
   
-  /*
-   * set leaves for best candidate selection
+  
+  /** @name Best candidate selection configuration
+   *  Functions controlling best candidate selection
    */
+  ///@{
   template<class T>
   void SetEventNumberLeaf(const ReducerLeaf<T>& leaf) {
     event_number_leaf_ptr_ = new ReducerLeaf<ULong64_t>(leaf.name(), leaf.title(), leaf.type(), leaf.tree());
@@ -101,10 +103,12 @@ class Reducer {
     best_candidate_leaf_ptr_ = new ReducerLeaf<Double_t>(leaf.name(), leaf.title(), leaf.type(), leaf.tree());
     best_candidate_leaf_ptr_->set_branch_address(leaf.branch_address());
   }
+  ///@}
 
-  /*
-   * get leaves of different leaf vectors.
+  /** @name Accessing leaves
+   *  Functions accessing existing or to-be-created leaves
    */
+  ///@{
   const ReducerLeaf<Float_t>& GetInterimLeafByName(const TString& name) const {
     return GetLeafByName<Float_t>(name, interim_leaves_);
   }
@@ -117,10 +121,37 @@ class Reducer {
   const ReducerLeaf<Int_t>& GetIntLeafByName(const TString& name) const {
     return GetLeafByName<Int_t>(name, int_leaves_);
   }
+  bool LeafExists(std::string name) const {
+    // if interim tree not yet created, check for leaf in
+    if (interim_leaves_.size() == 0) {
+      if (input_tree_->FindBranch(name.c_str()) != NULL) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    
+    for (std::vector<ReducerLeaf<Float_t>* >::const_iterator it = interim_leaves_.begin(); it != interim_leaves_.end(); ++it) {
+      if ((*it)->name() == name) return true;
+    }
+    for (std::vector<ReducerLeaf<Double_t>* >::const_iterator it = double_leaves_.begin(); it != double_leaves_.end(); ++it) {
+      if ((*it)->name() == name) return true;
+    }
+    for (std::vector<ReducerLeaf<Float_t>* >::const_iterator it = float_leaves_.begin(); it != float_leaves_.end(); ++it) {
+      if ((*it)->name() == name) return true;
+    }
+    for (std::vector<ReducerLeaf<Int_t>* >::const_iterator it = int_leaves_.begin(); it != int_leaves_.end(); ++it) {
+      if ((*it)->name() == name) return true;
+    }
+    return false;
+  }
+
+  ///@}
   
-  /*
-   * create new leaves.
+  /** @name Leaf creation
+   *  Functions creating new leaves in the output tree
    */
+  ///@{
   ReducerLeaf<Double_t>& CreateDoubleLeaf(TString name, TString title, TString type, Double_t default_value=0.0) {
     ReducerLeaf<Double_t>* new_leaf = new ReducerLeaf<Double_t>(name, title, type, interim_tree_, default_value);
     double_leaves_.push_back(new_leaf);
@@ -169,34 +200,7 @@ class Reducer {
     new_leaf.Equal(leaf_to_copy, c);
     return new_leaf;
   }
-  
-  /** 
-   * Check if leaf existing in interim tree
-   **/
-  bool LeafExists(std::string name) const {
-    // if interim tree not yet created, check for leaf in 
-    if (interim_leaves_.size() == 0) {
-      if (input_tree_->FindBranch(name.c_str()) != NULL) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-    
-    for (std::vector<ReducerLeaf<Float_t>* >::const_iterator it = interim_leaves_.begin(); it != interim_leaves_.end(); ++it) {
-      if ((*it)->name() == name) return true;
-    }
-    for (std::vector<ReducerLeaf<Double_t>* >::const_iterator it = double_leaves_.begin(); it != double_leaves_.end(); ++it) {
-      if ((*it)->name() == name) return true;
-    }
-    for (std::vector<ReducerLeaf<Float_t>* >::const_iterator it = float_leaves_.begin(); it != float_leaves_.end(); ++it) {
-      if ((*it)->name() == name) return true;
-    }
-    for (std::vector<ReducerLeaf<Int_t>* >::const_iterator it = int_leaves_.begin(); it != int_leaves_.end(); ++it) {
-      if ((*it)->name() == name) return true;
-    }
-    return false;
-  }
+  ///@}
   
  protected:
   /*
