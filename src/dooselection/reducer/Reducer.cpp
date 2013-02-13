@@ -154,13 +154,13 @@ void Reducer::Finalize(){
 // ==========================================================================
 // = Functions for creation and readout of config file                      =
 // ==========================================================================
-void Reducer::ReadConfigFile(){
-  
-}
-
-void Reducer::WriteConfigFile() const{
-  
-}
+//void Reducer::ReadConfigFile(){
+//  
+//}
+//
+//void Reducer::WriteConfigFile() const{
+//  
+//}
 
 
 // ==========================================================================

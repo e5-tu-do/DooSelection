@@ -56,8 +56,8 @@ class Reducer {
   void PrepareIntitialTree();
   void PrepareFinalTree();
   
-  void ReadConfigFile();
-  void WriteConfigFile() const;
+  //void ReadConfigFile();
+  //void WriteConfigFile() const;
   
   /** @name I/O configuration
    *  These functions control input/output files and trees
