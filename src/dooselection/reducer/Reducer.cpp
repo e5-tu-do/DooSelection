@@ -123,7 +123,7 @@ void Reducer::Run(){
     if (isatty(fileno(stdout))) {
       //std::cout << (i+1) << std::endl;
       //std::cout << (i+1)%1000 << std::endl;
-      if ((i%1000) == 0) {
+      if ((num_written%200) == 0) {
         double frac = static_cast<double> (i)/num_entries*100.0;
         printf("Progress %.2f %         \xd", frac);
         fflush(stdout);
@@ -154,13 +154,13 @@ void Reducer::Finalize(){
 // ==========================================================================
 // = Functions for creation and readout of config file                      =
 // ==========================================================================
-void Reducer::ReadConfigFile(){
-  
-}
-
-void Reducer::WriteConfigFile() const{
-  
-}
+//void Reducer::ReadConfigFile(){
+//  
+//}
+//
+//void Reducer::WriteConfigFile() const{
+//  
+//}
 
 
 // ==========================================================================
@@ -208,7 +208,7 @@ void Reducer::CreateInterimFileAndTree(){
   interim_file_ = new TFile(interim_file_path_,"RECREATE");
   
   cout << "Creating InterimTree with cut " << cut_string_ << endl;
-  interim_tree_ = input_tree_->CopyTree(cut_string_/*, "", 20000*/);
+  interim_tree_ = input_tree_->CopyTree(cut_string_/*, "", 2000*/);
   
   interim_tree_->Write();
   input_tree_ = NULL;
