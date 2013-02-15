@@ -43,6 +43,13 @@
 namespace dooselection{
 namespace performance{
 
+// =============
+// AUX FUNCTIONS
+// =============
+bool CompareSecondArgOfPairs(std::pair<double,double> i, std::pair<double,double> j){
+  return (i.second>j.second);
+}
+
 // ==============================
 // NUMBER OF EVENTS PER COMPONENT
 // ==============================
@@ -133,7 +140,7 @@ std::map<std::string, double> NumberOfEventsPerComponent(SelectionTuple &stuple,
 
     doofit::plotting::PlotConfig plot_cfg("plot_cfg");
     doofit::plotting::Plot plot(plot_cfg, stuple.epdf().Var(stuple.observable_name()), *data, plot_pdfs, stuple.observable_name()+"_"+cut_string);
-    plot.PlotIt();
+    plot.PlotItLogNoLogY();
 
     for(std::map<std::string, std::string>::const_iterator it = stuple.map_of_components_and_yields().begin(); it != stuple.map_of_components_and_yields().end(); ++it){
       if (debug_mode) doocore::io::serr << "-debug- \t" << "Component: " << (*it).first << ", Yield: " << (*it).second << doocore::io::endmsg;
@@ -477,11 +484,19 @@ std::vector< std::pair<double, double> > FoMDistribution(SelectionTuple &stuple,
     fom_value = FoM(stuple, signal_component, background_component, cut_string, figure_of_merit, debug_mode);
 
     if (std::isfinite(fom_value)){
-        xy_values.first = (*it) - step_size/2;
-        xy_values.second = fom_value;
-        vector_of_xy_values.push_back(xy_values);
+      xy_values.first = (*it) - step_size/2;
+      xy_values.second = fom_value;
+      vector_of_xy_values.push_back(xy_values);
     }
   }
+
+  doocore::io::sinfo << "\t" << classifier.title() << " -- '" << figure_of_merit << "' distribution" << doocore::io::endmsg;
+  doocore::io::sinfo << "\t" << "Cut:\t\tFoM value: " << doocore::io::endmsg;
+  for(std::vector< std::pair<double, double> >::const_iterator it = vector_of_xy_values.begin(); it != vector_of_xy_values.end(); it++){
+    doocore::io::sout << "\t" << (*it).first+step_size/2 << "\t\t" << (*it).second << doocore::io::endmsg;
+  }
+  std::sort(vector_of_xy_values.begin(), vector_of_xy_values.end(), CompareSecondArgOfPairs);
+  doocore::io::sinfo << "\t" << "Best cut: " << vector_of_xy_values.at(0).first+step_size/2 << " with FoM value: " << vector_of_xy_values.at(0).second << doocore::io::endmsg;
   return vector_of_xy_values;
 }
 
@@ -495,7 +510,7 @@ void PlotFoMDistribution(std::vector< std::pair<double, double> > fom_distributi
   double x_values[entries];
   double y_values[entries];
 
-  // fill arrays
+  // fill arrays & print out entries
   for(unsigned int i = 0; i < entries; ++i) {
     x_values[i] = fom_distribution.at(i).first;
     y_values[i] = fom_distribution.at(i).second;
@@ -510,7 +525,7 @@ void PlotFoMDistribution(std::vector< std::pair<double, double> > fom_distributi
 
   xy_graph.Draw("ac*");
 
-  doocore::lutils::printPlot (&canvas, figure_of_merit+"_"+classifier.title(), output_prefix+"/FigureOfMerit/");
+  doocore::lutils::printPlot(&canvas, figure_of_merit+"_"+classifier.title(), output_prefix+"/FigureOfMerit/");
 }
 
 /// plot FoM distribution in a given range
