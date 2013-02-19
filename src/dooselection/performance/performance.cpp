@@ -139,6 +139,7 @@ std::map<std::string, double> NumberOfEventsPerComponent(SelectionTuple &stuple,
     }
 
     doofit::plotting::PlotConfig plot_cfg("plot_cfg");
+    // if (cut_string.size > 20) cut_string = cut_string.substr(20);
     doofit::plotting::Plot plot(plot_cfg, stuple.epdf().Var(stuple.observable_name()), *data, plot_pdfs, stuple.observable_name()+"_"+cut_string);
     plot.PlotItLogNoLogY();
 
@@ -454,12 +455,18 @@ double FoM(SelectionTuple &stuple, std::string signal_component, std::string bac
   else if (figure_of_merit == "Background Rejection"){
     fom_value = (1.-(number_of_background_events/maximal_number_of_background_events));
   }
-  else if (figure_of_merit == "Signal"){
+  else if (figure_of_merit == "Signal Yield"){
     fom_value = number_of_signal_events;
+  }
+  else if (figure_of_merit== "Sin2BetaFoM"){
+    // FoM derived by Frank Meier for the sin2beta analysis. Only correct if the mass range is 5200–5500 MeV!
+    double epsilon_eff = 0.0238;
+    fom_value = 1.818/sqrt(epsilon_eff*number_of_signal_events) + 0.00057*(number_of_background_events/number_of_signal_events);
+    fom_value = 1/fom_value;
   }
   else{
     doocore::io::serr << "Please define a valid figure of merit!" << doocore::io::endmsg;
-    doocore::io::serr << "Possible FoMs are: Significance, Weighted Significance, Purity, Punzi, Signal Efficiency, and Background Rejection" << doocore::io::endmsg;
+    doocore::io::serr << "Possible FoMs are: Significance, Weighted Significance, Purity, Punzi, Signal Efficiency, Background Rejection, Signal Yield, and Sin2BetaFoM" << doocore::io::endmsg;
     abort;
   }
   if (debug_mode) doocore::io::serr << "-debug- \t" << figure_of_merit << ": " << fom_value << doocore::io::endmsg;

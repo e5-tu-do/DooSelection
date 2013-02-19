@@ -22,6 +22,12 @@
 
 // forward declarations
 
+/**
+ * @namespace dooselection::performance
+ * @brief Tooles for selection classifier performance measurements
+ * 
+ */
+
 namespace dooselection{
 namespace performance{
 
