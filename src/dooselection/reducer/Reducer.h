@@ -155,7 +155,102 @@ class Reducer {
     }
     return false;
   }
+  
+  /**
+   *  @brief Interim leaves begin iterator
+   *
+   *  To iterate over all interim leaves, this function will return the begin()
+   *  iterator of the corresponding vector.
+   *
+   *  @return begin() of interim leaves vector
+   */
+  std::vector<ReducerLeaf<Float_t>* >::const_iterator GetInterimLeavesBegin() const {
+    return interim_leaves_.begin();
+  }
+  
+  /**
+   *  @brief Interim leaves end iterator
+   *
+   *  To iterate over all interim leaves, this function will return the end()
+   *  iterator of the corresponding vector.
+   *
+   *  @return end() of interim leaves vector
+   */
+  std::vector<ReducerLeaf<Float_t>* >::const_iterator GetInterimLeavesEnd() const {
+    return interim_leaves_.end();
+  }
+  
+  /**
+   *  @brief Double leaves begin iterator
+   *
+   *  To iterate over all double leaves, this function will return the begin()
+   *  iterator of the corresponding vector.
+   *
+   *  @return begin() of double leaves vector
+   */
+  std::vector<ReducerLeaf<Double_t>* >::const_iterator GetDoubleLeavesBegin() const {
+    return double_leaves_.begin();
+  }
+  
+  /**
+   *  @brief Double leaves end iterator
+   *
+   *  To iterate over all double leaves, this function will return the end()
+   *  iterator of the corresponding vector.
+   *
+   *  @return end() of double leaves vector
+   */
+  std::vector<ReducerLeaf<Double_t>* >::const_iterator GetDoubleLeavesEnd() const {
+    return double_leaves_.end();
+  }
 
+  /**
+   *  @brief Float leaves begin iterator
+   *
+   *  To iterate over all float leaves, this function will return the begin()
+   *  iterator of the corresponding vector.
+   *
+   *  @return begin() of float leaves vector
+   */
+  std::vector<ReducerLeaf<Float_t>* >::const_iterator GetFloatLeavesBegin() const {
+    return float_leaves_.begin();
+  }
+  
+  /**
+   *  @brief Float leaves end iterator
+   *
+   *  To iterate over all float leaves, this function will return the end()
+   *  iterator of the corresponding vector.
+   *
+   *  @return end() of float leaves vector
+   */
+  std::vector<ReducerLeaf<Float_t>* >::const_iterator GetFloatLeavesEnd() const {
+    return float_leaves_.end();
+  }
+
+  /**
+   *  @brief Int leaves begin iterator
+   *
+   *  To iterate over all int leaves, this function will return the begin()
+   *  iterator of the corresponding vector.
+   *
+   *  @return begin() of int leaves vector
+   */
+  std::vector<ReducerLeaf<Int_t>* >::const_iterator GetIntLeavesBegin() const {
+    return int_leaves_.begin();
+  }
+  
+  /**
+   *  @brief Int leaves end iterator
+   *
+   *  To iterate over all int leaves, this function will return the end()
+   *  iterator of the corresponding vector.
+   *
+   *  @return end() of int leaves vector
+   */
+  std::vector<ReducerLeaf<Int_t>* >::const_iterator GetIntLeavesEnd() const {
+    return int_leaves_.end();
+  }
   ///@}
   
   /** @name Leaf creation
