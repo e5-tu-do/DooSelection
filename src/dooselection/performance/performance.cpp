@@ -124,6 +124,13 @@ std::map<std::string, double> NumberOfEventsPerComponent(SelectionTuple &stuple,
       doocore::io::tools::ReplaceScientificNotationInFile(handover_filename, debug_mode);
       stuple.epdf().Pdf("pdf").getParameters(data)->readFromFile(TString(handover_filename));
     }
+
+    // handles too long cut strings, maybe, there is a nicer method
+    if (cut_string.size() > 50){
+      cut_string.erase(15,cut_string.size());
+      cut_string.append("…");
+    }  
+
     stuple.epdf().Pdf("pdf").fitTo(*data, RooFit::Minimizer("Minuit2", "minimize"), RooFit::NumCPU(16), RooFit::Strategy(2), RooFit::Extended());
     stuple.epdf().Pdf("pdf").getParameters(data)->writeToFile(TString(handover_filename));
     stuple.epdf().Pdf("pdf").getParameters(data)->writeToFile(TString("FitResults_")+cut_string+".out");
@@ -139,7 +146,6 @@ std::map<std::string, double> NumberOfEventsPerComponent(SelectionTuple &stuple,
     }
 
     doofit::plotting::PlotConfig plot_cfg("plot_cfg");
-    // if (cut_string.size > 20) cut_string = cut_string.substr(20);
     doofit::plotting::Plot plot(plot_cfg, stuple.epdf().Var(stuple.observable_name()), *data, plot_pdfs, stuple.observable_name()+"_"+cut_string);
     plot.PlotItLogNoLogY();
 
