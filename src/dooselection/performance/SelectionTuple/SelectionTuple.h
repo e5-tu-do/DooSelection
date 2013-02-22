@@ -32,6 +32,7 @@ namespace performance{
    public:
     SelectionTuple(std::string name, std::string title, doocore::io::EasyTuple* etuple, std::map<std::string, std::string> map_of_components_and_cuts, bool debug_mode=false):
     debug_mode_(debug_mode),
+    use_tagged_events_only_(false),
     name_(name),
     title_(title),
     etuple_(etuple),
@@ -56,6 +57,7 @@ namespace performance{
 
     SelectionTuple(std::string name, std::string title, doocore::io::EasyTuple* etuple, std::map<std::string, std::string> map_of_components_and_sweights, double sweight_range_min, double sweight_range_max, bool debug_mode=false):
     debug_mode_(debug_mode),
+    use_tagged_events_only_(false),
     name_(name),
     title_(title),
     etuple_(etuple),
@@ -80,6 +82,7 @@ namespace performance{
 
     SelectionTuple(std::string name, std::string title, doocore::io::EasyTuple* etuple, doofit::builder::EasyPdf* epdf, std::string observable_name, std::map<std::string, std::string> map_of_components_and_pdfs, std::map<std::string, std::string> map_of_components_and_yields, double fit_range_min, double fit_range_max, bool debug_mode=false):
     debug_mode_(debug_mode),
+    use_tagged_events_only_(false),
     name_(name),
     title_(title),
     etuple_(etuple),
@@ -107,6 +110,9 @@ namespace performance{
     // SETTER
     void set_debug_mode(bool debug_mode){
     	debug_mode_=debug_mode;
+    }
+    void set_use_tagged_events_only(bool use_tagged_events_only){
+        use_tagged_events_only_=use_tagged_events_only;
     }
     void set_mc_truth_cuts(std::map<std::string, std::string> map_of_components_and_cuts){
     	map_of_components_and_cuts_=map_of_components_and_cuts;
@@ -157,6 +163,9 @@ namespace performance{
     // GETTER
     const bool debug_mode(){
     	return debug_mode_;
+    }
+    const bool use_tagged_events_only(){
+        return use_tagged_events_only_;
     }
     const std::string name(){
     	return name_;
@@ -226,6 +235,7 @@ namespace performance{
 
     // MEMBER VARIABLES
     bool debug_mode_;
+    bool use_tagged_events_only_;
 
     std::string name_;
     std::string title_;

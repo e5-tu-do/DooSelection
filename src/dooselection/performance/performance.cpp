@@ -34,6 +34,7 @@
 // from DooFit
 #include "doofit/builder/EasyPdf/EasyPdf.h"
 #include "doofit/plotting/Plot/Plot.h"
+#include "doofit/plotting/Plot/PlotSimultaneous.h"
 #include "doofit/plotting/Plot/PlotConfig.h"
 
 // from DooSelection
@@ -104,6 +105,10 @@ std::map<std::string, double> NumberOfEventsPerComponent(SelectionTuple &stuple,
     // if (debug_mode) stuple.epdf().Pdf("pdf").printCompactTree();
 
     /// cut on data
+    if (stuple.use_tagged_events_only()){
+      cut_string+="&&catTagged==1";
+      doocore::io::sinfo << "-info- \t" << "Using tagged events only!" << doocore::io::endmsg;
+    }
     RooAbsData* data;
     if (cut_string==""){
       data = &stuple.dataset();
@@ -124,6 +129,7 @@ std::map<std::string, double> NumberOfEventsPerComponent(SelectionTuple &stuple,
       doocore::io::tools::ReplaceScientificNotationInFile(handover_filename, debug_mode);
       stuple.epdf().Pdf("pdf").getParameters(data)->readFromFile(TString(handover_filename));
     }
+    stuple.epdf().Pdf("pdf").getParameters(data)->writeToFile("StartingValues.out");
 
     // handles too long cut strings, maybe, there is a nicer method
     if (cut_string.size() > 50){
@@ -135,11 +141,11 @@ std::map<std::string, double> NumberOfEventsPerComponent(SelectionTuple &stuple,
     stuple.epdf().Pdf("pdf").getParameters(data)->writeToFile(TString(handover_filename));
     stuple.epdf().Pdf("pdf").getParameters(data)->writeToFile(TString("FitResults_")+cut_string+".out");
     doocore::io::tools::ReplaceScientificNotationInFile(handover_filename, debug_mode);
-
+    
     // plot
     RooArgList plot_pdfs;
-    plot_pdfs.add(stuple.epdf().Pdf("pdf"));
-
+    plot_pdfs.add(stuple.epdf().Pdf("pdf_dd"));
+    
     for(std::map<std::string, std::string>::const_iterator it = stuple.map_of_components_and_pdfs().begin(); it != stuple.map_of_components_and_pdfs().end(); ++it){
       if (debug_mode) doocore::io::serr << "-debug- \t" << "Component: " << (*it).first << ", PDF: " << (*it).second << doocore::io::endmsg;
       plot_pdfs.add(stuple.epdf().Pdf((*it).second));
