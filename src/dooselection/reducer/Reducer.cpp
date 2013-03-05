@@ -36,12 +36,18 @@ bool Reducer::abort_loop_ = false;
 Reducer::Reducer() : 
 event_number_leaf_ptr_(NULL),
 run_number_leaf_ptr_(NULL),
-best_candidate_leaf_ptr_(NULL)
+best_candidate_leaf_ptr_(NULL),
+num_events_process_(-1)
 {
   GenerateInterimFileName();
 }
 
-Reducer::Reducer( std::string const& config_file_path ){
+Reducer::Reducer(std::string const& config_file_path) :
+  event_number_leaf_ptr_(NULL),
+  run_number_leaf_ptr_(NULL),
+  best_candidate_leaf_ptr_(NULL),
+  num_events_process_(-1)
+{
   GenerateInterimFileName();
 }
 
@@ -207,9 +213,14 @@ void Reducer::CreateInterimFileAndTree(){
   cout << "Creating InterimFile " << interim_file_path_ << endl;
   interim_file_ = new TFile(interim_file_path_,"RECREATE");
   
-  cout << "Creating InterimTree with cut " << cut_string_ << endl;
-  interim_tree_ = input_tree_->CopyTree(cut_string_/*, "", 2000*/);
-  
+  if (num_events_process_ == -1) {
+    cout << "Creating InterimTree with cut " << cut_string_ << endl;
+    interim_tree_ = input_tree_->CopyTree(cut_string_/*, "", 2000*/);
+  } else {
+    cout << "Creating InterimTree with cut " << cut_string_ << ", copying only "
+         << num_events_process_ << " events." << endl;
+    interim_tree_ = input_tree_->CopyTree(cut_string_, "", num_events_process_);
+  }
   interim_tree_->Write();
   input_tree_ = NULL;
   cout << "Closing InputFile." << endl;

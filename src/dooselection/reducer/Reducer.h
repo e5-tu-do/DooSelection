@@ -71,7 +71,23 @@ class Reducer {
   void set_output_file_path(TString const&);
   void set_output_tree_path(TString const&);
   ///@}
-
+  
+  /** @name Input tree processing
+   *  Functions to control processing of input tree
+   */
+  ///@{
+  /**
+   *  @brief Set number of events in input tree to process
+   *
+   *  Use this to specify how many events in the input tree are to be copied 
+   *  into the interim and output tree. If set to -1 (default) all events will
+   *  be processed.
+   *
+   *  @param num_events_process number of events to process
+   */
+  void set_num_events_process(int num_events_process) { num_events_process_ = num_events_process; }
+  ///@}
+  
   /** @name Branch keeping/omitting
    *  Functions to control which branches to keep/omit
    */
@@ -471,6 +487,10 @@ class Reducer {
   ///< SIGINT handler (i.e. CTRL-C)
   static void HandleSigInt(int param);
   
+  /**
+   *  @brief maximum number of events to process
+   */
+  int num_events_process_;
 };
 
 template<class T>
