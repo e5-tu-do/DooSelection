@@ -8,6 +8,9 @@
 #include <map>
 #include <iostream>
 
+// from BOOST
+#include <boost/bimap.hpp>
+
 // from ROOT
 #include "TString.h"
 #include "TTree.h"
@@ -15,7 +18,7 @@
 
 #include "ReducerLeaf.h"
 
-// forward decalarations
+// forward declarations
 class TFile;
 class TLeaf;
 
@@ -105,9 +108,17 @@ class Reducer {
   TString const& cut_string() const;
   ///@}
   
+  /** @name Rename branches functions
+   *  Functions to rename branches either by passing old and new name or boost::bimap containing unique pairs of old and new names
+   */
+  ///@{
   void AddNameMapping(TString old_name, TString new_name) {
-    name_mapping_.push_back(std::pair<TString,TString>(old_name, new_name));
+    name_mapping_.insert(boost::bimap<TString, TString>::value_type(old_name, new_name));
   }
+  void AddNameMapping(boost::bimap<TString, TString> bm) {
+    name_mapping_=bm;
+  }
+  ///@}
   
   
   /** @name Best candidate selection configuration
@@ -399,7 +410,7 @@ class Reducer {
    * Rename branches based on a given name mapping vector
    *
    */
-  void RenameBranches(std::vector<ReducerLeaf<Float_t>* >* leaves, const std::vector< std::pair<TString,TString> >& mapping); 
+  void RenameBranches(std::vector<ReducerLeaf<Float_t>* >* leaves, const boost::bimap<TString, TString>& mapping); 
   
   /**
    * Initialize branches of a given output tree based on vector of ReducerLeaves
@@ -456,7 +467,7 @@ class Reducer {
   std::set<TString> branches_keep_;
   std::set<TString> branches_omit_;
   
-  std::vector< std::pair<TString,TString> > name_mapping_;
+  boost::bimap<TString, TString> name_mapping_;
   
   std::vector<ReducerLeaf<Float_t>* >  interim_leaves_; ///< vector of all leaves in the interim tree
   std::vector<ReducerLeaf<Float_t>* >  float_leaves_;   ///< new float leaves for output tree

@@ -20,10 +20,14 @@
 #include "RooAbsData.h"
 #include "RooDataSet.h"
 #include "RooAbsArg.h"
+#include "RooSimultaneous.h"
 
 // from TMVA
 
 // from BOOST
+// for cool vector assignment
+#include <boost/assign/std/vector.hpp>
+using namespace boost::assign;
 
 // from DooCore
 #include "doocore/io/MsgStream.h"
@@ -141,18 +145,21 @@ std::map<std::string, double> NumberOfEventsPerComponent(SelectionTuple &stuple,
     stuple.epdf().Pdf("pdf").getParameters(data)->writeToFile(TString(handover_filename));
     stuple.epdf().Pdf("pdf").getParameters(data)->writeToFile(TString("FitResults_")+cut_string+".out");
     doocore::io::tools::ReplaceScientificNotationInFile(handover_filename, debug_mode);
-    
+
     // plot
-    RooArgList plot_pdfs;
-    plot_pdfs.add(stuple.epdf().Pdf("pdf_dd"));
+    // RooArgList plot_pdfs;
+    // plot_pdfs.add(stuple.epdf().Pdf("pdf"));
     
+    std::vector<std::string> components;
+
     for(std::map<std::string, std::string>::const_iterator it = stuple.map_of_components_and_pdfs().begin(); it != stuple.map_of_components_and_pdfs().end(); ++it){
       if (debug_mode) doocore::io::serr << "-debug- \t" << "Component: " << (*it).first << ", PDF: " << (*it).second << doocore::io::endmsg;
-      plot_pdfs.add(stuple.epdf().Pdf((*it).second));
+      // plot_pdfs.add(stuple.epdf().Pdf((*it).second));
+      components += stuple.epdf().Pdf((*it).second).GetName();
     }
 
     doofit::plotting::PlotConfig plot_cfg("plot_cfg");
-    doofit::plotting::Plot plot(plot_cfg, stuple.epdf().Var(stuple.observable_name()), *data, plot_pdfs, stuple.observable_name()+"_"+cut_string);
+    doofit::plotting::PlotSimultaneous plot(plot_cfg, stuple.epdf().Var(stuple.observable_name()), *data, dynamic_cast<RooSimultaneous&>(stuple.epdf().Pdf("pdf")), components, stuple.observable_name()+"_"+cut_string);
     plot.PlotItLogNoLogY();
 
     for(std::map<std::string, std::string>::const_iterator it = stuple.map_of_components_and_yields().begin(); it != stuple.map_of_components_and_yields().end(); ++it){

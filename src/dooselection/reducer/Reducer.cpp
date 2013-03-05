@@ -12,6 +12,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/bimap.hpp>
 
 // from ROOT
 #include "TROOT.h"
@@ -31,6 +32,9 @@ using namespace std;
 
 namespace dooselection {
 namespace reducer {
+
+typedef boost::bimap<TString, TString> bimap;
+
 bool Reducer::abort_loop_ = false;
 
 Reducer::Reducer() : 
@@ -102,7 +106,7 @@ void Reducer::Run(){
   std::cout << "Writing OutputTree for " << num_entries << " entries in interim tree." << std::endl;
 
   if (event_number_leaf_ptr_ == NULL || run_number_leaf_ptr_ == NULL || best_candidate_leaf_ptr_ == NULL) {
-    std::cout << "Using no best canidate selection (due to not set event number, run number or best candidate leaf)." << std::endl;
+    std::cout << "Using no best candidate selection (due to not set event number, run number or best candidate leaf)." << std::endl;
   } else {
     std::cout << "Using best candidate selection for leaf " << best_candidate_leaf_ptr_->name() << std::endl;
   }
@@ -275,6 +279,19 @@ void Reducer::InitializeBranches(){
         input_tree_->SetBranchStatus(*it,1);
       }
     }
+    // now loop over all branches that are used in name mapping
+    cout << "Additionally keep all branches that are used in renaming process:" << endl;
+    for (bimap::left_const_iterator it_map = name_mapping_.left.begin(); it_map != name_mapping_.left.end(); ++it_map) {
+      cout << "  " << (*it_map).first << endl;
+      // Check if tree exists
+      if ( input_tree_->FindBranch((*it_map).first) == 0){
+        cout << "    " << "Branch does not exist in tree! Skipping." << endl;
+        continue;
+      }
+      else{
+        input_tree_->SetBranchStatus((*it_map).first,1);
+      }
+    }
   }
   // If no branches to keep: Loop over all branches that should be omitted
   else if ( !branches_omit_.empty()){
@@ -288,7 +305,14 @@ void Reducer::InitializeBranches(){
         continue;
       }
       else{
-        input_tree_->SetBranchStatus(*it,0);
+        // check if branch is used in name mapping
+        if (name_mapping_.left.count(*it)==0){
+          input_tree_->SetBranchStatus(*it,0);
+        }
+        else{
+          cout << "    " << "Branch will be used later in renaming process! Skipping!" << endl;
+          continue;
+        }
       }
     }
   }
@@ -400,8 +424,10 @@ void Reducer::InitializeInterimLeafMap(TTree* tree, std::vector<ReducerLeaf<Floa
   std::cout << leaves->size() << " leaves to be copied" << std::endl;
 }
 
-void Reducer::RenameBranches(std::vector<ReducerLeaf<Float_t>* >* leaves, const std::vector< std::pair<TString,TString> >& mapping) {
-  for (std::vector<std::pair<TString,TString> >::const_iterator it_map = mapping.begin(); it_map != mapping.end(); ++it_map) {
+void Reducer::RenameBranches(std::vector<ReducerLeaf<Float_t>* >* leaves, const bimap& mapping) {
+  for (bimap::left_const_iterator it_map = mapping.left.begin(); it_map != mapping.left.end(); ++it_map) {
+    // (*it_map).first  : old_name : TString
+    // (*it_map).second : new_name : TString
     for (std::vector<ReducerLeaf<Float_t>* >::iterator it_leaf = leaves->begin(); it_leaf != leaves->end(); ++it_leaf) {
       if ((*it_map).first == (*it_leaf)->name()) {
         std::cout << "Leaf " << (*it_leaf)->name() << " shall be known as " << (*it_map).second << std::endl;
