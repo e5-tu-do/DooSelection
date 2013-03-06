@@ -56,7 +56,7 @@ public:
   }
   
   const TString& name() const { return name_; }
-  const TString& set_name(const TString& new_name) { name_=new_name; return name_; }
+  const TString& set_name(const TString& new_name) { name_=new_name; title_=new_name+"/"+type_; return name_; }
   
   const TString& title() const { return title_; }
   const TString& type() const { return type_; }

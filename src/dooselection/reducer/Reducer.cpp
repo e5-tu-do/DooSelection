@@ -154,6 +154,9 @@ void Reducer::Run(){
   sinfo << "Removing interim file " << interim_file_path_ << endmsg;
   using namespace boost::filesystem;
   remove(path(interim_file_path_));
+  output_file_->Close();
+  delete output_file_;
+  output_file_ = NULL;
 }
 
 void Reducer::Finalize(){
@@ -257,6 +260,18 @@ void Reducer::add_branch_keep( TString const& branch_keep){
 
 void Reducer::add_branch_omit( TString const& branch_omit){
   branches_omit_.insert(branch_omit);
+}
+
+void Reducer::add_branches_keep(std::set<TString> const& branches_keep){
+  for(std::set<TString>::const_iterator it = branches_keep.begin(); it != branches_keep.end(); it++){
+    branches_keep_.insert(*it);
+  }
+}
+
+void Reducer::add_branches_omit(std::set<TString> const& branches_omit){
+  for(std::set<TString>::const_iterator it = branches_omit.begin(); it != branches_omit.end(); it++){
+    branches_omit_.insert(*it);
+  }
 }
 
 void Reducer::InitializeBranches(){

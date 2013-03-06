@@ -97,6 +97,8 @@ class Reducer {
   ///@{
   void add_branch_keep(TString const&);
   void add_branch_omit(TString const&);
+  void add_branches_keep(std::set<TString> const&);
+  void add_branches_omit(std::set<TString> const&);
   ///@}
   
   /** @name Cut string functions
