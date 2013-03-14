@@ -22,8 +22,23 @@
 
 namespace dooselection{
 namespace performance{
+
+/** @class SelectionClassifier
+ *  @brief Container class to bundle all information relevant for a specific classifier.
+ *
+ *  This container class bundles all relevant information of a specific classifier.
+ *  A classifier describes a variable which can be used to provide a classification of an event, 
+ *  e.g. if it is signal or background like. This can be a MVA classifier or just a regular variable
+ *  that will be cutted on a specific value to gain e.g. more signal yield.
+ * 
+**/
   class SelectionClassifier{
    public:
+    /** @name Constructors
+     **/
+    ///@{
+    /// Basic constructor that only needs the classifer name and a title
+    /// Default range is set to 0.0 - 0.0
     SelectionClassifier(std::string name, std::string title, double range_min=0.0, double range_max=0.0, bool debug_mode=false):
     debug_mode_(debug_mode),
     use_number_of_steps_(false),
@@ -240,7 +255,7 @@ namespace performance{
 			temp+="]";
     	if (debug_mode_) doocore::io::serr << "-debug- \t" << "scan points: " << temp << "'" << doocore::io::endmsg;
     }
-
+    ///@}
     ~SelectionClassifier(){};
 
     // SETTER
