@@ -37,8 +37,7 @@ namespace performance{
     /** @name Constructors
      **/
     ///@{
-    /// Basic constructor that only needs the classifer name and a title
-    /// Default range is set to 0.0 - 0.0
+    /// Basic constructor that only needs the classifer name and a title.
     SelectionClassifier(std::string name, std::string title, double range_min=0.0, double range_max=0.0, bool debug_mode=false):
     debug_mode_(debug_mode),
     use_number_of_steps_(false),
@@ -59,6 +58,8 @@ namespace performance{
     	if (debug_mode_) doocore::io::serr << "-debug- \t" << "range: " << range_min_ << "-" << range_max_ << doocore::io::endmsg;
     }
 
+    /// Constructor that additionaly takes a cut_operator (e.g. > or <) and a number_of_steps. This will be used e.g. to perform a scan in the given classifier range.
+    /// It also takes a best_cut_value (default: 0) that can be used later on.
     SelectionClassifier(std::string name, std::string title, double range_min, double range_max, std::string cut_operator, int number_of_steps, double best_cut_value=0., bool debug_mode=false):
     debug_mode_(debug_mode),
     use_number_of_steps_(true),
@@ -96,6 +97,8 @@ namespace performance{
     	if (debug_mode_) doocore::io::serr << "-debug- \t" << "scan points: " << temp << "'" << doocore::io::endmsg;
     }
 
+    /// Classifier that additionaly takes a cut_operator (e.g. > or <) and a steps size. This will be used e.g. to perform a scan in the given classifier range.
+    /// It also takes a best_cut_value (default: 0) that can be used later on.
     SelectionClassifier(std::string name, std::string title, double range_min, double range_max, std::string cut_operator, double step_size, double best_cut_value=0., bool debug_mode=false):
     debug_mode_(debug_mode),
     use_number_of_steps_(false),
@@ -131,6 +134,8 @@ namespace performance{
     	if (debug_mode_) doocore::io::serr << "-debug- \t" << "scan points: " << temp << "'" << doocore::io::endmsg;
     }
 
+    /// Classifier that additionaly takes a cut_operator (e.g. > or <) and a vector with predefined steps. This will be used e.g. to perform a scan in the given classifier range.
+    /// It also takes a best_cut_value (default: 0) that can be used later on.
     SelectionClassifier(std::string name, std::string title, double range_min, double range_max, std::string cut_operator, std::vector<double> steps, double best_cut_value=0., bool debug_mode=false):
     debug_mode_(debug_mode),
     use_number_of_steps_(false),
@@ -161,6 +166,8 @@ namespace performance{
     	if (debug_mode_) doocore::io::serr << "-debug- \t" << "scan points: " << temp << "'" << doocore::io::endmsg;
     }
 
+    /// Constructor that additionaly takes a number_of_steps. This will be used e.g. to perform a scan in the given classifier range.
+    /// It also takes a best_cut_string that can be used later on.
     SelectionClassifier(std::string name, std::string title, double range_min, double range_max, int number_of_steps, std::string best_cut_string, bool debug_mode=false):
     debug_mode_(debug_mode),
     use_number_of_steps_(true),
@@ -195,6 +202,8 @@ namespace performance{
     	if (debug_mode_) doocore::io::serr << "-debug- \t" << "scan points: " << temp << "'" << doocore::io::endmsg;
     }
 
+    /// Classifier that additionaly takes a steps size. This will be used e.g. to perform a scan in the given classifier range.
+    /// It also takes a best_cut_string that can be used later on.
     SelectionClassifier(std::string name, std::string title, double range_min, double range_max, double step_size, std::string best_cut_string, bool debug_mode=false):
     debug_mode_(debug_mode),
     use_number_of_steps_(false),
@@ -228,6 +237,8 @@ namespace performance{
     	if (debug_mode_) doocore::io::serr << "-debug- \t" << "scan points: " << temp << "'" << doocore::io::endmsg;
     }
 
+    /// Classifier that additionaly takes a vector with predefined steps. This will be used e.g. to perform a scan in the given classifier range.
+    /// It also takes a best_cut_string that can be used later on.
     SelectionClassifier(std::string name, std::string title, double range_min, double range_max, std::vector<double> steps, std::string best_cut_string, bool debug_mode=false):
     debug_mode_(debug_mode),
     use_number_of_steps_(false),
@@ -256,9 +267,16 @@ namespace performance{
     	if (debug_mode_) doocore::io::serr << "-debug- \t" << "scan points: " << temp << "'" << doocore::io::endmsg;
     }
     ///@}
-    ~SelectionClassifier(){};
 
-    // SETTER
+    /** @name Destructor
+     **/
+    ///@{
+    ~SelectionClassifier(){};
+    ///@}
+
+    /** @name Setter
+     **/
+    ///@{
     void set_debug_mode(bool debug_mode){
     	debug_mode_=debug_mode;
     }
@@ -286,8 +304,11 @@ namespace performance{
     void set_steps(std::vector<double> steps){
     	steps_=steps;
     }
+    ///@}
 
-    // GETTER
+    /** @name Getter
+     **/
+    ///@{
     bool debug_mode(){
     	return debug_mode_;
     }
@@ -327,6 +348,7 @@ namespace performance{
     	if(steps_.empty()) doocore::io::serr << "-SelectionClassifier- " << "No steps vector given" << doocore::io::endmsg;
     	return steps_;
     }
+    ///@}
 
    private:
     // MEMBER VARIABLES
