@@ -42,6 +42,7 @@ class SelectionClassifier;
  *  Functions to compute the number of events in a given tuple.
  */
 /**
+///@{
  *  @brief Computes the number of events in a given SelectionTuple with respect to a given cut string
  *
  *  @param stuple SelectionTuple
@@ -49,6 +50,7 @@ class SelectionClassifier;
  *  @return std::map containing std::string and double pair for component and number of events for this component
 **/
 std::map<std::string, double> NumberOfEventsPerComponent(SelectionTuple &stuple, std::string cut_string, bool debug_mode=false);
+///@}
 
 // =======================
 // CLASSIFIER DISTRIBUTION
@@ -57,6 +59,7 @@ std::map<std::string, double> NumberOfEventsPerComponent(SelectionTuple &stuple,
  *  Functions to plot classifier distributions
  */
 /**
+///@{
  *  @brief Plots distribution of a given SelectionClassifier in a given SelectionTuple
  *
  *	WARNING: Use PlotClassifierDistributionOLD since this version isn't stable yet.
@@ -72,13 +75,15 @@ void PlotClassifierDistribution(SelectionTuple& stuple, SelectionClassifier& cla
  *	@param classifier cut SelectionClassifier
 **/
 void PlotClassifierDistributionOLD(SelectionTuple& stuple, SelectionClassifier& classifier, int nbins=100, bool debug_mode=false);
+///@}
 
 // ===============
 //  CUT EFFICIENCY
 // ===============
 /** @name Plotting cut efficiencies
- *  Functions to plot mass distribution after applying a cut and computes cut efficiencies
+ *  Functions to plot a mass distribution after applying a cut and compute cut efficiencies
  */
+///@{
 /**
  *  @brief Plots mass distributions after applying cut on SelectionClassifier for given SelectionTuple
  *
@@ -117,12 +122,13 @@ void PlotCutEfficiency(SelectionTuple& stuple, SelectionClassifier& classifier, 
  *	@param background_component background component
 **/
 void PlotCutEfficiencyScan(SelectionTuple& stuple, SelectionClassifier& classifier, std::string signal_component, std::string background_component, std::string figure_of_merit="Significance", int nbins=100, bool logscale=false, bool debug_mode=false);
+///@}
 
 // ==============
 // FIGURE OF MERIT (FoM)
 // ==============
 /** @name Figure of Merit (FoM)
- *  Functions to calculate a FoM for a given cut string or plots the FoM distribution for different cut strings
+ *  Functions to calculate a FoM for a given cut string or plot the FoM distribution for different cut strings
  * 
  *	Available FoMs (S: number of signal events, B: number of background events):
  *	- Significance: S/sqrt(S+B)
@@ -136,6 +142,7 @@ void PlotCutEfficiencyScan(SelectionTuple& stuple, SelectionClassifier& classifi
  *	- - determined by Frank Meier using toys (epsilon_eff is the effective tagging efficiency)
  *
  */
+///@{
 /**
  *  @brief Computes the FoM for a given cut string
  *
@@ -181,6 +188,7 @@ void PlotFoMDistribution(std::vector< std::pair<double, double> > fom_distributi
  *	@param figure_of_merit Figure of Merit, default is 'Significance'
  **/
 void PlotFoMDistribution(SelectionTuple& stuple, SelectionClassifier& classifier, std::string signal_component, std::string background_component, std::string figure_of_merit="Significance", bool debug_mode=false);
+///@}
 
 // ===========================
 // RECEIVER OPERATING CHARACTERISTIC (ROC)
@@ -189,6 +197,7 @@ void PlotFoMDistribution(SelectionTuple& stuple, SelectionClassifier& classifier
  *  Functions to calculate and plot ROC curves
  *
  */
+///@{
 /**
  *  @brief Computes the ROC curve
  *
@@ -222,6 +231,7 @@ void PlotROCCurve(std::vector< std::pair<double, double> > roc, std::string clas
  *	@return std::vector containing std::pairs of doubles as x and y values of the ROC curve
 **/
 void PlotROCCurve(SelectionTuple& stuple, SelectionClassifier& classifier, std::string signal_component, std::string background_component, bool debug_mode=false);
+///@}
 
 } // namespace performance
 } // namespace dooselection

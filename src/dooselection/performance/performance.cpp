@@ -155,7 +155,7 @@ std::map<std::string, double> NumberOfEventsPerComponent(SelectionTuple &stuple,
     for(std::map<std::string, std::string>::const_iterator it = stuple.map_of_components_and_pdfs().begin(); it != stuple.map_of_components_and_pdfs().end(); ++it){
       if (debug_mode) doocore::io::serr << "-debug- \t" << "Component: " << (*it).first << ", PDF: " << (*it).second << doocore::io::endmsg;
       // plot_pdfs.add(stuple.epdf().Pdf((*it).second));
-      components += stuple.epdf().Pdf((*it).second).GetName();
+      components += (*it).second+"_.*";
     }
 
     doofit::plotting::PlotConfig plot_cfg("plot_cfg");
