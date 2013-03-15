@@ -26,6 +26,48 @@
  * @namespace dooselection::performance
  * @brief Tooles for selection classifier performance measurements
  * 
+ * @section ec_Usage Usage
+ * 
+ * Example code:
+ * 
+ * @code
+ *  // from DooFit
+ *  #include "doofit/builder/EasyPdf/EasyPdf.h"
+ * 
+ *  // from DooSelection
+ *  #include "dooselection/performance/SelectionTuple.h"
+ *  #include "dooselection/performance/SelectionClassifier.h"
+ *  #include "dooselection/performance/performance.h"
+ * 
+ *  // EasyPdf
+ *  doofit::builder::EasyPdf epdf;
+ *  …
+ * 
+ *  // input tuple
+ *  doocore::io::EasyTuple etuple("/fhgfs/groups/e5/lhcb/NTuples/data.root", "Bd2JpsiKS", RooArgList(…));
+ * 
+ *  // SelectionTuple
+ *  std::map<std::string, std::string> map_of_components_and_yields;
+ *  map_of_components_and_yields["signal"]="yieldSig";
+ *  map_of_components_and_yields["background"]="yieldBkg";
+ *  
+ *  std::map<std::string, std::string> map_of_components_and_pdfs;
+ *  map_of_components_and_pdfs["signal"]="pdfDoubleGauss";
+ *  map_of_components_and_pdfs["background"]="pdfExponential";
+ *  
+ *  dooselection::performance::SelectionTuple stuple("stuple", "stuple", &etuple, &epdf, "varMass", map_of_components_and_pdfs, map_of_components_and_yields, epdf.Var("varMass").getMin(), epdf.Var("varMass").getMax());
+ *  
+ *  // SelectionClassifier
+ *  dooselection::performance::SelectionClassifier BDT("BDT_classifier", "BDT_classifier", -0.1, 0.1, ">", 20, 0.);
+ *  
+ *  
+ *  // Classifier distribution
+ *  dooselection::performance::PlotClassifierDistributionOLD(stuple, BDT);
+ *  // Cut efficiency
+ *  dooselection::performance::PlotCutEfficiency(stuple, BDT, "", "signal", "background", "Significance");
+ *
+ * @endcode 
+ *
  */
 
 namespace dooselection{
