@@ -28,8 +28,20 @@
 
 namespace dooselection{
 namespace performance{
+
+/** @class SelectionTuple
+ *  @brief Container class for tuples used in selection performance measurements.
+ *
+ *  This container class bundles all relevant information for tuples used in an analysis 
+ *  of the selection performance.
+ * 
+**/
   class SelectionTuple{
    public:
+    /** @name Constructors
+     **/
+    ///@{
+    /// Basic constructor for use of MC tuples. Taking a name, a title and an EasyTuple as input. Additionaly gets a map of the relevant components and the associated cut string.
     SelectionTuple(std::string name, std::string title, doocore::io::EasyTuple* etuple, std::map<std::string, std::string> map_of_components_and_cuts, bool debug_mode=false):
     debug_mode_(debug_mode),
     use_tagged_events_only_(false),
@@ -55,6 +67,7 @@ namespace performance{
     	if (debug_mode_) doocore::io::serr << "-debug- " << "Created new SelectionTuple: '" << title_ << "'..." << doocore::io::endmsg;
     }
 
+    /// Basic constructor for use of sweighted tuples. Taking a name, a title and an EasyTuple as input. Additionaly gets a map of the relevant components and the associated sweight names plus the range of the sweights.
     SelectionTuple(std::string name, std::string title, doocore::io::EasyTuple* etuple, std::map<std::string, std::string> map_of_components_and_sweights, double sweight_range_min, double sweight_range_max, bool debug_mode=false):
     debug_mode_(debug_mode),
     use_tagged_events_only_(false),
@@ -80,6 +93,7 @@ namespace performance{
     	if (debug_mode_) doocore::io::serr << "-debug- " << "Created new SelectionTuple: '" << title_ << "'..." << doocore::io::endmsg;
     }
 
+    /// General constructor to use with a fit on data. Taking a name, a title and an EasyTuple as input. Additionaly gets an EasyPdf, the observable name, a map of the relevant components and the associated pdfs, a map of the relevant components and the names of the corresponding yields, and the fit range.
     SelectionTuple(std::string name, std::string title, doocore::io::EasyTuple* etuple, doofit::builder::EasyPdf* epdf, std::string observable_name, std::map<std::string, std::string> map_of_components_and_pdfs, std::map<std::string, std::string> map_of_components_and_yields, double fit_range_min, double fit_range_max, bool debug_mode=false):
     debug_mode_(debug_mode),
     use_tagged_events_only_(false),
@@ -104,10 +118,17 @@ namespace performance{
     {
       if (debug_mode_) doocore::io::serr << "-debug- " << "Created new SelectionTuple: '" << title_ << "'..." << doocore::io::endmsg;
     }
-    
-    ~SelectionTuple(){};
+    ///@}
 
-    // SETTER
+    /** @name Destructor
+     **/
+    ///@{
+    ~SelectionTuple(){};
+    ///@}
+
+    /** @name Setter
+     **/
+    ///@{
     void set_debug_mode(bool debug_mode){
     	debug_mode_=debug_mode;
     }
@@ -159,8 +180,11 @@ namespace performance{
         doocore::io::serr << "-SelectionTuple- please define if you want to use 'sweights', 'mc' truth information or a 'fit' to discriminate between signal and background!" << doocore::io::endmsg;
       }
     }
+    ///@}
 
-    // GETTER
+    /** @name Getter
+     **/
+    ///@{
     const bool debug_mode(){
     	return debug_mode_;
     }
@@ -228,6 +252,7 @@ namespace performance{
     const double fit_range_max(){
       return fit_range_max_;
     }
+    ///@}
 
    private:
     SelectionTuple(const SelectionTuple&){};
