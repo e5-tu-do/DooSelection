@@ -30,6 +30,10 @@ void SPlotterReducer::CreateSpecialBranches() {
   // get sweight maps from SPlotFit2
   sweighted_datasets_ = splotfit_.GetSwDataSets();
   
+  if (sweighted_datasets_.begin()->second->numEntries() != interim_tree_->GetEntries()) {
+    doocore::io::serr << "Number of entries in interim tree and sweighted datasets mismatch!" << doocore::io::endmsg;
+  }
+
   for (std::map<std::string,RooDataSet*>::const_iterator it = sweighted_datasets_.begin();
        it != sweighted_datasets_.end(); ++it) {
     sweight_leaves_[(*it).first] = &CreateDoubleLeaf((*it).first+"_sw", -1000);
