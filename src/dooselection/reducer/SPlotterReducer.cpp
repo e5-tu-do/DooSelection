@@ -32,6 +32,10 @@ void SPlotterReducer::CreateSpecialBranches() {
   
   if (sweighted_datasets_.begin()->second->numEntries() != interim_tree_->GetEntries()) {
     doocore::io::serr << "Number of entries in interim tree and sweighted datasets mismatch!" << doocore::io::endmsg;
+    doocore::io::serr << "Sweighted dataset contains: " << sweighted_datasets_.begin()->second->numEntries() << " entries." << doocore::io::endmsg;;
+    doocore::io::serr << "RooFit dataset contains:    " << data.numEntries() << " entries." << doocore::io::endmsg;;
+    doocore::io::serr << "Tree contains:              " << interim_tree_->GetEntries() << " entries." << doocore::io::endmsg;;
+    
   }
 
   for (std::map<std::string,RooDataSet*>::const_iterator it = sweighted_datasets_.begin();
