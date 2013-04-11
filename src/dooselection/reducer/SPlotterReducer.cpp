@@ -30,9 +30,8 @@ void SPlotterReducer::CreateSpecialBranches() {
   // get sweight maps from SPlotFit2
   sweighted_datasets_ = splotfit_.GetSwDataSets();
   
-  if (sweighted_datasets_.begin()->second->numEntries() != interim_tree_->GetEntries()) {
+  if (data.numEntries() != interim_tree_->GetEntries()) {
     doocore::io::serr << "Number of entries in interim tree and sweighted datasets mismatch!" << doocore::io::endmsg;
-    doocore::io::serr << "Sweighted dataset contains: " << sweighted_datasets_.begin()->second->numEntries() << " entries." << doocore::io::endmsg;;
     doocore::io::serr << "RooFit dataset contains:    " << data.numEntries() << " entries." << doocore::io::endmsg;;
     doocore::io::serr << "Tree contains:              " << interim_tree_->GetEntries() << " entries." << doocore::io::endmsg;;
     
