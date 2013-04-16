@@ -91,6 +91,8 @@ void Reducer::PrepareFinalTree() {
 void Reducer::Run(){
   signal(SIGINT, Reducer::HandleSigInt);
   
+  ReducerLeaf<Int_t>& flatterleaf = CreateIntLeaf("index_pv");
+  
   std::cout << "Initializing new branches of output tree" << std::endl;
   InitializeOutputBranches<Float_t>(output_tree_, interim_leaves_);
   InitializeOutputBranches<Float_t>(output_tree_, float_leaves_);
@@ -123,8 +125,14 @@ void Reducer::Run(){
     // in the case that GetBestCandidate could not find any more events passing 
     // the cuts, we will not write the loaded event.
     if (i != -1) {
-      output_tree_->Fill();
-      ++num_written;      
+      int num_pvs = GetInterimLeafByName("B0_FitDaughtersPVConst_nPV").GetValue();
+      
+      for (int i=0; i<num_pvs; ++i) {
+        flatterleaf = i;
+        output_tree_->Fill();
+        ++num_written;
+      }
+      
       //++num_best_candidates;
     } else {
       break;
