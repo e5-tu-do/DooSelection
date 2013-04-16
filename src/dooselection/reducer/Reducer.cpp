@@ -238,6 +238,11 @@ void Reducer::CreateOutputFileAndTree(){
   cout << "Creating OutputFile " << output_file_path_ << endl;
   output_file_ = new TFile(output_file_path_,"RECREATE");
   
+  if (!output_file_->IsOpen()) {
+    serr << "Cannot open output file " << output_file_path_ << endmsg;
+    throw 12;
+  }
+  
   cout << "Creating OutputTree " << output_tree_path_ << endl;
   // FK: does this make sense?  
   //output_tree_ = (TTree*)output_file_->Get(output_tree_path_);
