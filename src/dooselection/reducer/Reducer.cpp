@@ -126,6 +126,7 @@ void Reducer::Run(){
     // the cuts, we will not write the loaded event.
     if (i != -1) {
       int num_pvs = GetInterimLeafByName("B0_FitDaughtersPVConst_nPV").GetValue();
+      sdebug << GetInterimLeafByName("B0_FitDaughtersPVConst_M") << endmsg;
       
       for (int i=0; i<num_pvs; ++i) {
         flatterleaf = i;

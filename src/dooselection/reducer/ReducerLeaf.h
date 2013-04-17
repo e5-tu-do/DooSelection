@@ -23,6 +23,29 @@ enum ReducerLeafOperations {
   kEqualLeaf,
 };
 
+// Haha, this is why I like C++: The function below needs to be declared for the
+// class definition (to give friend access). Therefore, the class ReducerLeaf<T>
+// needs to be declared before the function declaration.
+namespace dooselection {
+namespace reducer {
+template <class T>
+class ReducerLeaf;
+}
+}
+
+namespace doocore {
+namespace io {
+/**
+ *  @brief Function to output ReducerLeaves directly and nicely into MsgStreams
+ *
+ *  This function just prints a ReducerLeaf with all necessary information
+ */
+template <class T>
+inline MsgStream& operator<<(MsgStream& lhs, const dooselection::reducer::ReducerLeaf<T>& leaf);
+} // namespace utils
+} // namespace doofit
+
+
 namespace dooselection {
 namespace reducer {
 /**
@@ -74,6 +97,13 @@ public:
       return branch_address_; 
     }
   }
+  
+  /**
+   *  @brief Get length of leaf (if array based)
+   *
+   *  @return length of the array in the leaf (1 if not array based)
+   */
+  int Length() const;
   
   /**
    *  @brief Set value of leaf
@@ -144,6 +174,9 @@ public:
   void Equal(const ReducerLeaf<T1>& l, double c=1.0) {
     SetOperation<T1,T1>(l,l,kEqualLeaf,c,c);
   }
+  
+  template<class T1>
+  friend doocore::io::MsgStream& doocore::io::operator<<(doocore::io::MsgStream& lhs, const dooselection::reducer::ReducerLeaf<T1>& leaf);
   
 private:
   TLeaf* leaf_;
@@ -388,7 +421,34 @@ TString ReducerLeaf<T>::LeafString() const {
   return leaf_string;
 }
 
+template <class T>
+int ReducerLeaf<T>::Length() const {
+  if (leaf_ != NULL) {
+    return leaf_->GetLen();
+  } else {
+    return 1;
+  }
+}
+  
 } // namespace reducer
 } // namespace dooselection
+
+
+namespace doocore {
+namespace io {
+template <class T>
+inline MsgStream& operator<<(MsgStream& lhs, const dooselection::reducer::ReducerLeaf<T>& leaf) {
+  lhs.stream() << "ReducerLeaf<" << leaf.type() << "> " << leaf.name() << " (" << leaf.title() << ") = " << leaf.GetValue();
+  
+  for (int i=0; i<leaf.Length(); ++i) {
+    lhs.stream() << " " << leaf.leaf_->GetValue(i);
+  }
+  
+  
+  
+  return lhs;
+}
+} // namespace utils
+} // namespace doofit
 
 #endif // DOOSELECTION_REDUCER_REDUCERLEAF_H
