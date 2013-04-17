@@ -28,7 +28,17 @@ namespace dooselection {
   namespace reducer {
     class ArrayFlattenerReducer : virtual public Reducer {
     public:
+      /**
+       *  @brief Default constructor
+       */
       ArrayFlattenerReducer();
+      
+      /**
+       *  @brief Set leaf containing array length
+       *
+       *  @param leaf_array_length leaf containing the array length
+       */
+      void set_leaf_array_length(const ReducerLeaf<Int_t>& leaf_array_length) { leaf_array_length_ = &leaf_array_length; }
       
     protected:
       virtual void CreateSpecialBranches();
@@ -40,7 +50,26 @@ namespace dooselection {
        */
       const ReducerLeaf<Int_t>* leaf_array_length_;
       
-      std::vector<>
+      /**
+       *  @brief Vector of all double array-based leaves to flatten
+       */
+      std::vector<const ReducerLeaf<Double_t>*> leaves_array_double_;
+
+      /**
+       *  @brief Vector of all int array-based leaves to flatten
+       */
+      std::vector<const ReducerLeaf<Int_t>*> leaves_array_int_;
+      
+      /**
+       *  @brief Vector of all created flat double leaves
+       */
+      std::vector<ReducerLeaf<Double_t>*> leaves_flat_double_;
+      
+      /**
+       *  @brief Vector of all created flat int leaves
+       */
+      std::vector<ReducerLeaf<Int_t>*> leaves_flat_int_;
+      
     };
   } // namespace reducer
 } // namespace dooselection
