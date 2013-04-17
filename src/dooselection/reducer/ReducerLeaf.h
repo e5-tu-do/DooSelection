@@ -3,6 +3,7 @@
 
 // from STL
 #include <iostream>
+#include <string>
 
 // from ROOT
 #include "TString.h"
@@ -99,11 +100,18 @@ public:
   }
   
   /**
-   *  @brief Get length of leaf (if array based)
+   *  @brief Get current length of leaf (if array based)
    *
    *  @return length of the array in the leaf (1 if not array based)
    */
   int Length() const;
+  
+  /**
+   *  @brief Get name of leaf containing array length
+   *
+   *  @return name of the leaf determining the array length
+   */
+  std::string LengthLeafName() const;
   
   /**
    *  @brief Set value of leaf
@@ -437,6 +445,15 @@ int ReducerLeaf<T>::Length() const {
     return leaf_->GetLen();
   } else {
     return 1;
+  }
+}
+
+template <class T>
+std::string ReducerLeaf<T>::LengthLeafName() const {
+  if (leaf_ != NULL) {
+    return leaf_->GetLeafCount()->GetName();
+  } else {
+    return "";
   }
 }
   

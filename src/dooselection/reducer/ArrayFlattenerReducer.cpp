@@ -1,8 +1,10 @@
 #include "ArrayFlattenerReducer.h"
 
 // from STL
+#include <string>
 
 // from ROOT
+#include "TString.h"
 
 // from RooFit
 
@@ -21,6 +23,9 @@ ArrayFlattenerReducer::ArrayFlattenerReducer()
 {}
   
 void ArrayFlattenerReducer::CreateSpecialBranches() {
+  std::string name_array_length_ = leaf_array_length_->name();
+  
+  // loop over all interim leaves and check if array length is name_array_length_
   // fill leaves_map_double_ and leaves_map_int_ based on leaf_array_length_
 }
   
