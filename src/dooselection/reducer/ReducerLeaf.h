@@ -118,10 +118,15 @@ public:
   void set_branch_address(void* ptr) { branch_address_ = ptr; }
   
   /**
-   * get the value stored in the branch address correctly cast to T (if it's 
-   * stored in branch_address_ we have to check for value and cast accordingly).
+   *  @brief Get value of leaf
+   *
+   *  Get the value stored in the branch address correctly cast to T (if it's
+   *  stored in branch_address_ we have to check for value and cast accordingly).
+   *
+   *  @param i (optional) index parameter if leaf is array-based
+   *  @return leaf value of correct type
    */
-  T GetValue() const;
+  T GetValue(int i=0) const;
   
   /**
    * Create a branch in tree for this leaf. In copy mode it will just use the 
@@ -259,38 +264,43 @@ leaf_operation_(r.leaf_operation_) {
 }
 
 template <class T>
-T ReducerLeaf<T>::GetValue() const {
+T ReducerLeaf<T>::GetValue(int i) const {
+  if (i>=Length()) {
+    doocore::io::serr << "ERROR in T ReducerLeaf<T>::GetValue(int): Trying to access array element " << i << " in leaf " << name_ << ". Length is " << Length() << ". Will return first element." << doocore::io::endmsg;
+    i=0;
+  }
+  
   // in case we have stored our value in branch_address_templ_ it's simple and 
   // we know that the type is correct.
   if (branch_address_ == NULL) {
-    return *branch_address_templ_;
+    return branch_address_templ_[i];
   } else {
     if (type_ == "Int_t") {
       // tricky cast:
       // void* -> Int_t* -> Int_t -> T
-      return static_cast<T>(*((Int_t*)branch_address_));
+      return static_cast<T>(static_cast<Int_t*>(branch_address_)[i]);
     } else if (type_ == "Float_t") {
-      return static_cast<T>(*((Float_t*)branch_address_));
+      return static_cast<T>(static_cast<Float_t*>(branch_address_)[i]);
     } else if (type_ == "Double_t") {
-      return static_cast<T>(*((Double_t*)branch_address_));
+      return static_cast<T>(static_cast<Double_t*>(branch_address_)[i]);
     } else if (type_ == "UInt_t") {
-      return static_cast<T>(*((UInt_t*)branch_address_));
+      return static_cast<T>(static_cast<UInt_t*>(branch_address_)[i]);
     } else if (type_ == "Bool_t") {
-      return static_cast<T>(*((Bool_t*)branch_address_));
+      return static_cast<T>(static_cast<Bool_t*>(branch_address_)[i]);
     } else if (type_ == "Long64_t") {
-      return static_cast<T>(*((Long64_t*)branch_address_));
+      return static_cast<T>(static_cast<Long64_t*>(branch_address_)[i]);
     } else if (type_ == "ULong64_t") {
-      return static_cast<T>(*((ULong64_t*)branch_address_));
+      return static_cast<T>(static_cast<ULong64_t*>(branch_address_)[i]);
     } else if (type_ == "Short_t") {
-      return static_cast<T>(*((Short_t*)branch_address_));
+      return static_cast<T>(static_cast<Short_t*>(branch_address_)[i]);
     } else if (type_ == "UShort_t") {
-      return static_cast<T>(*((UShort_t*)branch_address_));
+      return static_cast<T>(static_cast<UShort_t*>(branch_address_)[i]);
     } else if (type_ == "Char_t") {
-      return static_cast<T>(*((Char_t*)branch_address_));
+      return static_cast<T>(static_cast<Char_t*>(branch_address_)[i]);
     } else if (type_ == "UChar_t") {
-      return static_cast<T>(*((UChar_t*)branch_address_));
+      return static_cast<T>(static_cast<UChar_t*>(branch_address_)[i]);
     } else {
-      doocore::io::serr << "ERROR in T ReducerLeaf<T>::GetValue(): Leaf type " << type_ << " in leaf " << name_ << " is unknown. Do not know how to handle that." << doocore::io::endmsg;
+      doocore::io::serr << "ERROR in T ReducerLeaf<T>::GetValue(int): Leaf type " << type_ << " in leaf " << name_ << " is unknown. Do not know how to handle that." << doocore::io::endmsg;
     }
   }
 }
@@ -440,11 +450,9 @@ template <class T>
 inline MsgStream& operator<<(MsgStream& lhs, const dooselection::reducer::ReducerLeaf<T>& leaf) {
   lhs.stream() << "ReducerLeaf<" << leaf.type() << "> " << leaf.name() << " (" << leaf.title() << ") = " << leaf.GetValue();
   
-  for (int i=0; i<leaf.Length(); ++i) {
-    lhs.stream() << " " << leaf.leaf_->GetValue(i);
+  for (int i=1; i<leaf.Length(); ++i) {
+    lhs.stream() << ", " << leaf.GetValue(i);
   }
-  
-  
   
   return lhs;
 }
