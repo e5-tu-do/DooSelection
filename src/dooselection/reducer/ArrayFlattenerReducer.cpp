@@ -32,6 +32,15 @@ void ArrayFlattenerReducer::CreateSpecialBranches() {
   for (std::vector<ReducerLeaf<Float_t>* >::const_iterator it = GetInterimLeavesBegin(); it != GetInterimLeavesEnd(); ++it) {
     if ((*it)->LengthLeafName() == name_array_length_) {
       sdebug << (*it)->name() << " will be flattened. " << endmsg;
+      if ((*it)->type() == "Double_t") {
+        ReducerLeaf<Double_t>& flat_leaf = CreateDoubleLeaf((*it)->name()+"_flat");
+        leaves_map_double_[&flat_leaf] = *it;
+        sdebug << (*it)->name() << " -> " << flat_leaf.name() << endmsg;
+      } else if ((*it)->type() == "Int_t") {
+        ReducerLeaf<Int_t>& flat_leaf = CreateIntLeaf((*it)->name()+"_flat");
+        leaves_map_int_[&flat_leaf] = *it;
+        sdebug << (*it)->name() << " -> " << flat_leaf.name() << endmsg;
+      }
     }
   }
 }
@@ -40,12 +49,12 @@ void ArrayFlattenerReducer::FillOutputTree() {
   int num_pvs = leaf_array_length_->GetValue();  
   for (int i=0; i<num_pvs; ++i) {
     sdebug << "i = " << i << endmsg;
-    for (std::map<ReducerLeaf<Double_t>*, const ReducerLeaf<Double_t>*>::iterator it = leaves_map_double_.begin();
+    for (std::map<ReducerLeaf<Double_t>*, const ReducerLeaf<Float_t>*>::iterator it = leaves_map_double_.begin();
          it != leaves_map_double_.end(); ++it) {
       (*it->first) = it->second->GetValue(i);
       sdebug << " " << it->first->name() << " = " << it->first->GetValue() << endmsg;
     }
-    for (std::map<ReducerLeaf<Int_t>*, const ReducerLeaf<Int_t>*>::iterator it = leaves_map_int_.begin();
+    for (std::map<ReducerLeaf<Int_t>*, const ReducerLeaf<Float_t>*>::iterator it = leaves_map_int_.begin();
          it != leaves_map_int_.end(); ++it) {
       (*it->first) = it->second->GetValue(i);
       sdebug << " " << it->first->name() << " = " << it->first->GetValue() << endmsg;

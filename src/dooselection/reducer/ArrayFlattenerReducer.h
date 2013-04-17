@@ -53,12 +53,12 @@ namespace dooselection {
       /**
        *  @brief Map containing all created flat double leaves and according array-based leaves
        */
-      std::map<ReducerLeaf<Double_t>*, const ReducerLeaf<Double_t>*> leaves_map_double_;
+      std::map<ReducerLeaf<Double_t>*, const ReducerLeaf<Float_t>*> leaves_map_double_;
       
       /**
        *  @brief Map containing all created flat int leaves and according array-based leaves
        */
-      std::map<ReducerLeaf<Int_t>*, const ReducerLeaf<Int_t>*> leaves_map_int_;
+      std::map<ReducerLeaf<Int_t>*, const ReducerLeaf<Float_t>*> leaves_map_int_;
       
     };
   } // namespace reducer
