@@ -2,6 +2,7 @@
 #define DOOSELECTION_REDUCER_ARRAYFLATTENERREDUCER_H
 
 // from STL
+#include <vector>
 
 // from ROOT
 
@@ -27,11 +28,19 @@ namespace dooselection {
   namespace reducer {
     class ArrayFlattenerReducer : virtual public Reducer {
     public:
+      ArrayFlattenerReducer();
       
     protected:
       virtual void CreateSpecialBranches();
+      virtual void FillOutputTree();
       
     private:
+      /**
+       *  @brief Pointer to leaf holding array length.
+       */
+      const ReducerLeaf<Int_t>* leaf_array_length_;
+      
+      std::vector<>
     };
   } // namespace reducer
 } // namespace dooselection

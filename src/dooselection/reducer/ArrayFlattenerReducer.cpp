@@ -12,6 +12,10 @@
 
 namespace dooselection {
 namespace reducer {
-
+ArrayFlattenerReducer::ArrayFlattenerReducer()
+  : leaf_array_length_(NULL)
+{
+    
+}
 } // namespace reducer
 } // namespace dooselection
