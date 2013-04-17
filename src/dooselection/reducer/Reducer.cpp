@@ -91,8 +91,6 @@ void Reducer::PrepareFinalTree() {
 void Reducer::Run(){
   signal(SIGINT, Reducer::HandleSigInt);
   
-  ReducerLeaf<Int_t>& flatterleaf = CreateIntLeaf("index_pv");
-  
   std::cout << "Initializing new branches of output tree" << std::endl;
   InitializeOutputBranches<Float_t>(output_tree_, interim_leaves_);
   InitializeOutputBranches<Float_t>(output_tree_, float_leaves_);
@@ -102,7 +100,8 @@ void Reducer::Run(){
   PrepareSpecialBranches();
   
   unsigned int num_entries         = interim_tree_->GetEntries();
-  unsigned int num_written         = 0;
+  num_written_ = 0;
+  //unsigned int num_written         = 0;
   //unsigned int num_best_candidates = 0;
   
   std::cout << "Writing OutputTree for " << num_entries << " entries in interim tree." << std::endl;
@@ -125,14 +124,7 @@ void Reducer::Run(){
     // in the case that GetBestCandidate could not find any more events passing 
     // the cuts, we will not write the loaded event.
     if (i != -1) {
-      int num_pvs = GetInterimLeafByName("B0_FitDaughtersPVConst_nPV").GetValue();
-      sdebug << GetInterimLeafByName("B0_FitDaughtersPVConst_M") << endmsg;
-      
-      for (int i=0; i<num_pvs; ++i) {
-        flatterleaf = i;
-        output_tree_->Fill();
-        ++num_written;
-      }
+      FillOutputTree();
       
       //++num_best_candidates;
     } else {
@@ -142,7 +134,7 @@ void Reducer::Run(){
     if (isatty(fileno(stdout))) {
       //std::cout << (i+1) << std::endl;
       //std::cout << (i+1)%1000 << std::endl;
-      if ((num_written%200) == 0) {
+      if ((num_written_%200) == 0) {
         double frac = static_cast<double> (i)/num_entries*100.0;
         printf("Progress %.2f %         \xd", frac);
         fflush(stdout);
@@ -158,7 +150,7 @@ void Reducer::Run(){
   }
   
   output_tree_->Write();
-  sinfo << "OutputTree " << output_tree_path_ << " written to file " << output_file_path_ << " with " << num_written << " candidates." << endmsg; // "(" << num_best_candidates << " were best candidates without special cuts)." << endl;
+  sinfo << "OutputTree " << output_tree_path_ << " written to file " << output_file_path_ << " with " << num_written_ << " candidates." << endmsg; // "(" << num_best_candidates << " were best candidates without special cuts)." << endl;
   
   sinfo << "Removing interim file " << interim_file_path_ << endmsg;
   using namespace boost::filesystem;
@@ -166,6 +158,24 @@ void Reducer::Run(){
   output_file_->Close();
   delete output_file_;
   output_file_ = NULL;
+}
+  
+void Reducer::FillOutputTree() {
+//  int num_pvs = GetInterimLeafByName("B0_FitDaughtersPVConst_nPV").GetValue();
+//  ReducerLeaf<Int_t>&    flat_leaf_index = CreateIntLeaf("index_pv");
+//  ReducerLeaf<Double_t>& flat_leaf_value = CreateDoubleLeaf("value_pv");
+//  
+//  for (int i=0; i<num_pvs; ++i) {
+//    flat_leaf_index = i;
+//    flat_leaf_value = GetInterimLeafByName("B0_FitDaughtersPVConst_M").GetValue(i);
+//    FlushEvent();
+//  }
+  FlushEvent();
+}
+  
+void Reducer::FlushEvent() {
+  output_tree_->Fill();
+  ++num_written_;
 }
 
 void Reducer::Finalize(){

@@ -337,16 +337,19 @@ class Reducer {
   ///@}
   
  protected:
-  /*
+  /**
    * Virtual function for derived classes with higher level leaves. This will be 
-   * called to compute values of these leaves.
-   */
+   * called to compute values of these leaves upon loading of an event from the 
+   * interim tree.
+   **/
   virtual void UpdateSpecialLeaves() {}
   
-  /*
+  /**
    * Virtual function for derived classes with higher level cuts. This will be 
-   * called to check if an event/candidate passes certain requirements.
-   */
+   * called to check if an event/candidate passes certain requirements. Events
+   * failing this will not be considered at all. Events passing will be 
+   * considered for the best candidate selection (if this is used).
+   **/
   virtual bool EntryPassesSpecialCuts() { return true; }
   
   /**
@@ -355,7 +358,7 @@ class Reducer {
    * Virtual function for derived classes with higher level leaves. This will 
    * be called to initialize higher level branches/leaves at the end of
    * Reducer::Initialize().
-   * 
+   *
    * At the stage of calling this function, the interim tree is already created
    * but in general no user-created leaves will be accessible.
    **/
@@ -373,6 +376,29 @@ class Reducer {
    **/
   virtual void PrepareSpecialBranches() {}
  
+  /**
+   *  @brief Fill the output tree
+   *
+   *  Fill events into the output tree via this virtual function. It is called 
+   *  after best candidate selection (if applicable). In the default 
+   *  implementation it will just call FlushEvent() to write the current event 
+   *  into the output tree. Derived classes can use this to do last minute event
+   *  manipulation or to not write events at all. Also it can be used to write 
+   *  one event multiple times (modifying specific leaves in each write, e.g. to
+   *  flatten array-based leaves).
+   *
+   *  For every event flush/fill, FlushEvent() must be called.
+   */
+  virtual void FillOutputTree();
+  
+  /**
+   *  @brief Fill/flush the current event into the output tree
+   *
+   *  This function is responsible for filling the current event (i.e. all 
+   *  leaves) into the output tree.
+   */
+  void FlushEvent();
+  
 	/*
 	 * Interim tree protected to give derived classed possibility to work with it.
 	 */
@@ -504,6 +530,11 @@ class Reducer {
    *  @brief maximum number of events to process
    */
   int num_events_process_;
+
+  /**
+   *  @brief number of written events in output tree
+   */
+  unsigned int num_written_;
 };
 
 template<class T>
