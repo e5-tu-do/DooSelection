@@ -17,12 +17,22 @@ ArrayFlattenerReducer::ArrayFlattenerReducer()
 {}
   
 void ArrayFlattenerReducer::CreateSpecialBranches() {
-  // fill leaves_array_double_ and leaves_array_int_ based on leaf_array_length_
-  // create according flat leaves
+  // fill leaves_map_double_ and leaves_map_int_ based on leaf_array_length_
 }
   
 void ArrayFlattenerReducer::FillOutputTree() {
   // loop over arrays and fill flat leaves
+
+  int num_pvs = leaf_array_length_->GetValue();  
+  for (int i=0; i<num_pvs; ++i) {
+    for (std::map<ReducerLeaf<Double_t>*, const ReducerLeaf<Double_t>*>::iterator it = leaves_map_double_.begin();
+         it != leaves_map_double_.end(); ++it) {
+      
+    }
+    
+    FlushEvent();
+  }
+
 }
 } // namespace reducer
 } // namespace dooselection

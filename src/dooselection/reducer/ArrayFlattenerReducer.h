@@ -2,7 +2,7 @@
 #define DOOSELECTION_REDUCER_ARRAYFLATTENERREDUCER_H
 
 // from STL
-#include <vector>
+#include <map>
 
 // from ROOT
 
@@ -49,26 +49,16 @@ namespace dooselection {
        *  @brief Pointer to leaf holding array length.
        */
       const ReducerLeaf<Int_t>* leaf_array_length_;
+            
+      /**
+       *  @brief Map containing all created flat double leaves and according array-based leaves
+       */
+      std::map<ReducerLeaf<Double_t>*, const ReducerLeaf<Double_t>*> leaves_map_double_;
       
       /**
-       *  @brief Vector of all double array-based leaves to flatten
+       *  @brief Map containing all created flat int leaves and according array-based leaves
        */
-      std::vector<const ReducerLeaf<Double_t>*> leaves_array_double_;
-
-      /**
-       *  @brief Vector of all int array-based leaves to flatten
-       */
-      std::vector<const ReducerLeaf<Int_t>*> leaves_array_int_;
-      
-      /**
-       *  @brief Vector of all created flat double leaves
-       */
-      std::vector<ReducerLeaf<Double_t>*> leaves_flat_double_;
-      
-      /**
-       *  @brief Vector of all created flat int leaves
-       */
-      std::vector<ReducerLeaf<Int_t>*> leaves_flat_int_;
+      std::map<ReducerLeaf<Int_t>*, const ReducerLeaf<Int_t>*> leaves_map_int_;
       
     };
   } // namespace reducer
