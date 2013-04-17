@@ -121,6 +121,7 @@ public:
    */
   ReducerLeaf<T>& operator=(const T& v) {
     *((T*)branch_address()) = v;
+    return *this;
   }
   
   void set_branch_address(void* ptr) { branch_address_ = ptr; }
@@ -309,6 +310,7 @@ T ReducerLeaf<T>::GetValue(int i) const {
       return static_cast<T>(static_cast<UChar_t*>(branch_address_)[i]);
     } else {
       doocore::io::serr << "ERROR in T ReducerLeaf<T>::GetValue(int): Leaf type " << type_ << " in leaf " << name_ << " is unknown. Do not know how to handle that." << doocore::io::endmsg;
+      return T();
     }
   }
 }

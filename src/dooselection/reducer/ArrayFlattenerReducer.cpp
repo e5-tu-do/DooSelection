@@ -13,6 +13,8 @@
 
 // from DooFit
 
+// from project
+
 namespace dooselection {
 namespace reducer {
 
@@ -23,10 +25,15 @@ ArrayFlattenerReducer::ArrayFlattenerReducer()
 {}
   
 void ArrayFlattenerReducer::CreateSpecialBranches() {
-  std::string name_array_length_ = leaf_array_length_->name();
+  std::string name_array_length_(leaf_array_length_->name());
   
   // loop over all interim leaves and check if array length is name_array_length_
   // fill leaves_map_double_ and leaves_map_int_ based on leaf_array_length_
+  for (std::vector<ReducerLeaf<Float_t>* >::const_iterator it = GetInterimLeavesBegin(); it != GetInterimLeavesEnd(); ++it) {
+    if ((*it)->LengthLeafName() == name_array_length_) {
+      sdebug << (*it)->name() << " will be flattened. " << endmsg;
+    }
+  }
 }
   
 void ArrayFlattenerReducer::FillOutputTree() {
