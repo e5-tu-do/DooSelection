@@ -41,7 +41,7 @@ namespace dooselection {
       void set_leaf_array_length(const ReducerLeaf<Float_t>& leaf_array_length) { leaf_array_length_ = &leaf_array_length; }
       
     protected:
-      virtual void CreateSpecialBranches();
+      virtual void PrepareSpecialBranches();
       virtual void FillOutputTree();
       
     private:
