@@ -38,7 +38,7 @@ namespace dooselection {
        *
        *  @param leaf_array_length leaf containing the array length
        */
-      void set_leaf_array_length(const ReducerLeaf<Int_t>& leaf_array_length) { leaf_array_length_ = &leaf_array_length; }
+      void set_leaf_array_length(const ReducerLeaf<Float_t>& leaf_array_length) { leaf_array_length_ = &leaf_array_length; }
       
     protected:
       virtual void CreateSpecialBranches();
@@ -48,7 +48,7 @@ namespace dooselection {
       /**
        *  @brief Pointer to leaf holding array length.
        */
-      const ReducerLeaf<Int_t>* leaf_array_length_;
+      const ReducerLeaf<Float_t>* leaf_array_length_;
             
       /**
        *  @brief Map containing all created flat double leaves and according array-based leaves
