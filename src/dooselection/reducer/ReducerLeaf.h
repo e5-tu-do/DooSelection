@@ -452,7 +452,7 @@ int ReducerLeaf<T>::Length() const {
 
 template <class T>
 std::string ReducerLeaf<T>::LengthLeafName() const {
-  if (leaf_ != NULL) {
+  if (leaf_ != NULL && leaf_->GetLeafCount() != NULL) {
     return leaf_->GetLeafCount()->GetName();
   } else {
     return "";
