@@ -51,6 +51,11 @@ namespace dooselection {
       const ReducerLeaf<Float_t>* leaf_array_length_;
       
       /**
+       *  @brief Pointer to new leaf holding array index.
+       */
+      ReducerLeaf<Int_t>* leaf_array_index_;
+      
+      /**
        *  @brief Map containing all created flat float leaves and according array-based leaves
        */
       std::map<ReducerLeaf<Float_t>*, const ReducerLeaf<Float_t>*> leaves_map_float_;
