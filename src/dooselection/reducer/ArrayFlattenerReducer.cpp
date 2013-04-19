@@ -29,17 +29,19 @@ void ArrayFlattenerReducer::PrepareSpecialBranches() {
     sinfo << "ArrayFlattenerReducer: Array length leaf not set. Will not flatten." << endmsg;
   } else {
     std::string name_array_length_(leaf_array_length_->name());
+    sinfo << "ArrayFlattenerReducer: Flattening all leaves that have array size " << name_array_length_ << endmsg;
     
     // loop over all interim leaves and check if array length is name_array_length_
     // fill leaves_map_double_ and leaves_map_int_ based on leaf_array_length_
     for (std::vector<ReducerLeaf<Float_t>* >::const_iterator it = GetInterimLeavesBegin(); it != GetInterimLeavesEnd(); ++it) {
       if ((*it)->LengthLeafName() == name_array_length_) {
-        sdebug << (*it)->name() << " will be flattened. " << endmsg;
         if ((*it)->type() == "Double_t") {
+          sdebug << (*it)->name() << " will be flattened into a double leaf. " << endmsg;
           ReducerLeaf<Double_t>& flat_leaf = CreateDoubleLeaf((*it)->name()+"_flat");
           leaves_map_double_[&flat_leaf] = *it;
           sdebug << (*it)->name() << " -> " << flat_leaf.name() << endmsg;
         } else if ((*it)->type() == "Int_t") {
+          sdebug << (*it)->name() << " will be flattened into a int leaf. " << endmsg;
           ReducerLeaf<Int_t>& flat_leaf = CreateIntLeaf((*it)->name()+"_flat");
           leaves_map_int_[&flat_leaf] = *it;
           sdebug << (*it)->name() << " -> " << flat_leaf.name() << endmsg;
