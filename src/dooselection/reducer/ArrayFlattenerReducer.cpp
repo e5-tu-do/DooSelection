@@ -43,7 +43,7 @@ void ArrayFlattenerReducer::PrepareSpecialBranches() {
           sdebug << (*it)->name() << " -> " << flat_leaf.name() << endmsg;
         } else if ((*it)->type() == "Float_t") {
           sdebug << (*it)->name() << " will be flattened into a float leaf. " << endmsg;
-          ReducerLeaf<Float_t>& flat_leaf = CreateDoubleLeaf((*it)->name()+"_flat");
+          ReducerLeaf<Float_t>& flat_leaf = CreateFloatLeaf((*it)->name()+"_flat");
           leaves_map_float_[&flat_leaf] = *it;
           sdebug << (*it)->name() << " -> " << flat_leaf.name() << endmsg;
         } else if ((*it)->type() == "Int_t") {
