@@ -90,14 +90,14 @@ void Reducer::PrepareFinalTree() {
 
 void Reducer::Run(){
   signal(SIGINT, Reducer::HandleSigInt);
-  
+
+  PrepareSpecialBranches();
+
   std::cout << "Initializing new branches of output tree" << std::endl;
   InitializeOutputBranches<Float_t>(output_tree_, interim_leaves_);
   InitializeOutputBranches<Float_t>(output_tree_, float_leaves_);
   InitializeOutputBranches<Double_t>(output_tree_, double_leaves_);
   InitializeOutputBranches<Int_t>(output_tree_, int_leaves_);
-
-  PrepareSpecialBranches();
   
   unsigned int num_entries         = interim_tree_->GetEntries();
   num_written_ = 0;
