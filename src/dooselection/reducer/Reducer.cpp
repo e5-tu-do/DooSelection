@@ -463,7 +463,7 @@ void Reducer::InitializeInterimLeafMap(TTree* tree, std::vector<ReducerLeaf<Floa
   std::cout << leaves->size() << " leaves to be copied" << std::endl;
 }
 
-void Reducer::RenameBranches(std::vector<ReducerLeaf<Float_t>* >* leaves, const bimap& mapping) {
+void Reducer::RenameBranches(std::vector<ReducerLeaf<Float_t>* >* leaves, const boost::bimap<TString, TString>& mapping) {
   for (bimap::left_const_iterator it_map = mapping.left.begin(); it_map != mapping.left.end(); ++it_map) {
     // (*it_map).first  : old_name : TString
     // (*it_map).second : new_name : TString
