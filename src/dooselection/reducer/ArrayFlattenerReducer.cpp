@@ -34,12 +34,17 @@ void ArrayFlattenerReducer::PrepareSpecialBranches() {
     // loop over all interim leaves and check if array length is name_array_length_
     // fill leaves_map_double_ and leaves_map_int_ based on leaf_array_length_
     for (std::vector<ReducerLeaf<Float_t>* >::const_iterator it = GetInterimLeavesBegin(); it != GetInterimLeavesEnd(); ++it) {
-      sdebug << "len: " << (*it)->LengthLeafName() << ", type: " << (*it)->type() << endmsg;
+//      sdebug << "len: " << (*it)->LengthLeafName() << ", type: " << (*it)->type() << endmsg;
       if ((*it)->LengthLeafName() == name_array_length_) {
         if ((*it)->type() == "Double_t") {
           sdebug << (*it)->name() << " will be flattened into a double leaf. " << endmsg;
           ReducerLeaf<Double_t>& flat_leaf = CreateDoubleLeaf((*it)->name()+"_flat");
           leaves_map_double_[&flat_leaf] = *it;
+          sdebug << (*it)->name() << " -> " << flat_leaf.name() << endmsg;
+        } else if ((*it)->type() == "Float_t") {
+          sdebug << (*it)->name() << " will be flattened into a float leaf. " << endmsg;
+          ReducerLeaf<Float_t>& flat_leaf = CreateDoubleLeaf((*it)->name()+"_flat");
+          leaves_map_float_[&flat_leaf] = *it;
           sdebug << (*it)->name() << " -> " << flat_leaf.name() << endmsg;
         } else if ((*it)->type() == "Int_t") {
           sdebug << (*it)->name() << " will be flattened into a int leaf. " << endmsg;
@@ -61,6 +66,11 @@ void ArrayFlattenerReducer::FillOutputTree() {
 //      sdebug << "i = " << i << endmsg;
       for (std::map<ReducerLeaf<Double_t>*, const ReducerLeaf<Float_t>*>::iterator it = leaves_map_double_.begin();
            it != leaves_map_double_.end(); ++it) {
+        (*it->first) = it->second->GetValue(i);
+        sdebug << " " << it->first->name() << " = " << it->first->GetValue() << endmsg;
+      }
+      for (std::map<ReducerLeaf<Float_t>*, const ReducerLeaf<Float_t>*>::iterator it = leaves_map_float_.begin();
+           it != leaves_map_float_.end(); ++it) {
         (*it->first) = it->second->GetValue(i);
         sdebug << " " << it->first->name() << " = " << it->first->GetValue() << endmsg;
       }
