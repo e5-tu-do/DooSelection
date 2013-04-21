@@ -1,9 +1,8 @@
-#include "MCDecayMatrixReader.h"
-
 // from STL
-
+#include <cmath>
 
 // from Project
+#include "MCDecayMatrixReader.h"
 #include "CondDBTranslator.h"
 
 
@@ -54,9 +53,9 @@ Particle MCDecayMatrixReader::createMinimalDecayingParticle(Float_t decaymatrix[
 
 
 int MCDecayMatrixReader::checkparticle (Float_t decaymatrixelement){
-  if (abs(decaymatrixelement) == 22 || abs(decaymatrixelement) == 13 || abs(decaymatrixelement) == 14)
+  if (fabs(decaymatrixelement) == 22 || fabs(decaymatrixelement) == 13 || fabs(decaymatrixelement) == 14)
     return -1;
-  else if ((abs(decaymatrixelement) < 10000000) && (abs(decaymatrixelement) > 1))
+  else if ((fabs(decaymatrixelement) < 10000000) && (fabs(decaymatrixelement) > 1))
     return 1;
   else
     return 0;

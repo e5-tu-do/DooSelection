@@ -1,5 +1,3 @@
-#include "Particle.h"
-
 // from STL
 #include <vector>
 #include <string>
@@ -8,6 +6,7 @@
 
 
 // from Project
+#include "Particle.h"
 #include "CondDBTranslator.h"
 
 
