@@ -9,5 +9,5 @@ add_library(dsMCTools2 SHARED mcdecaymatrixreader/MCDecayMatrixReader.cpp mcdeca
 target_link_libraries(dsMCTools2 ${ALL_LIBRARIES})
 
 install(TARGETS dsMCTools2 DESTINATION lib)
-install(FILES mcdecaymatrixreader/MCDecayMatrixReader.h mcdecaymatrixreader/CondDBTranslator.h mcdecaymatrixreader/Particle.h DESTINATION include/dooselection/mctools/mcdecaymatrixreader)
+install(FILES mcdecaymatrixreader/MCDecayMatrixReader.h mcdecaymatrixreader/CondDBTranslator.h mcdecaymatrixreader/Particle.h mcdecaymatrixreader/CondDB_particle_table.txt DESTINATION include/dooselection/mctools/mcdecaymatrixreader)
 

@@ -1,5 +1,3 @@
-#include "CondDBTranslator.h"
-
 // from STL
 #include <stdio.h>
 #include <vector>
@@ -10,7 +8,11 @@
 #include <vector>
 #include <cmath>
 
+// from ROOT
+#include "TString.h"
+
 // from Project
+#include "CondDBTranslator.h"
 
 
 namespace dooselection {
@@ -19,12 +21,11 @@ namespace mcdecaymatrixreader {
 
 
 CondDBTranslator::CondDBTranslator(){
-  char* pPath;
-  pPath = getenv ("DOOSELECTIONSYS");
-  strcpy (pPath,"CondDB_particle_table.txt.");
+  TString pathPart1(getenv ("DOOSELECTIONSYS"));
+  TString path = pathPart1 + "/include/dooselection/mctools/mcdecaymatrixreader/CondDB_particle_table.txt";
 
   ifstream particle_table_file;
-  particle_table_file.open(pPath);
+  particle_table_file.open(path);
 
   std::string line = "";
   std::string mc_id_string = "";
