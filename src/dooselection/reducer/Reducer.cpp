@@ -79,6 +79,7 @@ void Reducer::Initialize(){
 
 void Reducer::PrepareIntitialTree() {
   OpenInputFileAndTree();
+  ProcessInputTree();
   InitializeBranches();
 }
 

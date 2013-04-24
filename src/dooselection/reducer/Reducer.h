@@ -338,19 +338,14 @@ class Reducer {
   
  protected:
   /**
-   * Virtual function for derived classes with higher level leaves. This will be 
-   * called to compute values of these leaves upon loading of an event from the 
-   * interim tree.
+   * @brief Process input tree after opening
+   *
+   * Virtual function for derived classes to process the input tree before it is
+   * copied into the interim tree. This function will be called after 
+   * OpenInputFileAndTree() before leaves are deactivated.
+   *
    **/
-  virtual void UpdateSpecialLeaves() {}
-  
-  /**
-   * Virtual function for derived classes with higher level cuts. This will be 
-   * called to check if an event/candidate passes certain requirements. Events
-   * failing this will not be considered at all. Events passing will be 
-   * considered for the best candidate selection (if this is used).
-   **/
-  virtual bool EntryPassesSpecialCuts() { return true; }
+  virtual void ProcessInputTree() {}
   
   /**
    * @brief Create specialized higher level branches
@@ -376,6 +371,21 @@ class Reducer {
    **/
   virtual void PrepareSpecialBranches() {}
  
+  /**
+   * Virtual function for derived classes with higher level leaves. This will be 
+   * called to compute values of these leaves upon loading of an event from the 
+   * interim tree.
+   **/
+  virtual void UpdateSpecialLeaves() {}
+  
+  /**
+   * Virtual function for derived classes with higher level cuts. This will be 
+   * called to check if an event/candidate passes certain requirements. Events
+   * failing this will not be considered at all. Events passing will be 
+   * considered for the best candidate selection (if this is used).
+   **/
+  virtual bool EntryPassesSpecialCuts() { return true; }
+  
   /**
    *  @brief Fill the output tree
    *
