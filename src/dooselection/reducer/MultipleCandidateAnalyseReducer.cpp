@@ -70,6 +70,14 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     }
     
     insert(mapping_id_tree_)(identifier, i);
+    
+    if (isatty(fileno(stdout))) {
+      if ((i%200) == 0) {
+        double frac = static_cast<double> (i)/num_entries*100.0;
+        printf("Progress %.2f %         \xd", frac);
+        fflush(stdout);
+      }
+    }
   }
   
   for(std::multimap<std::vector<ULong64_t>, ULong64_t>::const_iterator it = mapping_id_tree_.begin(), end = mapping_id_tree_.end();
