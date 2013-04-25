@@ -57,6 +57,7 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
   }
   
   ULong64_t num_entries = input_tree_->GetEntries();
+  sinfo << "MultipleCandidateAnalyseReducer::ProcessInputTree(): Analysing events according to event identifiers." << endmsg;
   for (ULong64_t i=0; i<num_entries; ++i) {
     input_tree_->GetEntry(i);
     
@@ -64,8 +65,7 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     
     for (std::vector<ReducerLeaf<ULong64_t> >::const_iterator it = event_identifiers.begin();
          it != event_identifiers.end(); ++it) {
-      sdebug << "i = " << i << ", " << it->name() << " = " << it->GetValue() << endmsg;
-      
+//      sdebug << "i = " << i << ", " << it->name() << " = " << it->GetValue() << endmsg;      
       identifier += it->GetValue();
     }
     
