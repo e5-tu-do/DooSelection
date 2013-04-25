@@ -71,11 +71,12 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     
     for (std::vector<ReducerLeaf<ULong64_t> >::const_iterator it = identfiers_begin;
          it != identfiers_end; ++it) {
-//      sdebug << "i = " << i << ", " << it->name() << " = " << it->GetValue() << endmsg;      
-      identifier += it->GetValue();
+//      sdebug << "i = " << i << ", " << it->name() << " = " << it->GetValue() << endmsg;
+      identifier.push_back(it->GetValue());
     }
     
-    insert(mapping_id_tree_)(identifier, i);
+//    insert(mapping_id_tree_)(identifier, i);
+    mapping_id_tree_.insert(std::pair<std::vector<ULong64_t>,ULong64_t>(identifier, i));
     
     if (isatty(fileno(stdout))) {
       if ((i%200) == 0) {
