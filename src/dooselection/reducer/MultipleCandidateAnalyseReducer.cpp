@@ -72,6 +72,8 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
 //    }
 //    sdebug << "-> " << it->second << endmsg;
   }
+  
+  input_tree_->SetBranchStatus("*", true);
 }
 } // namespace reducer
 } // namespace dooselection
