@@ -409,10 +409,15 @@ class Reducer {
    */
   void FlushEvent();
   
-	/*
+	/**
 	 * Interim tree protected to give derived classed possibility to work with it.
 	 */
   TTree* interim_tree_;
+  
+  /**
+	 * Input tree protected to give derived classed possibility to work with it.
+	 */
+  TTree* input_tree_;
   
   /**
    * members needed for best candidate selection
@@ -518,8 +523,7 @@ class Reducer {
   std::vector<ReducerLeaf<Int_t>* >    int_leaves_;     ///< new int leaves for output tree
   
   TFile* input_file_;
-  TTree* input_tree_;
-  
+    
   TFile* output_file_;
   TTree* output_tree_;
   

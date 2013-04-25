@@ -4,6 +4,7 @@
 // from STL
 #include <map>
 #include <vector>
+#include <string>
 
 // from ROOT
 
@@ -36,14 +37,15 @@ class MultipleCandidateAnalyseReducer : virtual public Reducer {
   MultipleCandidateAnalyseReducer();
   
   /**
-   *  @brief Brief description of function.
+   *  @brief Add a leaf to event identifiers
    *
-   *  Detailed description.
+   *  Add a leaf by name as event identifier. Internally, the leaf will be 
+   *  stored as ReducerLeaf<Long64_t> so type conversions will be handled 
+   *  automatically.
    *
-   *  @param parameter description
-   *  @return description of the return value
+   *  @param name_leaf name of the leaf in the input tree to use
    */
-  void AddEventIdentifier();
+  void AddEventIdentifier(const std::string& name_leaf);
   
  protected:
   virtual void ProcessInputTree();
@@ -52,12 +54,12 @@ class MultipleCandidateAnalyseReducer : virtual public Reducer {
   /**
    *  @brief Vector of pointers to leaf branch addresses with unique event identifiers
    */
-  std::vector<Int_t*> event_identifiers_;
+  std::vector<ReducerLeaf<Long64_t> > event_identifiers_;
   
   /**
    *  @brief Mapping for unique event identifier and tree entry
    */
-  std::multimap<std::vector<Int_t*>, Long64_t> mapping_id_tree_;
+  std::multimap<std::vector<Long64_t>, Long64_t> mapping_id_tree_;
 };
 } // namespace reducer
 } // namespace dooselection
