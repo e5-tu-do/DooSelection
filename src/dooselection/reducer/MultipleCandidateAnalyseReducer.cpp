@@ -98,7 +98,7 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     MapType::const_iterator it_start = it;
     MapType::const_iterator it_end   = mapping_id_tree_.upper_bound(it->first);
     
-    // count possible multiple occurences of one unique key
+    // count possible multiple occurrences of one unique key
     int i = 0;
     for (MapType::const_iterator it_same = it_start; it_same != it_end; ++it_same) {
       i++;
@@ -110,7 +110,7 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     }
   }
   
-  sinfo << "MultipleCandidateAnalyseReducer::ProcessInputTree(): Analysis finished. Printing number of multiple candidates (# mc) vs. number of occurences (# evts)" << endmsg;
+  sinfo << "MultipleCandidateAnalyseReducer::ProcessInputTree(): Analysis finished. Printing number of multiple candidates (# mc) vs. number of occurrences (# evts)" << endmsg;
   sinfo << "# mc \t # evts" << endmsg;
   for (std::map<int,int>::const_iterator it = multicand_histogram.begin();
        it != multicand_histogram.end(); ++it) {
