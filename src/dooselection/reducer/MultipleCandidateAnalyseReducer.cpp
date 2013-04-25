@@ -68,8 +68,6 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
   bool tty = isatty(fileno(stdout));
   
   sinfo << "MultipleCandidateAnalyseReducer::ProcessInputTree(): Analysing events according to event identifiers." << endmsg;
-  TStopwatch sw;
-  sw.Start();
   for (ULong64_t i=0; i<num_entries; ++i) {
     input_tree_->GetEntry(i);
     
@@ -87,24 +85,31 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
       fflush(stdout);
     }
   }
-  sdebug << sw << endmsg;
   
   typedef std::multimap<std::vector<ULong64_t>, ULong64_t> MapType;
   std::map<int,int> multicand_histogram;
+  
+  multicand_histogram[1] = 0;
   
   for(MapType::const_iterator it = mapping_id_tree_.begin(), end = mapping_id_tree_.end();
       it != end; it = mapping_id_tree_.upper_bound(it->first)) {
     MapType::const_iterator it_start = it;
     MapType::const_iterator it_end   = mapping_id_tree_.upper_bound(it->first);
     
-    if (it_start != it_end) {
+    if (it_start != --it_end) {
       int i = 0;
-      for (MapType::const_iterator it_same = it_start; it_same != it_end; ++it_same) {
+      for (MapType::const_iterator it_same = it_start; it_same != ++it_end; ++it_same) {
         i++;
       }
+      if (multicand_histogram.count(i+1) == 0) {
+        multicand_histogram[i+1] = 1;
+      } else {
+        multicand_histogram[i+1]++;
+      }
+      
       sdebug << i << endmsg;
     } else {
-      
+      multicand_histogram[1]++;
     }
     
 //    sdebug << it->first << " -> " << it->second << endmsg;
