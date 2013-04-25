@@ -89,9 +89,22 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
   }
   sdebug << sw << endmsg;
   
-  for(std::multimap<std::vector<ULong64_t>, ULong64_t>::const_iterator it = mapping_id_tree_.begin(), end = mapping_id_tree_.end();
+  typedef std::multimap<std::vector<ULong64_t>, ULong64_t> MapType;
+  
+  for(MapType::const_iterator it = mapping_id_tree_.begin(), end = mapping_id_tree_.end();
       it != end; it = mapping_id_tree_.upper_bound(it->first)) {
-    sdebug << it->first << " -> " << it->second << endmsg;
+    MapType::const_iterator it_start = it;
+    MapType::const_iterator it_end   = mapping_id_tree_.upper_bound(it->first);
+    
+    if (it_start != it_end) {
+      int i = 0;
+      for (MapType::const_iterator it_same = it_start; it_same != it_end; ++it_same) {
+        i++;
+      }
+      sdebug << i << endmsg;
+    }
+    
+//    sdebug << it->first << " -> " << it->second << endmsg;
 //    for (std::vector<ULong64_t>::const_iterator it_id = it->first.begin();
 //         it_id != it->first.end(); ++it) {
 //      sdebug << *it_id << " " << endmsg;
