@@ -76,9 +76,7 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     std::vector<ULong64_t> identifier;
     
     for (it = identfiers_begin; it != identfiers_end; ++it) {
-//      sdebug << "i = " << i << ", " << it->name() << " = " << it->GetValue() << endmsg;
-      //identifier.push_back(it->GetValue());
-      identifier.push_back(1);
+      identifier.push_back(it->GetValue());
     }
     insert(mapping_id_tree_)(identifier, i);
     
