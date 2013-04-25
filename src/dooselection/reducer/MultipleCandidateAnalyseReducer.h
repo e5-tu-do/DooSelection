@@ -54,12 +54,12 @@ class MultipleCandidateAnalyseReducer : virtual public Reducer {
   /**
    *  @brief Vector of pointers to leaf branch addresses with unique event identifiers
    */
-  std::vector<ReducerLeaf<Long64_t> > event_identifiers_;
+  std::vector<ReducerLeaf<ULong64_t> > event_identifiers_;
   
   /**
    *  @brief Mapping for unique event identifier and tree entry
    */
-  std::multimap<std::vector<Long64_t>, Long64_t> mapping_id_tree_;
+  std::multimap<std::vector<ULong64_t>, ULong64_t> mapping_id_tree_;
 };
 } // namespace reducer
 } // namespace dooselection
