@@ -30,20 +30,29 @@ MultipleCandidateAnalyseReducer::MultipleCandidateAnalyseReducer()
 {}
 
 void MultipleCandidateAnalyseReducer::AddEventIdentifier(const std::string& name_leaf) {
-  TLeaf* leaf = input_tree_->GetLeaf(name_leaf.c_str());
-  
-  if (leaf == NULL) {
-    serr << "MultipleCandidateAnalyseReducer::AddEventIdentifier(...): Cannot find indentifier leaf " << name_leaf << " in input tree. Ignoring it." << endmsg;
-  } else {
-    event_identifiers_.push_back(ReducerLeaf<ULong64_t>(leaf));
-  }
+  event_identifier_names_ += name_leaf;
 }
   
 void MultipleCandidateAnalyseReducer::ProcessInputTree() {
+  std::vector<ReducerLeaf<ULong64_t> > event_identifiers;
+
+  for (std::vector<std::string>::const_iterator it = event_identifier_names_.begin();
+       it != event_identifier_names_.end(); ++it) {
+    TLeaf* leaf = input_tree_->GetLeaf(it->c_str());
+    
+    if (leaf == NULL) {
+      serr << "MultipleCandidateAnalyseReducer::AddEventIdentifier(...): Cannot find indentifier leaf " << *it << " in input tree. Ignoring it." << endmsg;
+    } else {
+      sinfo << "MultipleCandidateAnalyseReducer::AddEventIdentifier(...): Adding " << *it << " as event identifier." << endmsg;
+      event_identifiers.push_back(ReducerLeaf<ULong64_t>(leaf));
+    }
+  }
+
+  
   input_tree_->SetBranchStatus("*", false);
   
-  for (std::vector<ReducerLeaf<ULong64_t> >::const_iterator it = event_identifiers_.begin();
-       it != event_identifiers_.end(); ++it) {
+  for (std::vector<ReducerLeaf<ULong64_t> >::const_iterator it = event_identifiers.begin();
+       it != event_identifiers.end(); ++it) {
     input_tree_->SetBranchStatus(it->name(), true);
   }
   
@@ -53,8 +62,8 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     
     std::vector<ULong64_t> identifier;
     
-    for (std::vector<ReducerLeaf<ULong64_t> >::const_iterator it = event_identifiers_.begin();
-         it != event_identifiers_.end(); ++it) {
+    for (std::vector<ReducerLeaf<ULong64_t> >::const_iterator it = event_identifiers.begin();
+         it != event_identifiers.end(); ++it) {
       sdebug << "i = " << i << ", " << it->name() << " = " << it->GetValue() << endmsg;
       
       identifier += it->GetValue();
@@ -65,7 +74,7 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
   
   for(std::multimap<std::vector<ULong64_t>, ULong64_t>::const_iterator it = mapping_id_tree_.begin(), end = mapping_id_tree_.end();
       it != end; it = mapping_id_tree_.upper_bound(it->first)) {
-    sdebug << it->first << ' -> ' << it->second << endmsg;
+    sdebug << it->first << " -> " << it->second << endmsg;
 //    for (std::vector<ULong64_t>::const_iterator it_id = it->first.begin();
 //         it_id != it->first.end(); ++it) {
 //      sdebug << *it_id << " " << endmsg;

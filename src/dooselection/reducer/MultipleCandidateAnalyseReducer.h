@@ -52,9 +52,9 @@ class MultipleCandidateAnalyseReducer : virtual public Reducer {
   
  private:
   /**
-   *  @brief Vector of pointers to leaf branch addresses with unique event identifiers
+   *  @brief Vector of names of leaves with unique event identifiers
    */
-  std::vector<ReducerLeaf<ULong64_t> > event_identifiers_;
+  std::vector<std::string> event_identifier_names_;
   
   /**
    *  @brief Mapping for unique event identifier and tree entry
