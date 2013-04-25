@@ -57,15 +57,15 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     input_tree_->SetBranchStatus(it->name(), true);
   }
   
+  // precaching everything that should not be evaluated in the event loop
   ULong64_t num_entries = input_tree_->GetEntries();
   std::vector<ReducerLeaf<ULong64_t> >::const_iterator identfiers_begin = event_identifiers.begin();
   std::vector<ReducerLeaf<ULong64_t> >::const_iterator identfiers_end   = event_identifiers.end();
   std::vector<ReducerLeaf<ULong64_t> >::const_iterator it;
   double frac = 0.0;
-  int n_print_stepping = 5000;
+  int n_print_stepping = 500;
   double frac_increment = static_cast<double>(n_print_stepping)/num_entries*100.0;
   bool tty = isatty(fileno(stdout));
-  tty = false;
   
   sinfo << "MultipleCandidateAnalyseReducer::ProcessInputTree(): Analysing events according to event identifiers." << endmsg;
   TStopwatch sw;
@@ -77,7 +77,8 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     
     for (it = identfiers_begin; it != identfiers_end; ++it) {
 //      sdebug << "i = " << i << ", " << it->name() << " = " << it->GetValue() << endmsg;
-      identifier.push_back(it->GetValue());
+      //identifier.push_back(it->GetValue());
+      identifier.push_back(1);
     }
     insert(mapping_id_tree_)(identifier, i);
     
