@@ -65,6 +65,7 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
   int n_print_stepping = 5000;
   double frac_increment = static_cast<double>(n_print_stepping)/num_entries*100.0;
   bool tty = isatty(fileno(stdout));
+  tty = false;
   
   sinfo << "MultipleCandidateAnalyseReducer::ProcessInputTree(): Analysing events according to event identifiers." << endmsg;
   TStopwatch sw;
