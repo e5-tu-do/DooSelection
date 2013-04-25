@@ -10,6 +10,7 @@ using namespace boost::assign; // bring 'operator+=()' into scope
 
 // from ROOT
 #include "TLeaf.h"
+#include "TStopwatch.h"
 
 // from RooFit
 
@@ -58,6 +59,8 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
   
   ULong64_t num_entries = input_tree_->GetEntries();
   sinfo << "MultipleCandidateAnalyseReducer::ProcessInputTree(): Analysing events according to event identifiers." << endmsg;
+  TStopwatch sw;
+  sw.Start();
   for (ULong64_t i=0; i<num_entries; ++i) {
     input_tree_->GetEntry(i);
     
@@ -79,6 +82,7 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
       }
     }
   }
+  sdebug << sw << endmsg;
   
   for(std::multimap<std::vector<ULong64_t>, ULong64_t>::const_iterator it = mapping_id_tree_.begin(), end = mapping_id_tree_.end();
       it != end; it = mapping_id_tree_.upper_bound(it->first)) {
