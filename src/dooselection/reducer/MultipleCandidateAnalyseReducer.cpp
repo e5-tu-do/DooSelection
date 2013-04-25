@@ -96,21 +96,16 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     MapType::const_iterator it_start = it;
     MapType::const_iterator it_end   = mapping_id_tree_.upper_bound(it->first);
     
-    if (it_start != --it_end) {
-      int i = 0;
-      for (MapType::const_iterator it_same = it_start; it_same != ++it_end; ++it_same) {
-        i++;
-      }
-      if (multicand_histogram.count(i+1) == 0) {
-        multicand_histogram[i+1] = 1;
-      } else {
-        multicand_histogram[i+1]++;
-      }
-      
-      sdebug << i << endmsg;
-    } else {
-      multicand_histogram[1]++;
+    int i = 0;
+    for (MapType::const_iterator it_same = it_start; it_same != it_end; ++it_same) {
+      i++;
     }
+    if (multicand_histogram.count(i) == 0) {
+      multicand_histogram[i] = 1;
+    } else {
+      multicand_histogram[i]++;
+    }
+    if (i>0) sdebug << i << endmsg;
     
 //    sdebug << it->first << " -> " << it->second << endmsg;
 //    for (std::vector<ULong64_t>::const_iterator it_id = it->first.begin();
@@ -118,6 +113,11 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
 //      sdebug << *it_id << " " << endmsg;
 //    }
 //    sdebug << "-> " << it->second << endmsg;
+  }
+  
+  for (std::map<int,int>::const_iterator it = multicand_histogram.begin();
+       it != multicand_histogram.end(); ++it) {
+    sinfo << it->first << ": " << it->second << endmsg;
   }
   
   input_tree_->SetBranchStatus("*", true);
