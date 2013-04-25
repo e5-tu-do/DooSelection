@@ -90,11 +90,15 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
   std::map<int,int> multicand_histogram;
   
   sinfo << "MultipleCandidateAnalyseReducer::ProcessInputTree(): Analysing stored events for multiplicities." << endmsg;
+  // iterating over unique keys with this trick:
   for(MapType::const_iterator it = mapping_id_tree_.begin(), end = mapping_id_tree_.end();
       it != end; it = mapping_id_tree_.upper_bound(it->first)) {
+    
+    // iterators inside a unique key
     MapType::const_iterator it_start = it;
     MapType::const_iterator it_end   = mapping_id_tree_.upper_bound(it->first);
     
+    // count possible multiple occurences of one unique key
     int i = 0;
     for (MapType::const_iterator it_same = it_start; it_same != it_end; ++it_same) {
       i++;
@@ -104,19 +108,13 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     } else {
       multicand_histogram[i]++;
     }
-    if (i>0) sdebug << i << endmsg;
-    
-//    sdebug << it->first << " -> " << it->second << endmsg;
-//    for (std::vector<ULong64_t>::const_iterator it_id = it->first.begin();
-//         it_id != it->first.end(); ++it) {
-//      sdebug << *it_id << " " << endmsg;
-//    }
-//    sdebug << "-> " << it->second << endmsg;
   }
   
+  sinfo << "MultipleCandidateAnalyseReducer::ProcessInputTree(): Analysis finished. Printing:" << endmsg;
+  sinfo << "# multiple candidates \t # events" << endmsg;
   for (std::map<int,int>::const_iterator it = multicand_histogram.begin();
        it != multicand_histogram.end(); ++it) {
-    sinfo << it->first << ": " << it->second << endmsg;
+    sinfo << it->first << "\t " << it->second << endmsg;
   }
   
   input_tree_->SetBranchStatus("*", true);
