@@ -37,8 +37,8 @@ void MultipleCandidateAnalyseReducer::AddEventIdentifier(const std::string& name
 void MultipleCandidateAnalyseReducer::ProcessInputTree() {
   std::vector<ReducerLeaf<ULong64_t> > event_identifiers;
 
-  for (std::vector<std::string>::const_iterator it = event_identifier_names_.begin();
-       it != event_identifier_names_.end(); ++it) {
+  for (std::vector<std::string>::const_iterator it = event_identifier_names_.begin(), end=event_identifier_names_.end();
+       it != end; ++it) {
     TLeaf* leaf = input_tree_->GetLeaf(it->c_str());
     
     if (leaf == NULL) {
@@ -66,8 +66,8 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     
     std::vector<ULong64_t> identifier;
     
-    for (std::vector<ReducerLeaf<ULong64_t> >::const_iterator it = event_identifiers.begin();
-         it != event_identifiers.end(); ++it) {
+    for (std::vector<ReducerLeaf<ULong64_t> >::const_iterator it = event_identifiers.begin(), end = event_identifiers.end();
+         it != end; ++it) {
 //      sdebug << "i = " << i << ", " << it->name() << " = " << it->GetValue() << endmsg;      
       identifier += it->GetValue();
     }
