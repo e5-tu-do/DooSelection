@@ -62,7 +62,8 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
   std::vector<ReducerLeaf<ULong64_t> >::const_iterator identfiers_end   = event_identifiers.end();
   std::vector<ReducerLeaf<ULong64_t> >::const_iterator it;
   double frac = 0.0;
-  double frac_increment = static_cast<double>(1000)/num_entries*100.0;
+  int n_print_stepping = 5000;
+  double frac_increment = static_cast<double>(n_print_stepping)/num_entries*100.0;
   bool tty = isatty(fileno(stdout));
   
   sinfo << "MultipleCandidateAnalyseReducer::ProcessInputTree(): Analysing events according to event identifiers." << endmsg;
@@ -79,7 +80,7 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     }
     insert(mapping_id_tree_)(identifier, i);
     
-    if (tty && (i%1000) == 0) {
+    if (tty && (i%n_print_stepping) == 0) {
       // double frac = static_cast<double> (i)/num_entries*100.0;
       frac += frac_increment;
       printf("Progress %.2f %         \xd", frac);
