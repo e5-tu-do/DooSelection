@@ -90,6 +90,7 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
   sdebug << sw << endmsg;
   
   typedef std::multimap<std::vector<ULong64_t>, ULong64_t> MapType;
+  std::map<int,int> multicand_histogram;
   
   for(MapType::const_iterator it = mapping_id_tree_.begin(), end = mapping_id_tree_.end();
       it != end; it = mapping_id_tree_.upper_bound(it->first)) {
@@ -102,6 +103,8 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
         i++;
       }
       sdebug << i << endmsg;
+    } else {
+      
     }
     
 //    sdebug << it->first << " -> " << it->second << endmsg;
