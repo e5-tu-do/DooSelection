@@ -89,8 +89,7 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
   typedef std::multimap<std::vector<ULong64_t>, ULong64_t> MapType;
   std::map<int,int> multicand_histogram;
   
-  multicand_histogram[1] = 0;
-  
+  sinfo << "MultipleCandidateAnalyseReducer::ProcessInputTree(): Analysing stored events for multiplicities." << endmsg;
   for(MapType::const_iterator it = mapping_id_tree_.begin(), end = mapping_id_tree_.end();
       it != end; it = mapping_id_tree_.upper_bound(it->first)) {
     MapType::const_iterator it_start = it;
