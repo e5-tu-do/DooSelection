@@ -274,10 +274,11 @@ leaf_operation_(r.leaf_operation_) {
 
 template <class T>
 T ReducerLeaf<T>::GetValue(int i) const {
-  if (i>=Length()) {
-    doocore::io::serr << "ERROR in T ReducerLeaf<T>::GetValue(int): Trying to access array element " << i << " in leaf " << name_ << ". Length is " << Length() << ". Will return first element." << doocore::io::endmsg;
-    i=0;
-  }
+  // too high performance impact
+//  if (i>=Length()) {
+//    doocore::io::serr << "ERROR in T ReducerLeaf<T>::GetValue(int): Trying to access array element " << i << " in leaf " << name_ << ". Length is " << Length() << ". Will return first element." << doocore::io::endmsg;
+//    i=0;
+//  }
   
   // in case we have stored our value in branch_address_templ_ it's simple and 
   // we know that the type is correct.
@@ -292,14 +293,14 @@ T ReducerLeaf<T>::GetValue(int i) const {
       return static_cast<T>(static_cast<Float_t*>(branch_address_)[i]);
     } else if (type_ == "Double_t") {
       return static_cast<T>(static_cast<Double_t*>(branch_address_)[i]);
+    } else if (type_ == "ULong64_t") {
+      return static_cast<T>(static_cast<ULong64_t*>(branch_address_)[i]);
+    } else if (type_ == "Long64_t") {
+      return static_cast<T>(static_cast<Long64_t*>(branch_address_)[i]);
     } else if (type_ == "UInt_t") {
       return static_cast<T>(static_cast<UInt_t*>(branch_address_)[i]);
     } else if (type_ == "Bool_t") {
       return static_cast<T>(static_cast<Bool_t*>(branch_address_)[i]);
-    } else if (type_ == "Long64_t") {
-      return static_cast<T>(static_cast<Long64_t*>(branch_address_)[i]);
-    } else if (type_ == "ULong64_t") {
-      return static_cast<T>(static_cast<ULong64_t*>(branch_address_)[i]);
     } else if (type_ == "Short_t") {
       return static_cast<T>(static_cast<Short_t*>(branch_address_)[i]);
     } else if (type_ == "UShort_t") {

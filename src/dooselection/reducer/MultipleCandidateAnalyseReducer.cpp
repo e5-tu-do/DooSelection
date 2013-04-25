@@ -60,7 +60,11 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
   ULong64_t num_entries = input_tree_->GetEntries();
   std::vector<ReducerLeaf<ULong64_t> >::const_iterator identfiers_begin = event_identifiers.begin();
   std::vector<ReducerLeaf<ULong64_t> >::const_iterator identfiers_end   = event_identifiers.end();
-
+  std::vector<ReducerLeaf<ULong64_t> >::const_iterator it;
+  double frac = 0.0;
+  double frac_increment = static_cast<double>(1000)/num_entries*100.0;
+  bool tty = isatty(fileno(stdout));
+  
   sinfo << "MultipleCandidateAnalyseReducer::ProcessInputTree(): Analysing events according to event identifiers." << endmsg;
   TStopwatch sw;
   sw.Start();
@@ -69,21 +73,17 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     
     std::vector<ULong64_t> identifier;
     
-    for (std::vector<ReducerLeaf<ULong64_t> >::const_iterator it = identfiers_begin;
-         it != identfiers_end; ++it) {
+    for (it = identfiers_begin; it != identfiers_end; ++it) {
 //      sdebug << "i = " << i << ", " << it->name() << " = " << it->GetValue() << endmsg;
       identifier.push_back(it->GetValue());
     }
+    insert(mapping_id_tree_)(identifier, i);
     
-//    insert(mapping_id_tree_)(identifier, i);
-    mapping_id_tree_.insert(std::pair<std::vector<ULong64_t>,ULong64_t>(identifier, i));
-    
-    if (isatty(fileno(stdout))) {
-      if ((i%200) == 0) {
-        double frac = static_cast<double> (i)/num_entries*100.0;
-        printf("Progress %.2f %         \xd", frac);
-        fflush(stdout);
-      }
+    if (tty && (i%1000) == 0) {
+      // double frac = static_cast<double> (i)/num_entries*100.0;
+      frac += frac_increment;
+      printf("Progress %.2f %         \xd", frac);
+      fflush(stdout);
     }
   }
   sdebug << sw << endmsg;
