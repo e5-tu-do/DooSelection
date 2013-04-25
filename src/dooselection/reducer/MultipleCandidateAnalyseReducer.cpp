@@ -112,10 +112,15 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
   
   sinfo << "MultipleCandidateAnalyseReducer::ProcessInputTree(): Analysis finished. Printing number of multiple candidates (# mc) vs. number of occurrences (# evts)" << endmsg;
   sinfo << "# mc \t # evts" << endmsg;
+  int num_multicands_total = 0;
   for (std::map<int,int>::const_iterator it = multicand_histogram.begin();
        it != multicand_histogram.end(); ++it) {
     sinfo << it->first << "\t " << it->second << endmsg;
+    if (it->first > 1) {
+      num_multicands_total += it->first * it->second;
+    }
   }
+  sinfo << "Total number of multiple candidates: " << num_multicands_total << endmsg;
   
   input_tree_->SetBranchStatus("*", true);
 }
