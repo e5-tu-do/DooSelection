@@ -110,8 +110,8 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     }
   }
   
-  sinfo << "MultipleCandidateAnalyseReducer::ProcessInputTree(): Analysis finished. Printing:" << endmsg;
-  sinfo << "# multiple candidates \t # events" << endmsg;
+  sinfo << "MultipleCandidateAnalyseReducer::ProcessInputTree(): Analysis finished. Printing number of multiple candidates (# mc) vs. number of occurences (# evts)" << endmsg;
+  sinfo << "# mc \t # evts" << endmsg;
   for (std::map<int,int>::const_iterator it = multicand_histogram.begin();
        it != multicand_histogram.end(); ++it) {
     sinfo << it->first << "\t " << it->second << endmsg;
