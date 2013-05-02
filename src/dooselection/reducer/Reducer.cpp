@@ -23,6 +23,7 @@
 #include "TLeaf.h"
 #include "TTreeFormula.h"
 #include "TRandom.h"
+#include "TStopwatch.h"
 
 // from DooCore
 #include <doocore/io/MsgStream.h>
@@ -114,6 +115,10 @@ void Reducer::Run(){
   }
   
   int i = 0;
+  int status_stepping = num_entries/10000;
+  
+  TStopwatch sw;
+  sw.Start();
   while (i<num_entries) {
   //for (int i=0; i<num_entries; ++i) {
     // best candidate selection: 
@@ -135,7 +140,7 @@ void Reducer::Run(){
     if (isatty(fileno(stdout))) {
       //std::cout << (i+1) << std::endl;
       //std::cout << (i+1)%1000 << std::endl;
-      if ((num_written_%200) == 0) {
+      if ((num_written_%status_stepping) == 0) {
         double frac = static_cast<double> (i)/num_entries*100.0;
         printf("Progress %.2f %         \xd", frac);
         fflush(stdout);
@@ -149,6 +154,8 @@ void Reducer::Run(){
       break;
     }
   }
+  double time = sw.RealTime();
+  sinfo << "Processing event loop took " << time << " s (" << time/num_written_ << " s/event)." << endmsg;
   
   output_tree_->Write();
   sinfo << "OutputTree " << output_tree_path_ << " written to file " << output_file_path_ << " with " << num_written_ << " candidates." << endmsg; // "(" << num_best_candidates << " were best candidates without special cuts)." << endl;
