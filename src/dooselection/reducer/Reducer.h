@@ -408,6 +408,14 @@ class Reducer {
    *  leaves) into the output tree.
    */
   void FlushEvent();
+
+  /**
+   *  @brief Setting correct branch status (keep/omit) for input tree branches
+   *
+   *  This function is responsible for setting the branch status in all leaves
+   *  that are either to keep or omit.
+   */
+  void InitializeBranches();
   
 	/**
 	 * Interim tree protected to give derived classed possibility to work with it.
@@ -436,8 +444,6 @@ class Reducer {
   void OpenInputFileAndTree();
   void CreateInterimFileAndTree();
   void CreateOutputFileAndTree();
-  
-  void InitializeBranches();
   
   unsigned int GetBestCandidate(TTree* tree, unsigned int pos_event_start, unsigned int num_entries);
   
