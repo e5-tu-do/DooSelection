@@ -13,6 +13,7 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/bimap.hpp>
+#include <boost/regex.hpp>
 
 // from ROOT
 #include "TROOT.h"
@@ -307,6 +308,29 @@ void Reducer::add_branches_omit(std::set<TString> const& branches_omit){
 }
 
 void Reducer::InitializeBranches(){
+  // iterate over regex containers for keeping/omitting branches and fill
+  // branches_keep_/branches_omit_ accordingly
+  TObjArray* leaf_list = input_tree_->GetListOfLeaves();
+  int num_leaves       = leaf_list->GetEntries();
+  
+  // iterate over all leaves and check regex matching
+  for (int i=0; i<num_leaves; ++i) {
+    for (std::vector<std::string>::const_iterator it_regex = branches_keep_regex_.begin(), end = branches_keep_regex_.end();
+         it_regex != end; ++it_regex) {
+      boost::regex regex(*it_regex);
+      if (regex_match((*leaf_list)[i]->GetName(),regex)) {
+        branches_keep_.insert((*leaf_list)[i]->GetName());
+      }
+    }
+    for (std::vector<std::string>::const_iterator it_regex = branches_omit_regex_.begin(), end = branches_omit_regex_.end();
+         it_regex != end; ++it_regex) {
+      boost::regex regex(*it_regex);
+      if (regex_match((*leaf_list)[i]->GetName(),regex)) {
+        branches_omit_.insert((*leaf_list)[i]->GetName());
+      }
+    }
+  }
+  
   // Keep/omit branches according to filled containers. Keep supercedes omit.
   if ( !branches_keep_.empty() ){
     // Deactivate all branches
