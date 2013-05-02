@@ -8,6 +8,7 @@
 // from ROOT
 #include "TMath.h"
 #include "TCut.h"
+#include "TStopwatch.h"
 
 // from DooCore
 #include <doocore/io/MsgStream.h>
@@ -45,6 +46,9 @@ void BkgCategorizerReducer::PrepareSpecialBranches() {
  
   TBranch* br_matrix = interim_tree_->GetBranch(decay_matrix_name_.c_str());
   if (br_matrix != NULL) {
+    TStopwatch sw;
+    sw.Start();
+    
     decay_matrix_length_lptr_ = (Int_t*)decay_matrix_length_leaf_->branch_address();
     br_matrix->SetAddress(&decay_matrix_);    
     TBranch* br_depth  = interim_tree_->GetBranch(decay_depth_leaf_->name());
@@ -86,6 +90,9 @@ void BkgCategorizerReducer::PrepareSpecialBranches() {
     
     background_category_lptr_ = (Int_t*)background_category_leaf_->branch_address();
     sinfo << "Background categories according to this table will be put into leaf " << background_category_leaf_->name() << endmsg;
+    
+    double time = sw.RealTime();
+    sinfo << "Background analysis took " << time << " s." << endmsg;
   } else {
     swarn << "Decay matrix not found. Skipping analysis." << endmsg;
   }
