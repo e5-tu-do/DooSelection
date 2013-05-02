@@ -155,7 +155,7 @@ void Reducer::Run(){
     }
   }
   double time = sw.RealTime();
-  sinfo << "Processing event loop took " << time << " s (" << time/num_written_ << " s/event)." << endmsg;
+  sinfo << "Processing event loop took " << time << " s (" << time/num_written_*1000 << " ms/event)." << endmsg;
   
   output_tree_->Write();
   sinfo << "OutputTree " << output_tree_path_ << " written to file " << output_file_path_ << " with " << num_written_ << " candidates." << endmsg; // "(" << num_best_candidates << " were best candidates without special cuts)." << endl;
