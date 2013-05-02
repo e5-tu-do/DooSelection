@@ -213,10 +213,16 @@ private:
   ///< formulas different values 
   ///< written into the tree.
   T                                         default_value_;
-  
-  ReducerLeaf<T>* leaf_pointer_one_;  ///< to add a little bit of brainfuck, we 
-  ReducerLeaf<T>* leaf_pointer_two_;  ///< have pointers to other ReducerLeafs for
-  ///< operations on these
+
+  /**
+   *  @brief Pointer to first other leaf for operations
+   */
+  ReducerLeaf<T>* leaf_pointer_one_;
+
+  /**
+   *  @brief Pointer to first other leaf for operations
+   */
+  ReducerLeaf<T>* leaf_pointer_two_;
   
   double leaf_factor_one_;            ///< leaf factor for basic arithmatic ops
   double leaf_factor_two_;            ///< leaf factor for basic arithmatic ops
