@@ -52,8 +52,12 @@ void BkgCategorizerReducer::PrepareSpecialBranches() {
     decay_matrix_length_lptr_ = (Int_t*)decay_matrix_length_leaf_->branch_address();
     br_matrix->SetAddress(&decay_matrix_);    
     TBranch* br_depth  = interim_tree_->GetBranch(decay_depth_leaf_->name());
-    int matrix_length = 0;
+    //int matrix_length = 0;
     //interim_tree_->SetBranchAddress(decay_matrix_length_leaf_->name(), &matrix_length);
+    
+    interim_tree_->SetBranchStatus("*", false);
+    interim_tree_->SetBranchStatus(br_depth->GetName(), true);
+    interim_tree_->SetBranchStatus(br_matrix->GetName(), true);
     
     // Fill the map with decay-strings
     for (Int_t ev = 0; ev < interim_tree_->GetEntries(); ev++) {
@@ -70,6 +74,8 @@ void BkgCategorizerReducer::PrepareSpecialBranches() {
       }
       decaystring = "";
     }
+    
+    interim_tree_->SetBranchStatus("*", true);
     
     std::map<std::string,int>::const_iterator iter; 
     
@@ -96,7 +102,7 @@ void BkgCategorizerReducer::PrepareSpecialBranches() {
   } else {
     swarn << "Decay matrix not found. Skipping analysis." << endmsg;
   }
-    
+  
   PrepareFurtherSpecialLeaves();
 }
 
