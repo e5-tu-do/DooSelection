@@ -99,6 +99,20 @@ class Reducer {
   void add_branch_omit(TString const&);
   void add_branches_keep(std::set<TString> const&);
   void add_branches_omit(std::set<TString> const&);
+  
+  /**
+   *  @brief Add regular expression of branches to keep
+   *
+   *  @param keep_regex regular expression for branches to keep
+   */
+  void AddBranchesKeepRegex(std::string keep_regex) { branches_keep_regex_.push_back(keep_regex); }
+  
+  /**
+   *  @brief Add regular expression of branches to omit
+   *
+   *  @param omit_regex regular expression for branches to omit
+   */
+  void AddBranchesOmitRegex(std::string omit_regex) { branches_omit_regex_.push_back(omit_regex); }
   ///@}
   
   /** @name Cut string functions
@@ -515,6 +529,16 @@ class Reducer {
   
   std::set<TString> branches_keep_;
   std::set<TString> branches_omit_;
+  
+  /**
+   *  @brief Regular expressions with branches to keep
+   */
+  std::vector<std::string> branches_keep_regex_;
+  
+  /**
+   *  @brief Regular expressions with branches to omit
+   */
+  std::vector<std::string> branches_omit_regex_;
   
   boost::bimap<TString, TString> name_mapping_;
   
