@@ -96,6 +96,10 @@ void Reducer::Run(){
 
   PrepareSpecialBranches();
 
+  float_leaves_  = PurgeOutputBranches<Float_t,Float_t>(float_leaves_, interim_leaves_);
+  double_leaves_ = PurgeOutputBranches<Double_t,Float_t>(double_leaves_, interim_leaves_);
+  int_leaves_    = PurgeOutputBranches<Int_t,Float_t>(int_leaves_, interim_leaves_);
+  
   std::cout << "Initializing new branches of output tree" << std::endl;
   InitializeOutputBranches<Float_t>(output_tree_, interim_leaves_);
   InitializeOutputBranches<Float_t>(output_tree_, float_leaves_);
@@ -517,9 +521,19 @@ void Reducer::InitializeOutputBranches(TTree* tree, const std::vector<ReducerLea
   
 template<class T1,class T2>
 std::vector<ReducerLeaf<T1>*> Reducer::PurgeOutputBranches(const std::vector<ReducerLeaf<T1>* >& leaves, const std::vector<ReducerLeaf<T2>* >& interim_leaves) const {
+  std::vector<ReducerLeaf<T1>* > purged_leaves;
   for (typename std::vector<ReducerLeaf<T1>* >::const_iterator it = leaves.begin(); it != leaves.end(); ++it) {
-    
+    bool found = false;
+    for (typename std::vector<ReducerLeaf<T2>* >::const_iterator it_ex = interim_leaves.begin(); it_ex != interim_leaves.end(); ++it) {
+      found = found || ((*it_ex)->name() == (*it)->name());
+    }
+    if (found) {
+      swarn << "New leaf " << (*it)->name() << " already existing. Will ignore." << endmsg;
+    } else {
+      purged_leaves.push_back(*it);
+    }
   }
+  return purged_leaves;
 }
 
 template<class T>
