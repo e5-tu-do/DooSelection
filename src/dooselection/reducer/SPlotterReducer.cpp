@@ -48,21 +48,14 @@ void SPlotterReducer::CreateSpecialBranches() {
   TObject* object = NULL;
   while ((object = it_observables->Next())) {
     RooRealVar* observable = dynamic_cast<RooRealVar*>(object);
-    if (observable != NULL) {
-      if (splotfit_.pdf().dependsOn(*observable)) {
-        serr << "DEPENDS: " << observable->GetName() << endmsg;
-      }
-      
+    if (observable != NULL && splotfit_.pdf().dependsOn(*observable)) {
       std::vector<std::string> components;
       
       Plot myplot_mass(cfg_plot, *observable, data, splotfit_.pdf(), components);
       myplot_mass.PlotItLogNoLogY();
     }
   }
-  
 
-  
-  
   interim_tree_->SetBranchStatus("*", 1);
   
   // get sweight maps from SPlotFit2
