@@ -49,9 +49,7 @@ void SPlotterReducer::CreateSpecialBranches() {
   while ((object = it_observables->Next())) {
     RooRealVar* observable = dynamic_cast<RooRealVar*>(object);
     if (observable != NULL && splotfit_.pdf().dependsOn(*observable)) {
-      std::vector<std::string> components;
-      
-      Plot myplot_mass(cfg_plot, *observable, data, splotfit_.pdf(), components);
+      Plot myplot_mass(cfg_plot, *observable, data, splotfit_.pdf(), components_plot_);
       myplot_mass.PlotItLogNoLogY();
     }
   }

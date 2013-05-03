@@ -63,6 +63,13 @@ class SPlotterReducer : virtual public Reducer {
    */
   SPlotterReducer(doofit::fitter::splot::SPlotFit2& spf, RooArgSet observables);
   
+  /**
+   *  @brief Set components to plot for doofit::plotting::Plot
+   *
+   *  @param components_plot components to plot as regular expressions
+   */
+  void set_components_plot(const std::vector<std::string>& components_plot) {components_plot_ = components_plot;}
+  
  protected:
   virtual void UpdateSpecialLeaves();
   virtual void CreateSpecialBranches();
@@ -87,6 +94,11 @@ class SPlotterReducer : virtual public Reducer {
    *  @brief Map of leaves for sweights
    */
   std::map<std::string,ReducerLeaf<Double_t>*> sweight_leaves_;
+  
+  /**
+   *  @brief Components to plot for doofit::plotting::Plot
+   */
+  std::vector<std::string> components_plot_;
 };
 } // namespace reducer
 } // namespace dooselection
