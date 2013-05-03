@@ -483,6 +483,20 @@ class Reducer {
   void InitializeOutputBranches(TTree* tree, const std::vector<ReducerLeaf<T>* >& leaves);
   
   /**
+   *  @brief Purge new leaves already existing in interim tree
+   *
+   *  All leaves that already exist in the interim tree, but are also to be 
+   *  created will be purged by this function from the list of leaves 
+   *  supplied.
+   *
+   *  @param leaves vector of leaves to purge
+   *  @param interim_leaves vector of leaves to compare against
+   *  @return new purged vector
+   */
+  template<class T1,class T2>
+  std::vector<ReducerLeaf<T1>*> PurgeOutputBranches(const std::vector<ReducerLeaf<T1>* >& leaves, const std::vector<ReducerLeaf<T2>* >& interim_leaves) const;
+  
+  /**
    * Get a ReducerLeaf by name from a ReducerLeaf vector
    *
    */

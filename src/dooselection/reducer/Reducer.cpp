@@ -514,6 +514,13 @@ void Reducer::InitializeOutputBranches(TTree* tree, const std::vector<ReducerLea
     (*it)->CreateBranch(tree);
   }
 }
+  
+template<class T1,class T2>
+std::vector<ReducerLeaf<T1>*> Reducer::PurgeOutputBranches(const std::vector<ReducerLeaf<T1>* >& leaves, const std::vector<ReducerLeaf<T2>* >& interim_leaves) const {
+  for (typename std::vector<ReducerLeaf<T1>* >::const_iterator it = leaves.begin(); it != leaves.end(); ++it) {
+    
+  }
+}
 
 template<class T>
 void Reducer::UpdateAllValues(std::vector<ReducerLeaf<T>* >& leaves) {
