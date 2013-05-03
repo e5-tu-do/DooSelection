@@ -1,5 +1,8 @@
 #include "SPlotterReducer.h"
 
+// from Boost
+#include <boost/assign/std/vector.hpp>
+
 // from RooFit
 #include "RooDataSet.h"
 
@@ -8,6 +11,11 @@
 
 // from DooFit
 #include <doofit/fitter/splot/SPlotFit2.h>
+#include <doofit/plotting/Plot/Plot.h>
+#include <doofit/plotting/Plot/PlotConfig.h>
+
+using namespace boost::assign;
+using namespace doofit::plotting;
 
 namespace dooselection {
 namespace reducer {
@@ -24,6 +32,33 @@ void SPlotterReducer::CreateSpecialBranches() {
   
   splotfit_.set_input_data(&data);
   splotfit_.Fit();
+  
+  int argc = 1;
+  char* argv[1];
+  argv[0] = "";
+  
+  PlotConfig cfg_plot("cfg_plot");
+  cfg_plot.InitializeOptions(argc, argv);
+  cfg_plot.set_plot_directory("Plot");
+  
+  TIterator* it_observables = observables_.createIterator();
+  TObject* object = NULL;
+  while ((object = it_observables->Next())) {
+    RooRealVar* observable = dynamic_cast<RooRealVar*>(object);
+    if (observable != NULL) {
+      if (splotfit_.pdf().dependsOn(*observable)) {
+        serr << "DEPENDS: " << observable->GetName() << endmsg;
+      }
+      
+      std::vector<std::string> components;
+      
+      Plot myplot_mass(cfg_plot, *observable, data, splotfit_.pdf(), components);
+      myplot_mass.PlotItLogNoLogY();
+    }
+  }
+  
+
+  
   
   interim_tree_->SetBranchStatus("*", 1);
   
