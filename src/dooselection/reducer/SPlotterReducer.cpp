@@ -8,6 +8,7 @@
 
 // from DooCore
 #include <doocore/io/EasyTuple.h>
+#include <doocore/io/MsgStream.h>
 
 // from DooFit
 #include <doofit/fitter/splot/SPlotFit2.h>
@@ -15,6 +16,7 @@
 #include <doofit/plotting/Plot/PlotConfig.h>
 
 using namespace boost::assign;
+using namespace doocore::io;
 using namespace doofit::plotting;
 
 namespace dooselection {
@@ -39,7 +41,7 @@ void SPlotterReducer::CreateSpecialBranches() {
   
   PlotConfig cfg_plot("cfg_plot");
   cfg_plot.InitializeOptions(argc, argv);
-  cfg_plot.set_plot_directory("Plot");
+  cfg_plot.set_plot_directory("PlotSPlotterReducer");
   
   TIterator* it_observables = observables_.createIterator();
   TObject* object = NULL;
