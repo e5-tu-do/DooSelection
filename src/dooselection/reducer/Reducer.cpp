@@ -525,8 +525,6 @@ std::vector<ReducerLeaf<T1>*> Reducer::PurgeOutputBranches(const std::vector<Red
   for (typename std::vector<ReducerLeaf<T1>* >::const_iterator it = leaves.begin(); it != leaves.end(); ++it) {
     bool found = false;
     for (typename std::vector<ReducerLeaf<T2>* >::const_iterator it_ex = interim_leaves.begin(); it_ex != interim_leaves.end(); ++it_ex) {
-      sdebug << (*it_ex) << " : " << (*it) << endmsg;
-      sdebug << (*it_ex)->name() << " - " << (*it)->name() << endmsg;
       if ((*it_ex)->name() == (*it)->name()) {
         found = true;
         break;

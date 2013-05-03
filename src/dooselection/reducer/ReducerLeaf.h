@@ -350,23 +350,27 @@ bool ReducerLeaf<T>::UpdateValue() {
     return EvalConditions();
   } else if (leaf_operation_ != kNoneOperation) {
     // update our leaf pointers which could itself be depending on operations.
-    leaf_pointer_one_->UpdateValue();
-    leaf_pointer_two_->UpdateValue();
-    
     switch (leaf_operation_) {
       case kAddLeaves:
+        leaf_pointer_one_->UpdateValue();
+        leaf_pointer_two_->UpdateValue();
         *branch_address_templ_ = leaf_factor_one_*leaf_pointer_one_->GetValue()+leaf_factor_two_*leaf_pointer_two_->GetValue();
         matched = true;
         break;
       case kMultiplyLeaves:
+        leaf_pointer_one_->UpdateValue();
+        leaf_pointer_two_->UpdateValue();
         *branch_address_templ_ = leaf_factor_one_*leaf_pointer_one_->GetValue()*leaf_factor_two_*leaf_pointer_two_->GetValue();
         matched = true;
         break;
       case kDivideLeaves:
+        leaf_pointer_one_->UpdateValue();
+        leaf_pointer_two_->UpdateValue();
         *branch_address_templ_ = leaf_factor_one_*leaf_pointer_one_->GetValue()/(leaf_factor_two_*leaf_pointer_two_->GetValue());
         matched = true;
         break;
       case kEqualLeaf:
+        leaf_pointer_one_->UpdateValue();
         *branch_address_templ_ = leaf_factor_one_*leaf_pointer_one_->GetValue();
         break;
       default:
