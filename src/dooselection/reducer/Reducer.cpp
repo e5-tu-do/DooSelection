@@ -526,6 +526,7 @@ std::vector<ReducerLeaf<T1>*> Reducer::PurgeOutputBranches(const std::vector<Red
     bool found = false;
     for (typename std::vector<ReducerLeaf<T2>* >::const_iterator it_ex = interim_leaves.begin(); it_ex != interim_leaves.end(); ++it) {
       found = found || ((*it_ex)->name() == (*it)->name());
+      sdebug << (*it_ex)->name() << (*it)->name() << endmsg;
     }
     if (found) {
       swarn << "New leaf " << (*it)->name() << " already existing. Will ignore." << endmsg;
