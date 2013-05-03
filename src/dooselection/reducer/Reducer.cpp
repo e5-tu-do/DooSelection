@@ -120,7 +120,7 @@ void Reducer::Run(){
   }
   
   int i = 0;
-  int status_stepping = num_entries/10000;
+  int status_stepping = num_entries>100000 ? num_entries/10000 : 10;
   
   TStopwatch sw;
   sw.Start();
