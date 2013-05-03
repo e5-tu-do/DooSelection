@@ -5,6 +5,7 @@
 
 // from RooFit
 #include "RooDataSet.h"
+#include "RooAbsPdf.h"
 
 // from DooCore
 #include <doocore/io/EasyTuple.h>
