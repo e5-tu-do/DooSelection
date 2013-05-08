@@ -3,6 +3,7 @@
 
 // from STL
 #include <iostream>
+#include <string>
 
 // from ROOT
 #include "TString.h"
@@ -22,6 +23,29 @@ enum ReducerLeafOperations {
   kDivideLeaves,
   kEqualLeaf,
 };
+
+// Haha, this is why I like C++: The function below needs to be declared for the
+// class definition (to give friend access). Therefore, the class ReducerLeaf<T>
+// needs to be declared before the function declaration.
+namespace dooselection {
+namespace reducer {
+template <class T>
+class ReducerLeaf;
+}
+}
+
+namespace doocore {
+namespace io {
+/**
+ *  @brief Function to output ReducerLeaves directly and nicely into MsgStreams
+ *
+ *  This function just prints a ReducerLeaf with all necessary information
+ */
+template <class T>
+inline MsgStream& operator<<(MsgStream& lhs, const dooselection::reducer::ReducerLeaf<T>& leaf);
+} // namespace utils
+} // namespace doofit
+
 
 namespace dooselection {
 namespace reducer {
@@ -76,6 +100,20 @@ public:
   }
   
   /**
+   *  @brief Get current length of leaf (if array based)
+   *
+   *  @return length of the array in the leaf (1 if not array based)
+   */
+  int Length() const;
+  
+  /**
+   *  @brief Get name of leaf containing array length
+   *
+   *  @return name of the leaf determining the array length
+   */
+  std::string LengthLeafName() const;
+  
+  /**
    *  @brief Set value of leaf
    *
    *  @param v value to set the leaf to
@@ -83,15 +121,21 @@ public:
    */
   ReducerLeaf<T>& operator=(const T& v) {
     *((T*)branch_address()) = v;
+    return *this;
   }
   
   void set_branch_address(void* ptr) { branch_address_ = ptr; }
   
   /**
-   * get the value stored in the branch address correctly cast to T (if it's 
-   * stored in branch_address_ we have to check for value and cast accordingly).
+   *  @brief Get value of leaf
+   *
+   *  Get the value stored in the branch address correctly cast to T (if it's
+   *  stored in branch_address_ we have to check for value and cast accordingly).
+   *
+   *  @param i (optional) index parameter if leaf is array-based
+   *  @return leaf value of correct type
    */
-  T GetValue() const;
+  T GetValue(int i=0) const;
   
   /**
    * Create a branch in tree for this leaf. In copy mode it will just use the 
@@ -145,6 +189,9 @@ public:
     SetOperation<T1,T1>(l,l,kEqualLeaf,c,c);
   }
   
+  template<class T1>
+  friend doocore::io::MsgStream& doocore::io::operator<<(doocore::io::MsgStream& lhs, const dooselection::reducer::ReducerLeaf<T1>& leaf);
+  
 private:
   TLeaf* leaf_;
   TString name_;
@@ -166,10 +213,16 @@ private:
   ///< formulas different values 
   ///< written into the tree.
   T                                         default_value_;
-  
-  ReducerLeaf<T>* leaf_pointer_one_;  ///< to add a little bit of brainfuck, we 
-  ReducerLeaf<T>* leaf_pointer_two_;  ///< have pointers to other ReducerLeafs for
-  ///< operations on these
+
+  /**
+   *  @brief Pointer to first other leaf for operations
+   */
+  ReducerLeaf<T>* leaf_pointer_one_;
+
+  /**
+   *  @brief Pointer to first other leaf for operations
+   */
+  ReducerLeaf<T>* leaf_pointer_two_;
   
   double leaf_factor_one_;            ///< leaf factor for basic arithmatic ops
   double leaf_factor_two_;            ///< leaf factor for basic arithmatic ops
@@ -226,38 +279,45 @@ leaf_operation_(r.leaf_operation_) {
 }
 
 template <class T>
-T ReducerLeaf<T>::GetValue() const {
+T ReducerLeaf<T>::GetValue(int i) const {
+  // too high performance impact
+//  if (i>=Length()) {
+//    doocore::io::serr << "ERROR in T ReducerLeaf<T>::GetValue(int): Trying to access array element " << i << " in leaf " << name_ << ". Length is " << Length() << ". Will return first element." << doocore::io::endmsg;
+//    i=0;
+//  }
+  
   // in case we have stored our value in branch_address_templ_ it's simple and 
   // we know that the type is correct.
   if (branch_address_ == NULL) {
-    return *branch_address_templ_;
+    return branch_address_templ_[i];
   } else {
     if (type_ == "Int_t") {
       // tricky cast:
       // void* -> Int_t* -> Int_t -> T
-      return static_cast<T>(*((Int_t*)branch_address_));
+      return static_cast<T>(static_cast<Int_t*>(branch_address_)[i]);
     } else if (type_ == "Float_t") {
-      return static_cast<T>(*((Float_t*)branch_address_));
+      return static_cast<T>(static_cast<Float_t*>(branch_address_)[i]);
     } else if (type_ == "Double_t") {
-      return static_cast<T>(*((Double_t*)branch_address_));
-    } else if (type_ == "UInt_t") {
-      return static_cast<T>(*((UInt_t*)branch_address_));
-    } else if (type_ == "Bool_t") {
-      return static_cast<T>(*((Bool_t*)branch_address_));
-    } else if (type_ == "Long64_t") {
-      return static_cast<T>(*((Long64_t*)branch_address_));
+      return static_cast<T>(static_cast<Double_t*>(branch_address_)[i]);
     } else if (type_ == "ULong64_t") {
-      return static_cast<T>(*((ULong64_t*)branch_address_));
+      return static_cast<T>(static_cast<ULong64_t*>(branch_address_)[i]);
+    } else if (type_ == "Long64_t") {
+      return static_cast<T>(static_cast<Long64_t*>(branch_address_)[i]);
+    } else if (type_ == "UInt_t") {
+      return static_cast<T>(static_cast<UInt_t*>(branch_address_)[i]);
+    } else if (type_ == "Bool_t") {
+      return static_cast<T>(static_cast<Bool_t*>(branch_address_)[i]);
     } else if (type_ == "Short_t") {
-      return static_cast<T>(*((Short_t*)branch_address_));
+      return static_cast<T>(static_cast<Short_t*>(branch_address_)[i]);
     } else if (type_ == "UShort_t") {
-      return static_cast<T>(*((UShort_t*)branch_address_));
+      return static_cast<T>(static_cast<UShort_t*>(branch_address_)[i]);
     } else if (type_ == "Char_t") {
-      return static_cast<T>(*((Char_t*)branch_address_));
+      return static_cast<T>(static_cast<Char_t*>(branch_address_)[i]);
     } else if (type_ == "UChar_t") {
-      return static_cast<T>(*((UChar_t*)branch_address_));
+      return static_cast<T>(static_cast<UChar_t*>(branch_address_)[i]);
     } else {
-      doocore::io::serr << "ERROR in T ReducerLeaf<T>::GetValue(): Leaf type " << type_ << " in leaf " << name_ << " is unknown. Do not know how to handle that." << doocore::io::endmsg;
+      doocore::io::serr << "ERROR in T ReducerLeaf<T>::GetValue(int): Leaf type " << type_ << " in leaf " << name_ << " is unknown. Do not know how to handle that." << doocore::io::endmsg;
+      return T();
     }
   }
 }
@@ -290,23 +350,27 @@ bool ReducerLeaf<T>::UpdateValue() {
     return EvalConditions();
   } else if (leaf_operation_ != kNoneOperation) {
     // update our leaf pointers which could itself be depending on operations.
-    leaf_pointer_one_->UpdateValue();
-    leaf_pointer_two_->UpdateValue();
-    
     switch (leaf_operation_) {
       case kAddLeaves:
+        leaf_pointer_one_->UpdateValue();
+        leaf_pointer_two_->UpdateValue();
         *branch_address_templ_ = leaf_factor_one_*leaf_pointer_one_->GetValue()+leaf_factor_two_*leaf_pointer_two_->GetValue();
         matched = true;
         break;
       case kMultiplyLeaves:
+        leaf_pointer_one_->UpdateValue();
+        leaf_pointer_two_->UpdateValue();
         *branch_address_templ_ = leaf_factor_one_*leaf_pointer_one_->GetValue()*leaf_factor_two_*leaf_pointer_two_->GetValue();
         matched = true;
         break;
       case kDivideLeaves:
+        leaf_pointer_one_->UpdateValue();
+        leaf_pointer_two_->UpdateValue();
         *branch_address_templ_ = leaf_factor_one_*leaf_pointer_one_->GetValue()/(leaf_factor_two_*leaf_pointer_two_->GetValue());
         matched = true;
         break;
       case kEqualLeaf:
+        leaf_pointer_one_->UpdateValue();
         *branch_address_templ_ = leaf_factor_one_*leaf_pointer_one_->GetValue();
         break;
       default:
@@ -388,7 +452,41 @@ TString ReducerLeaf<T>::LeafString() const {
   return leaf_string;
 }
 
+template <class T>
+int ReducerLeaf<T>::Length() const {
+  if (leaf_ != NULL) {
+    return leaf_->GetLen();
+  } else {
+    return 1;
+  }
+}
+
+template <class T>
+std::string ReducerLeaf<T>::LengthLeafName() const {
+  if (leaf_ != NULL && leaf_->GetLeafCount() != NULL) {
+    return leaf_->GetLeafCount()->GetName();
+  } else {
+    return "";
+  }
+}
+  
 } // namespace reducer
 } // namespace dooselection
+
+
+namespace doocore {
+namespace io {
+template <class T>
+inline MsgStream& operator<<(MsgStream& lhs, const dooselection::reducer::ReducerLeaf<T>& leaf) {
+  lhs.stream() << "ReducerLeaf<" << leaf.type() << "> " << leaf.name() << " (" << leaf.title() << ") = " << leaf.GetValue();
+  
+  for (int i=1; i<leaf.Length(); ++i) {
+    lhs.stream() << ", " << leaf.GetValue(i);
+  }
+  
+  return lhs;
+}
+} // namespace utils
+} // namespace doofit
 
 #endif // DOOSELECTION_REDUCER_REDUCERLEAF_H

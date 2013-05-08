@@ -99,6 +99,20 @@ class Reducer {
   void add_branch_omit(TString const&);
   void add_branches_keep(std::set<TString> const&);
   void add_branches_omit(std::set<TString> const&);
+  
+  /**
+   *  @brief Add regular expression of branches to keep
+   *
+   *  @param keep_regex regular expression for branches to keep
+   */
+  void AddBranchesKeepRegex(std::string keep_regex) { branches_keep_regex_.push_back(keep_regex); }
+  
+  /**
+   *  @brief Add regular expression of branches to omit
+   *
+   *  @param omit_regex regular expression for branches to omit
+   */
+  void AddBranchesOmitRegex(std::string omit_regex) { branches_omit_regex_.push_back(omit_regex); }
   ///@}
   
   /** @name Cut string functions
@@ -337,17 +351,15 @@ class Reducer {
   ///@}
   
  protected:
-  /*
-   * Virtual function for derived classes with higher level leaves. This will be 
-   * called to compute values of these leaves.
-   */
-  virtual void UpdateSpecialLeaves() {}
-  
-  /*
-   * Virtual function for derived classes with higher level cuts. This will be 
-   * called to check if an event/candidate passes certain requirements.
-   */
-  virtual bool EntryPassesSpecialCuts() { return true; }
+  /**
+   * @brief Process input tree after opening
+   *
+   * Virtual function for derived classes to process the input tree before it is
+   * copied into the interim tree. This function will be called after 
+   * OpenInputFileAndTree() before leaves are deactivated.
+   *
+   **/
+  virtual void ProcessInputTree() {}
   
   /**
    * @brief Create specialized higher level branches
@@ -355,7 +367,7 @@ class Reducer {
    * Virtual function for derived classes with higher level leaves. This will 
    * be called to initialize higher level branches/leaves at the end of
    * Reducer::Initialize().
-   * 
+   *
    * At the stage of calling this function, the interim tree is already created
    * but in general no user-created leaves will be accessible.
    **/
@@ -373,10 +385,61 @@ class Reducer {
    **/
   virtual void PrepareSpecialBranches() {}
  
-	/*
+  /**
+   * Virtual function for derived classes with higher level leaves. This will be 
+   * called to compute values of these leaves upon loading of an event from the 
+   * interim tree.
+   **/
+  virtual void UpdateSpecialLeaves() {}
+  
+  /**
+   * Virtual function for derived classes with higher level cuts. This will be 
+   * called to check if an event/candidate passes certain requirements. Events
+   * failing this will not be considered at all. Events passing will be 
+   * considered for the best candidate selection (if this is used).
+   **/
+  virtual bool EntryPassesSpecialCuts() { return true; }
+  
+  /**
+   *  @brief Fill the output tree
+   *
+   *  Fill events into the output tree via this virtual function. It is called 
+   *  after best candidate selection (if applicable). In the default 
+   *  implementation it will just call FlushEvent() to write the current event 
+   *  into the output tree. Derived classes can use this to do last minute event
+   *  manipulation or to not write events at all. Also it can be used to write 
+   *  one event multiple times (modifying specific leaves in each write, e.g. to
+   *  flatten array-based leaves).
+   *
+   *  For every event flush/fill, FlushEvent() must be called.
+   */
+  virtual void FillOutputTree();
+  
+  /**
+   *  @brief Fill/flush the current event into the output tree
+   *
+   *  This function is responsible for filling the current event (i.e. all 
+   *  leaves) into the output tree.
+   */
+  void FlushEvent();
+
+  /**
+   *  @brief Setting correct branch status (keep/omit) for input tree branches
+   *
+   *  This function is responsible for setting the branch status in all leaves
+   *  that are either to keep or omit.
+   */
+  void InitializeBranches();
+  
+	/**
 	 * Interim tree protected to give derived classed possibility to work with it.
 	 */
   TTree* interim_tree_;
+  
+  /**
+	 * Input tree protected to give derived classed possibility to work with it.
+	 */
+  TTree* input_tree_;
   
   /**
    * members needed for best candidate selection
@@ -395,8 +458,6 @@ class Reducer {
   void OpenInputFileAndTree();
   void CreateInterimFileAndTree();
   void CreateOutputFileAndTree();
-  
-  void InitializeBranches();
   
   unsigned int GetBestCandidate(TTree* tree, unsigned int pos_event_start, unsigned int num_entries);
   
@@ -420,6 +481,20 @@ class Reducer {
    */
   template<class T>
   void InitializeOutputBranches(TTree* tree, const std::vector<ReducerLeaf<T>* >& leaves);
+  
+  /**
+   *  @brief Purge new leaves already existing in interim tree
+   *
+   *  All leaves that already exist in the interim tree, but are also to be 
+   *  created will be purged by this function from the list of leaves 
+   *  supplied.
+   *
+   *  @param leaves vector of leaves to purge
+   *  @param interim_leaves vector of leaves to compare against
+   *  @return new purged vector
+   */
+  template<class T1,class T2>
+  std::vector<ReducerLeaf<T1>*> PurgeOutputBranches(const std::vector<ReducerLeaf<T1>* >& leaves, const std::vector<ReducerLeaf<T2>* >& interim_leaves) const;
   
   /**
    * Get a ReducerLeaf by name from a ReducerLeaf vector
@@ -469,6 +544,16 @@ class Reducer {
   std::set<TString> branches_keep_;
   std::set<TString> branches_omit_;
   
+  /**
+   *  @brief Regular expressions with branches to keep
+   */
+  std::vector<std::string> branches_keep_regex_;
+  
+  /**
+   *  @brief Regular expressions with branches to omit
+   */
+  std::vector<std::string> branches_omit_regex_;
+  
   boost::bimap<TString, TString> name_mapping_;
   
   std::vector<ReducerLeaf<Float_t>* >  interim_leaves_; ///< vector of all leaves in the interim tree
@@ -482,8 +567,7 @@ class Reducer {
   std::vector<ReducerLeaf<Int_t>* >    int_leaves_;     ///< new int leaves for output tree
   
   TFile* input_file_;
-  TTree* input_tree_;
-  
+    
   TFile* output_file_;
   TTree* output_tree_;
   
@@ -504,6 +588,11 @@ class Reducer {
    *  @brief maximum number of events to process
    */
   int num_events_process_;
+
+  /**
+   *  @brief number of written events in output tree
+   */
+  unsigned int num_written_;
 };
 
 template<class T>

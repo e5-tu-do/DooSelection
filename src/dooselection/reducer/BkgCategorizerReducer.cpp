@@ -8,6 +8,7 @@
 // from ROOT
 #include "TMath.h"
 #include "TCut.h"
+#include "TStopwatch.h"
 
 // from DooCore
 #include <doocore/io/MsgStream.h>
@@ -45,11 +46,18 @@ void BkgCategorizerReducer::PrepareSpecialBranches() {
  
   TBranch* br_matrix = interim_tree_->GetBranch(decay_matrix_name_.c_str());
   if (br_matrix != NULL) {
+    TStopwatch sw;
+    sw.Start();
+    
     decay_matrix_length_lptr_ = (Int_t*)decay_matrix_length_leaf_->branch_address();
     br_matrix->SetAddress(&decay_matrix_);    
     TBranch* br_depth  = interim_tree_->GetBranch(decay_depth_leaf_->name());
-    int matrix_length = 0;
+    //int matrix_length = 0;
     //interim_tree_->SetBranchAddress(decay_matrix_length_leaf_->name(), &matrix_length);
+    
+    interim_tree_->SetBranchStatus("*", false);
+    interim_tree_->SetBranchStatus(br_depth->GetName(), true);
+    interim_tree_->SetBranchStatus(br_matrix->GetName(), true);
     
     // Fill the map with decay-strings
     for (Int_t ev = 0; ev < interim_tree_->GetEntries(); ev++) {
@@ -66,6 +74,8 @@ void BkgCategorizerReducer::PrepareSpecialBranches() {
       }
       decaystring = "";
     }
+    
+    interim_tree_->SetBranchStatus("*", true);
     
     std::map<std::string,int>::const_iterator iter; 
     
@@ -86,10 +96,13 @@ void BkgCategorizerReducer::PrepareSpecialBranches() {
     
     background_category_lptr_ = (Int_t*)background_category_leaf_->branch_address();
     sinfo << "Background categories according to this table will be put into leaf " << background_category_leaf_->name() << endmsg;
+    
+    double time = sw.RealTime();
+    sinfo << "Background analysis took " << time << " s." << endmsg;
   } else {
     swarn << "Decay matrix not found. Skipping analysis." << endmsg;
   }
-    
+  
   PrepareFurtherSpecialLeaves();
 }
 
