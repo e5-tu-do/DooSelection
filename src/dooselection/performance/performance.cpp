@@ -328,14 +328,12 @@ void PlotClassifierDistributionOLD(SelectionTuple& stuple, SelectionClassifier& 
 // ===============
 //  CUT EFFICIENCY
 // ===============
-void PlotCutEfficiency(SelectionTuple& stuple, std::string mass_variable, SelectionClassifier& classifier, std::string cut_string, std::string signal_component, std::string background_component, std::string figure_of_merit, std::string output_prefix, int nbins, bool logscale, bool debug_mode){
+void PlotCutEfficiency(SelectionTuple& stuple, std::string mass_variable, double massrange_min, double massrange_max, SelectionClassifier& classifier, std::string cut_string, std::string signal_component, std::string background_component, std::string figure_of_merit, std::string output_prefix, int nbins, bool logscale, bool debug_mode){
   doocore::lutils::setStyle("LHCb");
   if (debug_mode) doocore::io::serr << "-debug- " << "starting selection::PlotCutEfficiency() ..." << doocore::io::endmsg;
   if (debug_mode) doocore::io::serr << "-debug- \t" << "classifier "<< classifier.title() << doocore::io::endmsg;
   if (debug_mode) doocore::io::serr << "-debug- \t" << "cut string "<< cut_string<< doocore::io::endmsg;
   
-  double massrange_min = 5220.;
-  double massrange_max = 5500.;
   doocore::io::swarn << "-dooselection::performance::PlotCutEfficiency- \t" << "Check correct mass range! (min: " << massrange_min << ", max: " << massrange_max << ")" << doocore::io::endmsg;
   TH1D* hist_without_cuts = new TH1D("hist_without_cuts", "hist_without_cuts", 100, massrange_min, massrange_max);
   TH1D* hist_with_cuts = new TH1D("hist_with_cuts", "hist_with_cuts", 100, massrange_min, massrange_max);
@@ -397,17 +395,15 @@ void PlotCutEfficiency(SelectionTuple& stuple, std::string mass_variable, Select
   delete canvas_log;
 }
 
-void PlotCutEfficiency(SelectionTuple& stuple, std::string mass_variable, SelectionClassifier& classifier, std::string signal_component, std::string background_component, std::string figure_of_merit, int nbins, bool logscale, bool debug_mode){
-  PlotCutEfficiency(stuple, mass_variable, classifier, classifier.best_cut_string(), signal_component, background_component, figure_of_merit, "best_cut", nbins, logscale, debug_mode);
+void PlotCutEfficiency(SelectionTuple& stuple, std::string mass_variable, double massrange_min, double massrange_max, SelectionClassifier& classifier, std::string signal_component, std::string background_component, std::string figure_of_merit, int nbins, bool logscale, bool debug_mode){
+  PlotCutEfficiency(stuple, mass_variable, massrange_min, massrange_max, classifier, classifier.best_cut_string(), signal_component, background_component, figure_of_merit, "best_cut", nbins, logscale, debug_mode);
 }
 
-void PlotCutEfficiencyScan(SelectionTuple& stuple, std::string mass_variable, SelectionClassifier& classifier, std::string signal_component, std::string background_component, std::string figure_of_merit, int nbins, bool logscale, bool debug_mode){
+void PlotCutEfficiencyScan(SelectionTuple& stuple, std::string mass_variable, double massrange_min, double massrange_max, SelectionClassifier& classifier, std::string signal_component, std::string background_component, std::string figure_of_merit, int nbins, bool logscale, bool debug_mode){
   doocore::lutils::setStyle("LHCb");
   if (debug_mode) doocore::io::serr << "-debug- " << "starting selection::PlotCutEfficiencyScan() ..." << doocore::io::endmsg;
   if (debug_mode) doocore::io::serr << "-debug- \t" << "classifier "<< classifier.title() << doocore::io::endmsg;
-
-  double massrange_min = 5220.;
-  double massrange_max = 5500.;
+  
   doocore::io::swarn << "-dooselection::performance::PlotCutEfficiency- \t" << "Check correct mass range! (min: " << massrange_min << ", max: " << massrange_max << ")" << doocore::io::endmsg;
   TH1D* hist_without_cuts = new TH1D("hist_without_cuts", "hist_without_cuts", 100, massrange_min, massrange_max);
   TH1D* hist_with_cuts = new TH1D("hist_with_cuts", "hist_with_cuts", 100, massrange_min, massrange_max);
@@ -419,7 +415,7 @@ void PlotCutEfficiencyScan(SelectionTuple& stuple, std::string mass_variable, Se
   for (int i = 0; i < number_of_scan_points; ++i)
   {
     cut_string = classifier.name()+classifier.cut_operator()+boost::lexical_cast<std::string>(scan_points.at(i));
-    PlotCutEfficiency(stuple, mass_variable, classifier, cut_string, signal_component, background_component, figure_of_merit, boost::lexical_cast<std::string>(scan_points.at(i)), nbins, logscale, debug_mode);
+    PlotCutEfficiency(stuple, mass_variable, massrange_min, massrange_max, classifier, cut_string, signal_component, background_component, figure_of_merit, boost::lexical_cast<std::string>(scan_points.at(i)), nbins, logscale, debug_mode);
   }
 }
 

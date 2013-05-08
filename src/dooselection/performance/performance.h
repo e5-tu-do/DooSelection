@@ -129,41 +129,44 @@ void PlotClassifierDistributionOLD(SelectionTuple& stuple, SelectionClassifier& 
 /**
  *  @brief Plots mass distributions after applying cut on SelectionClassifier for given SelectionTuple
  *
- *	WARNING: The mass variable is fixed to: B0_LOKI_MASS_JpsiKSConstr
- *
  *  @param stuple SelectionTuple
+ *  @param mass_variable name of the mass variable
+ *  @param minimum of mass distribution
+ *  @param maximum of mass distribution
  *	@param classifier cut SelectionClassifier
  *	@param cut_string cut string
  *	@param signal_component signal component
  *	@param background_component background component
 **/
-void PlotCutEfficiency(SelectionTuple& stuple, std::string mass_variable, SelectionClassifier& classifier, std::string cut_string, std::string signal_component, std::string background_component, std::string figure_of_merit="Significance", std::string output_prefix="", int nbins=100, bool logscale=false, bool debug_mode=false);
+void PlotCutEfficiency(SelectionTuple& stuple, std::string mass_variable, double massrange_min, double massrange_max, SelectionClassifier& classifier, std::string cut_string, std::string signal_component, std::string background_component, std::string figure_of_merit="Significance", std::string output_prefix="", int nbins=100, bool logscale=false, bool debug_mode=false);
 /**
  *  @brief Plots mass distributions after applying cut on SelectionClassifier for given SelectionTuple
  *
  *	This implementation uses the 'best cut string' deposited in the SelectionClassifier
  *
- *	WARNING: The mass variable is fixed to: B0_LOKI_MASS_JpsiKSConstr
- *
  *  @param stuple SelectionTuple
+ *  @param mass_variable name of the mass variable
+ *  @param minimum of mass distribution
+ *  @param maximum of mass distribution
  *	@param classifier cut SelectionClassifier
  *	@param signal_component signal component
  *	@param background_component background component
 **/
-void PlotCutEfficiency(SelectionTuple& stuple, std::string mass_variable, SelectionClassifier& classifier, std::string signal_component, std::string background_component, std::string figure_of_merit="Significance", int nbins=100, bool logscale=false, bool debug_mode=false);
+void PlotCutEfficiency(SelectionTuple& stuple, std::string mass_variable, double massrange_min, double massrange_max, SelectionClassifier& classifier, std::string signal_component, std::string background_component, std::string figure_of_merit="Significance", int nbins=100, bool logscale=false, bool debug_mode=false);
 /**
  *  @brief Plots mass distributions after applying cut on SelectionClassifier for given SelectionTuple
  *
  *	This implementation scans the predefined range of the classifer deposited in the SelectionClassifier
  *
- *	WARNING: The mass variable is fixed to: B0_LOKI_MASS_JpsiKSConstr
- *
  *  @param stuple SelectionTuple
+ *  @param mass_variable name of the mass variable
+ *  @param minimum of mass distribution
+ *  @param maximum of mass distribution
  *	@param classifier cut SelectionClassifier
  *	@param signal_component signal component
  *	@param background_component background component
 **/
-void PlotCutEfficiencyScan(SelectionTuple& stuple, std::string mass_variable, SelectionClassifier& classifier, std::string signal_component, std::string background_component, std::string figure_of_merit="Significance", int nbins=100, bool logscale=false, bool debug_mode=false);
+void PlotCutEfficiencyScan(SelectionTuple& stuple, std::string mass_variable, double massrange_min, double massrange_max, SelectionClassifier& classifier, std::string signal_component, std::string background_component, std::string figure_of_merit="Significance", int nbins=100, bool logscale=false, bool debug_mode=false);
 ///@}
 
 // ==============
