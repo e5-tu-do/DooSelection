@@ -137,7 +137,7 @@ void PlotClassifierDistributionOLD(SelectionTuple& stuple, SelectionClassifier& 
  *	@param signal_component signal component
  *	@param background_component background component
 **/
-void PlotCutEfficiency(SelectionTuple& stuple, SelectionClassifier& classifier, std::string cut_string, std::string signal_component, std::string background_component, std::string figure_of_merit="Significance", std::string output_prefix="", int nbins=100, bool logscale=false, bool debug_mode=false);
+void PlotCutEfficiency(SelectionTuple& stuple, std::string mass_variable, SelectionClassifier& classifier, std::string cut_string, std::string signal_component, std::string background_component, std::string figure_of_merit="Significance", std::string output_prefix="", int nbins=100, bool logscale=false, bool debug_mode=false);
 /**
  *  @brief Plots mass distributions after applying cut on SelectionClassifier for given SelectionTuple
  *
@@ -150,7 +150,7 @@ void PlotCutEfficiency(SelectionTuple& stuple, SelectionClassifier& classifier, 
  *	@param signal_component signal component
  *	@param background_component background component
 **/
-void PlotCutEfficiency(SelectionTuple& stuple, SelectionClassifier& classifier, std::string signal_component, std::string background_component, std::string figure_of_merit="Significance", int nbins=100, bool logscale=false, bool debug_mode=false);
+void PlotCutEfficiency(SelectionTuple& stuple, std::string mass_variable, SelectionClassifier& classifier, std::string signal_component, std::string background_component, std::string figure_of_merit="Significance", int nbins=100, bool logscale=false, bool debug_mode=false);
 /**
  *  @brief Plots mass distributions after applying cut on SelectionClassifier for given SelectionTuple
  *
@@ -163,7 +163,7 @@ void PlotCutEfficiency(SelectionTuple& stuple, SelectionClassifier& classifier, 
  *	@param signal_component signal component
  *	@param background_component background component
 **/
-void PlotCutEfficiencyScan(SelectionTuple& stuple, SelectionClassifier& classifier, std::string signal_component, std::string background_component, std::string figure_of_merit="Significance", int nbins=100, bool logscale=false, bool debug_mode=false);
+void PlotCutEfficiencyScan(SelectionTuple& stuple, std::string mass_variable, SelectionClassifier& classifier, std::string signal_component, std::string background_component, std::string figure_of_merit="Significance", int nbins=100, bool logscale=false, bool debug_mode=false);
 ///@}
 
 // ==============

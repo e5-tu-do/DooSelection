@@ -328,7 +328,7 @@ void PlotClassifierDistributionOLD(SelectionTuple& stuple, SelectionClassifier& 
 // ===============
 //  CUT EFFICIENCY
 // ===============
-void PlotCutEfficiency(SelectionTuple& stuple, SelectionClassifier& classifier, std::string cut_string, std::string signal_component, std::string background_component, std::string figure_of_merit, std::string output_prefix, int nbins, bool logscale, bool debug_mode){
+void PlotCutEfficiency(SelectionTuple& stuple, std::string mass_variable, SelectionClassifier& classifier, std::string cut_string, std::string signal_component, std::string background_component, std::string figure_of_merit, std::string output_prefix, int nbins, bool logscale, bool debug_mode){
   doocore::lutils::setStyle("LHCb");
   if (debug_mode) doocore::io::serr << "-debug- " << "starting selection::PlotCutEfficiency() ..." << doocore::io::endmsg;
   if (debug_mode) doocore::io::serr << "-debug- \t" << "classifier "<< classifier.title() << doocore::io::endmsg;
@@ -348,8 +348,6 @@ void PlotCutEfficiency(SelectionTuple& stuple, SelectionClassifier& classifier, 
   double background_rejection = FoM(stuple, signal_component, background_component, cut_string, "Background Rejection", debug_mode);
   double fom_value = FoM(stuple, signal_component, background_component, cut_string, figure_of_merit, debug_mode);
 
-  
-  std::string mass_variable = "B0_LOKI_MASS_JpsiKSConstr";
   doocore::io::swarn << "-dooselection::performance::PlotCutEfficiency- \t" << "Check correct mass variable! (" << mass_variable << ")" << doocore::io::endmsg;
   // plot
   TCanvas* canvas= new TCanvas("canvas", "canvas", 800, 600);
@@ -399,11 +397,11 @@ void PlotCutEfficiency(SelectionTuple& stuple, SelectionClassifier& classifier, 
   delete canvas_log;
 }
 
-void PlotCutEfficiency(SelectionTuple& stuple, SelectionClassifier& classifier, std::string signal_component, std::string background_component, std::string figure_of_merit, int nbins, bool logscale, bool debug_mode){
-  PlotCutEfficiency(stuple, classifier, classifier.best_cut_string(), signal_component, background_component, figure_of_merit, "best_cut", nbins, logscale, debug_mode);
+void PlotCutEfficiency(SelectionTuple& stuple, std::string mass_variable, SelectionClassifier& classifier, std::string signal_component, std::string background_component, std::string figure_of_merit, int nbins, bool logscale, bool debug_mode){
+  PlotCutEfficiency(stuple, mass_variable, classifier, classifier.best_cut_string(), signal_component, background_component, figure_of_merit, "best_cut", nbins, logscale, debug_mode);
 }
 
-void PlotCutEfficiencyScan(SelectionTuple& stuple, SelectionClassifier& classifier, std::string signal_component, std::string background_component, std::string figure_of_merit, int nbins, bool logscale, bool debug_mode){
+void PlotCutEfficiencyScan(SelectionTuple& stuple, std::string mass_variable, SelectionClassifier& classifier, std::string signal_component, std::string background_component, std::string figure_of_merit, int nbins, bool logscale, bool debug_mode){
   doocore::lutils::setStyle("LHCb");
   if (debug_mode) doocore::io::serr << "-debug- " << "starting selection::PlotCutEfficiencyScan() ..." << doocore::io::endmsg;
   if (debug_mode) doocore::io::serr << "-debug- \t" << "classifier "<< classifier.title() << doocore::io::endmsg;
@@ -421,7 +419,7 @@ void PlotCutEfficiencyScan(SelectionTuple& stuple, SelectionClassifier& classifi
   for (int i = 0; i < number_of_scan_points; ++i)
   {
     cut_string = classifier.name()+classifier.cut_operator()+boost::lexical_cast<std::string>(scan_points.at(i));
-    PlotCutEfficiency(stuple, classifier, cut_string, signal_component, background_component, figure_of_merit, boost::lexical_cast<std::string>(scan_points.at(i)), nbins, logscale, debug_mode);
+    PlotCutEfficiency(stuple, mass_variable, classifier, cut_string, signal_component, background_component, figure_of_merit, boost::lexical_cast<std::string>(scan_points.at(i)), nbins, logscale, debug_mode);
   }
 }
 
