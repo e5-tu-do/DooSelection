@@ -301,7 +301,24 @@ std::string Particle::GetCompleteAbsMCIDDecay(){
   }
   return decaystring;
 }
-
+  
+  std::string Particle::GetCompleteFinalStateAbsMCIDDecay(){
+    std::string decaystring = this->name();
+    std::vector<Particle>::iterator it = daugther_particles_.begin();
+    if (it != daugther_particles_.end()){
+      decaystring += "(";
+      do {
+        decaystring += it->GetCompleteAbsMCIDDecay();
+        ++it;
+        if (it != daugther_particles_.end()){
+          decaystring += " ";
+        }
+      } while (it != daugther_particles_.end());
+      decaystring += ")";
+    }
+    return decaystring;
+  }
+  
 
 bool Particle::IsEqualDecay(std::string ComparativeDecay){
   if (this->GetCompleteDecay()==ComparativeDecay){

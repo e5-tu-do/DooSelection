@@ -53,9 +53,11 @@ Particle MCDecayMatrixReader::createMinimalDecayingParticle(Float_t decaymatrix[
 
 
 int MCDecayMatrixReader::checkparticle (Float_t decaymatrixelement){
-  if (fabs(decaymatrixelement) == 22 || fabs(decaymatrixelement) == 13 || fabs(decaymatrixelement) == 14)
-    return -1;
-  else if ((fabs(decaymatrixelement) < 10000000) && (fabs(decaymatrixelement) > 1))
+  for(std::vector<int>::iterator it = ignoredparticles_.begin(); it != ignoredparticles_.end(); ++it){
+    if (fabs(decaymatrixelement) == *it)
+      return -1;
+  }
+  if ((fabs(decaymatrixelement) < 10000000) && (fabs(decaymatrixelement) > 1))
     return 1;
   else
     return 0;

@@ -329,6 +329,21 @@ public:
    *  Example: The original Decay is B0(D-(K+ pi- pi-) pi+), so you get 511(411(321 211 211) 211)
    */
   std::string GetCompleteAbsMCIDDecay();
+
+  
+  /**
+   *  @brief Method to get the complete decay consisting of the name of the mother particle and the absolute values of particle IDs instead of names of the daughter particles
+   *
+   *  This method returns a string that contains the direct daughter particles as well as their
+   *  decay products and so on, but each particle is included with the absolute value of its ID intead of its name.
+   *
+   *  
+   *  This method is needed to compare decays ignoring the charges of their daughter particles.
+   *
+   *  Example: The original Decay is B0(D-(K+ pi- pi-) pi+), so you get B0(411(321 211 211) 211)
+   */
+  std::string GetCompleteFinalStateAbsMCIDDecay();
+
   
     /**
    *  @brief Method to compare two decays
