@@ -88,7 +88,7 @@ public:
    *  
    *
    */
-  Particle createDecayingParticle(Float_t decaymatrix[][15], int rows, int columns, int row, int column);
+  Particle createDecayingParticle(Float_t *decaymatrix, int rows, int columns, int row, int column);
 
   
   /**
@@ -97,6 +97,7 @@ public:
    *  The only difference of the 'minimal' method is that it does not save all possible particle properties from the CondDBTranslator for each particle.
    *
    */
+  //Particle createMinimalDecayingParticle(Float_t *decaymatrix, int rows, int columns, int row, int column);
   Particle createMinimalDecayingParticle(Float_t decaymatrix[][15], int rows, int columns, int row, int column);
 
   

@@ -1,5 +1,6 @@
 // from STL
 #include <cmath>
+#include <iostream>
 
 // from Project
 #include "MCDecayMatrixReader.h"
@@ -26,11 +27,11 @@ MCDecayMatrixReader::~MCDecayMatrixReader(){
 
 
 
-Particle MCDecayMatrixReader::createDecayingParticle(Float_t decaymatrix[][15], int rows, int columns, int row, int column){
-  Particle tempParticle = internal_translator_->CreateFullPropParticle(decaymatrix[row][column]);
+Particle MCDecayMatrixReader::createDecayingParticle(Float_t* decaymatrix, int rows, int columns, int row, int column){
+  Particle tempParticle = internal_translator_->CreateFullPropParticle(decaymatrix[row*columns+column]);
   if (column+1 < columns){
-    for (int i=row+1; checkparticle(decaymatrix[i][column]) !=1 && i<rows; i++){
-      if (checkparticle(decaymatrix[i][column+1]) == 1){
+    for (int i=row+1; checkparticle(decaymatrix[i*columns+column]) !=1 && i<rows; i++){
+      if (checkparticle(decaymatrix[i*columns+column+1]) == 1){
         tempParticle.AddDaughterParticle(createDecayingParticle(decaymatrix, rows, columns, i, column+1));
       }
     }
@@ -39,17 +40,29 @@ Particle MCDecayMatrixReader::createDecayingParticle(Float_t decaymatrix[][15], 
 }
 
 
-Particle MCDecayMatrixReader::createMinimalDecayingParticle(Float_t decaymatrix[][15], int rows, int columns, int row, int column){
-  Particle tempParticle = internal_translator_->CreateMinimalParticle(decaymatrix[row][column]);
-  if (column+1 < columns){
-    for (int i=row+1; checkparticle(decaymatrix[i][column]) !=1 && i<rows; i++){
-      if (checkparticle(decaymatrix[i][column+1]) == 1){
-        tempParticle.AddDaughterParticle(createMinimalDecayingParticle(decaymatrix, rows, columns, i, column+1));
+//Particle MCDecayMatrixReader::createMinimalDecayingParticle(Float_t* decaymatrix, int rows, int columns, int row, int column){
+//  Particle tempParticle = internal_translator_->CreateMinimalParticle(decaymatrix[row*columns+column]);
+//  if (column+1 < columns){
+//    for (int i=row+1; checkparticle(decaymatrix[i*columns+column]) !=1 && i<rows; i++){
+//      if (checkparticle(decaymatrix[i*columns+column+1]) == 1){
+//        tempParticle.AddDaughterParticle(createMinimalDecayingParticle(decaymatrix, rows, columns, i, column+1));
+//      }
+//    }
+//  }
+//  return tempParticle;
+//}
+  
+  Particle MCDecayMatrixReader::createMinimalDecayingParticle(Float_t decaymatrix[][15], int rows, int columns, int row, int column){
+    Particle tempParticle = internal_translator_->CreateMinimalParticle(decaymatrix[row][column]);
+    if (column+1 < columns){
+      for (int i=row+1; checkparticle(decaymatrix[i][column]) !=1 && i<rows; i++){
+        if (checkparticle(decaymatrix[i][column+1]) == 1){
+          tempParticle.AddDaughterParticle(createMinimalDecayingParticle(decaymatrix, rows, columns, i, column+1));
+        }
       }
     }
+    return tempParticle;
   }
-  return tempParticle;
-}
 
 
 int MCDecayMatrixReader::checkparticle (Float_t decaymatrixelement){
