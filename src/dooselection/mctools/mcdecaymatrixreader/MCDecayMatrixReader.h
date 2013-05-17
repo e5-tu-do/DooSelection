@@ -105,7 +105,7 @@ private:
   /**
    *  @brief Internal Instance of the CondDBTranslator, it is only created once to save memory and time
    *
-   *  If the CondDBTranslator object would be created multiple times, it would read out the CondDBparticletable again and again. This would be very ineffective and unnecessary.
+   *  If the CondDBTranslator object would be created multiple times, it would read out the CondDBparticletable again and again. This would be very ineffective and time consuming.
    *
    *
    */

@@ -120,7 +120,7 @@ std::string Particle::GetDecay(){
   std::string decaystring = name_;
   std::vector<Particle>::iterator it = daugther_particles_.begin();
   if (it != daugther_particles_.end()){
-    decaystring += "(";
+    decaystring += " (";
     do {
       decaystring += it->name();
       ++it;
@@ -138,7 +138,7 @@ std::string Particle::GetCompleteDecay(){
   std::string decaystring = name_;
   std::vector<Particle>::iterator it = daugther_particles_.begin();
   if (it != daugther_particles_.end()){
-    decaystring += "(";
+    decaystring += " (";
     do {
       decaystring += it->GetCompleteDecay();
       ++it;
@@ -157,7 +157,7 @@ std::string Particle::GetConjugatedDecay(){
   std::string decaystring = this->antiparticlename();
   std::vector<Particle>::iterator it = daugther_particles_.begin();
   if (it != daugther_particles_.end()){
-    decaystring += "(";
+    decaystring += " (";
     do {
       decaystring += it->antiparticlename();
       ++it;
@@ -175,7 +175,7 @@ std::string Particle::GetConjugatedCompleteDecay(){
   std::string decaystring = this->antiparticlename();
   std::vector<Particle>::iterator it = daugther_particles_.begin();
   if (it != daugther_particles_.end()){
-    decaystring += "(";
+    decaystring += " (";
     do {
       decaystring += it->GetConjugatedCompleteDecay();
       ++it;
@@ -193,7 +193,7 @@ std::string Particle::GetConjugatedInitialStateDecay(){
   std::string decaystring = this->antiparticlename();
   std::vector<Particle>::iterator it = daugther_particles_.begin();
   if (it != daugther_particles_.end()){
-    decaystring += "(";
+    decaystring += " (";
     do {
       decaystring += it->name();
       ++it;
@@ -211,7 +211,7 @@ std::string Particle::GetConjugatedInitialStateCompleteDecay(){
   std::string decaystring = this->antiparticlename();
   std::vector<Particle>::iterator it = daugther_particles_.begin();
   if (it != daugther_particles_.end()){
-    decaystring += "(";
+    decaystring += " (";
     do {
       decaystring += it->GetCompleteDecay();
       ++it;
@@ -229,7 +229,7 @@ std::string Particle::GetConjugatedFinalStateDecay(){
   std::string decaystring = this->name();
   std::vector<Particle>::iterator it = daugther_particles_.begin();
   if (it != daugther_particles_.end()){
-    decaystring += "(";
+    decaystring += " (";
     do {
       decaystring += it->antiparticlename();
       ++it;
@@ -247,7 +247,7 @@ std::string Particle::GetConjugatedFinalStateCompleteDecay(){
   std::string decaystring = this->name();
   std::vector<Particle>::iterator it = daugther_particles_.begin();
   if (it != daugther_particles_.end()){
-    decaystring += "(";
+    decaystring += " (";
     do {
       decaystring += it->GetConjugatedCompleteDecay();
       ++it;
@@ -268,7 +268,7 @@ std::string Particle::GetCompleteMCIDDecay(){
 
   std::vector<Particle>::iterator it = daugther_particles_.begin();
   if (it != daugther_particles_.end()){
-    decaystring += "(";
+    decaystring += " (";
     do {
       decaystring += it->GetCompleteMCIDDecay();
       ++it;
@@ -289,7 +289,7 @@ std::string Particle::GetCompleteAbsMCIDDecay(){
   
   std::vector<Particle>::iterator it = daugther_particles_.begin();
   if (it != daugther_particles_.end()){
-    decaystring += "(";
+    decaystring += " (";
     do {
       decaystring += it->GetCompleteAbsMCIDDecay();
       ++it;
@@ -306,7 +306,7 @@ std::string Particle::GetCompleteAbsMCIDDecay(){
     std::string decaystring = this->name();
     std::vector<Particle>::iterator it = daugther_particles_.begin();
     if (it != daugther_particles_.end()){
-      decaystring += "(";
+      decaystring += " (";
       do {
         decaystring += it->GetCompleteAbsMCIDDecay();
         ++it;
