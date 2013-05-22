@@ -86,8 +86,8 @@ class TLeaf;
  * \- open input tree
  *  - dooselection::reducer::Reducer::ProcessInputTree();
  *    \- virtual function to work on the input tree before any branches are 
- *     - deactivated.
- *  - copy input tree into interim tree
+ *     - deactivated or cuts applied.
+ *  - copy input tree into interim tree with cut
  *  - create (empty) output tree
  *  - dooselection::reducer::Reducer::CreateSpecialBranches();
  *    \- virtual function to create/prepare leaves that are to be written in
@@ -110,7 +110,7 @@ class TLeaf;
  *   - dooselection::reducer::Reducer::EntryPassesSpecialCuts();
  *   \- virtual function to check if leaves fulfil higher level cuts like 
  *    - complicated vetos or any other requirement.
- *   - if passing, get best candidate of any passing events.
+ *   - if passing, get best candidate of passing events.
  *   - dooselection::reducer::Reducer::FillOutputTree();
  *   \- virtual function to write a passing and best candidate selected event 
  *    - into the output tree.
