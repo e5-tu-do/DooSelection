@@ -65,6 +65,9 @@ class TLeaf;
  * //         initialize higher level leaves.
  * my_reducer.Initialize();
  * 
+ * // create custom branches via built-in functions here
+ * my_reducer.CreateDoubleCopyLeaf(...);
+ *
  * // step 2: Run. Prepare more higher level leaves, running event loop with 
  * //         best candidate selection and writing events into output tree.
  * my_reducer.Run();
@@ -91,6 +94,29 @@ class TLeaf;
  *     - the event loop. These can be leaves based on integrated support or 
  *     - higher level leaves that need to be evaluated for each event by special
  *     - functions.
+ * Run();
+ * \- dooselection::reducer::Reducer::PrepareSpecialBranches();
+ *    \- virtual function to create/prepare leaves that are to be written in
+ *     - the event loop. Similar to CreateSpecialBranches() but this function 
+ *     - is assured to run after the user has created their own leaves and 
+ *     - directly before the event loop.
+ *  - run event loop:
+ *  \- select one event
+ *   - update all leaf values, including new leaves to be created
+ *   - dooselection::reducer::Reducer::UpdateSpecialLeaves();
+ *   \- virtual function to calculate values of higher level leaves like 
+ *    - complicated vetos and such.
+ *   - dooselection::reducer::Reducer::EntryPassesSpecialCuts();
+ *   \- virtual function to check if leaves fulfil higher level cuts like 
+ *    - complicated vetos or any other requirement.
+ *   - if passing, get best candidate of any passing events.
+ *   - dooselection::reducer::Reducer::FillOutputTree();
+ *   \- virtual function to write a passing and best candidate selected event 
+ *    - into the output tree.
+ *    - Must call dooselection::reducer::Reducer::FlushEvent() at least once to
+ *    - actually write the event at least once. Last chance to modify any leaf
+ *    - values.
+ *   - close output tree and delete interim file
  * @endcode
  */
 
