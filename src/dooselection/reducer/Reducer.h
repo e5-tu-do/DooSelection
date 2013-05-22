@@ -84,6 +84,13 @@ class TLeaf;
  *  - dooselection::reducer::Reducer::ProcessInputTree();
  *    \- virtual function to work on the input tree before any branches are 
  *     - deactivated.
+ *  - copy input tree into interim tree
+ *  - create (empty) output tree
+ *  - dooselection::reducer::Reducer::CreateSpecialBranches();
+ *    \- virtual function to create/prepare leaves that are to be written in
+ *     - the event loop. These can be leaves based on integrated support or 
+ *     - higher level leaves that need to be evaluated for each event by special
+ *     - functions.
  * @endcode
  */
 
