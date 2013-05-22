@@ -94,6 +94,7 @@ class TLeaf;
  *     - the event loop. These can be leaves based on integrated support or 
  *     - higher level leaves that need to be evaluated for each event by special
  *     - functions.
+ *
  * Run();
  * \- dooselection::reducer::Reducer::PrepareSpecialBranches();
  *    \- virtual function to create/prepare leaves that are to be written in
