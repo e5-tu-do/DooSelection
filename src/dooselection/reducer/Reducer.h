@@ -37,7 +37,41 @@ class TLeaf;
  * combined due to virtual inheritance. To develop own derived Reducers virtual
  * functions exist as hooks to interface the Reducer mechanisms.
  *
- * In principle the Reducer always works like this. 
+ * In principle the Reducer always works like this: An input tuple is opened and
+ * an optional cut string is applied after which the input tree is copied into 
+ * an interim tree. In the following step an event loop processes the interim 
+ * tree, applies further cuts, calculates new leaves. Events passing the 
+ * requirements are processed by an optional best candidate selection and if 
+ * selected written into the output tree. 
+ *
+ * @section reducer_usage Usage
+ *
+ * Consider this example for basic usage info:
+ *
+ * @code
+ * Reducer my_reducer;
+ *
+ * // set input/output files to process
+ * my_reducer.set_input_file_path(input_file);
+ * my_reducer.set_input_tree_path(input_tree);
+ * my_reducer.set_output_file_path(output_file);
+ * my_reducer.set_output_tree_path(output_tree);
+ *
+ * // set a cut string for the first step from input to interim tree
+ * my_reducer.set_cut_string("piminus_TRACK_Type==3 && piplus_TRACK_Type==3");
+ *
+ * // step 1: Initialize. Open the input tree, set branch status, create interim 
+ * //         tree by copying input tree with cut, open output tree and 
+ * //         initialize higher level leaves.
+ * my_reducer.Initialize();
+ * 
+ * // step 2: Run. Prepare more higher level leaves, running event loop with 
+ * //         best candidate selection and writing events into output tree.
+ * my_reducer.Run();
+ *
+ * // step 3: Finalize. Reserved for future usage.
+ * my_reducer.Finalize();
+ * @endcode
  */
 
 /**
