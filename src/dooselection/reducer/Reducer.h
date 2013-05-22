@@ -72,6 +72,19 @@ class TLeaf;
  * // step 3: Finalize. Reserved for future usage.
  * my_reducer.Finalize();
  * @endcode
+ *
+ * @section reducer_hooks Hooks for higher level Reducers
+ *
+ * Reducer supports a set of virtual functions for derived higher level Reducers
+ * to implement further functionality. The workflow is as this:
+ *
+ * @code
+ * Initialize();
+ * \- open input tree
+ *  - dooselection::reducer::Reducer::ProcessInputTree();
+ *    \- virtual function to work on the input tree before any branches are 
+ *     - deactivated.
+ * @endcode
  */
 
 /**
