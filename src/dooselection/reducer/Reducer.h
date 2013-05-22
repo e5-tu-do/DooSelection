@@ -26,7 +26,18 @@ class TLeaf;
  * @namespace dooselection::reducer
  * @brief Reducer namespace
  *
- * This namespace contains all Reducer functionality.
+ * This namespace contains all Reducer functionality. Reducer is a framework
+ * to process and modify tuples. This includes applying selections, adding new
+ * leaves and perform higher level modifications. The basic 
+ * dooselection::reducer::Reducer provides standard functionality such as 
+ * applying cut strings adding new leaves based on existing leaves and apply a
+ * best candidate selection.
+ *
+ * Higher functionality is provided by derived Reducer classes which can be 
+ * combined due to virtual inheritance. To develop own derived Reducers virtual
+ * functions exist as hooks to interface the Reducer mechanisms.
+ *
+ * In principle the Reducer always works like this. 
  */
 
 /**
