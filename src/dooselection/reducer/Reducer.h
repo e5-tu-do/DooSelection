@@ -26,7 +26,99 @@ class TLeaf;
  * @namespace dooselection::reducer
  * @brief Reducer namespace
  *
- * This namespace contains all Reducer functionality.
+ * This namespace contains all Reducer functionality. Reducer is a framework
+ * to process and modify tuples. This includes applying selections, adding new
+ * leaves and perform higher level modifications. The basic 
+ * dooselection::reducer::Reducer provides standard functionality such as 
+ * applying cut strings adding new leaves based on existing leaves and apply a
+ * best candidate selection.
+ *
+ * Higher functionality is provided by derived Reducer classes which can be 
+ * combined due to virtual inheritance. To develop own derived Reducers virtual
+ * functions exist as hooks to interface the Reducer mechanisms.
+ *
+ * In principle the Reducer always works like this: An input tuple is opened and
+ * an optional cut string is applied after which the input tree is copied into 
+ * an interim tree. In the following step an event loop processes the interim 
+ * tree, applies further cuts, calculates new leaves. Events passing the 
+ * requirements are processed by an optional best candidate selection and if 
+ * selected written into the output tree. 
+ *
+ * @section reducer_usage Usage
+ *
+ * Consider this example for basic usage info:
+ *
+ * @code
+ * Reducer my_reducer;
+ *
+ * // set input/output files to process
+ * my_reducer.set_input_file_path(input_file);
+ * my_reducer.set_input_tree_path(input_tree);
+ * my_reducer.set_output_file_path(output_file);
+ * my_reducer.set_output_tree_path(output_tree);
+ *
+ * // set a cut string for the first step from input to interim tree
+ * my_reducer.set_cut_string("piminus_TRACK_Type==3 && piplus_TRACK_Type==3");
+ *
+ * // step 1: Initialize. Open the input tree, set branch status, create interim 
+ * //         tree by copying input tree with cut, open output tree and 
+ * //         initialize higher level leaves.
+ * my_reducer.Initialize();
+ * 
+ * // create custom branches via built-in functions here
+ * my_reducer.CreateDoubleCopyLeaf(...);
+ *
+ * // step 2: Run. Prepare more higher level leaves, running event loop with 
+ * //         best candidate selection and writing events into output tree.
+ * my_reducer.Run();
+ *
+ * // step 3: Finalize. Reserved for future usage.
+ * my_reducer.Finalize();
+ * @endcode
+ *
+ * @section reducer_hooks Hooks for higher level Reducers
+ *
+ * Reducer supports a set of virtual functions for derived higher level Reducers
+ * to implement further functionality. The workflow is as this:
+ *
+ * @code
+ * Initialize();
+ * \- open input tree
+ *  - dooselection::reducer::Reducer::ProcessInputTree();
+ *    \- virtual function to work on the input tree before any branches are 
+ *     - deactivated or cuts applied.
+ *  - copy input tree into interim tree with cut
+ *  - create (empty) output tree
+ *  - dooselection::reducer::Reducer::CreateSpecialBranches();
+ *    \- virtual function to create/prepare leaves that are to be written in
+ *     - the event loop. These can be leaves based on integrated support or 
+ *     - higher level leaves that need to be evaluated for each event by special
+ *     - functions.
+ *
+ * Run();
+ * \- dooselection::reducer::Reducer::PrepareSpecialBranches();
+ *    \- virtual function to create/prepare leaves that are to be written in
+ *     - the event loop. Similar to CreateSpecialBranches() but this function 
+ *     - is assured to run after the user has created their own leaves and 
+ *     - directly before the event loop.
+ *  - run event loop:
+ *  \- select one event
+ *   - update all leaf values, including new leaves to be created
+ *   - dooselection::reducer::Reducer::UpdateSpecialLeaves();
+ *   \- virtual function to calculate values of higher level leaves like 
+ *    - complicated vetos and such.
+ *   - dooselection::reducer::Reducer::EntryPassesSpecialCuts();
+ *   \- virtual function to check if leaves fulfil higher level cuts like 
+ *    - complicated vetos or any other requirement.
+ *   - if passing, get best candidate of passing events.
+ *   - dooselection::reducer::Reducer::FillOutputTree();
+ *   \- virtual function to write a passing and best candidate selected event 
+ *    - into the output tree.
+ *    - Must call dooselection::reducer::Reducer::FlushEvent() at least once to
+ *    - actually write the event at least once. Last chance to modify any leaf
+ *    - values.
+ *   - close output tree and delete interim file
+ * @endcode
  */
 
 /**
@@ -99,6 +191,20 @@ class Reducer {
   void add_branch_omit(TString const&);
   void add_branches_keep(std::set<TString> const&);
   void add_branches_omit(std::set<TString> const&);
+  
+  /**
+   *  @brief Add regular expression of branches to keep
+   *
+   *  @param keep_regex regular expression for branches to keep
+   */
+  void AddBranchesKeepRegex(std::string keep_regex) { branches_keep_regex_.push_back(keep_regex); }
+  
+  /**
+   *  @brief Add regular expression of branches to omit
+   *
+   *  @param omit_regex regular expression for branches to omit
+   */
+  void AddBranchesOmitRegex(std::string omit_regex) { branches_omit_regex_.push_back(omit_regex); }
   ///@}
   
   /** @name Cut string functions
@@ -338,19 +444,14 @@ class Reducer {
   
  protected:
   /**
-   * Virtual function for derived classes with higher level leaves. This will be 
-   * called to compute values of these leaves upon loading of an event from the 
-   * interim tree.
+   * @brief Process input tree after opening
+   *
+   * Virtual function for derived classes to process the input tree before it is
+   * copied into the interim tree. This function will be called after 
+   * OpenInputFileAndTree() before leaves are deactivated.
+   *
    **/
-  virtual void UpdateSpecialLeaves() {}
-  
-  /**
-   * Virtual function for derived classes with higher level cuts. This will be 
-   * called to check if an event/candidate passes certain requirements. Events
-   * failing this will not be considered at all. Events passing will be 
-   * considered for the best candidate selection (if this is used).
-   **/
-  virtual bool EntryPassesSpecialCuts() { return true; }
+  virtual void ProcessInputTree() {}
   
   /**
    * @brief Create specialized higher level branches
@@ -377,6 +478,21 @@ class Reducer {
   virtual void PrepareSpecialBranches() {}
  
   /**
+   * Virtual function for derived classes with higher level leaves. This will be 
+   * called to compute values of these leaves upon loading of an event from the 
+   * interim tree.
+   **/
+  virtual void UpdateSpecialLeaves() {}
+  
+  /**
+   * Virtual function for derived classes with higher level cuts. This will be 
+   * called to check if an event/candidate passes certain requirements. Events
+   * failing this will not be considered at all. Events passing will be 
+   * considered for the best candidate selection (if this is used).
+   **/
+  virtual bool EntryPassesSpecialCuts() { return true; }
+  
+  /**
    *  @brief Fill the output tree
    *
    *  Fill events into the output tree via this virtual function. It is called 
@@ -398,11 +514,24 @@ class Reducer {
    *  leaves) into the output tree.
    */
   void FlushEvent();
+
+  /**
+   *  @brief Setting correct branch status (keep/omit) for input tree branches
+   *
+   *  This function is responsible for setting the branch status in all leaves
+   *  that are either to keep or omit.
+   */
+  void InitializeBranches();
   
-	/*
+	/**
 	 * Interim tree protected to give derived classed possibility to work with it.
 	 */
   TTree* interim_tree_;
+  
+  /**
+	 * Input tree protected to give derived classed possibility to work with it.
+	 */
+  TTree* input_tree_;
   
   /**
    * members needed for best candidate selection
@@ -421,8 +550,6 @@ class Reducer {
   void OpenInputFileAndTree();
   void CreateInterimFileAndTree();
   void CreateOutputFileAndTree();
-  
-  void InitializeBranches();
   
   unsigned int GetBestCandidate(TTree* tree, unsigned int pos_event_start, unsigned int num_entries);
   
@@ -446,6 +573,20 @@ class Reducer {
    */
   template<class T>
   void InitializeOutputBranches(TTree* tree, const std::vector<ReducerLeaf<T>* >& leaves);
+  
+  /**
+   *  @brief Purge new leaves already existing in interim tree
+   *
+   *  All leaves that already exist in the interim tree, but are also to be 
+   *  created will be purged by this function from the list of leaves 
+   *  supplied.
+   *
+   *  @param leaves vector of leaves to purge
+   *  @param interim_leaves vector of leaves to compare against
+   *  @return new purged vector
+   */
+  template<class T1,class T2>
+  std::vector<ReducerLeaf<T1>*> PurgeOutputBranches(const std::vector<ReducerLeaf<T1>* >& leaves, const std::vector<ReducerLeaf<T2>* >& interim_leaves) const;
   
   /**
    * Get a ReducerLeaf by name from a ReducerLeaf vector
@@ -495,6 +636,16 @@ class Reducer {
   std::set<TString> branches_keep_;
   std::set<TString> branches_omit_;
   
+  /**
+   *  @brief Regular expressions with branches to keep
+   */
+  std::vector<std::string> branches_keep_regex_;
+  
+  /**
+   *  @brief Regular expressions with branches to omit
+   */
+  std::vector<std::string> branches_omit_regex_;
+  
   boost::bimap<TString, TString> name_mapping_;
   
   std::vector<ReducerLeaf<Float_t>* >  interim_leaves_; ///< vector of all leaves in the interim tree
@@ -508,8 +659,7 @@ class Reducer {
   std::vector<ReducerLeaf<Int_t>* >    int_leaves_;     ///< new int leaves for output tree
   
   TFile* input_file_;
-  TTree* input_tree_;
-  
+    
   TFile* output_file_;
   TTree* output_tree_;
   

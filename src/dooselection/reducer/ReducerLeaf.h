@@ -9,6 +9,7 @@
 #include "TString.h"
 #include "TTree.h"
 #include "TTreeFormula.h"
+#include "TRandom.h"
 
 // from DooCore
 #include "doocore/io/MsgStream.h"
@@ -22,6 +23,7 @@ enum ReducerLeafOperations {
   kMultiplyLeaves,
   kDivideLeaves,
   kEqualLeaf,
+  kRandomize
 };
 
 // Haha, this is why I like C++: The function below needs to be declared for the
@@ -167,6 +169,10 @@ public:
    */
   bool EvalConditions();
   
+  /** @name Leaf operations
+   *  These functions set the leaf to be based on a arithmetic operation
+   */
+  ///@{
   /**
    * Setup leaf to be basic arithmatic operation of two leaves: c1*l1+c2*l2, l1*l2, l1/l2
    */
@@ -188,6 +194,23 @@ public:
   void Equal(const ReducerLeaf<T1>& l, double c=1.0) {
     SetOperation<T1,T1>(l,l,kEqualLeaf,c,c);
   }
+
+  /**
+   *  @brief Set leaf to contain random values
+   *
+   *  Based on a supplied random generator, the leaf will contain random 
+   *  numbers, based on the supplied random generator. Each time the value of
+   *  the leaf is updated, a new random number is stored internally. Random 
+   *  numbers are drawn uniquely between 0 and 2^30.
+   *
+   *  @param random_generator a random generator to use.
+   */
+  void Randomize(TRandom* random_generator) {
+    random_generator_ = random_generator;
+    SetOperation<T,T>(*this,*this,kRandomize,1.0,1.0);
+  }
+  ///@}
+
   
   template<class T1>
   friend doocore::io::MsgStream& doocore::io::operator<<(doocore::io::MsgStream& lhs, const dooselection::reducer::ReducerLeaf<T1>& leaf);
@@ -213,16 +236,27 @@ private:
   ///< formulas different values 
   ///< written into the tree.
   T                                         default_value_;
-  
-  ReducerLeaf<T>* leaf_pointer_one_;  ///< to add a little bit of brainfuck, we 
-  ReducerLeaf<T>* leaf_pointer_two_;  ///< have pointers to other ReducerLeafs for
-  ///< operations on these
+
+  /**
+   *  @brief Pointer to first other leaf for operations
+   */
+  ReducerLeaf<T>* leaf_pointer_one_;
+
+  /**
+   *  @brief Pointer to first other leaf for operations
+   */
+  ReducerLeaf<T>* leaf_pointer_two_;
   
   double leaf_factor_one_;            ///< leaf factor for basic arithmatic ops
   double leaf_factor_two_;            ///< leaf factor for basic arithmatic ops
   
   ReducerLeafOperations leaf_operation_;  ///< which operation to perform on 
   ///< other leaves
+  
+  /**
+   *  @brief Connected random generator
+   */
+  TRandom* random_generator_;
 };
 
 template <class T>
@@ -236,7 +270,9 @@ tree_(tree),
 default_value_(default_value),
 leaf_pointer_one_(NULL),
 leaf_pointer_two_(NULL),
-leaf_operation_(kNoneOperation) {
+leaf_operation_(kNoneOperation),
+random_generator_(NULL)
+{
   branch_address_templ_ = new T();
   //std::cout << "regular constructor: " << this << ", name: " << name_ << "|" << &name_ << " (untemplated): " << branch_address_ << ", (templated): " << branch_address_templ_ << std::endl;
 }
@@ -252,7 +288,9 @@ branch_address_templ_(NULL),
 tree_(NULL),
 leaf_pointer_one_(NULL),
 leaf_pointer_two_(NULL),
-leaf_operation_(kNoneOperation) {
+leaf_operation_(kNoneOperation),
+random_generator_(NULL)
+ {
 }
 
 template <class T>
@@ -268,16 +306,19 @@ leaf_pointer_one_(r.leaf_pointer_one_),
 leaf_pointer_two_(r.leaf_pointer_two_),
 leaf_factor_one_(r.leaf_factor_one_),
 leaf_factor_two_(r.leaf_factor_two_),
-leaf_operation_(r.leaf_operation_) {        
+leaf_operation_(r.leaf_operation_),
+random_generator_(NULL)
+{        
   //std::cout << "copy    constructor: " << &r << " -> " << this << ", name: " << name_ << "|" << &name_ << " (untemplated): " << branch_address_ << ", (templated): " << branch_address_templ_ << std::endl;
 }
 
 template <class T>
 T ReducerLeaf<T>::GetValue(int i) const {
-  if (i>=Length()) {
-    doocore::io::serr << "ERROR in T ReducerLeaf<T>::GetValue(int): Trying to access array element " << i << " in leaf " << name_ << ". Length is " << Length() << ". Will return first element." << doocore::io::endmsg;
-    i=0;
-  }
+  // too high performance impact
+//  if (i>=Length()) {
+//    doocore::io::serr << "ERROR in T ReducerLeaf<T>::GetValue(int): Trying to access array element " << i << " in leaf " << name_ << ". Length is " << Length() << ". Will return first element." << doocore::io::endmsg;
+//    i=0;
+//  }
   
   // in case we have stored our value in branch_address_templ_ it's simple and 
   // we know that the type is correct.
@@ -292,14 +333,14 @@ T ReducerLeaf<T>::GetValue(int i) const {
       return static_cast<T>(static_cast<Float_t*>(branch_address_)[i]);
     } else if (type_ == "Double_t") {
       return static_cast<T>(static_cast<Double_t*>(branch_address_)[i]);
+    } else if (type_ == "ULong64_t") {
+      return static_cast<T>(static_cast<ULong64_t*>(branch_address_)[i]);
+    } else if (type_ == "Long64_t") {
+      return static_cast<T>(static_cast<Long64_t*>(branch_address_)[i]);
     } else if (type_ == "UInt_t") {
       return static_cast<T>(static_cast<UInt_t*>(branch_address_)[i]);
     } else if (type_ == "Bool_t") {
       return static_cast<T>(static_cast<Bool_t*>(branch_address_)[i]);
-    } else if (type_ == "Long64_t") {
-      return static_cast<T>(static_cast<Long64_t*>(branch_address_)[i]);
-    } else if (type_ == "ULong64_t") {
-      return static_cast<T>(static_cast<ULong64_t*>(branch_address_)[i]);
     } else if (type_ == "Short_t") {
       return static_cast<T>(static_cast<Short_t*>(branch_address_)[i]);
     } else if (type_ == "UShort_t") {
@@ -343,24 +384,31 @@ bool ReducerLeaf<T>::UpdateValue() {
     return EvalConditions();
   } else if (leaf_operation_ != kNoneOperation) {
     // update our leaf pointers which could itself be depending on operations.
-    leaf_pointer_one_->UpdateValue();
-    leaf_pointer_two_->UpdateValue();
-    
     switch (leaf_operation_) {
       case kAddLeaves:
+        leaf_pointer_one_->UpdateValue();
+        leaf_pointer_two_->UpdateValue();
         *branch_address_templ_ = leaf_factor_one_*leaf_pointer_one_->GetValue()+leaf_factor_two_*leaf_pointer_two_->GetValue();
         matched = true;
         break;
       case kMultiplyLeaves:
+        leaf_pointer_one_->UpdateValue();
+        leaf_pointer_two_->UpdateValue();
         *branch_address_templ_ = leaf_factor_one_*leaf_pointer_one_->GetValue()*leaf_factor_two_*leaf_pointer_two_->GetValue();
         matched = true;
         break;
       case kDivideLeaves:
+        leaf_pointer_one_->UpdateValue();
+        leaf_pointer_two_->UpdateValue();
         *branch_address_templ_ = leaf_factor_one_*leaf_pointer_one_->GetValue()/(leaf_factor_two_*leaf_pointer_two_->GetValue());
         matched = true;
         break;
       case kEqualLeaf:
+        leaf_pointer_one_->UpdateValue();
         *branch_address_templ_ = leaf_factor_one_*leaf_pointer_one_->GetValue();
+        break;
+      case kRandomize:
+        *branch_address_templ_ = random_generator_->Rndm()*1073741824.0;
         break;
       default:
         break;
@@ -452,7 +500,7 @@ int ReducerLeaf<T>::Length() const {
 
 template <class T>
 std::string ReducerLeaf<T>::LengthLeafName() const {
-  if (leaf_ != NULL) {
+  if (leaf_ != NULL && leaf_->GetLeafCount() != NULL) {
     return leaf_->GetLeafCount()->GetName();
   } else {
     return "";

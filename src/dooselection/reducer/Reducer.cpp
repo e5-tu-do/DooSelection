@@ -13,6 +13,7 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/bimap.hpp>
+#include <boost/regex.hpp>
 
 // from ROOT
 #include "TROOT.h"
@@ -23,6 +24,7 @@
 #include "TLeaf.h"
 #include "TTreeFormula.h"
 #include "TRandom.h"
+#include "TStopwatch.h"
 
 // from DooCore
 #include <doocore/io/MsgStream.h>
@@ -79,6 +81,7 @@ void Reducer::Initialize(){
 
 void Reducer::PrepareIntitialTree() {
   OpenInputFileAndTree();
+  ProcessInputTree();
   InitializeBranches();
 }
 
@@ -90,14 +93,18 @@ void Reducer::PrepareFinalTree() {
 
 void Reducer::Run(){
   signal(SIGINT, Reducer::HandleSigInt);
+
+  PrepareSpecialBranches();
+
+  float_leaves_  = PurgeOutputBranches<Float_t,Float_t>(float_leaves_, interim_leaves_);
+  double_leaves_ = PurgeOutputBranches<Double_t,Float_t>(double_leaves_, interim_leaves_);
+  int_leaves_    = PurgeOutputBranches<Int_t,Float_t>(int_leaves_, interim_leaves_);
   
   std::cout << "Initializing new branches of output tree" << std::endl;
   InitializeOutputBranches<Float_t>(output_tree_, interim_leaves_);
   InitializeOutputBranches<Float_t>(output_tree_, float_leaves_);
   InitializeOutputBranches<Double_t>(output_tree_, double_leaves_);
   InitializeOutputBranches<Int_t>(output_tree_, int_leaves_);
-
-  PrepareSpecialBranches();
   
   unsigned int num_entries         = interim_tree_->GetEntries();
   num_written_ = 0;
@@ -113,6 +120,10 @@ void Reducer::Run(){
   }
   
   int i = 0;
+  int status_stepping = num_entries>100000 ? num_entries/10000 : 10;
+  
+  TStopwatch sw;
+  sw.Start();
   while (i<num_entries) {
   //for (int i=0; i<num_entries; ++i) {
     // best candidate selection: 
@@ -134,7 +145,7 @@ void Reducer::Run(){
     if (isatty(fileno(stdout))) {
       //std::cout << (i+1) << std::endl;
       //std::cout << (i+1)%1000 << std::endl;
-      if ((num_written_%200) == 0) {
+      if ((num_written_%status_stepping) == 0) {
         double frac = static_cast<double> (i)/num_entries*100.0;
         printf("Progress %.2f %         \xd", frac);
         fflush(stdout);
@@ -148,6 +159,8 @@ void Reducer::Run(){
       break;
     }
   }
+  double time = sw.RealTime();
+  sinfo << "Processing event loop took " << time << " s (" << time/num_written_*1000 << " ms/event)." << endmsg;
   
   output_tree_->Write();
   sinfo << "OutputTree " << output_tree_path_ << " written to file " << output_file_path_ << " with " << num_written_ << " candidates." << endmsg; // "(" << num_best_candidates << " were best candidates without special cuts)." << endl;
@@ -299,6 +312,29 @@ void Reducer::add_branches_omit(std::set<TString> const& branches_omit){
 }
 
 void Reducer::InitializeBranches(){
+  // iterate over regex containers for keeping/omitting branches and fill
+  // branches_keep_/branches_omit_ accordingly
+  TObjArray* leaf_list = input_tree_->GetListOfLeaves();
+  int num_leaves       = leaf_list->GetEntries();
+  
+  // iterate over all leaves and check regex matching
+  for (int i=0; i<num_leaves; ++i) {
+    for (std::vector<std::string>::const_iterator it_regex = branches_keep_regex_.begin(), end = branches_keep_regex_.end();
+         it_regex != end; ++it_regex) {
+      boost::regex regex(*it_regex);
+      if (regex_match((*leaf_list)[i]->GetName(),regex)) {
+        branches_keep_.insert((*leaf_list)[i]->GetName());
+      }
+    }
+    for (std::vector<std::string>::const_iterator it_regex = branches_omit_regex_.begin(), end = branches_omit_regex_.end();
+         it_regex != end; ++it_regex) {
+      boost::regex regex(*it_regex);
+      if (regex_match((*leaf_list)[i]->GetName(),regex)) {
+        branches_omit_.insert((*leaf_list)[i]->GetName());
+      }
+    }
+  }
+  
   // Keep/omit branches according to filled containers. Keep supercedes omit.
   if ( !branches_keep_.empty() ){
     // Deactivate all branches
@@ -463,7 +499,7 @@ void Reducer::InitializeInterimLeafMap(TTree* tree, std::vector<ReducerLeaf<Floa
   std::cout << leaves->size() << " leaves to be copied" << std::endl;
 }
 
-void Reducer::RenameBranches(std::vector<ReducerLeaf<Float_t>* >* leaves, const bimap& mapping) {
+void Reducer::RenameBranches(std::vector<ReducerLeaf<Float_t>* >* leaves, const boost::bimap<TString, TString>& mapping) {
   for (bimap::left_const_iterator it_map = mapping.left.begin(); it_map != mapping.left.end(); ++it_map) {
     // (*it_map).first  : old_name : TString
     // (*it_map).second : new_name : TString
@@ -481,6 +517,26 @@ void Reducer::InitializeOutputBranches(TTree* tree, const std::vector<ReducerLea
   for (typename std::vector<ReducerLeaf<T>* >::const_iterator it = leaves.begin(); it != leaves.end(); ++it) {
     (*it)->CreateBranch(tree);
   }
+}
+  
+template<class T1,class T2>
+std::vector<ReducerLeaf<T1>*> Reducer::PurgeOutputBranches(const std::vector<ReducerLeaf<T1>* >& leaves, const std::vector<ReducerLeaf<T2>* >& interim_leaves) const {
+  std::vector<ReducerLeaf<T1>* > purged_leaves;
+  for (typename std::vector<ReducerLeaf<T1>* >::const_iterator it = leaves.begin(); it != leaves.end(); ++it) {
+    bool found = false;
+    for (typename std::vector<ReducerLeaf<T2>* >::const_iterator it_ex = interim_leaves.begin(); it_ex != interim_leaves.end(); ++it_ex) {
+      if ((*it_ex)->name() == (*it)->name()) {
+        found = true;
+        break;
+      }
+    }
+    if (found) {
+      swarn << "New leaf " << (*it)->name() << " already existing. Will ignore." << endmsg;
+    } else {
+      purged_leaves.push_back(*it);
+    }
+  }
+  return purged_leaves;
 }
 
 template<class T>
