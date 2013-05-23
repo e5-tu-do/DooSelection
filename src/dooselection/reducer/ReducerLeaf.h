@@ -454,8 +454,6 @@ void ReducerLeaf<T>::SetOperation(const ReducerLeaf<T1>& l1, const ReducerLeaf<T
   // Their value is returned via ReducerLeaf<T>::GetValue() which checks type_ 
   // entry and casts accordingly.
   if (operation != kRandomizeLeaf) {
-    doocore::io::sdebug << "SetOperation " << name() << " is not randomizing " << doocore::io::endmsg;
-
     leaf_pointer_one_ = new ReducerLeaf<T>(l1.name(), l1.title(), l1.type(), l1.tree());
     leaf_pointer_one_->branch_address_ = l1.branch_address();
     
