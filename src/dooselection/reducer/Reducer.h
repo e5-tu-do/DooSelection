@@ -26,7 +26,99 @@ class TLeaf;
  * @namespace dooselection::reducer
  * @brief Reducer namespace
  *
- * This namespace contains all Reducer functionality.
+ * This namespace contains all Reducer functionality. Reducer is a framework
+ * to process and modify tuples. This includes applying selections, adding new
+ * leaves and perform higher level modifications. The basic 
+ * dooselection::reducer::Reducer provides standard functionality such as 
+ * applying cut strings adding new leaves based on existing leaves and apply a
+ * best candidate selection.
+ *
+ * Higher functionality is provided by derived Reducer classes which can be 
+ * combined due to virtual inheritance. To develop own derived Reducers virtual
+ * functions exist as hooks to interface the Reducer mechanisms.
+ *
+ * In principle the Reducer always works like this: An input tuple is opened and
+ * an optional cut string is applied after which the input tree is copied into 
+ * an interim tree. In the following step an event loop processes the interim 
+ * tree, applies further cuts, calculates new leaves. Events passing the 
+ * requirements are processed by an optional best candidate selection and if 
+ * selected written into the output tree. 
+ *
+ * @section reducer_usage Usage
+ *
+ * Consider this example for basic usage info:
+ *
+ * @code
+ * Reducer my_reducer;
+ *
+ * // set input/output files to process
+ * my_reducer.set_input_file_path(input_file);
+ * my_reducer.set_input_tree_path(input_tree);
+ * my_reducer.set_output_file_path(output_file);
+ * my_reducer.set_output_tree_path(output_tree);
+ *
+ * // set a cut string for the first step from input to interim tree
+ * my_reducer.set_cut_string("piminus_TRACK_Type==3 && piplus_TRACK_Type==3");
+ *
+ * // step 1: Initialize. Open the input tree, set branch status, create interim 
+ * //         tree by copying input tree with cut, open output tree and 
+ * //         initialize higher level leaves.
+ * my_reducer.Initialize();
+ * 
+ * // create custom branches via built-in functions here
+ * my_reducer.CreateDoubleCopyLeaf(...);
+ *
+ * // step 2: Run. Prepare more higher level leaves, running event loop with 
+ * //         best candidate selection and writing events into output tree.
+ * my_reducer.Run();
+ *
+ * // step 3: Finalize. Reserved for future usage.
+ * my_reducer.Finalize();
+ * @endcode
+ *
+ * @section reducer_hooks Hooks for higher level Reducers
+ *
+ * Reducer supports a set of virtual functions for derived higher level Reducers
+ * to implement further functionality. The workflow is as this:
+ *
+ * @code
+ * Initialize();
+ * \- open input tree
+ *  - dooselection::reducer::Reducer::ProcessInputTree();
+ *    \- virtual function to work on the input tree before any branches are 
+ *     - deactivated or cuts applied.
+ *  - copy input tree into interim tree with cut
+ *  - create (empty) output tree
+ *  - dooselection::reducer::Reducer::CreateSpecialBranches();
+ *    \- virtual function to create/prepare leaves that are to be written in
+ *     - the event loop. These can be leaves based on integrated support or 
+ *     - higher level leaves that need to be evaluated for each event by special
+ *     - functions.
+ *
+ * Run();
+ * \- dooselection::reducer::Reducer::PrepareSpecialBranches();
+ *    \- virtual function to create/prepare leaves that are to be written in
+ *     - the event loop. Similar to CreateSpecialBranches() but this function 
+ *     - is assured to run after the user has created their own leaves and 
+ *     - directly before the event loop.
+ *  - run event loop:
+ *  \- select one event
+ *   - update all leaf values, including new leaves to be created
+ *   - dooselection::reducer::Reducer::UpdateSpecialLeaves();
+ *   \- virtual function to calculate values of higher level leaves like 
+ *    - complicated vetos and such.
+ *   - dooselection::reducer::Reducer::EntryPassesSpecialCuts();
+ *   \- virtual function to check if leaves fulfil higher level cuts like 
+ *    - complicated vetos or any other requirement.
+ *   - if passing, get best candidate of passing events.
+ *   - dooselection::reducer::Reducer::FillOutputTree();
+ *   \- virtual function to write a passing and best candidate selected event 
+ *    - into the output tree.
+ *    - Must call dooselection::reducer::Reducer::FlushEvent() at least once to
+ *    - actually write the event at least once. Last chance to modify any leaf
+ *    - values.
+ *   - close output tree and delete interim file
+ * @endcode
  */
 
 /**
