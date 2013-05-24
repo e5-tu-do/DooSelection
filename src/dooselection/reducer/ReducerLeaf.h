@@ -23,7 +23,7 @@ enum ReducerLeafOperations {
   kMultiplyLeaves,
   kDivideLeaves,
   kEqualLeaf,
-  kRandomize
+  kRandomizeLeaf,
 };
 
 // Haha, this is why I like C++: The function below needs to be declared for the
@@ -207,7 +207,7 @@ public:
    */
   void Randomize(TRandom* random_generator) {
     random_generator_ = random_generator;
-    SetOperation<T,T>(*this,*this,kRandomize,1.0,1.0);
+    SetOperation<T,T>(*this,*this,kRandomizeLeaf,1.0,1.0);
   }
   ///@}
 
@@ -384,6 +384,7 @@ bool ReducerLeaf<T>::UpdateValue() {
     return EvalConditions();
   } else if (leaf_operation_ != kNoneOperation) {
     // update our leaf pointers which could itself be depending on operations.
+    
     switch (leaf_operation_) {
       case kAddLeaves:
         leaf_pointer_one_->UpdateValue();
@@ -406,9 +407,11 @@ bool ReducerLeaf<T>::UpdateValue() {
       case kEqualLeaf:
         leaf_pointer_one_->UpdateValue();
         *branch_address_templ_ = leaf_factor_one_*leaf_pointer_one_->GetValue();
+        matched = true;
         break;
-      case kRandomize:
+      case kRandomizeLeaf:
         *branch_address_templ_ = random_generator_->Rndm()*1073741824.0;
+        matched = true;
         break;
       default:
         break;
@@ -421,6 +424,7 @@ bool ReducerLeaf<T>::UpdateValue() {
 
 template <class T> template <class T1, class T2>
 void ReducerLeaf<T>::SetOperation(const ReducerLeaf<T1>& l1, const ReducerLeaf<T2>& l2, ReducerLeafOperations operation, double c1, double c2) {
+  
   switch (operation) {
     case kAddLeaves:
       std::cout << "Leaf " << name() << " = (" << c1 << ")*" << l1.name() << "+(" << c2 << ")*" << l2.name() << std::endl;
@@ -434,6 +438,9 @@ void ReducerLeaf<T>::SetOperation(const ReducerLeaf<T1>& l1, const ReducerLeaf<T
     case kEqualLeaf:
       std::cout << "Leaf " << name() << " = (" << c1 << ")*" << l1.name() << std::endl;
       break;
+    case kRandomizeLeaf:
+      std::cout << "Leaf " << name() << " = random number" << std::endl;
+      break;
     default:
       break;
   }
@@ -446,11 +453,13 @@ void ReducerLeaf<T>::SetOperation(const ReducerLeaf<T1>& l1, const ReducerLeaf<T
   // will be treated as generic ReducerLeafs where templating does not matter.
   // Their value is returned via ReducerLeaf<T>::GetValue() which checks type_ 
   // entry and casts accordingly.
-  leaf_pointer_one_ = new ReducerLeaf<T>(l1.name(), l1.title(), l1.type(), l1.tree());
-  leaf_pointer_one_->branch_address_ = l1.branch_address();
-  
-  leaf_pointer_two_ = new ReducerLeaf<T>(l2.name(), l2.title(), l2.type(), l2.tree());
-  leaf_pointer_two_->branch_address_ = l2.branch_address();
+  if (operation != kRandomizeLeaf) {
+    leaf_pointer_one_ = new ReducerLeaf<T>(l1.name(), l1.title(), l1.type(), l1.tree());
+    leaf_pointer_one_->branch_address_ = l1.branch_address();
+    
+    leaf_pointer_two_ = new ReducerLeaf<T>(l2.name(), l2.title(), l2.type(), l2.tree());
+    leaf_pointer_two_->branch_address_ = l2.branch_address();
+  }
   
   leaf_operation_ = operation;
 }
