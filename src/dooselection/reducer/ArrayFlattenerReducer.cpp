@@ -2,6 +2,8 @@
 
 // from STL
 #include <string>
+#include <vector>
+#include <utility>
 
 // from ROOT
 #include "TString.h"
@@ -21,16 +23,48 @@ namespace reducer {
 using namespace doocore::io;
   
 ArrayFlattenerReducer::ArrayFlattenerReducer()
-  : leaf_array_length_(NULL)
+  : leaves_array_length_()
 {}
   
 void ArrayFlattenerReducer::PrepareSpecialBranches() {
-  if (leaf_array_length_ == NULL) {
+  if (leaves_array_length_.size() == 0) {
     sinfo << "ArrayFlattenerReducer: Array length leaf not set. Will not flatten." << endmsg;
   } else {
-    std::string name_array_length(leaf_array_length_->name());
-    sinfo << "ArrayFlattenerReducer: Flattening all leaves that have array size " << name_array_length << endmsg;
     
+    leaf_array_length_ = leaves_array_length_.front();
+    
+    for (std::vector<const ReducerLeaf<Float_t>*>::const_iterator it=leaves_array_length_.begin(), end=leaves_array_length_.end(); it != end; ++it) {
+      std::string name_array_length((*it)->name());
+      sinfo << "ArrayFlattenerReducer: Flattening all leaves that have array size " << name_array_length << endmsg;
+    }
+    
+    if (leaves_array_length_.size() > 1) {
+      sinfo << "ArrayFlattenerReducer: More than one length leaf set. Checking for consistency on a small sample of events." << endmsg;
+      int stepping_check = interim_tree_->GetEntries()/1000;
+      std::vector<std::pair<TBranch*,TLeaf*> > branches_array_length;
+      
+      for (std::vector<const ReducerLeaf<Float_t>*>::const_iterator it=leaves_array_length_.begin(), end=leaves_array_length_.end(); it != end; ++it) {
+        branches_array_length.push_back(std::make_pair(interim_tree_->GetBranch((*it)->name()),
+                                                       interim_tree_->GetLeaf((*it)->name())));
+      }
+      
+      double leaf_value = 0.0;
+      for (int i=0; i<interim_tree_->GetEntries(); i+=stepping_check) {
+        for (std::vector<std::pair<TBranch*,TLeaf*> >::const_iterator it=branches_array_length.begin(), end=branches_array_length.end(); it != end; ++it) {
+          it->first->GetEvent(i);
+          
+          if (it == branches_array_length.begin()) {
+            leaf_value = it->second->GetValue();
+          } else {
+            if (it->second->GetValue() != leaf_value) {
+              serr << "ArrayFlattenerReducer: For event #" << i << " leaf " << it->second->GetName() << " does not have equal content as other array length leaves. This will break array flattening! Continue at own risk." << endmsg;
+            }
+          }
+        }
+      }
+    }
+    
+    std::string name_array_length(leaf_array_length_->name());
     std::string name_array_index = name_array_length + "_index";
     leaf_array_index_ = &CreateIntLeaf(name_array_index);
     sinfo << "Array index will be written into: " << name_array_index << endmsg;
@@ -39,19 +73,24 @@ void ArrayFlattenerReducer::PrepareSpecialBranches() {
     // loop over all interim leaves and check if array length is name_array_length_
     // fill leaves_map_double_ and leaves_map_int_ based on leaf_array_length_
     for (std::vector<ReducerLeaf<Float_t>* >::const_iterator it = GetInterimLeavesBegin(); it != GetInterimLeavesEnd(); ++it) {
-      if ((*it)->LengthLeafName() == name_array_length) {
-        if ((*it)->type() == "Double_t") {
-          ReducerLeaf<Double_t>& flat_leaf = CreateDoubleLeaf((*it)->name()+"_flat");
-          leaves_map_double_[&flat_leaf] = *it;
-          sdebug << "  " << (*it)->name() << " -> " << flat_leaf.name() << " (double)" << endmsg;
-        } else if ((*it)->type() == "Float_t") {
-          ReducerLeaf<Float_t>& flat_leaf = CreateFloatLeaf((*it)->name()+"_flat");
-          leaves_map_float_[&flat_leaf] = *it;
-          sdebug << "  " << (*it)->name() << " -> " << flat_leaf.name() << " (float)" << endmsg;
-        } else if ((*it)->type() == "Int_t") {
-          ReducerLeaf<Int_t>& flat_leaf = CreateIntLeaf((*it)->name()+"_flat");
-          leaves_map_int_[&flat_leaf] = *it;
-          sdebug << "  " << (*it)->name() << " -> " << flat_leaf.name() << " (int)" << endmsg;
+      
+      // iterate over all set length leaves and check if interim leaf is matching
+      for (std::vector<const ReducerLeaf<Float_t>*>::const_iterator it_lengths=leaves_array_length_.begin(), end=leaves_array_length_.end(); it_lengths != end; ++it_lengths) {
+        std::string name_array_length((*it_lengths)->name());
+        if ((*it)->LengthLeafName() == name_array_length) {
+          if ((*it)->type() == "Double_t") {
+            ReducerLeaf<Double_t>& flat_leaf = CreateDoubleLeaf((*it)->name()+"_flat");
+            leaves_map_double_[&flat_leaf] = *it;
+            sdebug << "  " << (*it)->name() << " -> " << flat_leaf.name() << " (double)" << endmsg;
+          } else if ((*it)->type() == "Float_t") {
+            ReducerLeaf<Float_t>& flat_leaf = CreateFloatLeaf((*it)->name()+"_flat");
+            leaves_map_float_[&flat_leaf] = *it;
+            sdebug << "  " << (*it)->name() << " -> " << flat_leaf.name() << " (float)" << endmsg;
+          } else if ((*it)->type() == "Int_t") {
+            ReducerLeaf<Int_t>& flat_leaf = CreateIntLeaf((*it)->name()+"_flat");
+            leaves_map_int_[&flat_leaf] = *it;
+            sdebug << "  " << (*it)->name() << " -> " << flat_leaf.name() << " (int)" << endmsg;
+          }
         }
       }
     }
@@ -59,7 +98,7 @@ void ArrayFlattenerReducer::PrepareSpecialBranches() {
 }
   
 void ArrayFlattenerReducer::FillOutputTree() {
-  if (leaf_array_length_ == NULL) {
+  if (leaves_array_length_.size() == 0) {
     FlushEvent();
   } else {
     int num_pvs = leaf_array_length_->GetValue();

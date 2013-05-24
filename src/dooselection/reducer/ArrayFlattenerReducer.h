@@ -23,6 +23,9 @@
  *  separate event in the output tree. Other leaves will simply be duplicated.
  *  The current array index will be put into a separate variable.
  *
+ *  Leaves to be flattened are determined by array length leaves. All leaves 
+ *  having one of these as array length will be flattened.
+ *
  **/
 namespace dooselection {
   namespace reducer {
@@ -34,11 +37,14 @@ namespace dooselection {
       ArrayFlattenerReducer();
       
       /**
-       *  @brief Set leaf containing array length
+       *  @brief Add a leaf containing array length
+       *
+       *  All leaves containing array lengths must be of equal size for each 
+       *  event. Otherwise, flattening will not work.
        *
        *  @param leaf_array_length leaf containing the array length
        */
-      void set_leaf_array_length(const ReducerLeaf<Float_t>& leaf_array_length) { leaf_array_length_ = &leaf_array_length; }
+      void AddArrayLengthLeaf(const ReducerLeaf<Float_t>& leaf_array_length) { leaves_array_length_.push_back(&leaf_array_length); }
       
     protected:
       virtual void PrepareSpecialBranches();
@@ -46,7 +52,12 @@ namespace dooselection {
       
     private:
       /**
-       *  @brief Pointer to leaf holding array length.
+       *  @brief Pointers to leaves holding array length.
+       */
+      std::vector<const ReducerLeaf<Float_t>*> leaves_array_length_;
+      
+      /**
+       *  @brief Pointer to first leaf holding array length.
        */
       const ReducerLeaf<Float_t>* leaf_array_length_;
       
