@@ -58,6 +58,7 @@ void ArrayFlattenerReducer::PrepareSpecialBranches() {
           } else {
             if (it->second->GetValue() != leaf_value) {
               serr << "ArrayFlattenerReducer: For event #" << i << " leaf " << it->second->GetName() << " does not have equal content as other array length leaves. This will break array flattening! Continue at own risk." << endmsg;
+              throw 1;
             }
           }
         }

@@ -82,7 +82,8 @@ namespace dooselection {
       std::map<ReducerLeaf<Int_t>*, const ReducerLeaf<Float_t>*> leaves_map_int_;
       
     };
-  } // namespace reducer
+    
+} // namespace reducer
 } // namespace dooselection
 
 
