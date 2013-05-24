@@ -43,7 +43,7 @@ CondDBTranslator::CondDBTranslator(){
     particle_table_file.close();
   }
   else {
-    std::cout << "Unable to open the particle table file" << std::endl;
+    std::cout << "CondDBTranslator: Unable to open the particle table file" << std::endl;
   }
 }
 

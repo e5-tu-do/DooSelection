@@ -1,4 +1,4 @@
-#include "BkgCategorizerReducer2.h"
+#include "BkgCategorizerReducer.h"
 
 // from STL
 #include <string>
@@ -23,7 +23,7 @@ using namespace dooselection::mctools;
 namespace dooselection {
 namespace reducer {
 
-BkgCategorizerReducer2::BkgCategorizerReducer2() : 
+BkgCategorizerReducer::BkgCategorizerReducer() : 
   background_category_leaf_(NULL),
   background_category_lptr_(NULL),
   decay_matrix_length_leaf_(NULL),
@@ -33,15 +33,15 @@ BkgCategorizerReducer2::BkgCategorizerReducer2() :
   max_number_decays_(40) 
 {}
 
-BkgCategorizerReducer2::~BkgCategorizerReducer2() {}
+BkgCategorizerReducer::~BkgCategorizerReducer() {}
 
-void BkgCategorizerReducer2::PrepareSpecialBranches() {
+void BkgCategorizerReducer::PrepareSpecialBranches() {
   std::string decaystring = "";
   
   sinfo << "Starting analysis of MC associated decays." << endmsg;
  
   if (decay_matrix_length_leaf_ == NULL && decay_matrix_length_leaf_ != NULL) {
-    serr << "Decay matrix length not set! BkgCategorizerReducer2 can no longer work. Set via BkgCategorizerReducer2::set_decay_matrix_length_leaf(...)!" << endmsg;
+    serr << "Decay matrix length not set! BkgCategorizerReducer can no longer work. Set via BkgCategorizerReducer::set_decay_matrix_length_leaf(...)!" << endmsg;
   }
  
   TBranch* br_matrix = interim_tree_->GetBranch(decay_matrix_name_.c_str());
@@ -106,7 +106,7 @@ void BkgCategorizerReducer2::PrepareSpecialBranches() {
   PrepareFurtherSpecialLeaves();
 }
 
-void BkgCategorizerReducer2::UpdateSpecialLeaves() {
+void BkgCategorizerReducer::UpdateSpecialLeaves() {
   if (decay_depth_leaf_ != NULL) {
     if (!(decay_depth_leaf_->GetValue() < 1)) {
       std::string decaystring = IDTranslator::makedecaystring(decay_matrix_, *decay_matrix_length_lptr_, columns_, 0, 0, "", true, true);

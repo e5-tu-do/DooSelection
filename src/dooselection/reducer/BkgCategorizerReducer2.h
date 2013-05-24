@@ -8,6 +8,11 @@
 #include <map>
 #include <utility>
 
+// from DooSelection
+#include "dooselection/mctools/mcdecaymatrixreader/MCDecayMatrixReader.h"
+
+
+
 /** \class dooselection::reducer::BkgCategorizerReducer2
  *  \brief Derived Reducer to generate background categories based on TupleToolMCDecayTree
  *
@@ -23,6 +28,9 @@
 
 namespace dooselection {
   namespace reducer {
+    
+    enum modes {ChargesRel, ChargesIrrel, ChargesFinalStIrrel, ChargesInStIrrel};
+    
     class BkgCategorizerReducer2 : virtual public Reducer {
     public:
       /**
@@ -34,7 +42,22 @@ namespace dooselection {
        *  @brief Virtual destructor
        **/
       virtual ~BkgCategorizerReducer2();
-      
+
+      /**
+       *  @brief Setter for the mode that handles how decays are counted, that contain the same but charge conjugated particles, Default is ChargesIrrel, explanation below
+       *  There are four Modes:
+       *  ChargesRel:          Charges are relevant = taken into account (Decays, that are in any way charge conjuagted, are counted independently)
+       *  ChargesIrrel:        Charges are completely irrelevant (Decays, that are in any way charge conjuagted, are added)
+       *  ChargesFinalStIrrel: Charges in the final state are irrelevant, i.e. Decays with the same charge in the initial state but conjugated final state are added
+       *  ChargesInStIrrel:    Charges in the initial state are irrelevant, i.e. Decays with same charges in the final state but conjugated initial state are added
+       *
+       *  Default is ChargesIrrel! This is the setter method to change the mode!
+       **/
+      void set_mode(modes newmode) { mode_=newmode; }
+      /**
+       *  @brief Setter for the vector in the MCDecayMatrixReader that tells the Reader which Particles have to be ignored when evaluating the decay strings
+       **/
+      void set_vec_of_ignored_particles(std::vector<int> ids_of_ignored_particles) { decay_matrix_reader_.set_IDs_of_ignored_particles(ids_of_ignored_particles); }
       /**
        *  @brief Setter for decay_matrix_name_
        **/
@@ -107,27 +130,27 @@ namespace dooselection {
       /**
        *  @brief Leaf for background category to be inserted into tuple
        **/
-      ReducerLeaf<Int_t>*   background_category_leaf_;
+      ReducerLeaf<Int_t>*               background_category_leaf_;
       /**
        *  @brief Pointer for contents of leaf background_category_leaf_ (for convienence)
        **/
-      Int_t*                background_category_lptr_;
+      Int_t*                            background_category_lptr_;
       /**
        *  @brief Leaf for decay matrix length from TupleToolMCDecayTree
        **/
-      ReducerLeaf<Int_t>*   decay_matrix_length_leaf_;
+      ReducerLeaf<Int_t>*               decay_matrix_length_leaf_;
       /**
        *  @brief Pointer for contents of leaf decay_matrix_length_leaf_ (for performance)
        **/
-      Int_t*                decay_matrix_length_lptr_;
+      Int_t*                            decay_matrix_length_lptr_;
       /**
        *  @brief Leaf for decay depth from TupleToolMCDecayTree
        **/
-      ReducerLeaf<Int_t>*   decay_depth_leaf_;
+      ReducerLeaf<Int_t>*               decay_depth_leaf_;
       /**
        *  @brief Leaf for decay products from TupleToolMCDecayTree
        **/
-      ReducerLeaf<Int_t>*   decay_products_leaf_;
+      ReducerLeaf<Int_t>*               decay_products_leaf_;
       /**
        *  @brief Static row array size from TupleToolMCDecayTree
        **/
@@ -143,11 +166,15 @@ namespace dooselection {
       /**
        *  @brief Name of decay matrix in tuple
        **/
-      std::string           decay_matrix_name_;
+      std::string                       decay_matrix_name_;
       /**
        *  @brief Map for decay counting
        **/
-      std::map<std::string,int> decay_counter_;
+      std::map<std::string,int>         decay_counter_;
+      /**
+       *  @brief Map to reference decay strings based on particle MC IDs to the related decay strings with particle names
+       **/
+      std::map<std::string,std::string> decay_string_referencer;
       /**
        *  @brief Sorted vector with background categories and string representation
        **/
@@ -155,7 +182,25 @@ namespace dooselection {
       /**
        *  @brief Maximum number of decays to categorize
        **/
-      int                   max_number_decays_;
+      int                               max_number_decays_;
+      /**
+       *  @brief MCDecayMatrixReader object, it provides functionality to read a given decay matrix to create particles with fully setted properties
+       **/
+      dooselection::mctools::mcdecaymatrixreader::MCDecayMatrixReader decay_matrix_reader_;
+      /**
+       *  @brief Run Mode, that handles how decays are counted, that contain the same but charge conjugated particles, Default is ChargesIrrel, explanation below
+       *
+       *  There are four Modes:
+       *  ChargesRel:          Charges are relevant = taken into account (Decays, that are in any way charge conjuagted, are counted independently)
+       *  ChargesIrrel:        Charges are completely irrelevant (Decays, that are in any way charge conjuagted, are added)
+       *  ChargesFinalStIrrel: Charges in the final state are irrelevant, i.e. Decays with the same charge in the initial state but conjugated final state are added
+       *  ChargesInStIrrel:    Charges in the initial state are irrelevant, i.e. Decays with same charges in the final state but conjugated initial state are added
+       *
+       *  Default is ChargesIrrel! There is a setter method to change the mode!
+       *  
+       **/
+      modes mode_ ;
+
     };
     
   } // namespace reducer

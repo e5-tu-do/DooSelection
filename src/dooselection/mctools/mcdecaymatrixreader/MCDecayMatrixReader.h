@@ -83,6 +83,13 @@ public:
   
   
   /**
+   *  @brief Setter for the vector that saves the IDs of the ignored particles
+   *
+   */
+  void set_IDs_of_ignored_particles(std::vector<int> ignored_particle_ids) { ignoredparticles_ = ignored_particle_ids; }
+
+  
+  /**
    *  @brief This method creates a particle (including all of its daugther particles) from the given array derived from the decay matrix.
    *
    *  
