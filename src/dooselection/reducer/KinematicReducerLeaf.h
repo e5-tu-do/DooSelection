@@ -192,11 +192,11 @@ void KinematicReducerLeaf<T>::EmptyDependantVectors() {
   for (typename std::vector<KinematicDaughterPropertiesFixedMass<T> >::iterator
        it = daughters_fixed_mass_.begin(), end = daughters_fixed_mass_.end();
        it != end; ++it) {
-    sdebug << "deleting " << it->leaf_px_->name() << " copy." << endmsg;
+//    sdebug << "deleting " << it->leaf_px_->name() << " copy." << endmsg;
     delete it->leaf_px_;
-    sdebug << "deleting " << it->leaf_py_->name() << " copy." << endmsg;
+//    sdebug << "deleting " << it->leaf_py_->name() << " copy." << endmsg;
     delete it->leaf_py_;
-    sdebug << "deleting " << it->leaf_pz_->name() << " copy." << endmsg;
+//    sdebug << "deleting " << it->leaf_pz_->name() << " copy." << endmsg;
     delete it->leaf_pz_;
   }
   daughters_fixed_mass_.clear();
