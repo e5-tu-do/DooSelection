@@ -104,13 +104,6 @@ public:
   }
   
   /**
-   *  @brief Get current length of leaf (if array based)
-   *
-   *  @return length of the array in the leaf (1 if not array based)
-   */
-  int Length() const;
-  
-  /**
    *  @brief Get name of leaf containing array length
    *
    *  @return name of the leaf determining the array length
@@ -151,6 +144,13 @@ public:
    *  @return leaf value of correct type
    */
   T GetValue(int i=0) const;
+  
+  /**
+   *  @brief Get current length of leaf (if array based)
+   *
+   *  @return length of the array in the leaf (1 if not array based)
+   */
+  int Length() const;
   ///@}
   
   /**
