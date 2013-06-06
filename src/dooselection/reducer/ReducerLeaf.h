@@ -222,12 +222,18 @@ public:
     random_generator_ = random_generator;
     SetOperation<T,T>(*this,*this,kRandomizeLeaf,1.0,1.0);
   }
-  ///@}
+  ///@} 
 
   
   template<class T1>
   friend doocore::io::MsgStream& doocore::io::operator<<(doocore::io::MsgStream& lhs, const dooselection::reducer::ReducerLeaf<T1>& leaf);
   
+protected:
+  T * branch_address_templ_;        ///< address of branch contents
+                                    ///< for templating new leaf use
+
+  T default_value_;
+
 private:
   TLeaf* leaf_;
   TString name_;
@@ -235,9 +241,7 @@ private:
   TString type_;
   void * branch_address_;           ///< address of branch contents 
   ///< for non-templating copy use
-  T * branch_address_templ_;        ///< address of branch contents
-  ///< for templating new leaf use
-  
+    
   /**
    * members needed for new leaves/branches
    *
@@ -248,7 +252,6 @@ private:
   ///< leaves. Based on given cut
   ///< formulas different values 
   ///< written into the tree.
-  T                                         default_value_;
 
   /**
    *  @brief Pointer to first other leaf for operations

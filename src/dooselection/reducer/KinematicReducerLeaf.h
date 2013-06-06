@@ -7,6 +7,7 @@
 // from ROOT
 
 // from DooCore
+#include "doocore/physics/kinematic/kinematic.h"
 
 // from project
 #include "dooselection/reducer/ReducerLeaf.h"
@@ -35,13 +36,13 @@ struct KinematicDaughterPropertiesFixedMass {
   KinematicDaughterPropertiesFixedMass(ReducerLeaf<T>* leaf_px,
                                        ReducerLeaf<T>* leaf_py,
                                        ReducerLeaf<T>* leaf_pz,
-                                       double leaf_m)
-  : leaf_px_(leaf_px), leaf_py_(leaf_py), leaf_pz_(leaf_pz), leaf_m_(leaf_m) {}
+                                       double m)
+  : leaf_px_(leaf_px), leaf_py_(leaf_py), leaf_pz_(leaf_pz), m_(m) {}
   
   ReducerLeaf<T>* leaf_px_;
   ReducerLeaf<T>* leaf_py_;
   ReducerLeaf<T>* leaf_pz_;
-  double leaf_m_;
+  double m_;
 };
   
 template <typename T>
@@ -111,8 +112,30 @@ KinematicReducerLeaf<T>::KinematicReducerLeaf(TString name, TString title, TStri
 
 template <class T>
 bool KinematicReducerLeaf<T>::UpdateValue() {
-  bool matched = false;
+  using namespace doocore::physics::kinematic;
   
+  bool matched = false;
+  if (!daughters_fixed_mass_.empty()) {
+    daughters_fixed_mass_[0].leaf_px_.UpdateValue();
+    daughters_fixed_mass_[0].leaf_py_.UpdateValue();
+    daughters_fixed_mass_[0].leaf_pz_.UpdateValue();
+    daughters_fixed_mass_[1].leaf_px_.UpdateValue();
+    daughters_fixed_mass_[1].leaf_py_.UpdateValue();
+    daughters_fixed_mass_[1].leaf_pz_.UpdateValue();
+    
+    *(this->branch_address_templ_) = MotherTwoBodyDecayMass(
+          daughters_fixed_mass_[0].leaf_px_.GetValue(),
+          daughters_fixed_mass_[0].leaf_py_.GetValue(),
+          daughters_fixed_mass_[0].leaf_pz_.GetValue(),
+          daughters_fixed_mass_[0].m_,
+          daughters_fixed_mass_[1].leaf_px_.GetValue(),
+          daughters_fixed_mass_[1].leaf_py_.GetValue(),
+          daughters_fixed_mass_[1].leaf_pz_.GetValue(),
+          daughters_fixed_mass_[1].m_);
+    matched = true;
+  } else {
+    *(this->branch_address_templ_) = this->default_value_;
+  }
   return matched;
 }
 
