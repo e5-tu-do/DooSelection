@@ -125,21 +125,21 @@ bool KinematicReducerLeaf<T>::UpdateValue() {
   
   bool matched = false;
   if (!daughters_fixed_mass_.empty()) {
-    daughters_fixed_mass_[0].leaf_px_.UpdateValue();
-    daughters_fixed_mass_[0].leaf_py_.UpdateValue();
-    daughters_fixed_mass_[0].leaf_pz_.UpdateValue();
-    daughters_fixed_mass_[1].leaf_px_.UpdateValue();
-    daughters_fixed_mass_[1].leaf_py_.UpdateValue();
-    daughters_fixed_mass_[1].leaf_pz_.UpdateValue();
+    daughters_fixed_mass_[0].leaf_px_->UpdateValue();
+    daughters_fixed_mass_[0].leaf_py_->UpdateValue();
+    daughters_fixed_mass_[0].leaf_pz_->UpdateValue();
+    daughters_fixed_mass_[1].leaf_px_->UpdateValue();
+    daughters_fixed_mass_[1].leaf_py_->UpdateValue();
+    daughters_fixed_mass_[1].leaf_pz_->UpdateValue();
     
     *(this->branch_address_templ_) = MotherTwoBodyDecayMass(
-          daughters_fixed_mass_[0].leaf_px_.GetValue(),
-          daughters_fixed_mass_[0].leaf_py_.GetValue(),
-          daughters_fixed_mass_[0].leaf_pz_.GetValue(),
+          daughters_fixed_mass_[0].leaf_px_->GetValue(),
+          daughters_fixed_mass_[0].leaf_py_->GetValue(),
+          daughters_fixed_mass_[0].leaf_pz_->GetValue(),
           daughters_fixed_mass_[0].m_,
-          daughters_fixed_mass_[1].leaf_px_.GetValue(),
-          daughters_fixed_mass_[1].leaf_py_.GetValue(),
-          daughters_fixed_mass_[1].leaf_pz_.GetValue(),
+          daughters_fixed_mass_[1].leaf_px_->GetValue(),
+          daughters_fixed_mass_[1].leaf_py_->GetValue(),
+          daughters_fixed_mass_[1].leaf_pz_->GetValue(),
           daughters_fixed_mass_[1].m_);
     matched = true;
   } else {
