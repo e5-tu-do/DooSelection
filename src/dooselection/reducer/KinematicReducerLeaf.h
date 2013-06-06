@@ -8,6 +8,7 @@
 
 // from DooCore
 #include "doocore/physics/kinematic/kinematic.h"
+#include "doocore/io/MsgStream.h"
 
 // from project
 #include "dooselection/reducer/ReducerLeaf.h"
@@ -50,7 +51,9 @@ class KinematicReducerLeaf : public ReducerLeaf<T> {
  public:
   KinematicReducerLeaf(TString name, TString title, TString type, TTree* tree, T default_value=T());
   
-  virtual ~KinematicReducerLeaf() {}
+  virtual ~KinematicReducerLeaf() {
+    EmptyDependantVectors();
+  }
   
   /** @name Leaf value determination
    *  These functions assure setting the leaves value correctly.
@@ -87,17 +90,23 @@ class KinematicReducerLeaf : public ReducerLeaf<T> {
    *  @param d2_pz leaf to daughter 2 pz
    *  @param d2_m leaf to daughter 2 fixed mass
    */
-  void FixedMassDaughtersTwoBodyDecayMotherMass(const ReducerLeaf<T>& d1_px,
-                                                const ReducerLeaf<T>& d1_py,
-                                                const ReducerLeaf<T>& d1_pz,
+  template<class T1, class T2, class T3, class T4, class T5, class T6>
+  void FixedMassDaughtersTwoBodyDecayMotherMass(const ReducerLeaf<T1>& d1_px,
+                                                const ReducerLeaf<T2>& d1_py,
+                                                const ReducerLeaf<T3>& d1_pz,
                                                 double d1_m,
-                                                const ReducerLeaf<T>& d2_px,
-                                                const ReducerLeaf<T>& d2_py,
-                                                const ReducerLeaf<T>& d2_pz,
+                                                const ReducerLeaf<T4>& d2_px,
+                                                const ReducerLeaf<T5>& d2_py,
+                                                const ReducerLeaf<T6>& d2_pz,
                                                 double d2_m);
   ///@{
 
  private:
+  /**
+   *  @brief Empty vectors conatining links to dependant leaves
+   */
+  void EmptyDependantVectors();
+  
   /**
    *  @brief Vector containing fixed mass daughters for mass hypothesis calculation
    */
@@ -139,18 +148,43 @@ bool KinematicReducerLeaf<T>::UpdateValue() {
   return matched;
 }
 
-template <class T>
-void KinematicReducerLeaf<T>::FixedMassDaughtersTwoBodyDecayMotherMass(const ReducerLeaf<T>& d1_px,
-                                                const ReducerLeaf<T>& d1_py,
-                                                const ReducerLeaf<T>& d1_pz,
+template <class T> template<class T1, class T2, class T3, class T4, class T5, class T6>
+void KinematicReducerLeaf<T>::FixedMassDaughtersTwoBodyDecayMotherMass(
+                                                const ReducerLeaf<T1>& d1_px,
+                                                const ReducerLeaf<T2>& d1_py,
+                                                const ReducerLeaf<T3>& d1_pz,
                                                 double d1_m,
-                                                const ReducerLeaf<T>& d2_px,
-                                                const ReducerLeaf<T>& d2_py,
-                                                const ReducerLeaf<T>& d2_pz,
+                                                const ReducerLeaf<T4>& d2_px,
+                                                const ReducerLeaf<T5>& d2_py,
+                                                const ReducerLeaf<T6>& d2_pz,
                                                 double d2_m) {
+  EmptyDependantVectors();
+  daughters_fixed_mass_.push_back(KinematicDaughterPropertiesFixedMass<T>(
+      new ReducerLeaf<T>(d1_px.name(), d1_px.title(), d1_px.type(), d1_px.tree()),
+      new ReducerLeaf<T>(d1_py.name(), d1_py.title(), d1_py.type(), d1_py.tree()),
+      new ReducerLeaf<T>(d1_pz.name(), d1_pz.title(), d1_pz.type(), d1_pz.tree()),
+      d1_m));
+   daughters_fixed_mass_.push_back(KinematicDaughterPropertiesFixedMass<T>(
+      new ReducerLeaf<T>(d2_px.name(), d2_px.title(), d2_px.type(), d2_px.tree()),
+      new ReducerLeaf<T>(d2_py.name(), d2_py.title(), d2_py.type(), d2_py.tree()),
+      new ReducerLeaf<T>(d2_pz.name(), d2_pz.title(), d2_pz.type(), d2_pz.tree()),
+      d2_m));
+}
+  
+template <class T>
+void KinematicReducerLeaf<T>::EmptyDependantVectors() {
+  using namespace doocore::io;
+  for (typename std::vector<KinematicDaughterPropertiesFixedMass<T> >::iterator
+       it = daughters_fixed_mass_.begin(), end = daughters_fixed_mass_.end();
+       it != end; ++it) {
+    sdebug << "deleting " << it->leaf_px_->name() << " copy." << endmsg;
+    delete it->leaf_px_;
+    sdebug << "deleting " << it->leaf_py_->name() << " copy." << endmsg;
+    delete it->leaf_py_;
+    sdebug << "deleting " << it->leaf_pz_->name() << " copy." << endmsg;
+    delete it->leaf_pz_;
+  }
   daughters_fixed_mass_.clear();
-  daughters_fixed_mass_.push_back(KinematicDaughterPropertiesFixedMass<T>(d1_px, d1_py, d1_pz, d1_m));
-  daughters_fixed_mass_.push_back(KinematicDaughterPropertiesFixedMass<T>(d2_px, d2_py, d2_pz, d2_m));
 }
   
 } // namespace reducer
