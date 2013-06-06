@@ -118,9 +118,14 @@ public:
   std::string LengthLeafName() const;
   ///@}
   
+  /** @name Set Leaf properties
+   *  These functions set global leaf properties.
+   */
+  ///@{
   const TString& set_name(const TString& new_name) { name_=new_name; title_=new_name+"/"+type_; return name_; }
   void set_branch_address(void* ptr) { branch_address_ = ptr; }
-
+  ///@}
+  
   /**
    *  @brief Set value of leaf
    *
@@ -132,6 +137,10 @@ public:
     return *this;
   }
   
+  /** @name Leaf value access
+   *  These functions help accessing leaf values
+   */
+  ///@{
   /**
    *  @brief Get value of leaf
    *
@@ -142,6 +151,7 @@ public:
    *  @return leaf value of correct type
    */
   T GetValue(int i=0) const;
+  ///@}
   
   /**
    * Create a branch in tree for this leaf. In copy mode it will just use the 
