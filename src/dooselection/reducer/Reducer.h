@@ -440,6 +440,45 @@ class Reducer {
     new_leaf.Equal(leaf_to_copy, c);
     return new_leaf;
   }
+  
+  /**
+   *  @brief Register externally created double leaf
+   *
+   *  An externally created double leaf will be registered internally in this 
+   *  Reducer for output writing. The Reducer assumes to take over ownership of
+   *  this leaf.
+   *
+   *  @param leaf the leaf to be registered.
+   */
+  void RegisterDoubleLeaf(ReducerLeaf<Double_t>* leaf) {
+    double_leaves_.push_back(leaf);
+  }
+  
+  /**
+   *  @brief Register externally created float leaf
+   *
+   *  An externally created float leaf will be registered internally in this
+   *  Reducer for output writing. The Reducer assumes to take over ownership of
+   *  this leaf.
+   *
+   *  @param leaf the leaf to be registered.
+   */
+  void RegisterFloatLeaf(ReducerLeaf<Float_t>* leaf) {
+    float_leaves_.push_back(leaf);
+  }
+  
+  /**
+   *  @brief Register externally created int leaf
+   *
+   *  An externally created int leaf will be registered internally in this
+   *  Reducer for output writing. The Reducer assumes to take over ownership of
+   *  this leaf.
+   *
+   *  @param leaf the leaf to be registered.
+   */
+  void RegisterIntLeaf(ReducerLeaf<Int_t>* leaf) {
+    int_leaves_.push_back(leaf);
+  }
   ///@}
   
  protected:
