@@ -161,8 +161,8 @@ void KinematicReducerLeaf<T>::FixedMassDaughtersTwoBodyDecayMotherMass(
   using namespace doocore::io;
 
   sinfo << "Leaf " << this->name() << " is kinematic combination of ("
-        << d1_px.name() << ", " << d1_py.name() << ", " << d1_pz.name() << ", mass " << d1_m << ") and ("
-        << d2_px.name() << ", " << d2_py.name() << ", " << d2_pz.name() << ", mass " << d2_m << ")." << endmsg;
+        << d1_px.name() << ", " << d1_py.name() << ", " << d1_pz.name() << ", mass: " << d1_m << ") and ("
+        << d2_px.name() << ", " << d2_py.name() << ", " << d2_pz.name() << ", mass: " << d2_m << ")." << endmsg;
     
   EmptyDependantVectors();
   daughters_fixed_mass_.push_back(KinematicDaughterPropertiesFixedMass<T>(
