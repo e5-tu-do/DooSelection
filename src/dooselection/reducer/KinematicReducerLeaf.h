@@ -160,21 +160,30 @@ void KinematicReducerLeaf<T>::FixedMassDaughtersTwoBodyDecayMotherMass(
                                                 double d2_m) {
   using namespace doocore::io;
 
-  sinfo << "Leaf " << name() << " is kinematic combination of ("
+  sinfo << "Leaf " << this->name() << " is kinematic combination of ("
         << d1_px.name() << ", " << d1_py.name() << ", " << d1_pz.name() << ", mass " << d1_m << ") and ("
         << d2_px.name() << ", " << d2_py.name() << ", " << d2_pz.name() << ", mass " << d2_m << ")." << endmsg;
-  
+    
   EmptyDependantVectors();
   daughters_fixed_mass_.push_back(KinematicDaughterPropertiesFixedMass<T>(
       new ReducerLeaf<T>(d1_px.name(), d1_px.title(), d1_px.type(), d1_px.tree()),
       new ReducerLeaf<T>(d1_py.name(), d1_py.title(), d1_py.type(), d1_py.tree()),
       new ReducerLeaf<T>(d1_pz.name(), d1_pz.title(), d1_pz.type(), d1_pz.tree()),
       d1_m));
+  
+  daughters_fixed_mass_[0].leaf_px_->branch_address_ = d1_px.branch_address();
+  daughters_fixed_mass_[0].leaf_py_->branch_address_ = d1_py.branch_address();
+  daughters_fixed_mass_[0].leaf_pz_->branch_address_ = d1_pz.branch_address();
+  
    daughters_fixed_mass_.push_back(KinematicDaughterPropertiesFixedMass<T>(
       new ReducerLeaf<T>(d2_px.name(), d2_px.title(), d2_px.type(), d2_px.tree()),
       new ReducerLeaf<T>(d2_py.name(), d2_py.title(), d2_py.type(), d2_py.tree()),
       new ReducerLeaf<T>(d2_pz.name(), d2_pz.title(), d2_pz.type(), d2_pz.tree()),
       d2_m));
+  
+  daughters_fixed_mass_[1].leaf_px_->branch_address_ = d2_px.branch_address();
+  daughters_fixed_mass_[1].leaf_py_->branch_address_ = d2_py.branch_address();
+  daughters_fixed_mass_[1].leaf_pz_->branch_address_ = d2_pz.branch_address();
 }
   
 template <class T>

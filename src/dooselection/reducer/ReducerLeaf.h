@@ -71,6 +71,8 @@ namespace reducer {
  */
 template <class T>
 class ReducerLeaf {
+  template<typename U> friend class KinematicReducerLeaf;
+  
 public:
   ReducerLeaf(TLeaf* leaf);
   ReducerLeaf(TString name, TString title, TString type, TTree* tree, T default_value=T());
