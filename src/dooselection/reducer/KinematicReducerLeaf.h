@@ -15,14 +15,18 @@
 // forward decalarations
 
 /**
- * @class dooselection::reducer::KinematicReducerLeaf class
+ * @class dooselection::reducer::KinematicReducerLeaf
+ *
+ * @brief Reducer leaf for kinematic calculations
  *
  * This helper class represents a leaf in a tree. It provides functionality to
  * do kinematic calculations based on other leaves.
  */
 
 /**
- * @struct dooselection::reducer::KinematicDaughterPropertiesFixedMass class
+ * @struct dooselection::reducer::KinematicDaughterPropertiesFixedMass
+ *
+ * @brief Helper container for dooselection::reducer::KinematicReducerLeaf
  *
  * This helper container holds links to momenta leaves for a particle and 
  * additionally the fixed mass of this particle.

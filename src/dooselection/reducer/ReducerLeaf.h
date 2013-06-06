@@ -48,11 +48,10 @@ inline MsgStream& operator<<(MsgStream& lhs, const dooselection::reducer::Reduce
 } // namespace utils
 } // namespace doofit
 
-
-namespace dooselection {
-namespace reducer {
 /**
- * ReducerLeaf class
+ * @class dooselection::reducer::ReducerLeaf
+ *
+ * @brief General Reducer leaf
  *
  * This helper class represents a leaf in a tree. Two modes of functionality are
  * available (corresponding two constructors):
@@ -69,6 +68,9 @@ namespace reducer {
  *    leaf's of the reference tree and corresponding values or be a combination 
  *    of reference tree leaves (like sum or ratio and such).
  */
+
+namespace dooselection {
+namespace reducer {
 template <class T>
 class ReducerLeaf {
 public:
