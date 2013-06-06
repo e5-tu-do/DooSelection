@@ -159,7 +159,7 @@ public:
   /**
    * Create a branch in tree for this leaf. In copy mode it will just use the 
    * old tree's branch address and will work out of the box. In template new 
-   * leaf mode EvalConditions() or ... must be used for each entry to 
+   * leaf mode EvalConditions() or ... must be used for each entry to
    * recalculate the values.
    */
   void CreateBranch(TTree * tree) const { tree->Branch(name(), branch_address(), LeafString()); }
@@ -169,11 +169,15 @@ public:
    */
   ///@{
   /**
-   * Update the leaf value according to a set conditions map or operation on 
-   * other leaves.
+   * @brief Update the leaf value according to a set conditions map or operation on other leaves for the current event.
+   *
+   * Due to virtuality, higher level ReducerLeaves can implement other 
+   * operations as well.
+   *
+   * @return whether the any operation set the value
    */
-  bool UpdateValue();
-  
+  virtual bool UpdateValue();
+    
   /**
    * Check all conditions for a match and set branch value accordingly
    * returns true if at least one condition matched
@@ -237,12 +241,18 @@ public:
     random_generator_ = random_generator;
     SetOperation<T,T>(*this,*this,kRandomizeLeaf,1.0,1.0);
   }
-  ///@}
+  ///@} 
 
   
   template<class T1>
   friend doocore::io::MsgStream& doocore::io::operator<<(doocore::io::MsgStream& lhs, const dooselection::reducer::ReducerLeaf<T1>& leaf);
   
+protected:
+  T * branch_address_templ_;        ///< address of branch contents
+                                    ///< for templating new leaf use
+
+  T default_value_;
+
 private:
   TLeaf* leaf_;
   TString name_;
@@ -250,9 +260,7 @@ private:
   TString type_;
   void * branch_address_;           ///< address of branch contents 
   ///< for non-templating copy use
-  T * branch_address_templ_;        ///< address of branch contents
-  ///< for templating new leaf use
-  
+    
   /**
    * members needed for new leaves/branches
    *
@@ -263,7 +271,6 @@ private:
   ///< leaves. Based on given cut
   ///< formulas different values 
   ///< written into the tree.
-  T                                         default_value_;
 
   /**
    *  @brief Pointer to first other leaf for operations
@@ -476,9 +483,10 @@ void ReducerLeaf<T>::SetOperation(const ReducerLeaf<T1>& l1, const ReducerLeaf<T
   leaf_factor_one_ = c1;
   leaf_factor_two_ = c2;
   
-  // leaf_pointer_* need to be ReducerLeaf<T>* with T to be the same as the mother's
-  // T. Even if T1 != T. Although not very nice, this does not hurt. leaf_pointer_*
-  // will be treated as generic ReducerLeafs where templating does not matter.
+  // leaf_pointer_* need to be ReducerLeaf<T>* with T to be the same as the
+  // mother's T. Even if T1 != T. Although not very nice, this does not hurt.
+  // leaf_pointer_* will be treated as generic ReducerLeafs where templating
+  // does not matter.
   // Their value is returned via ReducerLeaf<T>::GetValue() which checks type_ 
   // entry and casts accordingly.
   if (operation != kRandomizeLeaf) {
