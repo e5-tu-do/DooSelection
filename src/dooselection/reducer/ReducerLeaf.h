@@ -117,6 +117,9 @@ public:
   ///@{
   const TString& set_name(const TString& new_name) { name_=new_name; title_=new_name+"/"+type_; return name_; }
   void set_branch_address(void* ptr) { branch_address_ = ptr; }
+  void SetDefaultValue(T value) {
+    default_value_ = value;
+  }
   ///@}
   
   /**
@@ -160,17 +163,7 @@ public:
    * recalculate the values.
    */
   void CreateBranch(TTree * tree) const { tree->Branch(name(), branch_address(), LeafString()); }
-  
-  ///< add a new condition for new tree leaf/branch
-  ///< condition_name is just a name for the TTreeFormula, condition the cut string.
-  ///< value the value corresponding to this cut.
-  void AddCondition(TString condition_name, TString condition, T value) { 
-    conditions_map_.push_back(std::pair<TTreeFormula*,T>(new TTreeFormula(condition_name,condition,tree_),value)); 
-  }
-  void SetDefaultValue(T value) { 
-    default_value_ = value;
-  }
-  
+    
   /** @name Leaf value determination
    *  These functions assure setting the leaves value correctly.
    */
@@ -188,7 +181,23 @@ public:
   bool EvalConditions();
   ///@}
   
-  /** @name Leaf operations
+  /** @name Conditional leaf operations
+   *  These functions set the leaf to be based on a conditional table
+   */
+  ///@{
+  /**
+   * @brief Add a new condition for new tree leaf/branch
+   * @param condition_name is just a name for the TTreeFormula
+   * @param condition the cut string.
+   * @param value the value corresponding to this cut.
+   */
+  void AddCondition(TString condition_name, TString condition, T value) {
+    conditions_map_.push_back(std::pair<TTreeFormula*,T>(new TTreeFormula(condition_name,condition,tree_),value));
+  }
+
+  ///@}
+  
+  /** @name Artihmetic leaf operations
    *  These functions set the leaf to be based on a arithmetic operation
    */
   ///@{
