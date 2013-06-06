@@ -76,7 +76,7 @@ public:
   ReducerLeaf(TString name, TString title, TString type, TTree* tree, T default_value=T());
   ReducerLeaf(const ReducerLeaf<T>& r);
   
-  ~ReducerLeaf() {
+  virtual ~ReducerLeaf() {
     //std::cout << "destructing " << this << " " << name_ << "|" << &name_ << std::endl;
     if (branch_address_templ_ != NULL) delete branch_address_templ_;
   }
@@ -532,7 +532,7 @@ inline MsgStream& operator<<(MsgStream& lhs, const dooselection::reducer::Reduce
   
   return lhs;
 }
-} // namespace utils
-} // namespace doofit
+} // namespace reducer
+} // namespace dooselection
 
 #endif // DOOSELECTION_REDUCER_REDUCERLEAF_H
