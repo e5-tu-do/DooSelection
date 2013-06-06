@@ -16,7 +16,6 @@
 
 // forward decalarations
 class TLeaf;
-
 enum ReducerLeafOperations {
   kNoneOperation,
   kAddLeaves,
@@ -33,6 +32,9 @@ namespace dooselection {
 namespace reducer {
 template <class T>
 class ReducerLeaf;
+  
+template <class T>
+class KinematicReducerLeaf;
 }
 }
 
@@ -71,7 +73,7 @@ namespace reducer {
  */
 template <class T>
 class ReducerLeaf {
-  template<typename U> friend class KinematicReducerLeaf;
+  friend class KinematicReducerLeaf<T>;
   
 public:
   ReducerLeaf(TLeaf* leaf);
