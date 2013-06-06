@@ -76,28 +76,30 @@ public:
   ReducerLeaf(TString name, TString title, TString type, TTree* tree, T default_value=T());
   ReducerLeaf(const ReducerLeaf<T>& r);
   
-  ~ReducerLeaf() {
+  virtual ~ReducerLeaf() {
     //std::cout << "destructing " << this << " " << name_ << "|" << &name_ << std::endl;
     if (branch_address_templ_ != NULL) delete branch_address_templ_;
   }
   
+  /** @name Leaf properties
+   *  These functions access global leaf properties.
+   */
+  ///@{
   const TString& name() const { return name_; }
-  const TString& set_name(const TString& new_name) { name_=new_name; title_=new_name+"/"+type_; return name_; }
-  
   const TString& title() const { return title_; }
   const TString& type() const { return type_; }
   TTree* tree() const { return tree_; }
   TBranch* branch() { return leaf_->GetBranch(); }
-  
   TString LeafString() const ;   ///< return leaf string for branch creation
-  void* branch_address() const { 
+
+  void* branch_address() const {
     //std::cout << "  ReducerLeaf::branch_address() for " << name_ << "|" << this << std::endl;
     
     // check which type of mode we are
     if (branch_address_ == NULL) {
       return branch_address_templ_;
     } else {
-      return branch_address_; 
+      return branch_address_;
     }
   }
   
@@ -114,7 +116,11 @@ public:
    *  @return name of the leaf determining the array length
    */
   std::string LengthLeafName() const;
+  ///@}
   
+  const TString& set_name(const TString& new_name) { name_=new_name; title_=new_name+"/"+type_; return name_; }
+  void set_branch_address(void* ptr) { branch_address_ = ptr; }
+
   /**
    *  @brief Set value of leaf
    *
@@ -125,8 +131,6 @@ public:
     *((T*)branch_address()) = v;
     return *this;
   }
-  
-  void set_branch_address(void* ptr) { branch_address_ = ptr; }
   
   /**
    *  @brief Get value of leaf
@@ -157,17 +161,22 @@ public:
     default_value_ = value;
   }
   
+  /** @name Leaf value determination
+   *  These functions assure setting the leaves value correctly.
+   */
+  ///@{
   /**
-   * update the leaf value according to a set conditions map or operation on 
+   * Update the leaf value according to a set conditions map or operation on 
    * other leaves.
    */
   bool UpdateValue();
   
   /**
-   * check all conditions for a match and set branch value accordingly
+   * Check all conditions for a match and set branch value accordingly
    * returns true if at least one condition matched
    */
   bool EvalConditions();
+  ///@}
   
   /** @name Leaf operations
    *  These functions set the leaf to be based on a arithmetic operation
@@ -532,7 +541,7 @@ inline MsgStream& operator<<(MsgStream& lhs, const dooselection::reducer::Reduce
   
   return lhs;
 }
-} // namespace utils
-} // namespace doofit
+} // namespace reducer
+} // namespace dooselection
 
 #endif // DOOSELECTION_REDUCER_REDUCERLEAF_H
