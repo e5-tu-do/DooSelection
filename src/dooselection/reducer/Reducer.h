@@ -21,6 +21,7 @@
 // forward declarations
 class TFile;
 class TLeaf;
+class TTreeFormula;
 
 /**
  * @namespace dooselection::reducer
@@ -703,6 +704,8 @@ class Reducer {
   TTree* output_tree_;
   
   TFile* interim_file_;
+  
+  TTreeFormula* formula_input_tree_;
   
   /**
    * members needed for best candidate selection

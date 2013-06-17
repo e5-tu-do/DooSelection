@@ -25,6 +25,7 @@
 #include "TTreeFormula.h"
 #include "TRandom.h"
 #include "TStopwatch.h"
+#include "TTreeFormula.h"
 
 // from DooCore
 #include <doocore/io/MsgStream.h>
@@ -43,6 +44,7 @@ Reducer::Reducer() :
 event_number_leaf_ptr_(NULL),
 run_number_leaf_ptr_(NULL),
 interim_file_(NULL),
+formula_input_tree_(NULL),
 best_candidate_leaf_ptr_(NULL),
 num_events_process_(-1)
 {
@@ -53,6 +55,7 @@ Reducer::Reducer(std::string const& config_file_path) :
   event_number_leaf_ptr_(NULL),
   run_number_leaf_ptr_(NULL),
   interim_file_(NULL),
+  formula_input_tree_(NULL),
   best_candidate_leaf_ptr_(NULL),
   num_events_process_(-1)
 {
@@ -71,6 +74,10 @@ Reducer::~Reducer(){
   }
   for (std::vector<ReducerLeaf<Int_t>* >::const_iterator it = int_leaves_.begin(); it != int_leaves_.end(); ++it) {
     delete *it;
+  }
+  
+  if (formula_input_tree_ != NULL) {
+    delete formula_input_tree_;
   }
   
   if (interim_file_ != NULL) {
@@ -156,9 +163,13 @@ void Reducer::Run(){
     if (isatty(fileno(stdout))) {
       //std::cout << (i+1) << std::endl;
       //std::cout << (i+1)%1000 << std::endl;
+//      sdebug << "num_written_%status_stepping = " << num_written_ << "%" << status_stepping << " = " << num_written_%status_stepping << endmsg;
       if ((num_written_%status_stepping) == 0) {
-        double frac = static_cast<double> (i)/num_entries*100.0;
-        printf("Progress %.2f %         \xd", frac);
+        double frac = static_cast<double>(i)/num_entries;
+        double time = sw.RealTime();
+        double ete  = time/frac;
+        sw.Start(false);
+        printf("Progress %.2f %   (ETE: %.0f s, spent: %.0f s, t/evt: %.2f ms)      \xd", frac*100.0, ete, time, time/num_written_*1000);
         fflush(stdout);
       }
     }
@@ -260,10 +271,17 @@ void Reducer::OpenInputFileAndTree(){
 void Reducer::CreateInterimFileAndTree(){
   gROOT->cd();
   
-  if (cut_string_.Length() == 0 && num_events_process_ == -1) {
-    sinfo << "Input tree is not to be cut. Using input tree as interim tree." << endmsg;
+  if (num_events_process_ == -1) {
+    sinfo << "Using input tree as interim tree." << endmsg;
     
     interim_tree_ = input_tree_;
+    
+    if (cut_string_.Length() > 0) {
+      formula_input_tree_ = new TTreeFormula("formula_input_tree_", cut_string_, interim_tree_);
+      sinfo << "Initializing tree formula with cut " << cut_string_ << endmsg;
+    } else {
+      sinfo << "Copying tree without specific cut (cuts may apply through higher level Redcuers)." << endmsg;
+    }
   } else {
   
     cout << "Creating InterimFile " << interim_file_path_ << endl;
@@ -419,7 +437,7 @@ unsigned int Reducer::GetBestCandidate(TTree* tree, unsigned int pos_event_start
   if (event_number_leaf_ptr_ == NULL || run_number_leaf_ptr_ == NULL || best_candidate_leaf_ptr_ == NULL) {
     // without best candidate selection
     while (i<num_entries) {
-      if (EntryPassesSpecialCuts()) {
+      if ((formula_input_tree_ == NULL || formula_input_tree_->EvalInstance() != 0) && EntryPassesSpecialCuts()) {
         //std::cout << i << " " << runNumber << " " << eventNumber << std::endl;
         return i+1;
       }
@@ -457,7 +475,7 @@ unsigned int Reducer::GetBestCandidate(TTree* tree, unsigned int pos_event_start
       best_candidate_value_before = best_candidate_leaf_ptr_->GetValue();
       // check if event passes special cuts and if event is better than current
       // best candidate or if there is no best candidate in this event yet
-      if (EntryPassesSpecialCuts() && (best_candidate_leaf_ptr_->GetValue() < best_candidate_value_min || best_candidate_value_min == -1)) {
+      if ((formula_input_tree_ == NULL || formula_input_tree_->EvalInstance() != 0) && EntryPassesSpecialCuts() && (best_candidate_leaf_ptr_->GetValue() < best_candidate_value_min || best_candidate_value_min == -1)) {
         best_candidate_value_min = best_candidate_leaf_ptr_->GetValue();
         best_candidate           = i;
       }
