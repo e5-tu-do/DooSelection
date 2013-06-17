@@ -74,6 +74,7 @@ void SPlotterReducer::CreateSpecialBranches() {
 
   for (std::map<std::string,RooDataSet*>::const_iterator it = sweighted_datasets_.begin();
        it != sweighted_datasets_.end(); ++it) {
+    doocore::io::sinfo << "SPlotterReducer::CreateSpecialBranches(): Creating leaf for sweights " << (*it).first+"_sw" << doocore::io::endmsg;
     sweight_leaves_[(*it).first] = &CreateDoubleLeaf((*it).first+"_sw", -1000);
   }
 }
