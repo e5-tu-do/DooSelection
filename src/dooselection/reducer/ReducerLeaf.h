@@ -50,11 +50,10 @@ inline MsgStream& operator<<(MsgStream& lhs, const dooselection::reducer::Reduce
 } // namespace utils
 } // namespace doofit
 
-
-namespace dooselection {
-namespace reducer {
 /**
- * ReducerLeaf class
+ * @class dooselection::reducer::ReducerLeaf
+ *
+ * @brief General Reducer leaf
  *
  * This helper class represents a leaf in a tree. Two modes of functionality are
  * available (corresponding two constructors):
@@ -71,6 +70,9 @@ namespace reducer {
  *    leaf's of the reference tree and corresponding values or be a combination 
  *    of reference tree leaves (like sum or ratio and such).
  */
+
+namespace dooselection {
+namespace reducer {
 template <class T>
 class ReducerLeaf {
   friend class KinematicReducerLeaf<T>;
@@ -108,13 +110,6 @@ public:
   }
   
   /**
-   *  @brief Get current length of leaf (if array based)
-   *
-   *  @return length of the array in the leaf (1 if not array based)
-   */
-  int Length() const;
-  
-  /**
    *  @brief Get name of leaf containing array length
    *
    *  @return name of the leaf determining the array length
@@ -122,9 +117,17 @@ public:
   std::string LengthLeafName() const;
   ///@}
   
+  /** @name Set Leaf properties
+   *  These functions set global leaf properties.
+   */
+  ///@{
   const TString& set_name(const TString& new_name) { name_=new_name; title_=new_name+"/"+type_; return name_; }
   void set_branch_address(void* ptr) { branch_address_ = ptr; }
-
+  void SetDefaultValue(T value) {
+    default_value_ = value;
+  }
+  ///@}
+  
   /**
    *  @brief Set value of leaf
    *
@@ -136,6 +139,10 @@ public:
     return *this;
   }
   
+  /** @name Leaf value access
+   *  These functions help accessing leaf values
+   */
+  ///@{
   /**
    *  @brief Get value of leaf
    *
@@ -148,23 +155,21 @@ public:
   T GetValue(int i=0) const;
   
   /**
+   *  @brief Get current length of leaf (if array based)
+   *
+   *  @return length of the array in the leaf (1 if not array based)
+   */
+  int Length() const;
+  ///@}
+  
+  /**
    * Create a branch in tree for this leaf. In copy mode it will just use the 
    * old tree's branch address and will work out of the box. In template new 
    * leaf mode EvalConditions() or ... must be used for each entry to
    * recalculate the values.
    */
   void CreateBranch(TTree * tree) const { tree->Branch(name(), branch_address(), LeafString()); }
-  
-  ///< add a new condition for new tree leaf/branch
-  ///< condition_name is just a name for the TTreeFormula, condition the cut string.
-  ///< value the value corresponding to this cut.
-  void AddCondition(TString condition_name, TString condition, T value) { 
-    conditions_map_.push_back(std::pair<TTreeFormula*,T>(new TTreeFormula(condition_name,condition,tree_),value)); 
-  }
-  void SetDefaultValue(T value) { 
-    default_value_ = value;
-  }
-  
+    
   /** @name Leaf value determination
    *  These functions assure setting the leaves value correctly.
    */
@@ -186,7 +191,23 @@ public:
   bool EvalConditions();
   ///@}
   
-  /** @name Leaf operations
+  /** @name Conditional leaf operations
+   *  These functions set the leaf to be based on a conditional table
+   */
+  ///@{
+  /**
+   * @brief Add a new condition for new tree leaf/branch
+   * @param condition_name is just a name for the TTreeFormula
+   * @param condition the cut string.
+   * @param value the value corresponding to this cut.
+   */
+  void AddCondition(TString condition_name, TString condition, T value) {
+    conditions_map_.push_back(std::pair<TTreeFormula*,T>(new TTreeFormula(condition_name,condition,tree_),value));
+  }
+
+  ///@}
+  
+  /** @name Artihmetic leaf operations
    *  These functions set the leaf to be based on a arithmetic operation
    */
   ///@{

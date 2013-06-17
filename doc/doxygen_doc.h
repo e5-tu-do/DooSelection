@@ -43,10 +43,10 @@
  * https://wiki.e5.physik.tu-dortmund.de/LHCb/Software/DooSoftwareUsage).
  * 
  * To build DooSelection, download it either as a release version or checkout from 
- * SVN. Create a @c build directory where you invoke CMake and install DooSelection.
+ * Git. Create a @c build directory where you invoke CMake and install DooSelection.
  * 
  * @code
- * cmake -DCMAKE_INSTALL_PREFIX=$DOOSELECTIONSYS /path/of/doocore/source
+ * /path/of/dooselection/source/scripts/rebuild_cmake.sh
  * make
  * make install
  * @endcode
