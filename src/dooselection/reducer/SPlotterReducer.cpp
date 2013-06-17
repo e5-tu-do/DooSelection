@@ -31,7 +31,7 @@ SPlotterReducer::SPlotterReducer(doofit::fitter::splot::SPlotFit2& spf, RooArgSe
 }
   
 void SPlotterReducer::ProcessInputTree() {
-  swarn << "SPlotterReducer::ProcessInputTree(): cut string: " << cut_string() << endmsg;
+//  swarn << "SPlotterReducer::ProcessInputTree(): cut string: " << cut_string() << endmsg;
 }
 
   
