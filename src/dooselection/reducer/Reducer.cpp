@@ -174,7 +174,7 @@ void Reducer::Run(){
       if ((num_written_%status_stepping) == 0) {
         double frac = static_cast<double>(i)/num_entries;
         double time = sw.RealTime();
-        double ete  = time/frac;
+        double ete  = time/frac-time;
         sw.Start(false);
         printf("Progress %.2f %   (ETE: %.0f s, spent: %.0f s, t/evt: %.2f ms)      \xd", frac*100.0, ete, time, time/num_written_*1000);
         fflush(stdout);
@@ -189,7 +189,7 @@ void Reducer::Run(){
     }
   }
   double time = sw.RealTime();
-  sinfo << "Processing event loop took " << time << " s (" << time/num_written_*1000 << " ms/event)." << endmsg;
+  sinfo << "Processing event loop took " << time << " s (" << time/num_written_*1000 << " ms/event).                                 " << endmsg;
   
   output_tree_->Write();
   sinfo << "OutputTree " << output_tree_path_ << " written to file " << output_file_path_ << " with " << num_written_ << " candidates." << endmsg; // "(" << num_best_candidates << " were best candidates without special cuts)." << endl;
