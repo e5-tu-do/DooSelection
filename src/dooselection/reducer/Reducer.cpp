@@ -42,6 +42,7 @@ bool Reducer::abort_loop_ = false;
 Reducer::Reducer() : 
 event_number_leaf_ptr_(NULL),
 run_number_leaf_ptr_(NULL),
+interim_file_(NULL),
 best_candidate_leaf_ptr_(NULL),
 num_events_process_(-1)
 {
@@ -51,6 +52,7 @@ num_events_process_(-1)
 Reducer::Reducer(std::string const& config_file_path) :
   event_number_leaf_ptr_(NULL),
   run_number_leaf_ptr_(NULL),
+  interim_file_(NULL),
   best_candidate_leaf_ptr_(NULL),
   num_events_process_(-1)
 {
@@ -69,6 +71,15 @@ Reducer::~Reducer(){
   }
   for (std::vector<ReducerLeaf<Int_t>* >::const_iterator it = int_leaves_.begin(); it != int_leaves_.end(); ++it) {
     delete *it;
+  }
+  
+  if (interim_file_ != NULL) {
+    interim_file_->Close();
+    delete interim_file_;
+  }
+  if (input_file_ != NULL) {
+    input_file_->Close();
+    delete input_file_;
   }
   
   // TODO: delete file and tree pointers
@@ -249,21 +260,28 @@ void Reducer::OpenInputFileAndTree(){
 void Reducer::CreateInterimFileAndTree(){
   gROOT->cd();
   
-  cout << "Creating InterimFile " << interim_file_path_ << endl;
-  interim_file_ = new TFile(interim_file_path_,"RECREATE");
-  
-  if (num_events_process_ == -1) {
-    cout << "Creating InterimTree with cut " << cut_string_ << endl;
-    interim_tree_ = input_tree_->CopyTree(cut_string_/*, "", 2000*/);
+  if (cut_string_.Length() == 0 && num_events_process_ == -1) {
+    sinfo << "Input tree is not to be cut. Using input tree as interim tree." << endmsg;
+    
+    interim_tree_ = input_tree_;
   } else {
-    cout << "Creating InterimTree with cut " << cut_string_ << ", copying only "
-         << num_events_process_ << " events." << endl;
-    interim_tree_ = input_tree_->CopyTree(cut_string_, "", num_events_process_);
+  
+    cout << "Creating InterimFile " << interim_file_path_ << endl;
+    interim_file_ = new TFile(interim_file_path_,"RECREATE");
+    
+    if (num_events_process_ == -1) {
+      cout << "Creating InterimTree with cut " << cut_string_ << endl;
+      interim_tree_ = input_tree_->CopyTree(cut_string_/*, "", 2000*/);
+    } else {
+      cout << "Creating InterimTree with cut " << cut_string_ << ", copying only "
+      << num_events_process_ << " events." << endl;
+      interim_tree_ = input_tree_->CopyTree(cut_string_, "", num_events_process_);
+    }
+    interim_tree_->Write();
+    input_tree_ = NULL;
+    cout << "Closing InputFile." << endl;
+    input_file_->Close();
   }
-  interim_tree_->Write();
-  input_tree_ = NULL;
-  cout << "Closing InputFile." << endl;
-  input_file_->Close();
 }
 
 void Reducer::CreateOutputFileAndTree(){
@@ -276,12 +294,7 @@ void Reducer::CreateOutputFileAndTree(){
   }
   
   cout << "Creating OutputTree " << output_tree_path_ << endl;
-  // FK: does this make sense?  
-  //output_tree_ = (TTree*)output_file_->Get(output_tree_path_);
-  
   output_tree_ = new TTree(output_tree_path_, "GrimReaperTree");
-  
-  //name_mapping_.push_back(std::pair<TString,TString>("B0_M", "B0_MASS"));
   
   InitializeInterimLeafMap(interim_tree_, &interim_leaves_);
   RenameBranches(&interim_leaves_, name_mapping_);
@@ -490,9 +503,13 @@ void Reducer::InitializeInterimLeafMap(TTree* tree, std::vector<ReducerLeaf<Floa
   
   // iterate over all leaves and sort them into map
   for (int i=0; i<num_leaves; ++i) {
-    ReducerLeaf<Float_t>* leaf = new ReducerLeaf<Float_t>((TLeaf*)(*leaf_list)[i]);
+    TLeaf* leaf_tree = dynamic_cast<TLeaf*>((*leaf_list)[i]);
     
-    leaves->push_back(leaf);
+    //sdebug << " leaf: " << leaf_tree->GetName() << " - " << leaf_tree->GetBranch()->TestBit(1024) << endmsg;
+    if (!leaf_tree->GetBranch()->TestBit(1024)) {
+      ReducerLeaf<Float_t>* leaf = new ReducerLeaf<Float_t>(leaf_tree);
+      leaves->push_back(leaf);
+    }
   }
   
   std::cout << num_leaves << " total leaves in interim tree" << std::endl;
