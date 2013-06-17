@@ -27,7 +27,13 @@ SPlotterReducer::SPlotterReducer(doofit::fitter::splot::SPlotFit2& spf, RooArgSe
   splotfit_(spf),
   observables_(observables)
 {
+  set_old_style_interim_tree(true);
 }
+  
+void SPlotterReducer::ProcessInputTree() {
+  swarn << "SPlotterReducer::ProcessInputTree(): cut string: " << cut_string() << endmsg;
+}
+
   
 void SPlotterReducer::CreateSpecialBranches() {
   doocore::io::EasyTuple etuple(interim_tree_, observables_);

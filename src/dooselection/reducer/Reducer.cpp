@@ -46,7 +46,8 @@ run_number_leaf_ptr_(NULL),
 interim_file_(NULL),
 formula_input_tree_(NULL),
 best_candidate_leaf_ptr_(NULL),
-num_events_process_(-1)
+num_events_process_(-1),
+old_style_interim_tree_(false)
 {
   GenerateInterimFileName();
 }
@@ -57,7 +58,8 @@ Reducer::Reducer(std::string const& config_file_path) :
   interim_file_(NULL),
   formula_input_tree_(NULL),
   best_candidate_leaf_ptr_(NULL),
-  num_events_process_(-1)
+  num_events_process_(-1),
+  old_style_interim_tree_(false)
 {
   GenerateInterimFileName();
 }
@@ -125,6 +127,11 @@ void Reducer::Run(){
   InitializeOutputBranches<Int_t>(output_tree_, int_leaves_);
   
   unsigned int num_entries         = interim_tree_->GetEntries();
+  
+  if (num_events_process_ != -1) {
+    num_entries = num_events_process_;
+  }
+  
   num_written_ = 0;
   //unsigned int num_written         = 0;
   //unsigned int num_best_candidates = 0;
@@ -271,7 +278,7 @@ void Reducer::OpenInputFileAndTree(){
 void Reducer::CreateInterimFileAndTree(){
   gROOT->cd();
   
-  if (num_events_process_ == -1) {
+  if (!old_style_interim_tree_) {
     sinfo << "Using input tree as interim tree." << endmsg;
     
     interim_tree_ = input_tree_;
@@ -281,6 +288,10 @@ void Reducer::CreateInterimFileAndTree(){
       sinfo << "Initializing tree formula with cut " << cut_string_ << endmsg;
     } else {
       sinfo << "Copying tree without specific cut (cuts may apply through higher level Redcuers)." << endmsg;
+    }
+    
+    if (num_events_process_ != -1) {
+      swarn << "Warning: Copying only " << num_events_process_ << " events." << endmsg;
     }
   } else {
   
