@@ -145,7 +145,8 @@ void Reducer::Run(){
   }
   
   int i = 0;
-  int status_stepping = num_entries>100000 ? num_entries/10000 : 10;
+  int status_stepping       = num_entries>100000 ? num_entries/10000 : 10;
+  int status_stepping_redir = num_entries>1000 ? num_entries/100 : 10;
   
   TStopwatch sw;
   sw.Start();
@@ -177,6 +178,15 @@ void Reducer::Run(){
         double ete  = time/frac-time;
         sw.Start(false);
         printf("Progress %.2f %   (ETE: %.0f s, spent: %.0f s, t/evt: %.2f ms)      \xd", frac*100.0, ete, time, time/num_written_*1000);
+        fflush(stdout);
+      }
+    } else {
+      if ((num_written_%status_stepping_redir) == 0) {
+        double frac = static_cast<double>(i)/num_entries;
+        double time = sw.RealTime();
+        double ete  = time/frac-time;
+        sw.Start(false);
+        printf("Progress %.2f %   (ETE: %.0f s, spent: %.0f s, t/evt: %.2f ms)\n", frac*100.0, ete, time, time/num_written_*1000);
         fflush(stdout);
       }
     }
