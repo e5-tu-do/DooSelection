@@ -177,7 +177,13 @@ void Reducer::Run(){
         double time = sw.RealTime();
         double ete  = time/frac-time;
         sw.Start(false);
-        printf("Progress %.2f %   (ETE: %.0f s, spent: %.0f s, t/evt: %.2f ms)      \xd", frac*100.0, ete, time, time/num_written_*1000);
+        if (ete > 3600) {
+          printf("Progress %.2f %   (ETE: %.1f h, spent: %.0f s, t/evt: %.2f ms)      \xd", frac*100.0, ete/3600., time, time/num_written_*1000);
+        } else if (ete > 60) {
+          printf("Progress %.2f %   (ETE: %.0f min, spent: %.0f s, t/evt: %.2f ms)      \xd", frac*100.0, ete/60., time, time/num_written_*1000);
+        } else {
+          printf("Progress %.2f %   (ETE: %.0f s, spent: %.0f s, t/evt: %.2f ms)      \xd", frac*100.0, ete, time, time/num_written_*1000);
+        }
         fflush(stdout);
       }
     } else {
@@ -186,7 +192,13 @@ void Reducer::Run(){
         double time = sw.RealTime();
         double ete  = time/frac-time;
         sw.Start(false);
-        printf("Progress %.2f %   (ETE: %.0f s, spent: %.0f s, t/evt: %.2f ms)\n", frac*100.0, ete, time, time/num_written_*1000);
+        if (ete > 3600) {
+          printf("Progress %.2f %   (ETE: %.1f h, spent: %.0f s, t/evt: %.2f ms)\n", frac*100.0, ete/3600., time, time/num_written_*1000);
+        } else if (ete > 60) {
+          printf("Progress %.2f %   (ETE: %.0f min, spent: %.0f s, t/evt: %.2f ms)\n", frac*100.0, ete/60., time, time/num_written_*1000);
+        } else {
+          printf("Progress %.2f %   (ETE: %.0f s, spent: %.0f s, t/evt: %.2f ms)\n", frac*100.0, ete, time, time/num_written_*1000);
+        }
         fflush(stdout);
       }
     }
