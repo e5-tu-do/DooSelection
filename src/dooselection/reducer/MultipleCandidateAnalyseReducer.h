@@ -49,8 +49,16 @@ class MultipleCandidateAnalyseReducer : virtual public Reducer {
   
  protected:
   virtual void ProcessInputTree();
-  
+  bool set_do_multi_cand_analysis(bool status){do_multi_cand_analysis_ = status;}
+
  private:
+  /**
+   *  @brief Bool to decide if the analysis runs or not
+   *  Use case: You write an inherited reducer that also does other things
+   *  and you want to specify if the analysis should run or not depending on whatever...
+   */
+  bool do_multi_cand_analysis_;
+
   /**
    *  @brief Vector of names of leaves with unique event identifiers
    */
@@ -59,7 +67,7 @@ class MultipleCandidateAnalyseReducer : virtual public Reducer {
   /**
    *  @brief Mapping for unique event identifier and tree entry
    */
-  std::multimap<std::vector<ULong64_t>, ULong64_t> mapping_id_tree_;
+  std::multimap<std::vector<ULong64_t>, ULong64_t> mapping_id_tree_;  
 };
 } // namespace reducer
 } // namespace dooselection
