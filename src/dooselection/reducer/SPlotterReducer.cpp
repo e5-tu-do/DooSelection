@@ -27,7 +27,13 @@ SPlotterReducer::SPlotterReducer(doofit::fitter::splot::SPlotFit2& spf, RooArgSe
   splotfit_(spf),
   observables_(observables)
 {
+  set_old_style_interim_tree(true);
 }
+  
+void SPlotterReducer::ProcessInputTree() {
+//  swarn << "SPlotterReducer::ProcessInputTree(): cut string: " << cut_string() << endmsg;
+}
+
   
 void SPlotterReducer::CreateSpecialBranches() {
   doocore::io::EasyTuple etuple(interim_tree_, observables_);
@@ -68,6 +74,7 @@ void SPlotterReducer::CreateSpecialBranches() {
 
   for (std::map<std::string,RooDataSet*>::const_iterator it = sweighted_datasets_.begin();
        it != sweighted_datasets_.end(); ++it) {
+    doocore::io::sinfo << "SPlotterReducer::CreateSpecialBranches(): Creating leaf for sweights " << (*it).first+"_sw" << doocore::io::endmsg;
     sweight_leaves_[(*it).first] = &CreateDoubleLeaf((*it).first+"_sw", -1000);
   }
 }

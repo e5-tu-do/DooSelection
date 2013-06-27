@@ -3,6 +3,7 @@
 
 // from STL
 #include <map>
+#include <string>
 
 // from ROOT
 
@@ -28,61 +29,72 @@
  *
  **/
 namespace dooselection {
-  namespace reducer {
-    class ArrayFlattenerReducer : virtual public Reducer {
-    public:
-      /**
-       *  @brief Default constructor
-       */
-      ArrayFlattenerReducer();
-      
-      /**
-       *  @brief Add a leaf containing array length
-       *
-       *  All leaves containing array lengths must be of equal size for each 
-       *  event. Otherwise, flattening will not work.
-       *
-       *  @param leaf_array_length leaf containing the array length
-       */
-      void AddArrayLengthLeaf(const ReducerLeaf<Float_t>& leaf_array_length) { leaves_array_length_.push_back(&leaf_array_length); }
-      
-    protected:
-      virtual void PrepareSpecialBranches();
-      virtual void FillOutputTree();
-      
-    private:
-      /**
-       *  @brief Pointers to leaves holding array length.
-       */
-      std::vector<const ReducerLeaf<Float_t>*> leaves_array_length_;
-      
-      /**
-       *  @brief Pointer to first leaf holding array length.
-       */
-      const ReducerLeaf<Float_t>* leaf_array_length_;
-      
-      /**
-       *  @brief Pointer to new leaf holding array index.
-       */
-      ReducerLeaf<Int_t>* leaf_array_index_;
-      
-      /**
-       *  @brief Map containing all created flat float leaves and according array-based leaves
-       */
-      std::map<ReducerLeaf<Float_t>*, const ReducerLeaf<Float_t>*> leaves_map_float_;
-      
-      /**
-       *  @brief Map containing all created flat double leaves and according array-based leaves
-       */
-      std::map<ReducerLeaf<Double_t>*, const ReducerLeaf<Float_t>*> leaves_map_double_;
-      
-      /**
-       *  @brief Map containing all created flat int leaves and according array-based leaves
-       */
-      std::map<ReducerLeaf<Int_t>*, const ReducerLeaf<Float_t>*> leaves_map_int_;
-      
-    };
-    
+namespace reducer {
+class ArrayFlattenerReducer : virtual public Reducer {
+ public:
+  /**
+   *  @brief Default constructor
+   */
+  ArrayFlattenerReducer();
+  
+  /**
+   *  @brief Add a leaf containing array length
+   *
+   *  All leaves containing array lengths must be of equal size for each 
+   *  event. Otherwise, flattening will not work.
+   *
+   *  @param leaf_array_length leaf containing the array length
+   */
+  void AddArrayLengthLeaf(const ReducerLeaf<Float_t>& leaf_array_length) { leaves_array_length_.push_back(&leaf_array_length); }
+  
+  /**
+   *  @brief Set name of index leaf for flattened branch
+   *
+   *  @param name_array_index name of index leaf
+   */
+  
+ protected:
+  virtual void PrepareSpecialBranches();
+  virtual void FillOutputTree();
+  
+ private:
+  /**
+   *  @brief Name of index array
+   */
+  std::string name_array_index_;
+  
+  /**
+   *  @brief Pointers to leaves holding array length.
+   */
+  std::vector<const ReducerLeaf<Float_t>*> leaves_array_length_;
+  
+  /**
+   *  @brief Pointer to first leaf holding array length.
+   */
+  const ReducerLeaf<Float_t>* leaf_array_length_;
+  
+  /**
+   *  @brief Pointer to new leaf holding array index.
+   */
+  ReducerLeaf<Int_t>* leaf_array_index_;
+  
+  /**
+   *  @brief Map containing all created flat float leaves and according array-based leaves
+   */
+  std::map<ReducerLeaf<Float_t>*, const ReducerLeaf<Float_t>*> leaves_map_float_;
+  
+  /**
+   *  @brief Map containing all created flat double leaves and according array-based leaves
+   */
+  std::map<ReducerLeaf<Double_t>*, const ReducerLeaf<Float_t>*> leaves_map_double_;
+  
+  /**
+   *  @brief Map containing all created flat int leaves and according array-based leaves
+   */
+  std::map<ReducerLeaf<Int_t>*, const ReducerLeaf<Float_t>*> leaves_map_int_;
+  
+};
+
 } // namespace reducer
 } // namespace dooselection
 

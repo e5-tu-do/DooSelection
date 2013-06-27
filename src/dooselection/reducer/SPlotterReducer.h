@@ -71,6 +71,7 @@ class SPlotterReducer : virtual public Reducer {
   void set_components_plot(const std::vector<std::string>& components_plot) {components_plot_ = components_plot;}
   
  protected:
+  virtual void ProcessInputTree();
   virtual void UpdateSpecialLeaves();
   virtual void CreateSpecialBranches();
   

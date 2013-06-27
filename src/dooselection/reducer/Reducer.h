@@ -21,6 +21,7 @@
 // forward declarations
 class TFile;
 class TLeaf;
+class TTreeFormula;
 
 /**
  * @namespace dooselection::reducer
@@ -562,6 +563,18 @@ class Reducer {
    */
   void InitializeBranches();
   
+  /**
+   *  @brief Force usage of old-style interim tree
+   *
+   *  By using this switch, derived Reducers can force this Reducer to use the 
+   *  old way of creating an interim tree by copying the input tree with a cut, 
+   *  rather than just using the input tree directly and applying cuts in the
+   *  event loop.
+   *
+   *  @param old_style_interim_tree whether to use old-style copied interim tree
+   */
+  void set_old_style_interim_tree(bool old_style_interim_tree) {old_style_interim_tree_ = old_style_interim_tree;}
+  
 	/**
 	 * Interim tree protected to give derived classed possibility to work with it.
 	 */
@@ -705,6 +718,11 @@ class Reducer {
   TFile* interim_file_;
   
   /**
+   *  @brief Formula for applying the tree cut
+   */
+  TTreeFormula* formula_input_tree_;
+  
+  /**
    * members needed for best candidate selection
    *
    */
@@ -724,6 +742,11 @@ class Reducer {
    *  @brief number of written events in output tree
    */
   unsigned int num_written_;
+  
+  /**
+   *  @brief Status bit to request old-style interim tree processing
+   */
+  bool old_style_interim_tree_;
 };
 
 template<class T>

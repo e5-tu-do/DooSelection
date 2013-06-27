@@ -23,7 +23,8 @@ namespace reducer {
 using namespace doocore::io;
   
 ArrayFlattenerReducer::ArrayFlattenerReducer()
-  : leaves_array_length_()
+  : name_array_index_("flat_array_index"),
+  leaves_array_length_()
 {}
   
 void ArrayFlattenerReducer::PrepareSpecialBranches() {
@@ -65,10 +66,10 @@ void ArrayFlattenerReducer::PrepareSpecialBranches() {
       }
     }
     
-    std::string name_array_length(leaf_array_length_->name());
-    std::string name_array_index = name_array_length + "_index";
-    leaf_array_index_ = &CreateIntLeaf(name_array_index);
-    sinfo << "Array index will be written into: " << name_array_index << endmsg;
+//    std::string name_array_length(leaf_array_length_->name());
+//    std::string name_array_index = name_array_length + "_index";
+    leaf_array_index_ = &CreateIntLeaf(name_array_index_);
+    sinfo << "Array index will be written into: " << name_array_index_ << endmsg;
     
     sinfo << "The following leaves will be flattened: " << endmsg;
     // loop over all interim leaves and check if array length is name_array_length_
