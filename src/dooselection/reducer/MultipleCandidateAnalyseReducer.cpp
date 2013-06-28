@@ -85,6 +85,10 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
         if (identifier != last_identifier) {
           swarn << "Event #" << i << " is a non-sequential multiple candidate." << endmsg;
           swarn << "  Identifier: " << identifier << endmsg;
+          
+          for (std::multimap<std::vector<ULong64_t>, ULong64_t>::iterator it = mapping_id_tree_.find(identifier); it != mapping_id_tree_.upper_bound(identifier); ++it) {
+            swarn << "  Found this before in event #" << it->second << endmsg;
+          }
         }
       }
       
