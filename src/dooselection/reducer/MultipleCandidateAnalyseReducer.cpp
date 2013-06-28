@@ -27,7 +27,8 @@ namespace reducer {
 using namespace doocore::io;
 
 MultipleCandidateAnalyseReducer::MultipleCandidateAnalyseReducer():
-do_multi_cand_analysis_(true)
+do_multi_cand_analysis_(true),
+check_sequential_identifiers_(true)
 {}
 
 void MultipleCandidateAnalyseReducer::AddEventIdentifier(const std::string& name_leaf) {
@@ -70,6 +71,7 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     bool tty = isatty(fileno(stdout));
     
     sinfo << "MultipleCandidateAnalyseReducer::ProcessInputTree(): Analysing events according to event identifiers." << endmsg;
+    std::vector<ULong64_t> last_identifier;
     for (ULong64_t i=0; i<num_entries; ++i) {
       input_tree_->GetEntry(i);
       
@@ -78,6 +80,14 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
       for (it = identfiers_begin; it != identfiers_end; ++it) {
         identifier.push_back(it->GetValue());
       }
+      
+      if (check_sequential_identifiers_ && mapping_id_tree_.count(identifier) > 0) {
+        if (identifier != last_identifier) {
+          swarn << "Event #" << i << " is a non-sequential multiple candidate." << endmsg;
+          swarn << "  Identifier: " << identifier << endmsg;
+        }
+      }
+      
       insert(mapping_id_tree_)(identifier, i);
       
       if (tty && (i%n_print_stepping) == 0) {
@@ -86,6 +96,8 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
         printf("Progress %.2f %         \xd", frac);
         fflush(stdout);
       }
+      
+      last_identifier = identifier;
     }
     
     typedef std::multimap<std::vector<ULong64_t>, ULong64_t> MapType;

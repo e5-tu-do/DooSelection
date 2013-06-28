@@ -27,7 +27,8 @@ namespace reducer {
 
 SPlotterReducer::SPlotterReducer(doofit::fitter::splot::SPlotFit2& spf, RooArgSet observables) :
   splotfit_(spf),
-  observables_(observables)
+  observables_(observables),
+  plot_directory_("PlotSPlotterReducer")
 {
   set_old_style_interim_tree(true);
 }
@@ -51,7 +52,7 @@ void SPlotterReducer::CreateSpecialBranches() {
   
   PlotConfig cfg_plot("cfg_plot");
   cfg_plot.InitializeOptions(argc, argv);
-  cfg_plot.set_plot_directory("PlotSPlotterReducer");
+  cfg_plot.set_plot_directory(plot_directory_);
   
   bool sim_pdf = dynamic_cast<const RooSimultaneous*>(&splotfit_.pdf()) != NULL;
   
