@@ -33,7 +33,9 @@ BkgCategorizerReducer::BkgCategorizerReducer() :
   max_number_decays_(40) 
 {}
 
-BkgCategorizerReducer::~BkgCategorizerReducer() {}
+BkgCategorizerReducer::~BkgCategorizerReducer() {
+  sdebug << "BkgCategorizerReducer::~BkgCategorizerReducer()" << endmsg;
+}
 
 void BkgCategorizerReducer::PrepareSpecialBranches() {
   std::string decaystring = "";

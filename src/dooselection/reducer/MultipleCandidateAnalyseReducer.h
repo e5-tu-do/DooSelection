@@ -37,6 +37,11 @@ class MultipleCandidateAnalyseReducer : virtual public Reducer {
   MultipleCandidateAnalyseReducer();
   
   /**
+   *  @brief Destructor
+   */
+  virtual ~MultipleCandidateAnalyseReducer();
+  
+  /**
    *  @brief Add a leaf to event identifiers
    *
    *  Add a leaf by name as event identifier. Internally, the leaf will be 

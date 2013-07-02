@@ -65,6 +65,8 @@ Reducer::Reducer(std::string const& config_file_path) :
 }
 
 Reducer::~Reducer(){
+  sdebug << "Reducer::~Reducer()" << endmsg;
+
   for (std::vector<ReducerLeaf<Float_t>* >::const_iterator it = interim_leaves_.begin(); it != interim_leaves_.end(); ++it) {
     delete *it;
   }
@@ -216,12 +218,13 @@ void Reducer::Run(){
   output_tree_->Write();
   sinfo << "OutputTree " << output_tree_path_ << " written to file " << output_file_path_ << " with " << num_written_ << " candidates." << endmsg; // "(" << num_best_candidates << " were best candidates without special cuts)." << endl;
   
-  sinfo << "Removing interim file " << interim_file_path_ << endmsg;
-  using namespace boost::filesystem;
-  remove(path(interim_file_path_));
   output_file_->Close();
   delete output_file_;
   output_file_ = NULL;
+  
+  sinfo << "Removing interim file " << interim_file_path_ << endmsg;
+  using namespace boost::filesystem;
+  remove(path(interim_file_path_));
 }
   
 void Reducer::FillOutputTree() {
