@@ -45,13 +45,19 @@ void SPlotterReducer::CreateSpecialBranches() {
   splotfit_.set_input_data(&data);
   splotfit_.Fit();
   
-  int argc = 1;
-  char* argv[1];
-  strcpy( argv[0], "" );
+//  int argc = 1;
+//  
+//  char ** argv;
+//  argv = new char[1];
+//  argv[0] = new char[10];
+//  argv[0] = "";
+  
+//  char* argv[1];
+//  strcpy( argv[0], "" );
 //  argv[0] = "";
   
   PlotConfig cfg_plot("cfg_plot");
-  cfg_plot.InitializeOptions(argc, argv);
+  cfg_plot.InitializeOptions();
   cfg_plot.set_plot_directory(plot_directory_);
   
   bool sim_pdf = dynamic_cast<const RooSimultaneous*>(&splotfit_.pdf()) != NULL;
@@ -91,8 +97,8 @@ void SPlotterReducer::CreateSpecialBranches() {
 }
 
 void SPlotterReducer::UpdateSpecialLeaves() {
-  for (std::map<std::string,RooDataSet*>::const_iterator it = sweighted_datasets_.begin();
-       it != sweighted_datasets_.end(); ++it) {
+  for (std::map<std::string,RooDataSet*>::const_iterator it = sweighted_datasets_.begin(), end = sweighted_datasets_.end();
+       it != end; ++it) {
     const RooArgSet* sweighted_values = (*it).second->get(selected_entry_);
     *sweight_leaves_[(*it).first] = (*it).second->weight();
   }

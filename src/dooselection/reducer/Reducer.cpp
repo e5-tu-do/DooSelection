@@ -65,7 +65,7 @@ Reducer::Reducer(std::string const& config_file_path) :
 }
 
 Reducer::~Reducer(){
-  sdebug << "Reducer::~Reducer()" << endmsg;
+//  sdebug << "Reducer::~Reducer()" << endmsg;
 
   for (std::vector<ReducerLeaf<Float_t>* >::const_iterator it = interim_leaves_.begin(); it != interim_leaves_.end(); ++it) {
     delete *it;
@@ -323,7 +323,10 @@ void Reducer::CreateInterimFileAndTree(){
     cout << "Creating InterimFile " << interim_file_path_ << endl;
     interim_file_ = new TFile(interim_file_path_,"RECREATE");
     
-    if (num_events_process_ == -1) {
+    if (num_events_process_ == -1 && cut_string_.Length() == 0) {
+      cout << "No cut specified. Interim tree not necessary." << endl;
+      interim_tree_ = input_tree_;
+    } else if (num_events_process_ == -1) {
       cout << "Creating InterimTree with cut " << cut_string_ << endl;
       interim_tree_ = input_tree_->CopyTree(cut_string_/*, "", 2000*/);
     } else {

@@ -34,7 +34,7 @@ BkgCategorizerReducer::BkgCategorizerReducer() :
 {}
 
 BkgCategorizerReducer::~BkgCategorizerReducer() {
-  sdebug << "BkgCategorizerReducer::~BkgCategorizerReducer()" << endmsg;
+//  sdebug << "BkgCategorizerReducer::~BkgCategorizerReducer()" << endmsg;
 }
 
 void BkgCategorizerReducer::PrepareSpecialBranches() {
