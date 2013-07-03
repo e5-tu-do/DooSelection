@@ -221,7 +221,7 @@ KinematicReducerLeaf<T>::KinematicReducerLeaf(TString name, TString title, TStri
 template <class T>
 bool KinematicReducerLeaf<T>::UpdateValue() {
   using namespace doocore::physics::kinematic;
-  
+    
   bool matched = false;
   if (daughters_fixed_mass_.size() == 2 && daughters_variable_mass_.empty()) {
     daughters_fixed_mass_[0].leaf_px_->UpdateValue();

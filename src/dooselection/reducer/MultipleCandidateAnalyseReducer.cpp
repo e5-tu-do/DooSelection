@@ -30,6 +30,10 @@ MultipleCandidateAnalyseReducer::MultipleCandidateAnalyseReducer():
 do_multi_cand_analysis_(true),
 check_sequential_identifiers_(true)
 {}
+  
+MultipleCandidateAnalyseReducer::~MultipleCandidateAnalyseReducer() {
+  sdebug << "MultipleCandidateAnalyseReducer::~MultipleCandidateAnalyseReducer()" << endmsg;
+}
 
 void MultipleCandidateAnalyseReducer::AddEventIdentifier(const std::string& name_leaf) {
   event_identifier_names_ += name_leaf;
