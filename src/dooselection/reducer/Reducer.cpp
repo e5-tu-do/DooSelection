@@ -309,8 +309,13 @@ void Reducer::CreateInterimFileAndTree(){
     interim_tree_ = input_tree_;
     
     if (cut_string_.Length() > 0) {
-      formula_input_tree_ = new TTreeFormula("formula_input_tree_", cut_string_, interim_tree_);
       sinfo << "Initializing tree formula with cut " << cut_string_ << endmsg;
+      formula_input_tree_ = new TTreeFormula("formula_input_tree_", cut_string_, interim_tree_);
+      
+      if (formula_input_tree_->GetNdim() == 0) {
+        serr << "Error in Reducer::CreateInterimFileAndTree(): Cut string cannot be evaluated. " << endmsg;
+        throw 32;
+      }
     } else {
       sinfo << "Copying tree without specific cut (cuts may apply through higher level Redcuers)." << endmsg;
     }

@@ -264,6 +264,12 @@ class Reducer {
   const ReducerLeaf<Float_t>& GetFloatLeafByName(const TString& name) const {
     return GetLeafByName<Float_t>(name, float_leaves_);
   }
+  const ReducerLeaf<ULong64_t>& GetULongLeafByName(const TString& name) const {
+    return GetLeafByName<ULong64_t>(name, ulong_leaves_);
+  }
+  const ReducerLeaf<Long64_t>& GetLongLeafByName(const TString& name) const {
+    return GetLeafByName<Long64_t>(name, long_leaves_);
+  }
   const ReducerLeaf<Int_t>& GetIntLeafByName(const TString& name) const {
     return GetLeafByName<Int_t>(name, int_leaves_);
   }
@@ -287,6 +293,12 @@ class Reducer {
       if ((*it)->name() == name) return true;
     }
     for (std::vector<ReducerLeaf<Int_t>* >::const_iterator it = int_leaves_.begin(); it != int_leaves_.end(); ++it) {
+      if ((*it)->name() == name) return true;
+    }
+    for (std::vector<ReducerLeaf<ULong64_t>* >::const_iterator it = ulong_leaves_.begin(); it != ulong_leaves_.end(); ++it) {
+      if ((*it)->name() == name) return true;
+    }
+    for (std::vector<ReducerLeaf<Long64_t>* >::const_iterator it = long_leaves_.begin(); it != long_leaves_.end(); ++it) {
       if ((*it)->name() == name) return true;
     }
     return false;
@@ -351,7 +363,7 @@ class Reducer {
   std::vector<ReducerLeaf<Float_t>* >::const_iterator GetFloatLeavesBegin() const {
     return float_leaves_.begin();
   }
-  
+ 
   /**
    *  @brief Float leaves end iterator
    *
@@ -362,6 +374,54 @@ class Reducer {
    */
   std::vector<ReducerLeaf<Float_t>* >::const_iterator GetFloatLeavesEnd() const {
     return float_leaves_.end();
+  }
+  
+  /**
+   *  @brief Unsigned long leaves begin iterator
+   *
+   *  To iterate over all unsigned long leaves, this function will return the begin()
+   *  iterator of the corresponding vector.
+   *
+   *  @return begin() of ulong leaves vector
+   */
+  std::vector<ReducerLeaf<ULong64_t>* >::const_iterator GetULongLeavesBegin() const {
+    return ulong_leaves_.begin();
+  }
+  
+  /**
+   *  @brief Unsigned long leaves end iterator
+   *
+   *  To iterate over all unsigned long leaves, this function will return the end()
+   *  iterator of the corresponding vector.
+   *
+   *  @return end() of ulong leaves vector
+   */
+  std::vector<ReducerLeaf<ULong64_t>* >::const_iterator GetULongLeavesEnd() const {
+    return ulong_leaves_.end();
+  }
+  
+  /**
+   *  @brief Long leaves begin iterator
+   *
+   *  To iterate over all long leaves, this function will return the begin()
+   *  iterator of the corresponding vector.
+   *
+   *  @return begin() of long leaves vector
+   */
+  std::vector<ReducerLeaf<Long64_t>* >::const_iterator GetLongLeavesBegin() const {
+    return long_leaves_.begin();
+  }
+  
+  /**
+   *  @brief Long leaves end iterator
+   *
+   *  To iterate over all long leaves, this function will return the end()
+   *  iterator of the corresponding vector.
+   *
+   *  @return end() of long leaves vector
+   */
+  std::vector<ReducerLeaf<Long64_t>* >::const_iterator GetLongLeavesEnd() const {
+    return long_leaves_.end();
   }
 
   /**
@@ -409,6 +469,7 @@ class Reducer {
     new_leaf.Equal(leaf_to_copy, c);
     return new_leaf;
   }
+  
   ReducerLeaf<Float_t>& CreateFloatLeaf(TString name, TString title, TString type, Float_t default_value=0.0) {
     ReducerLeaf<Float_t>* new_leaf = new ReducerLeaf<Float_t>(name, title, type, interim_tree_, default_value);
     float_leaves_.push_back(new_leaf);
@@ -425,6 +486,41 @@ class Reducer {
     new_leaf.Equal(leaf_to_copy, c);
     return new_leaf;
   }
+  
+  ReducerLeaf<ULong64_t>& CreateULongLeaf(TString name, TString title, TString type, ULong64_t default_value=0) {
+    ReducerLeaf<ULong64_t>* new_leaf = new ReducerLeaf<ULong64_t>(name, title, type, interim_tree_, default_value);
+    ulong_leaves_.push_back(new_leaf);
+    return *new_leaf;
+  }
+  ReducerLeaf<ULong64_t>& CreateULongLeaf(TString name, Float_t default_value=0.0) {
+    ReducerLeaf<ULong64_t>* new_leaf = new ReducerLeaf<ULong64_t>(name, name, "ULong64_t", interim_tree_, default_value);
+    ulong_leaves_.push_back(new_leaf);
+    return *new_leaf;
+  }
+  template<class T>
+  ReducerLeaf<ULong64_t>& CreateULongCopyLeaf(TString name, const ReducerLeaf<T>& leaf_to_copy, double c=1.0) {
+    ReducerLeaf<ULong64_t>& new_leaf = CreateULongLeaf(name, name, "ULong64_t");
+    new_leaf.Equal(leaf_to_copy, c);
+    return new_leaf;
+  }
+  
+  ReducerLeaf<Long64_t>& CreateLongLeaf(TString name, TString title, TString type, ULong64_t default_value=0) {
+    ReducerLeaf<Long64_t>* new_leaf = new ReducerLeaf<Long64_t>(name, title, type, interim_tree_, default_value);
+    long_leaves_.push_back(new_leaf);
+    return *new_leaf;
+  }
+  ReducerLeaf<Long64_t>& CreateLongLeaf(TString name, Float_t default_value=0.0) {
+    ReducerLeaf<Long64_t>* new_leaf = new ReducerLeaf<Long64_t>(name, name, "Long64_t", interim_tree_, default_value);
+    long_leaves_.push_back(new_leaf);
+    return *new_leaf;
+  }
+  template<class T>
+  ReducerLeaf<Long64_t>& CreateLongCopyLeaf(TString name, const ReducerLeaf<T>& leaf_to_copy, double c=1.0) {
+    ReducerLeaf<Long64_t>& new_leaf = CreateLongLeaf(name, name, "Long64_t");
+    new_leaf.Equal(leaf_to_copy, c);
+    return new_leaf;
+  }
+  
   ReducerLeaf<Int_t>& CreateIntLeaf(TString name, TString title, TString type, Int_t default_value=0) {
     ReducerLeaf<Int_t>* new_leaf = new ReducerLeaf<Int_t>(name, title, type, interim_tree_, default_value);
     int_leaves_.push_back(new_leaf);
@@ -466,6 +562,32 @@ class Reducer {
    */
   void RegisterFloatLeaf(ReducerLeaf<Float_t>* leaf) {
     float_leaves_.push_back(leaf);
+  }
+  
+  /**
+   *  @brief Register externally created unsigned long leaf
+   *
+   *  An externally created unsigned long leaf will be registered internally in this
+   *  Reducer for output writing. The Reducer assumes to take over ownership of
+   *  this leaf.
+   *
+   *  @param leaf the leaf to be registered.
+   */
+  void RegisterULongLeaf(ReducerLeaf<ULong64_t>* leaf) {
+    ulong_leaves_.push_back(leaf);
+  }
+  
+  /**
+   *  @brief Register externally created long leaf
+   *
+   *  An externally created long leaf will be registered internally in this
+   *  Reducer for output writing. The Reducer assumes to take over ownership of
+   *  this leaf.
+   *
+   *  @param leaf the leaf to be registered.
+   */
+  void RegisterLongLeaf(ReducerLeaf<Long64_t>* leaf) {
+    long_leaves_.push_back(leaf);
   }
   
   /**
@@ -663,6 +785,8 @@ class Reducer {
     UpdateAllValues<Float_t>(float_leaves_);
     UpdateAllValues<Double_t>(double_leaves_);
     UpdateAllValues<Int_t>(int_leaves_);
+    UpdateAllValues<ULong64_t>(ulong_leaves_);
+    UpdateAllValues<Long64_t>(long_leaves_);
     UpdateSpecialLeaves();
   }
   
@@ -703,6 +827,16 @@ class Reducer {
   std::vector<ReducerLeaf<Float_t>* >  interim_leaves_; ///< vector of all leaves in the interim tree
   std::vector<ReducerLeaf<Float_t>* >  float_leaves_;   ///< new float leaves for output tree
 
+  /**
+   *  @brief Container of newly created unsigned long leaves.
+   */
+  std::vector<ReducerLeaf<ULong64_t>* > ulong_leaves_;
+
+  /**
+   *  @brief Container of newly created signed long leaves.
+   */
+  std::vector<ReducerLeaf<Long64_t>* > long_leaves_;
+  
   /**
    *  @brief Container of newly created double leaves.
    */
