@@ -87,6 +87,7 @@ void SPlotterReducer::CreateSpecialBranches() {
     doocore::io::serr << "RooFit dataset contains:    " << data.numEntries() << " entries." << doocore::io::endmsg;;
     doocore::io::serr << "Tree contains:              " << interim_tree_->GetEntries() << " entries." << doocore::io::endmsg;;
     
+    throw 314;
   }
 
   for (std::map<std::string,RooDataSet*>::const_iterator it = sweighted_datasets_.begin();
