@@ -97,6 +97,8 @@ Reducer::~Reducer(){
 }
 
 void Reducer::Initialize(){
+  TTree::SetMaxTreeSize(1000000000000);
+  
   PrepareIntitialTree();
   PrepareFinalTree();
 }
