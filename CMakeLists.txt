@@ -44,7 +44,7 @@ link_directories(${DooFit_LIBRARY_DIR})
 
 include_directories(${ROOT_INCLUDE_DIR})
 
-set(ALL_LIBRARIES ${DooFit_LIBRARIES} ${DooCore_LIBRARIES} ${ROOT_LIBRARIES} ${ROOFIT_LIBRARIES} ${Boost_LIBRARIES})
+set(ALL_LIBRARIES ${DooFit_LIBRARIES} ${DooCore_LIBRARIES} ${ROOT_LIBRARIES} ${ROOFIT_LIBRARIES} ${Boost_LIBRARIES} -lTMVA -lMLP)
 
 add_subdirectory(src)
 add_subdirectory(python)
