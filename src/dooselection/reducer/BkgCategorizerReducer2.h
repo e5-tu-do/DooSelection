@@ -51,7 +51,7 @@ namespace dooselection {
        *  ChargesFinalStIrrel: Charges in the final state are irrelevant, i.e. Decays with the same charge in the initial state but conjugated final state are added
        *  ChargesInStIrrel:    Charges in the initial state are irrelevant, i.e. Decays with same charges in the final state but conjugated initial state are added
        *
-       *  Default is ChargesIrrel! This is the setter method to change the mode!
+       *  Default is ChargesIrrel! This is the setter method that allows to change the mode!
        **/
       void set_mode(modes newmode) { mode_=newmode; }
       /**
