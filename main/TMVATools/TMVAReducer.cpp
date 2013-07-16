@@ -87,9 +87,16 @@ int main(int argc, char* argv[]){
 
   // Register input variables
   summary.AddSection("Variables");
-  std::vector<std::string> variables = config.getVoStrings("variables");
 
-  for(std::vector<std::string>::iterator it = variables.begin(); it != variables.end(); it++){
+  std::vector<std::string> float_variables = config.getVoStrings("variables.float");
+  std::vector<std::string> integer_variables = config.getVoStrings("variables.integer");
+
+  for(std::vector<std::string>::iterator it = float_variables.begin(); it != float_variables.end(); it++){
+    reducer.SetTMVAVariable((*it), reducer.GetInterimLeafByName((*it)));
+    summary.Add("", *it);
+  }
+
+  for(std::vector<std::string>::iterator it = integer_variables.begin(); it != integer_variables.end(); it++){
     reducer.SetTMVAVariable((*it), reducer.GetInterimLeafByName((*it)));
     summary.Add("", *it);
   }
