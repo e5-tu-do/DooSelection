@@ -1,1 +1,2 @@
+add_subdirectory(ComparisonTools)
 add_subdirectory(TMVATools)
