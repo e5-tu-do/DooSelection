@@ -3,91 +3,131 @@
 // from ROOT
 #include "TMath.h"
 
+// from BOOST
+#include "boost/lexical_cast.hpp"
+
 namespace dooselection {
 namespace reducer {
 
 using namespace dooselection::reducer;
 
-VariableCategorizerReducer::VariableCategorizerReducer(const std::string& variable_name, const std::string& prefix_name, int nbins, double range_min, double range_max):
-  variable_name_(variable_name),
+VariableCategorizerReducer::VariableCategorizerReducer(const std::string& prefix_name):
   prefix_name_(prefix_name),
-  nbins_(nbins),
-  range_min_(range_min),
-  range_max_(range_max),
-  variable_category_(NULL),
-  variable_category_leaf_(NULL),
-  variable_(NULL)
-{
-  if (!LeafExists(variable_name_)){
-    doocore::io::serr << "-ERROR- \t" << "VariableCategorizerReducer \t" << "The variable '" << variable_name_ << "' does not exist in this tree!" << doocore::io::endmsg;
+  variables_()
+{}
+
+void VariableCategorizerReducer::set_variable(std::string variable_name, int nbins, double range_min, double range_max){
+  if (!LeafExists(variable_name)){
+    doocore::io::serr << "-ERROR- \t" << "VariableCategorizerReducer \t" << "The variable '" << variable_name << "' does not exist in this tree!" << doocore::io::endmsg;
     assert(0);
+  }
+  else{
+    std::vector<double> variable_quantiles;
+    std::vector<double> variable_data_points;
+    /// vector containing a tuple with the following entries:
+    /// 0 variable_name 
+    /// 1 nbins 
+    /// 2 range min 
+    /// 3 range max 
+    /// 4 vector of quantiles 
+    /// 5 vector of data points 
+    /// 6 int pointer to variable category 
+    /// 7 double pointer to variable value 
+    /// 8 reducer leaf pointer to variable category leaf
+    int* int_ptr=NULL; Double_t* double_ptr=NULL; dooselection::reducer::ReducerLeaf<Int_t>* leaf_ptr=NULL;
+    auto t = std::make_tuple(variable_name, nbins, range_min, range_max, variable_quantiles, variable_data_points, int_ptr, double_ptr, leaf_ptr);
+    variables_.push_back(t);
+    doocore::io::sinfo << "-info- \t" << "VariableCategorizerReducer \t" << "Added variable '" << variable_name << "' to list of variables to categorize."  << doocore::io::endmsg;
   }
 }
 
 void VariableCategorizerReducer::CreateSpecialBranches(){
-  variable_category_leaf_ = &(CreateIntLeaf(prefix_name_+"_"+variable_name_, prefix_name_+"_"+variable_name_, "Int_t", -1));
-  variable_category_  = (Int_t*)variable_category_leaf_->branch_address();
+  for (auto& variable: variables_){
+    std::string variable_name = std::get<0>(variable);
+    double variable_binning = std::get<1>(variable);
 
-  variable_  = (Double_t*)GetInterimLeafByName(variable_name_).branch_address();
+    dooselection::reducer::ReducerLeaf<Int_t>* variable_category_leaf = &(CreateIntLeaf(prefix_name_+boost::lexical_cast<std::string>(variable_binning)+"_"+variable_name, prefix_name_+boost::lexical_cast<std::string>(variable_binning)+"_"+variable_name, "Int_t", -1));
+
+    std::get<6>(variable) = (Int_t*)variable_category_leaf->branch_address();
+    std::get<7>(variable) = (Double_t*)GetInterimLeafByName(variable_name).branch_address();
+    std::get<8>(variable) = variable_category_leaf;
+  }
 }
 
 void VariableCategorizerReducer::PrepareSpecialBranches(){
-  interim_tree_->SetBranchStatus("*", false);
-  interim_tree_->SetBranchStatus(variable_name_.c_str(), true);
-
   int nevents = interim_tree_->GetEntries();
 
-  doocore::io::sinfo << "Computing p-quantiles for " << variable_name_  << doocore::io::endmsg;
-  for (Int_t ev = 0; ev < nevents; ev++){
-    double frac = static_cast<double>(ev)/nevents;
-    if ( (ev%100) == 0 ) printf("Progress %.2f % \xd", frac*100.0);
-    interim_tree_->GetEvent(ev);
-    if ((*variable_ > range_min_) && (*variable_ < range_max_)) data_points_.push_back(*variable_);
-    fflush(stdout);
+  for (auto& variable: variables_){
+    std::string variable_name = std::get<0>(variable);
+    int variable_binning = std::get<1>(variable);
+    double variable_range_min = std::get<2>(variable);
+    double variable_range_max = std::get<3>(variable);
+    std::vector<double> data_points;
+
+    doocore::io::sinfo << "Computing p-quantiles for " << variable_name  << " (" << variable_binning << " bins, from " << variable_range_min << " to " << variable_range_max << ")." << doocore::io::endmsg;
+    interim_tree_->SetBranchStatus("*", false);
+    interim_tree_->SetBranchStatus(variable_name.c_str(), true);
+    double value;
+    for (Int_t ev = 0; ev < nevents; ev++){
+      double frac = static_cast<double>(ev)/nevents;
+      if ( (ev%100) == 0 ) printf("Progress %.2f % \xd", frac*100.0);
+      interim_tree_->GetEvent(ev);
+      value = *std::get<7>(variable);
+      if ((value > variable_range_min) && (value < variable_range_max)) data_points.push_back(value);
+      fflush(stdout);
+    }
+    interim_tree_->SetBranchStatus("*", true);
+    sort(data_points.begin(), data_points.end());
+
+    std::vector<double> probabilities;
+    for (unsigned int i = 1; i < variable_binning; i++) {
+      probabilities.push_back(1.*i/variable_binning);
+    }
+
+    std::vector<double> quantiles(variable_binning+1,0);
+    quantiles.front() = variable_range_min;
+    quantiles.back() = variable_range_max;
+
+    TMath::Quantiles(data_points.size(), variable_binning-1, &data_points[0], &quantiles[1], &probabilities[0]);
+
+    for(std::vector<double>::const_iterator it = quantiles.begin(); it != quantiles.end(); it++){
+      doocore::io::sinfo << *it << doocore::io::endmsg;
+    }
+
+    std::get<4>(variable) = quantiles;
+    std::get<5>(variable) = data_points;
   }
-  interim_tree_->SetBranchStatus("*", true);
-
-  sort(data_points_.begin(), data_points_.end());
-
-  std::vector<double> probabilities;
-  for (unsigned int i = 1; i < nbins_; i++) {
-    probabilities.push_back(1.*i/nbins_);
-  }
-
-  std::vector<double> quantiles(nbins_+1,0);
-  quantiles.front() = range_min_;
-  quantiles.back() = range_max_;
-
-  TMath::Quantiles(data_points_.size(), nbins_-1, &data_points_[0], &quantiles[1], &probabilities[0]);
-
-  doocore::io::sinfo << "Vector of p-quantiles" << doocore::io::endmsg;
-  for(std::vector<double>::const_iterator it = quantiles.begin(); it != quantiles.end(); it++){
-    doocore::io::sinfo << *it << doocore::io::endmsg;
-  }
-
-  quantiles_ = quantiles;
 }
 
 bool VariableCategorizerReducer::EntryPassesSpecialCuts(){return true;}
 
 void VariableCategorizerReducer::UpdateSpecialLeaves(){
-  int category = -1;
-  int nquantiles = quantiles_.size();
-  for (unsigned int i=0; i<nquantiles; i++){
-    if ((*variable_) < range_min_){
-      category = 0; // underflow bin
-      break;
+  for (auto& variable: variables_){
+    std::string variable_name = std::get<0>(variable);
+    int variable_binning = std::get<1>(variable);
+    double variable_range_min = std::get<2>(variable);
+    double variable_range_max = std::get<3>(variable);
+    std::vector<double> quantiles = std::get<4>(variable);
+    int nquantiles = quantiles.size();
+
+    int category = -1;
+    for (unsigned int i=0; i<nquantiles; i++){
+      double variable_value = *std::get<7>(variable);
+      if (variable_value < variable_range_min){
+        category = 0; // underflow bin
+        break;
+      }
+      else if (variable_value > variable_range_max){
+        category = nquantiles; // overflow bin
+        break;
+      }
+      else if ( (variable_value >= quantiles[i]) && (variable_value < quantiles[i+1]) ){
+        category = i+1; // regular bins
+        break;
+      }
     }
-    else if ((*variable_) > range_max_){
-      category = nquantiles; // overflow bin
-      break;
-    }
-    else if ( ((*variable_) >= quantiles_[i]) && ((*variable_) < quantiles_[i+1]) ){
-      category = i+1; // regular bins
-      break;
-    }
+    *std::get<6>(variable)=category;
   }
-  *variable_category_=category;  
 }
 
 } // namespace reducer

@@ -3,9 +3,14 @@
 
 // from STL
 
+// from STL11
+#include <tuple>
+
 // from ROOT
 
 // from DooCore
+
+// from BOOST
 
 // from project
 #include "Reducer.h"
@@ -24,7 +29,10 @@
  *  Consider the following example:
  *
  *  @code
- *  VariableCategorizerReducer AReducer("obsTime", "catVar", 20, 0.3, 18.3);
+ *  VariableCategorizerReducer AReducer("catVar");    // Define the variable prefix
+ *  AReducer.set_variable("obsTime", 20, 0.3, 18.3);  // Define variable to be categorized
+ *  AReducer.set_variable("obsTime", 10, 0.3, 18.3);  // Multiple entries are possible
+ *  AReducer.set_variable("obsEtaAll", 8, 0.0, 0.5);  // Name will be prefix+nbins+"_"+variable_name
  *  ...
  *  @endcode
  **/
@@ -33,14 +41,10 @@ namespace reducer {
 
 class VariableCategorizerReducer : virtual public Reducer {
  public:
-  VariableCategorizerReducer(const std::string& variable_name, const std::string& prefix_name, int nbins, double range_min, double range_max);
+  VariableCategorizerReducer(const std::string& prefix_name="catVar");
   virtual ~VariableCategorizerReducer(){}
 
-  void set_nbins(int nbins){nbins_ = nbins;}
-  void set_variable_name(const std::string& variable_name) {variable_name_ = variable_name;}
-  void set_prefix_name(const std::string& prefix_name) {prefix_name_ = prefix_name;}
-  void set_range_min(double range_min){range_min_ = range_min;}
-  void set_range_max(double range_max){range_max_ = range_max;}
+  void set_variable(std::string variable_name, int nbins, double range_min, double range_max);
 
  protected:
   virtual void CreateSpecialBranches();
@@ -48,21 +52,20 @@ class VariableCategorizerReducer : virtual public Reducer {
   virtual bool EntryPassesSpecialCuts();
   virtual void UpdateSpecialLeaves();
  private:
-  int nbins_;
-  int* variable_category_;
-
-  double range_min_;
-  double range_max_;
-
-  Double_t* variable_;
-
-  std::string variable_name_;
+  /// name of variable prefix
   std::string prefix_name_;
-  
-  std::vector<double> data_points_;
-  std::vector<double> quantiles_;
-  
-  dooselection::reducer::ReducerLeaf<Int_t>* variable_category_leaf_;
+
+  /// vector containing a tuple with the following entries:
+  /// 0 variable_name 
+  /// 1 nbins 
+  /// 2 range min 
+  /// 3 range max 
+  /// 4 vector of quantiles 
+  /// 5 vector of data points 
+  /// 6 int pointer to variable category 
+  /// 7 double pointer to variable value 
+  /// 8 reducer leaf pointer to variable category leaf
+  std::vector< std::tuple< std::string, int, double, double, std::vector<double>, std::vector<double>, int*, Double_t*, dooselection::reducer::ReducerLeaf<Int_t>* > > variables_;
 };
 
 } // namespace reducer
