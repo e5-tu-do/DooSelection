@@ -319,7 +319,7 @@ void Reducer::CreateInterimFileAndTree(){
         throw 32;
       }
     } else {
-      sinfo << "Copying tree without specific cut (cuts may apply through higher level Redcuers)." << endmsg;
+      sinfo << "Copying tree without specific cut (cuts may apply through higher level Reducers)." << endmsg;
     }
     
     if (num_events_process_ != -1) {
