@@ -23,6 +23,8 @@ enum ReducerLeafOperations {
   kDivideLeaves,
   kEqualLeaf,
   kRandomizeLeaf,
+  kMinimum,
+  kMaximum,
   kConditionsMap,
 };
 
@@ -252,6 +254,14 @@ public:
   template<class T1>
   void Equal(const ReducerLeaf<T1>& l, double c=1.0) {
     SetOperation<T1,T1>(l,l,kEqualLeaf,c,c);
+  }
+  template<class T1, class T2>
+  void Minimum(const ReducerLeaf<T1>& l1, const ReducerLeaf<T2>& l2) {
+    SetOperation<T1,T2>(l1,l2,kMinimum,1.0,1.0);
+  }
+  template<class T1, class T2>
+  void Maximum(const ReducerLeaf<T1>& l1, const ReducerLeaf<T2>& l2) {
+    SetOperation<T1,T2>(l1,l2,kMaximum,1.0,1.0);
   }
 
   /**
@@ -559,6 +569,18 @@ bool ReducerLeaf<T>::UpdateValue() {
         *branch_address_templ_ = leaf_factor_one_*leaf_pointer_one_->GetValue();
         matched = true;
         break;
+      case kMinimum:
+        leaf_pointer_one_->UpdateValue();
+        leaf_pointer_two_->UpdateValue();
+        *branch_address_templ_ = TMath::Min(leaf_factor_one_*leaf_pointer_one_->GetValue(), leaf_factor_two_*leaf_pointer_two_->GetValue());
+        matched = true;
+        break;
+      case kMaximum:
+        leaf_pointer_one_->UpdateValue();
+        leaf_pointer_two_->UpdateValue();
+        *branch_address_templ_ = TMath::Max(leaf_factor_one_*leaf_pointer_one_->GetValue(), leaf_factor_two_*leaf_pointer_two_->GetValue());
+        matched = true;
+        break;
       case kRandomizeLeaf:
         *branch_address_templ_ = random_generator_->Rndm()*1073741824.0;
         matched = true;
@@ -593,6 +615,12 @@ void ReducerLeaf<T>::SetOperation(const ReducerLeaf<T1>& l1, const ReducerLeaf<T
       break;
     case kEqualLeaf:
       std::cout << "Leaf " << name() << " = (" << c1 << ")*" << l1.name() << std::endl;
+      break;
+    case kMinimum:
+      std::cout << "Leaf " << name() << " = min(" << l1.name() << ", " << l2.name() << ")" << std::endl;
+      break;
+    case kMaximum:
+      std::cout << "Leaf " << name() << " = max(" << l1.name() << ", " << l2.name() << ")" << std::endl;
       break;
     case kRandomizeLeaf:
       std::cout << "Leaf " << name() << " = random number" << std::endl;
