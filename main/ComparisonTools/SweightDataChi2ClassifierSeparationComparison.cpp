@@ -330,22 +330,22 @@ void PlotSweightedTuple(const std::vector<TreeTuple>& tuples, const std::vector<
           data_bkg_single_var = data_bkg;
         }
         
-        sdebug << "Correlation for " << dim.GetName() << endmsg;
-        for (int i=0; i<binning.numBins(); ++i) {
-//          std::stringstream sstr;
+//        sdebug << "Correlation for " << dim.GetName() << endmsg;
+//        for (int i=0; i<binning.numBins(); ++i) {
+////          std::stringstream sstr;
+////          
+////          sstr << "obsTime>" << binning.binLow(i) << "&&obsTime<" << binning.binHigh(i);
+////          RooDataSet* data_red = dynamic_cast<RooDataSet*>(data_sig->reduce(sstr.str().c_str()));
+////          sdebug << "binned avg: " << sstr.str() << " => " << data_red->mean(dim) << " +/- " << data_red->sigma(dim) << ", <t> = " << averages[i][0] << ", <x> = " << averages[i][variable_positions[dim_name]] << endmsg;
 //          
-//          sstr << "obsTime>" << binning.binLow(i) << "&&obsTime<" << binning.binHigh(i);
-//          RooDataSet* data_red = dynamic_cast<RooDataSet*>(data_sig->reduce(sstr.str().c_str()));
-//          sdebug << "binned avg: " << sstr.str() << " => " << data_red->mean(dim) << " +/- " << data_red->sigma(dim) << ", <t> = " << averages[i][0] << ", <x> = " << averages[i][variable_positions[dim_name]] << endmsg;
-          
-          sdebug << "<t> = " << averages[0][i] << " +/- " << errors[0][i] << ", <x> = " << averages[variable_positions[dim_name]][i] << " +/- " << errors[variable_positions[dim_name]][i] << endmsg;
-        }
+//          sdebug << "<t> = " << averages[0][i] << " +/- " << errors[0][i] << ", <x> = " << averages[variable_positions[dim_name]][i] << " +/- " << errors[variable_positions[dim_name]][i] << endmsg;
+//        }
         
-        std::string path_name_specific_corr = "VarDistributionPlots/" + (*it_tuples).get<2>() + "/Correlation/";
-//        TCanvas c1("c1", "c1", 800, 600);
-        TGraphErrors tge(binning.numBins(), &averages[0][0], &averages[variable_positions[dim_name]][0], &errors[0][0], &errors[variable_positions[dim_name]][0]);
-        tge.Draw("AP");
-        doocore::lutils::printPlot(&c, out_name, path_name_specific_corr.c_str(), true);
+//        std::string path_name_specific_corr = "VarDistributionPlots/" + (*it_tuples).get<2>() + "/Correlation/";
+////        TCanvas c1("c1", "c1", 800, 600);
+//        TGraphErrors tge(binning.numBins(), &averages[0][0], &averages[variable_positions[dim_name]][0], &errors[0][0], &errors[variable_positions[dim_name]][0]);
+//        tge.Draw("AP");
+//        doocore::lutils::printPlot(&c, out_name, path_name_specific_corr.c_str(), true);
         
         std::pair<double, double> minmax_sig = doocore::lutils::MedianLimitsForTuple(*data_sig_single_var, dim.GetName());
         std::pair<double, double> minmax_bkg = doocore::lutils::MedianLimitsForTuple(*data_bkg_single_var, dim.GetName());
