@@ -4,6 +4,7 @@
 #include "TString.h"
 #include "TFile.h"
 #include "TApplication.h"
+#include "TTreeFormula.h"
 
 // from RooFit
 
@@ -167,6 +168,35 @@ int main(int argc, char * argv[]){
     //---------------------------------------------------------------------------
     file = TFile::Open(input_path+input_file_name);
     tree = (TTree*)file->Get(input_tree_name);
+
+    std::vector<std::string> cut_variables;
+    TTreeFormula form("form_cut", sig_cut, tree);
+    TLeaf* leaf = form.GetLeaf(0);
+    int i = 1;
+    while (leaf != NULL) {
+      cut_variables.push_back(leaf->GetName());
+      leaf = form.GetLeaf(i);
+      ++i;
+    }
+    
+    
+    tree->SetBranchStatus("*", false);
+    
+    tree->SetBranchStatus(sig_sweight, true);
+    tree->SetBranchStatus(bkg_sweight, true);
+    
+    for (std::vector<std::string>::const_iterator it = float_variables.begin(), end = float_variables.end();
+         it != end; ++it) {
+      tree->SetBranchStatus(it->c_str(), true);
+    }
+    for (std::vector<std::string>::const_iterator it = integer_variables.begin(), end = integer_variables.end();
+         it != end; ++it) {
+      tree->SetBranchStatus(it->c_str(), true);
+    }
+    for (std::vector<std::string>::const_iterator it = cut_variables.begin(), end = cut_variables.end();
+         it != end; ++it) {
+      tree->SetBranchStatus(it->c_str(), true);
+    }
 
     /// ################################################################################################################## 
     /// The root of the problem is that TMVA creates a copy of the user trees if a tree is provided with a cut condition.

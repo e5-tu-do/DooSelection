@@ -480,6 +480,7 @@ int Bd2JpsiKSSweights(const PlotConfig& pconfig, int argc, char* argv[]) {
   TTree& tree = etuple_sig.tree();
   
   dimensions.push_back(DimensionTuple("varKSTauSignfificance", "varKSTauSignfificance", argv[4], argv[5], "varKSTauSignfificance<50&&varKSTauSignfificance>1", "varKSTauSignfificance_2", secondary_observables, false));
+  dimensions.push_back(DimensionTuple("varKSTauSignfificance_DaughtersPVConst", "varKSTauSignfificance_DaughtersPVConst", argv[4], argv[5], "varKSTauSignfificance_DaughtersPVConst<50&&varKSTauSignfificance_DaughtersPVConst>1", "varKSTauSignfificance_DaughtersPVConst_2", secondary_observables, false));
   dimensions.push_back(DimensionTuple("B0_AllDIRA_flat", "B0_AllDIRA_flat", argv[4], argv[5], "B0_AllDIRA_flat>0.999", "B0_AllDIRA_flat_2", secondary_observables, false));
   dimensions.push_back(DimensionTuple("B0_AllIPchi2_flat", "B0_AllIPchi2_flat", argv[4], argv[5], "B0_AllIPchi2_flat<100", "B0_AllIPchi2_flat_2", secondary_observables, false));
   

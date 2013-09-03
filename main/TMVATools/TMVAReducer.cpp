@@ -1,5 +1,8 @@
 // from STL
 
+// from Boost
+#include <boost/filesystem.hpp>
+
 // from ROOT
 #include "TString.h"
 
@@ -28,33 +31,56 @@ int main(int argc, char* argv[]){
   doocore::config::Summary& summary = doocore::config::Summary::GetInstance();
   dooselection::reducer::TMVAClassificationReducer reducer;
 
-  TString track_type(config.getString("track_type"));
+  namespace fs = boost::filesystem;
+  using namespace doocore::io;
+  
   TString method(config.getString("method"));
-  TString xml_file(config.getString("xml_file"));
-  TString path(config.getString("data_path"));
-  TString file(config.getString("data_file"));
-  TString tree(config.getString("data_tree"));
-  TString output_path(config.getString("output_path"));
-  TString output_file(file);
-  TString output_tree(config.getString("output_tree"));
-  TString output_appendix(config.getString("output_appendix"));
-  if (output_path == ""){
-    output_path = path;
+  TString track_type(config.getString("track_type"));
+
+  fs::path input_file(config.getString("input_file"));
+  fs::path output_file(config.getString("output_file"));
+  
+  if (fs::exists(input_file)) {
+    // new style input output files without enforcing arbitrary file naming
+  } else {
+    // old style input output files enforcing arbitrary file naming that can
+    // get messy when applying multiple classifiers into one file
+
+    swarn << "TMVAReducer: You are using old style config files that enforce a naming scheme for output files." << endmsg;
+    swarn << "             This functionality might be deprecated in a future release of TMVAReducer." << endmsg;
+    
+    TString path(config.getString("data_path"));
+    TString file(config.getString("data_file"));
+    input_file = fs::path(path) / fs::path(file+".root");
+
+    TString output_path(config.getString("output_path"));
+
+    if (output_path == ""){
+      output_path = path;
+    }
+
+    TString output_appendix(config.getString("output_appendix"));
+    if (output_appendix == ""){
+      output_appendix = method;
+    }
+    
+    output_file = fs::path(output_path) / fs::path(file+"_"+track_type+"_"+output_appendix+".root");
   }
+  
+  TString xml_file(config.getString("xml_file"));
+  TString tree(config.getString("data_tree"));
+  TString output_tree(config.getString("output_tree"));
   if (output_tree == ""){
     output_tree = tree;
   }
-  if (output_appendix == ""){
-    output_appendix = method;
-  }
   summary.Add("Method name", method);
   summary.Add("XML file", xml_file);
-  summary.Add("Input file", path+file);
+  summary.Add("Input file", input_file.string());
   summary.Add("Input tree", tree);
   summary.Add("Track type", track_type);
-  summary.Add("Output file", output_path+output_file+"_"+track_type+"_"+output_appendix);
+  summary.Add("Output file", output_file.string());
   summary.Add("Output tree", output_tree);
-  summary.Add("Output appendix", output_appendix);  
+  //summary.Add("Output appendix", output_appendix);
 
   // TRACK_Type == 3 for Longtrack, TRACK_Type == 5 for Downstream
   if (track_type == "longtrack"){
@@ -76,12 +102,12 @@ int main(int argc, char* argv[]){
   reducer.SetTMVAMethodAndXMLFile(method, xml_file);
 
   // Register input file
-  reducer.set_input_file_path(path+file+".root");
+  reducer.set_input_file_path(input_file.string());
   reducer.set_input_tree_path(tree);
   reducer.PrepareIntitialTree();
 
   // Set output file
-  reducer.set_output_file_path(output_path+output_file+track_type+"_"+output_appendix+".root");
+  reducer.set_output_file_path(output_file.string());
   reducer.set_output_tree_path(output_tree);
   reducer.PrepareFinalTree();
 
