@@ -1,6 +1,9 @@
 // from STL
 
 // from Boost
+#ifdef __GNUG__
+#define BOOST_NO_CXX11_SCOPED_ENUMS
+#endif
 #include <boost/filesystem.hpp>
 
 // from ROOT

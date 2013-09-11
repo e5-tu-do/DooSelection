@@ -9,6 +9,9 @@
 
 // from boost
 #include <boost/tuple/tuple.hpp>
+#ifdef __GNUG__
+#define BOOST_NO_CXX11_SCOPED_ENUMS
+#endif
 #include <boost/filesystem.hpp>
 #include <boost/assign/list_inserter.hpp> // for 'insert()'
 using namespace boost::assign; // bring 'operator+=()' into scope
