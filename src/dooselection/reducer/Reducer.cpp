@@ -9,6 +9,9 @@
 #include <unistd.h>
 
 // from BOOST
+#ifdef __GNUG__
+#define BOOST_NO_CXX11_SCOPED_ENUMS
+#endif
 #include <boost/filesystem.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/lexical_cast.hpp>
