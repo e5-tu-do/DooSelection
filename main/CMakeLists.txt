@@ -1,2 +1,3 @@
 add_subdirectory(ComparisonTools)
+add_subdirectory(GrimReaper)
 add_subdirectory(TMVATools)
