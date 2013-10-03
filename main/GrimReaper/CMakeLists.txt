@@ -1,5 +1,8 @@
 add_executable(SingleCutGrimReaper SingleCutGrimReaper.cpp)
+add_executable(VariableCategorizerGrimReaper VariableCategorizerGrimReaper.cpp)
 
 target_link_libraries(SingleCutGrimReaper dsReducer ${ALL_LIBRARIES})
+target_link_libraries(VariableCategorizerGrimReaper dsReducer ${ALL_LIBRARIES})
 
 install(TARGETS SingleCutGrimReaper DESTINATION bin)
+install(TARGETS VariableCategorizerGrimReaper DESTINATION bin)
