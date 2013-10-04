@@ -17,11 +17,8 @@ VariableCategorizerReducer::VariableCategorizerReducer(const std::string& prefix
 {}
 
 void VariableCategorizerReducer::set_variable(std::string variable_name, int nbins, double range_min, double range_max){
-  if (!LeafExists(variable_name)){
-    doocore::io::serr << "-ERROR- \t" << "VariableCategorizerReducer \t" << "The variable '" << variable_name << "' does not exist in this tree!" << doocore::io::endmsg;
-    assert(0);
-  }
-  else{
+
+  // else{
     std::vector<double> variable_quantiles;
     std::vector<double> variable_data_points;
     /// vector containing a tuple with the following entries:
@@ -37,14 +34,18 @@ void VariableCategorizerReducer::set_variable(std::string variable_name, int nbi
     int* int_ptr=NULL; Double_t* double_ptr=NULL; dooselection::reducer::ReducerLeaf<Int_t>* leaf_ptr=NULL;
     auto t = std::make_tuple(variable_name, nbins, range_min, range_max, variable_quantiles, variable_data_points, int_ptr, double_ptr, leaf_ptr);
     variables_.push_back(t);
-    doocore::io::sinfo << "-info- \t" << "VariableCategorizerReducer \t" << "Added variable '" << variable_name << "' to list of variables to categorize."  << doocore::io::endmsg;
-  }
+    doocore::io::sinfo << "-info-  \t" << "VariableCategorizerReducer \t" << "Added variable '" << variable_name << "' to list of variables to categorize" << " (" << nbins << " bins in range " << range_min << " - " << range_max << ")." << doocore::io::endmsg;
+  // }
 }
 
 void VariableCategorizerReducer::CreateSpecialBranches(){
   for (auto& variable: variables_){
     std::string variable_name = std::get<0>(variable);
-    double variable_binning = std::get<1>(variable);
+    if (!LeafExists(variable_name)){
+      doocore::io::serr << "-ERROR- \t" << "VariableCategorizerReducer \t" << "The variable '" << variable_name << "' does not exist in this tree!" << doocore::io::endmsg;
+      continue;
+    }
+    int variable_binning = std::get<1>(variable);
 
     dooselection::reducer::ReducerLeaf<Int_t>* variable_category_leaf = &(CreateIntLeaf(prefix_name_+boost::lexical_cast<std::string>(variable_binning)+"_"+variable_name, prefix_name_+boost::lexical_cast<std::string>(variable_binning)+"_"+variable_name, "Int_t", -1));
 
@@ -56,7 +57,6 @@ void VariableCategorizerReducer::CreateSpecialBranches(){
 
 void VariableCategorizerReducer::PrepareSpecialBranches(){
   int nevents = interim_tree_->GetEntries();
-
   for (auto& variable: variables_){
     std::string variable_name = std::get<0>(variable);
     int variable_binning = std::get<1>(variable);
@@ -64,18 +64,21 @@ void VariableCategorizerReducer::PrepareSpecialBranches(){
     double variable_range_max = std::get<3>(variable);
     std::vector<double> data_points;
 
-    doocore::io::sinfo << "Computing p-quantiles for " << variable_name  << " (" << variable_binning << " bins, from " << variable_range_min << " to " << variable_range_max << ")." << doocore::io::endmsg;
+    doocore::io::sinfo << "-info-  \t" << "VariableCategorizerReducer \t" << "Computing p-quantiles for " << variable_name  << " (" << variable_binning << " bins, from " << variable_range_min << " to " << variable_range_max << ")." << doocore::io::endmsg;
     interim_tree_->SetBranchStatus("*", false);
     interim_tree_->SetBranchStatus(variable_name.c_str(), true);
     double value;
     for (Int_t ev = 0; ev < nevents; ev++){
       double frac = static_cast<double>(ev)/nevents;
-      if ( (ev%100) == 0 ) printf("Progress %.2f % \xd", frac*100.0);
+      if (isatty(fileno(stdout))){
+        if ( (ev%100) == 0 ) printf("Progress %.2f % \xd", frac*100.0);
+      }
       interim_tree_->GetEvent(ev);
       value = *std::get<7>(variable);
       if ((value > variable_range_min) && (value < variable_range_max)) data_points.push_back(value);
       fflush(stdout);
     }
+    std::cout << std::endl;
     interim_tree_->SetBranchStatus("*", true);
     sort(data_points.begin(), data_points.end());
 
