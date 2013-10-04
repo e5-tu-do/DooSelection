@@ -38,7 +38,6 @@ int main(int argc, char * argv[]){
     double min = config.getDouble("variables."+(*var)+".min");
     double max = config.getDouble("variables."+(*var)+".max");
     for(std::vector<std::string>::const_iterator bins = nbins.begin(); bins != nbins.end(); bins++){
-      doocore::io::sinfo << "-info-  \t" << "VariableCategorizerGrimReaper \t" << "Variable: " << *var << " (" << boost::lexical_cast<int>(*bins) << " bin in range " << min << " - " << max << ")" << doocore::io::endmsg;
       reducer.set_variable(*var, boost::lexical_cast<int>(*bins), min, max);
     }
   }
