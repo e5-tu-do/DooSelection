@@ -1,5 +1,5 @@
 /******************************************/
-// MultipleCandidateAnalyseGrimReaper.cpp
+// ArrayFlattenerGrimReaper.cpp
 //
 // Standalone GrimReaper that flattens
 // array-kind leaves
