@@ -37,19 +37,21 @@ int main(int argc, char * argv[]){
   reducer.set_output_tree_path(outputtree);
 
   reducer.Initialize();
-
+  
   if (reducer.LeafExists("idxEventNumber")){
     reducer.AddEventIdentifier("idxEventNumber");
     reducer.AddEventIdentifier("idxRunNumber");
-    if (reducer.LeafExists("idxPV")) reducer.AddEventIdentifier("idxPV");
+    if (reducer.LeafExists("idxPV")){
+      reducer.AddEventIdentifier("idxPV");
+    }
   }
   else if (reducer.LeafExists("eventNumber")){
-    doocore::io::swarn << "-warning- \t" << "MultiCandAnaRdcr: Leaf 'idxEventNumber' does not exists, using 'eventNumber' instead." << doocore::io::endmsg;
+    doocore::io::swarn << "-warning- \t" << "MultipleCandidateAnalyseGrimReaper: Leaf 'idxEventNumber' does not exists, using 'eventNumber' instead." << doocore::io::endmsg;
     reducer.AddEventIdentifier("eventNumber");
     reducer.AddEventIdentifier("runNumber");
   }
   else{
-    doocore::io::serr << "-ERROR- \t" << "MultiCandAnaRdcr: Leaves 'idxEventNumber' and 'eventNumber' do not exist!" << doocore::io::endmsg;
+    doocore::io::serr << "-ERROR- \t" << "MultipleCandidateAnalyseGrimReaper: Leaves 'idxEventNumber' and 'eventNumber' do not exist!" << doocore::io::endmsg;
   }
 
   reducer.Run();
