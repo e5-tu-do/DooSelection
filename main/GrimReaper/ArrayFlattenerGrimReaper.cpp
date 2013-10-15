@@ -1,3 +1,13 @@
+/******************************************/
+// MultipleCandidateAnalyseGrimReaper.cpp
+//
+// Standalone GrimReaper that flattens
+// array-kind leaves
+//
+// Author: Christophe Cauet
+// Date: 2013-10-14
+/******************************************/
+
 // from DooCore
 #include "doocore/io/MsgStream.h"
 #include "doocore/config/EasyConfig.h"
