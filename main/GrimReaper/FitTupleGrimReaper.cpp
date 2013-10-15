@@ -17,7 +17,7 @@
 int main(int argc, char * argv[]){
   doocore::io::sinfo << "-info-  \t" << "FitTupleGrimReaper \t" << "Welcome!" << doocore::io::endmsg;
   std::string inputfile, inputtree, outputfile, outputtree;
-  if (argc == 6){
+  if (argc == 5){
     inputfile = argv[1];
     inputtree = argv[2];
     outputfile = argv[3];
