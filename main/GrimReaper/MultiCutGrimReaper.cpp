@@ -1,3 +1,13 @@
+/******************************************/
+// MultiCutGrimReaper.cpp
+//
+// Standalone GrimReaper that performs cuts
+// according to a provided config file.
+//
+// Author: Christophe Cauet
+// Date: 2013-10-14
+/******************************************/
+
 // from DooCore
 #include "doocore/io/MsgStream.h"
 #include "doocore/config/EasyConfig.h"
