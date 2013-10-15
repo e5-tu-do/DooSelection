@@ -1,11 +1,11 @@
 /******************************************/
 // VariableRenamerGrimReaper.cpp
 //
-// Standalone GrimReaper that performs cuts
-// according to a provided config file.
+// Standalone GrimReaper that renames
+// variables according to a given config file
 //
 // Author: Christophe Cauet
-// Date: 2013-10-14
+// Date: 2013-10-15
 /******************************************/
 
 // from DooCore
