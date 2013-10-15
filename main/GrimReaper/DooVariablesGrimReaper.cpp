@@ -23,22 +23,36 @@
 
 using namespace dooselection::reducer;
 
+int Bd2JpsiKS(const std::string& inputfile, const std::string& inputtree, const std::string& outputfile, const std::string& outputtree, const std::string& decay_channel);
+
 int main(int argc, char * argv[]){
   doocore::io::sinfo << "-info-  \t" << "DooVariablesGrimReaper \t" << "Welcome!" << doocore::io::endmsg;
-  std::string inputfile, inputtree, outputfile, outputtree;
-  if (argc == 5){
+  std::string inputfile, inputtree, outputfile, outputtree, decay_channel;
+  if (argc == 6){
     inputfile = argv[1];
     inputtree = argv[2];
     outputfile = argv[3];
     outputtree = argv[4];
-    // cut = argv[5];
+    decay_channel = argv[5];
   }
   else{
     doocore::io::serr << "-ERROR- \t" << "DooVariablesGrimReaper \t" << "Parameters needed:" << doocore::io::endmsg;
-    doocore::io::serr << "-ERROR- \t" << "DooVariablesGrimReaper \t"<< "input_file_name input_tree_name output_file_name output_tree_name" << doocore::io::endmsg;
+    doocore::io::serr << "-ERROR- \t" << "DooVariablesGrimReaper \t"<< "input_file_name input_tree_name output_file_name output_tree_name decay_channel" << doocore::io::endmsg;
     return 1;
   }
 
+  if (decay_channel=="Bd2JpsiKS"){
+    doocore::io::sinfo << "-info-  \t" << "DooVariablesGrimReaper \t" << "Decay: Bd2JpsiKS" << doocore::io::endmsg;
+    Bd2JpsiKS(inputfile, inputtree, outputfile, outputtree, decay_channel);
+  }
+  else{
+    doocore::io::serr << "-ERROR- \t" << "DooVariablesGrimReaper \t" << "No valid decay channel. Possible decay channels are:" << doocore::io::endmsg;
+    doocore::io::serr << "-ERROR- \t" << "DooVariablesGrimReaper \t" << "- Bd2JspiKS" << doocore::io::endmsg;
+  }
+  doocore::io::sinfo << "-info- \t" << "DooVariablesGrimReaper \t" << "Done!" << doocore::io::endmsg;
+}
+
+int Bd2JpsiKS(const std::string& inputfile, const std::string& inputtree, const std::string& outputfile, const std::string& outputtree, const std::string& decay_channel){
   dooselection::reducer::Reducer reducer;
 
   reducer.set_input_file_path(inputfile);
@@ -634,6 +648,4 @@ int main(int argc, char * argv[]){
 
   reducer.Run();
   reducer.Finalize();
-
-  doocore::io::sinfo << "-info- \t" << "DooVariablesGrimReaper \t" << "Done!" << doocore::io::endmsg;
 }
