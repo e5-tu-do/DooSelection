@@ -23,6 +23,125 @@
 
 using namespace dooselection::reducer;
 
+class TaggingRdcr : virtual public dooselection::reducer::Reducer {
+ public:
+  TaggingRdcr():
+    var_tag_os_sspion_leaf_(NULL),
+    var_tag_os_sspion_babar_leaf_(NULL),
+    cat_tagged_os_or_ss_pion_leaf_(NULL),
+    cat_tagged_os_xor_ss_pion_leaf_(NULL),
+    var_tag_eta_os_ss_pion_leaf_(NULL),
+    var_tag_os_(NULL),
+    var_tag_ss_pion_(NULL),
+    cat_tagged_os_(NULL),
+    cat_tagged_ss_pion_(NULL),
+    var_tag_eta_os_(NULL),
+    var_tag_eta_ss_pion_(NULL),
+    var_tag_os_sspion_value_(NULL),
+    var_tag_os_sspion_babar_value_(NULL),
+    cat_tagged_os_or_ss_pion_value_(NULL),
+    cat_tagged_os_xor_ss_pion_value_(NULL),
+    var_tag_eta_os_ss_pion_value_(NULL)
+  {}
+  virtual ~TaggingRdcr(){}
+ protected:
+  virtual void CreateSpecialBranches();
+  virtual bool EntryPassesSpecialCuts();
+  virtual void UpdateSpecialLeaves();
+ private:
+  // sin2beta OS + SSPion combination
+  // create leaves
+  dooselection::reducer::ReducerLeaf<Int_t>* var_tag_os_sspion_leaf_; 
+  dooselection::reducer::ReducerLeaf<Int_t>* var_tag_os_sspion_babar_leaf_; 
+  dooselection::reducer::ReducerLeaf<Int_t>* cat_tagged_os_or_ss_pion_leaf_; 
+  dooselection::reducer::ReducerLeaf<Int_t>* cat_tagged_os_xor_ss_pion_leaf_; 
+  dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_os_ss_pion_leaf_; 
+
+  // leaves to read
+  Int_t* var_tag_os_;         
+  Int_t* var_tag_ss_pion_;    
+  Int_t* cat_tagged_os_;      
+  Int_t* cat_tagged_ss_pion_; 
+  Double_t* var_tag_eta_os_;      
+  Double_t* var_tag_eta_ss_pion_; 
+
+  // leaves to write
+  Int_t* var_tag_os_sspion_value_;         
+  Int_t* var_tag_os_sspion_babar_value_;   
+  Int_t* cat_tagged_os_or_ss_pion_value_;  
+  Int_t* cat_tagged_os_xor_ss_pion_value_; 
+  Double_t* var_tag_eta_os_ss_pion_value_; 
+
+  // random number generator for pseudo-tag for untagged events
+  TRandom3* random_generator_;
+
+  //
+};
+
+void TaggingRdcr::CreateSpecialBranches(){
+  // create special combination leaves
+  var_tag_os_sspion_leaf_         = &CreateIntLeaf("obsTagOSSSPion");
+  var_tag_os_sspion_babar_leaf_   = &CreateIntLeaf("obsTagOSSSPion_BaBar");
+  cat_tagged_os_or_ss_pion_leaf_  = &CreateIntLeaf("catTaggedOSorSSPion");     // 0 for untagged, 1 for tagged
+  cat_tagged_os_xor_ss_pion_leaf_ = &CreateIntLeaf("catTaggedOSxorSSPion");   // 0 for untagged, 1 for OS tag, -1 for SSPion tag
+  var_tag_eta_os_ss_pion_leaf_    = &CreateDoubleLeaf("obsEtaOSSSPion");
+
+  // leaves to read
+  var_tag_os_          = (Int_t*)GetInterimLeafByName("B0_TAGDECISION_OS").branch_address();
+  var_tag_ss_pion_     = (Int_t*)GetInterimLeafByName("B0_SS_Pion_DEC").branch_address();
+  cat_tagged_os_       = (Int_t*)GetInterimLeafByName("B0_TAGDECISION_OS").branch_address();
+  cat_tagged_ss_pion_  = (Int_t*)GetInterimLeafByName("B0_SS_Pion_DEC").branch_address();
+  var_tag_eta_os_      = (Double_t*)GetInterimLeafByName("B0_TAGOMEGA_OS").branch_address();
+  var_tag_eta_ss_pion_ = (Double_t*)GetInterimLeafByName("B0_SS_Pion_PROB").branch_address();
+
+  // leaves to write
+  var_tag_os_sspion_value_         = (Int_t*)var_tag_os_sspion_leaf_->branch_address();  
+  var_tag_os_sspion_babar_value_   = (Int_t*)var_tag_os_sspion_babar_leaf_->branch_address();
+  cat_tagged_os_or_ss_pion_value_  = (Int_t*)cat_tagged_os_or_ss_pion_leaf_->branch_address();
+  cat_tagged_os_xor_ss_pion_value_ = (Int_t*)cat_tagged_os_xor_ss_pion_leaf_->branch_address();  
+  var_tag_eta_os_ss_pion_value_    = (Double_t*)var_tag_eta_os_ss_pion_leaf_->branch_address();  
+}
+
+bool TaggingRdcr::EntryPassesSpecialCuts(){return true;}
+
+void TaggingRdcr::UpdateSpecialLeaves(){
+  // sin2beta OS + SSPion combination
+  
+  if (*var_tag_os_!=0){ // if OS tagger has tag, write OS tag to combination and 
+    *var_tag_os_sspion_value_ = *var_tag_os_;
+    *var_tag_os_sspion_babar_value_ = -(*var_tag_os_);
+    *cat_tagged_os_or_ss_pion_value_ = 1;
+    *cat_tagged_os_xor_ss_pion_value_ = 1;
+    *var_tag_eta_os_ss_pion_value_ = *var_tag_eta_os_;
+  }
+  else if ((*var_tag_os_==0) && (*var_tag_ss_pion_!=0)){
+    *var_tag_os_sspion_value_ = *var_tag_ss_pion_;
+    *var_tag_os_sspion_babar_value_ = -(*var_tag_ss_pion_);
+    *cat_tagged_os_or_ss_pion_value_ = 1;
+    *cat_tagged_os_xor_ss_pion_value_ = -1;
+    *var_tag_eta_os_ss_pion_value_ = *var_tag_eta_ss_pion_;
+  }
+  else{
+    // sin2beta OS + SSPion combination
+    
+    // comment this in, if you want to set the tag randomly to +1 or -1 in case of untagged events
+    // random_generator_ = new TRandom3(42);
+    // int pseudo_tag_for_untagged_events = 0;
+    // if ((0.5-random_generator_->Rndm())>0){
+    //   pseudo_tag_for_untagged_events = +1;
+    // }
+    // else{
+    //   pseudo_tag_for_untagged_events = -1;
+    // }
+    
+    *var_tag_os_sspion_value_ = 0;
+    *var_tag_os_sspion_babar_value_ = 0;
+    *cat_tagged_os_or_ss_pion_value_ = 0;
+    *cat_tagged_os_xor_ss_pion_value_ = 0;
+    *var_tag_eta_os_ss_pion_value_ = 0.5;
+  }
+}
+
 int Bd2JpsiKS(const std::string& inputfile, const std::string& inputtree, const std::string& outputfile, const std::string& outputtree, const std::string& decay_channel);
 
 int main(int argc, char * argv[]){
@@ -53,7 +172,7 @@ int main(int argc, char * argv[]){
 }
 
 int Bd2JpsiKS(const std::string& inputfile, const std::string& inputtree, const std::string& outputfile, const std::string& outputtree, const std::string& decay_channel){
-  dooselection::reducer::Reducer reducer;
+  TaggingRdcr reducer;
 
   reducer.set_input_file_path(inputfile);
   reducer.set_input_tree_path(inputtree);
@@ -235,18 +354,6 @@ int Bd2JpsiKS(const std::string& inputfile, const std::string& inputtree, const 
   ReducerLeaf<Int_t>& var_tag_ss_pion_babar_leaf = reducer.CreateIntCopyLeaf("obsTagSSPion_BaBar", reducer.GetInterimLeafByName("B0_SS_Pion_DEC"), -1.0);
   ReducerLeaf<Int_t>& var_tag_vtxq_leaf = reducer.CreateIntCopyLeaf("obsTagVtxQ", reducer.GetInterimLeafByName("B0_VtxCharge_DEC"));
   ReducerLeaf<Int_t>& var_tag_vtxq_babar_leaf = reducer.CreateIntCopyLeaf("obsTagVtxQ_BaBar", reducer.GetInterimLeafByName("B0_VtxCharge_DEC"), -1.0);
-  
-  ReducerLeaf<Int_t>& vtag_OSSSpi_leaf = reducer.CreateIntLeaf("obsTagOSSSPion", 0);
-  vtag_OSSSpi_leaf.AddCondition("B0",     "B0_TAGDECISION_OS == +1", +1);
-  vtag_OSSSpi_leaf.AddCondition("B0bar",  "B0_TAGDECISION_OS == -1", -1);
-  vtag_OSSSpi_leaf.AddCondition("B0",     "B0_TAGDECISION_OS == 0 && B0_SS_Pion_DEC == +1", +1);
-  vtag_OSSSpi_leaf.AddCondition("B0bar",  "B0_TAGDECISION_OS == 0 && B0_SS_Pion_DEC == -1", -1);
-
-  ReducerLeaf<Int_t>& var_tag_OSSSpi_BaBar_leaf = reducer.CreateIntLeaf("obsTagOSSSPion_BaBar", 0);
-  var_tag_OSSSpi_BaBar_leaf.AddCondition("B0",     "B0_TAGDECISION_OS == +1", -1);
-  var_tag_OSSSpi_BaBar_leaf.AddCondition("B0bar",  "B0_TAGDECISION_OS == -1", +1);
-  var_tag_OSSSpi_BaBar_leaf.AddCondition("B0",     "B0_TAGDECISION_OS == 0 && B0_SS_Pion_DEC == +1", -1);
-  var_tag_OSSSpi_BaBar_leaf.AddCondition("B0bar",  "B0_TAGDECISION_OS == 0 && B0_SS_Pion_DEC == -1", +1);
 
   // Tag comparison
   ReducerLeaf<Int_t>& var_tag_ost_sspi_comp_leaf = reducer.CreateIntLeaf("catTagCompOSvsSSPion");
@@ -265,8 +372,6 @@ int Bd2JpsiKS(const std::string& inputfile, const std::string& inputtree, const 
   ReducerLeaf<Double_t>& var_tag_eta_ss_nnet_kaon_leaf = reducer.CreateDoubleCopyLeaf("obsEtaSSNNKaon", reducer.GetInterimLeafByName("B0_SS_nnetKaon_PROB"));
   ReducerLeaf<Double_t>& var_tag_eta_ss_pion_leaf = reducer.CreateDoubleCopyLeaf("obsEtaSSPion", reducer.GetInterimLeafByName("B0_SS_Pion_PROB"));
   ReducerLeaf<Double_t>& var_tag_eta_vtxq_leaf = reducer.CreateDoubleCopyLeaf("obsEtaVtxQ", reducer.GetInterimLeafByName("B0_VtxCharge_PROB"));
-
-  // TODO: obsEtaOSSSPion still missing
 
   // catEta: somehow this variable does not get written into the tuples anymore
   if (reducer.LeafExists("B0_TAGCAT")) ReducerLeaf<Int_t>& var_tagcat_leaf = reducer.CreateIntCopyLeaf("catEtaAll", reducer.GetInterimLeafByName("B0_TAGCAT"));
@@ -312,14 +417,6 @@ int Bd2JpsiKS(const std::string& inputfile, const std::string& inputtree, const 
   ReducerLeaf<Int_t>& cat_tagged_vtxq_leaf = reducer.CreateIntLeaf("catTaggedVtxQ", -1);
     cat_tagged_vtxq_leaf.AddCondition("Tagged",   "B0_VtxCharge_DEC != 0", 1);
     cat_tagged_vtxq_leaf.AddCondition("Untagged", "B0_VtxCharge_DEC == 0", 0);
-
-  ReducerLeaf<Int_t>& cat_tagged_OSorSSPion_leaf = reducer.CreateIntLeaf("catTaggedOSorSSPion", -1); 
-    cat_tagged_OSorSSPion_leaf.AddCondition("Tagged",   "B0_SS_Pion_DEC != 0 || B0_TAGDECISION_OS != 0", 1);
-    cat_tagged_OSorSSPion_leaf.AddCondition("Untagged", "B0_SS_Pion_DEC == 0 && B0_TAGDECISION_OS == 0", 0);
-  
-  ReducerLeaf<Int_t>& cat_tagged_OSxorSSPion_leaf = reducer.CreateIntLeaf("catTaggedOSxorSSPion", 0);
-    cat_tagged_OSxorSSPion_leaf.AddCondition("OStagged", "B0_TAGDECISION_OS != 0", 1);
-    cat_tagged_OSxorSSPion_leaf.AddCondition("exclSSPiontagged", "B0_SS_Pion_DEC != 0 && B0_TAGDECISION_OS == 0", -1);
 
   // catFinalState
   ReducerLeaf<Int_t>& var_finalstate_leaf = reducer.CreateIntLeaf("catFinalState", 0);
@@ -382,10 +479,6 @@ int Bd2JpsiKS(const std::string& inputfile, const std::string& inputtree, const 
   std::string muminus_px, muminus_py, muminus_pz;
 
   std::string mass_hypo_constrains = "";
-  // should work without
-  // std::string flat_suffix = "";
-  // if (reducer.LeafExists("B0_FitDaughtersPVConst_chi2_flat")) flat_suffix = "_flat";
-
   if (reducer.LeafExists("B0_FitJpsiPVConst_KS0_P0_PX")){
     piplus_px  = "B0_FitJpsiPVConst_KS0_P0_PX"+flat_suffix;   
     piplus_py  = "B0_FitJpsiPVConst_KS0_P0_PY"+flat_suffix;   
@@ -649,3 +742,4 @@ int Bd2JpsiKS(const std::string& inputfile, const std::string& inputtree, const 
   reducer.Run();
   reducer.Finalize();
 }
+
