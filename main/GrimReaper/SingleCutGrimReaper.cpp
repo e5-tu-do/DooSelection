@@ -1,3 +1,13 @@
+/******************************************/
+// SingleCutGrimReaper.cpp
+//
+// Standalone GrimReaper that performs a cut
+// according to a provided cut string
+//
+// Author: Christophe Cauet
+// Date: 2013-10-14
+/******************************************/
+
 // from DooCore
 #include "doocore/io/MsgStream.h"
 
