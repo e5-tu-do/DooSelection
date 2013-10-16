@@ -201,7 +201,7 @@ void TaggingRdcr::UpdateSpecialLeaves(){
 
   for( int i = 0; i != 4; ++i ){ //multiply all probabilities 
     const double mtag = osdec[i]; 
-    std::cout << " in loop, i = " << i << " dec = " << osdec[i] << " w = " << osw[i] << std::endl; 
+    // std::cout << " in loop, i = " << i << " dec = " << osdec[i] << " w = " << osw[i] << std::endl; 
 
     if(!mtag) continue; 
 
