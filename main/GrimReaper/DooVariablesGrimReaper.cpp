@@ -26,6 +26,24 @@ using namespace dooselection::reducer;
 class TaggingRdcr : virtual public dooselection::reducer::Reducer {
  public:
   TaggingRdcr():
+    // OS neural net combination
+    var_tag_os_comb_with_nnet_kaon_leaf_(NULL),
+    var_tag_os_comb_with_nnet_kaon_babar_leaf_(NULL),
+    cat_tagged_os_comb_with_nnet_kaon_leaf_(NULL),
+    var_tag_eta_os_comb_with_nnet_kaon_leaf_(NULL),
+    var_tag_os_muon_(NULL),
+    var_tag_os_electron_(NULL),
+    var_tag_os_nnet_kaon_(NULL),
+    var_tag_os_vtx_charge_(NULL),
+    var_tag_eta_os_muon_(NULL),
+    var_tag_eta_os_electron_(NULL),
+    var_tag_eta_os_nnet_kaon_(NULL),
+    var_tag_eta_os_vtx_charge_(NULL),
+    var_tag_os_comb_with_nnet_kaon_value_(NULL),
+    var_tag_os_comb_with_nnet_kaon_babar_value_(NULL),
+    cat_tagged_os_comb_with_nnet_kaon_value_(NULL),
+    var_tag_eta_os_comb_with_nnet_kaon_value_(NULL),
+    // sin2beta OS + SSPion combination
     var_tag_os_sspion_leaf_(NULL),
     var_tag_os_sspion_babar_leaf_(NULL),
     cat_tagged_os_or_ss_pion_leaf_(NULL),
@@ -49,7 +67,30 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
   virtual bool EntryPassesSpecialCuts();
   virtual void UpdateSpecialLeaves();
  private:
-  // sin2beta OS + SSPion combination
+  /////// OS neural net combination
+  // create leaves
+  dooselection::reducer::ReducerLeaf<Int_t>* var_tag_os_comb_with_nnet_kaon_leaf_; 
+  dooselection::reducer::ReducerLeaf<Int_t>* var_tag_os_comb_with_nnet_kaon_babar_leaf_; 
+  dooselection::reducer::ReducerLeaf<Int_t>* cat_tagged_os_comb_with_nnet_kaon_leaf_; 
+  dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_os_comb_with_nnet_kaon_leaf_; 
+
+  // leaves to read
+  Int_t* var_tag_os_muon_;         
+  Int_t* var_tag_os_electron_; 
+  Int_t* var_tag_os_nnet_kaon_; 
+  Int_t* var_tag_os_vtx_charge_;    
+  Double_t* var_tag_eta_os_muon_;      
+  Double_t* var_tag_eta_os_electron_; 
+  Double_t* var_tag_eta_os_nnet_kaon_; 
+  Double_t* var_tag_eta_os_vtx_charge_; 
+
+  // leaves to write
+  Int_t* var_tag_os_comb_with_nnet_kaon_value_;         
+  Int_t* var_tag_os_comb_with_nnet_kaon_babar_value_;   
+  Int_t* cat_tagged_os_comb_with_nnet_kaon_value_;  
+  Double_t* var_tag_eta_os_comb_with_nnet_kaon_value_; 
+
+  /////// sin2beta OS + SSPion combination
   // create leaves
   dooselection::reducer::ReducerLeaf<Int_t>* var_tag_os_sspion_leaf_; 
   dooselection::reducer::ReducerLeaf<Int_t>* var_tag_os_sspion_babar_leaf_; 
@@ -79,6 +120,27 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
 };
 
 void TaggingRdcr::CreateSpecialBranches(){
+  /////// OS neural net combination
+  var_tag_os_comb_with_nnet_kaon_leaf_       = &CreateIntLeaf("obsTagOSwNNKaon");
+  var_tag_os_comb_with_nnet_kaon_babar_leaf_ = &CreateIntLeaf("obsTagOSwNNKaon_BaBar");  
+  cat_tagged_os_comb_with_nnet_kaon_leaf_    = &CreateIntLeaf("catTaggedOSwNNKaon");
+  var_tag_eta_os_comb_with_nnet_kaon_leaf_   = &CreateDoubleLeaf("obsEtaOSwNNKaon");
+
+  var_tag_os_muon_           = (Int_t*)GetInterimLeafByName("B0_OS_Muon_DEC").branch_address();     
+  var_tag_os_electron_       = (Int_t*)GetInterimLeafByName("B0_OS_Electron_DEC").branch_address();
+  var_tag_os_nnet_kaon_      = (Int_t*)GetInterimLeafByName("B0_OS_nnetKaon_DEC").branch_address();
+  var_tag_os_vtx_charge_     = (Int_t*)GetInterimLeafByName("B0_VtxCharge_DEC").branch_address();      
+  var_tag_eta_os_muon_       = (Double_t*)GetInterimLeafByName("B0_OS_Muon_PROB").branch_address();      
+  var_tag_eta_os_electron_   = (Double_t*)GetInterimLeafByName("B0_OS_Electron_PROB").branch_address();     
+  var_tag_eta_os_nnet_kaon_  = (Double_t*)GetInterimLeafByName("B0_OS_nnetKaon_PROB").branch_address();     
+  var_tag_eta_os_vtx_charge_ = (Double_t*)GetInterimLeafByName("B0_VtxCharge_PROB").branch_address();       
+
+  var_tag_os_comb_with_nnet_kaon_value_       = (Int_t*)var_tag_os_comb_with_nnet_kaon_leaf_->branch_address();
+  var_tag_os_comb_with_nnet_kaon_babar_value_ = (Int_t*)var_tag_os_comb_with_nnet_kaon_babar_leaf_->branch_address();
+  cat_tagged_os_comb_with_nnet_kaon_value_    = (Int_t*)cat_tagged_os_comb_with_nnet_kaon_leaf_->branch_address();
+  var_tag_eta_os_comb_with_nnet_kaon_value_   = (Double_t*)var_tag_eta_os_comb_with_nnet_kaon_leaf_->branch_address();
+
+  /////// sin2beta OS + SSPion combination
   // create special combination leaves
   var_tag_os_sspion_leaf_         = &CreateIntLeaf("obsTagOSSSPion");
   var_tag_os_sspion_babar_leaf_   = &CreateIntLeaf("obsTagOSSSPion_BaBar");
@@ -105,8 +167,76 @@ void TaggingRdcr::CreateSpecialBranches(){
 bool TaggingRdcr::EntryPassesSpecialCuts(){return true;}
 
 void TaggingRdcr::UpdateSpecialLeaves(){
+  // OS neural net combination
+
+  // Get original tagging decision and mistag from the DTT 
+  // in order to recompute OS and total decision and mistag, with nnetKaon (OS and SS) instead of classic ones 
+  Double_t osw[4]; 
+  Int_t osdec[4]; 
+  osw[0] = *var_tag_eta_os_muon_; 
+  osw[1] = *var_tag_eta_os_electron_; 
+  osw[2] = *var_tag_eta_os_nnet_kaon_; 
+  //osw[2] = B0_OS_Kaon_PROB; /// ---- cut based 
+  osw[3] = *var_tag_eta_os_vtx_charge_; 
+
+  osdec[0] = *var_tag_os_muon_; 
+  osdec[1] = *var_tag_os_electron_; 
+  osdec[2] = *var_tag_os_nnet_kaon_; 
+  //osdec[2] = B0_OS_Kaon_DEC; /// ---- cut based 
+  osdec[3] = *var_tag_os_vtx_charge_; 
+
+   // cout << "========> ol2 " << osw[1] << endl; 
+
+  // Ol recompute the combined probability and tag decision for SSK+OS 
+  // First recompute the OS decision and mistag, with B0_OS_nnetKaon instead of B0_OS_Kaon 
+  double tagdecision=0; 
+  double pnsum_a= 0.50; //hypothesis of truetag=+1 
+  double pnsum_b= 0.50; //hypothesis of truetag=-1 
+  double pnsum= 0.; 
+
+  double m_ProbMin_OS = 0.5; 
+  double m_P0_Cal_OS = 0; 
+  double m_P1_Cal_OS = 1.;
+  double m_Eta_Cal_OS = 0.; 
+
+  for( int i = 0; i != 4; ++i ){ //multiply all probabilities 
+    const double mtag = osdec[i]; 
+    std::cout << " in loop, i = " << i << " dec = " << osdec[i] << " w = " << osw[i] << std::endl; 
+
+    if(!mtag) continue; 
+
+    const double pn = 1-osw[i]; //probability of 'right' 
+    pnsum_a *= ((1-mtag)/2 + mtag*pn ); // p 
+    pnsum_b *= ((1+mtag)/2 - mtag*pn ); //(1-p) 
+  } 
+  if(pnsum_a > pnsum_b) tagdecision = +1; 
+  if(pnsum_a < pnsum_b) tagdecision = -1; 
+
+  //normalise probability to the only two possible flavours: 
+  pnsum = std::max(pnsum_a,pnsum_b) /(pnsum_a + pnsum_b); 
+
+  //Calibration (w=1-pn) w' = p0 + p1(w-eta) 
+  pnsum = 1 - m_P0_Cal_OS - m_P1_Cal_OS * ( (1-pnsum)-m_Eta_Cal_OS); 
+
+  //throw away poorly significant tags 
+  if(pnsum < m_ProbMin_OS || tagdecision == 0){ 
+    pnsum = 0.50; 
+    tagdecision = 0; 
+  }
+  // B0_TAGDECISION_OS = tagdecision; 
+  // B0_TAGOMEGA_OS = 1-pnsum ; 
+
+  *var_tag_os_comb_with_nnet_kaon_value_ = tagdecision;       
+  *var_tag_os_comb_with_nnet_kaon_babar_value_ = -1.*tagdecision; 
+  *var_tag_eta_os_comb_with_nnet_kaon_value_ = 1-pnsum; 
+  if (tagdecision==0){
+    *cat_tagged_os_comb_with_nnet_kaon_value_ = 0;       
+  }
+  else{
+    *cat_tagged_os_comb_with_nnet_kaon_value_ = 1;
+  }
+
   // sin2beta OS + SSPion combination
-  
   if (*var_tag_os_!=0){ // if OS tagger has tag, write OS tag to combination and 
     *var_tag_os_sspion_value_ = *var_tag_os_;
     *var_tag_os_sspion_babar_value_ = -(*var_tag_os_);
