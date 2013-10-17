@@ -194,10 +194,12 @@ void TaggingRdcr::UpdateSpecialLeaves(){
   double pnsum_b= 0.50; //hypothesis of truetag=-1 
   double pnsum= 0.; 
 
+  // calibration for Reco14 (2011 and 2012)
+  // see Stefanias email 20131012
   double m_ProbMin_OS = 0.5; 
-  double m_P0_Cal_OS = 0; 
-  double m_P1_Cal_OS = 1.;
-  double m_Eta_Cal_OS = 0.; 
+  double m_P0_Cal_OS = 0.423; 
+  double m_P1_Cal_OS = 0.875;
+  double m_Eta_Cal_OS = 0.403; 
 
   for( int i = 0; i != 4; ++i ){ //multiply all probabilities 
     const double mtag = osdec[i]; 
