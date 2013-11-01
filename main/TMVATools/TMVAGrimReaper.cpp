@@ -49,8 +49,8 @@ int main(int argc, char* argv[]){
     // old style input output files enforcing arbitrary file naming that can
     // get messy when applying multiple classifiers into one file
 
-    swarn << "TMVAReducer: You are using old style config files that enforce a naming scheme for output files." << endmsg;
-    swarn << "             This functionality might be deprecated in a future release of TMVAReducer." << endmsg;
+    swarn << "TMVAGrimReaper: You are using old style config files that enforce a naming scheme for output files." << endmsg;
+    swarn << "             This functionality might be deprecated in a future release of TMVAGrimReaper." << endmsg;
     
     TString path(config.getString("data_path"));
     TString file(config.getString("data_file"));
