@@ -445,7 +445,7 @@ int Bd2JpsiKS(const std::string& inputfile, const std::string& inputtree, const 
 
   // number of PVs
   ReducerLeaf<Int_t>& var_npv_leaf = reducer.CreateIntCopyLeaf("catNPV", reducer.GetInterimLeafByName("nPV"));
-  
+
   // magnet direction
   ReducerLeaf<Int_t>& var_mag_leaf = reducer.CreateIntCopyLeaf("catMag", reducer.GetInterimLeafByName("Polarity"));
   
@@ -457,7 +457,24 @@ int Bd2JpsiKS(const std::string& inputfile, const std::string& inputtree, const 
     cat_year_leaf.AddCondition("2011", "GpsTime < 1.325376e+15",  2011);
     cat_year_leaf.AddCondition("2012", "GpsTime >= 1.325376e+15", 2012);
 
+  // maximal muon track fit chi2ndof
+  reducer.CreateDoubleLeaf("varMuonMaxTrackFitChi2ndof", -999999.).Maximum(reducer.GetInterimLeafByName("muplus_TRACK_CHI2NDOF"), reducer.GetInterimLeafByName("muminus_TRACK_CHI2NDOF"));
+
+  // maximal pion track fit chi2ndof
+  reducer.CreateDoubleLeaf("varPionMaxTrackFitChi2ndof", -999999.).Maximum(reducer.GetInterimLeafByName("piplus_TRACK_CHI2NDOF"), reducer.GetInterimLeafByName("piminus_TRACK_CHI2NDOF"));
+
+  // minimal muon PID
+  reducer.CreateDoubleLeaf("varMuonMinPIDmu", -999999.).Minimum(reducer.GetInterimLeafByName("muplus_PIDmu"), reducer.GetInterimLeafByName("muminus_PIDmu"));
+
+  // minimal pion MinIP chi2
+  reducer.CreateDoubleLeaf("varPionMinMinIPChi2", -999999.).Minimum(reducer.GetInterimLeafByName("piplus_MINIPCHI2"), reducer.GetInterimLeafByName("piminus_MINIPCHI2"));
+
   // decay tree fit
+  // fit status
+  ReducerLeaf<Int_t>& dtf_status_pv_constraint = reducer.CreateIntCopyLeaf("varDTFStatusPVConst", reducer.GetInterimLeafByName("B0_FitPVConst_status"+flat_suffix));
+  ReducerLeaf<Int_t>& dtf_status_daughters_pv_constraint = reducer.CreateIntCopyLeaf("varDTFStatusDaughtersPVConst", reducer.GetInterimLeafByName("B0_FitDaughtersPVConst_status"+flat_suffix));
+
+  // chi2ndof
   ReducerLeaf<Double_t>* dtf_chi2ndof_leaf_ptr = NULL;
   if (reducer.LeafExists("B0_FitDaughtersPVConst_chi2")) {
     dtf_chi2ndof_leaf_ptr = &reducer.CreateDoubleLeaf("varDTFChi2ndof", -1.0);
@@ -465,6 +482,27 @@ int Bd2JpsiKS(const std::string& inputfile, const std::string& inputtree, const 
                                   reducer.GetInterimLeafByName("B0_FitDaughtersPVConst_nDOF"+flat_suffix));
   } else if (reducer.LeafExists("B0_LOKI_DTF_CHI2NDOF")) {
     dtf_chi2ndof_leaf_ptr = &reducer.CreateDoubleCopyLeaf("varDTFChi2ndof", reducer.GetInterimLeafByName("B0_LOKI_DTF_CHI2NDOF"));
+  }
+
+  // alternative masses with different constraints
+  if (reducer.LeafExists("B0_FitPVConst_KS0_M"+flat_suffix)) ReducerLeaf<Double_t>& dtf_kaon_mass_pv_constraint = reducer.CreateDoubleCopyLeaf("varDTFKS0MassPVConst", reducer.GetInterimLeafByName("B0_FitPVConst_KS0_M"+flat_suffix));
+  if (reducer.LeafExists("B0_FitDaughtersPVConst_KS0_M"+flat_suffix)) ReducerLeaf<Double_t>& dtf_kaon_mass_daughters_pv_constraint = reducer.CreateDoubleCopyLeaf("varDTFKS0MassDaughtersPVConst", reducer.GetInterimLeafByName("B0_FitDaughtersPVConst_KS0_M"+flat_suffix));
+  if (reducer.LeafExists("B0_FitPVConst_J_psi_1S_M"+flat_suffix)) ReducerLeaf<Double_t>& dtf_kaon_mass_pv_constraint = reducer.CreateDoubleCopyLeaf("varDTFJpsiMassPVConst", reducer.GetInterimLeafByName("B0_FitPVConst_J_psi_1S_M"+flat_suffix));
+  if (reducer.LeafExists("B0_FitDaughtersPVConst_J_psi_1S_M"+flat_suffix)) ReducerLeaf<Double_t>& dtf_kaon_mass_daughters_pv_constraint = reducer.CreateDoubleCopyLeaf("varDTFJpsiMassDaughtersPVConst", reducer.GetInterimLeafByName("B0_FitDaughtersPVConst_J_psi_1S_M"+flat_suffix));
+
+  // DTF PV position
+  if (reducer.LeafExists("B0_FitDaughtersPVConst_PV_X"+flat_suffix)) ReducerLeaf<Double_t>& dtf_pv_position_x = reducer.CreateDoubleCopyLeaf("varDTFPVPosX", reducer.GetInterimLeafByName("B0_FitDaughtersPVConst_PV_X"+flat_suffix));
+  if (reducer.LeafExists("B0_FitDaughtersPVConst_PV_Y"+flat_suffix)) ReducerLeaf<Double_t>& dtf_pv_position_y = reducer.CreateDoubleCopyLeaf("varDTFPVPosY", reducer.GetInterimLeafByName("B0_FitDaughtersPVConst_PV_Y"+flat_suffix));
+  if (reducer.LeafExists("B0_FitDaughtersPVConst_PV_Z"+flat_suffix)) ReducerLeaf<Double_t>& dtf_pv_position_z = reducer.CreateDoubleCopyLeaf("varDTFPVPosZ", reducer.GetInterimLeafByName("B0_FitDaughtersPVConst_PV_Z"+flat_suffix));
+
+  // minimal muon transverse momentum
+  if (reducer.LeafExists("B0_FitPVConst_J_psi_1S_P0_PT_flat") && reducer.LeafExists("B0_FitPVConst_J_psi_1S_P1_PT_flat")){
+    reducer.CreateDoubleLeaf("varMuonDTFMinPT", -999999.).Minimum(reducer.GetInterimLeafByName("B0_FitPVConst_J_psi_1S_P0_PT_flat"), reducer.GetInterimLeafByName("B0_FitPVConst_J_psi_1S_P1_PT_flat"));
+  }
+
+  // minimal pion momentum
+  if (reducer.LeafExists("B0_FitPVConst_KS0_P0_P_flat") && reducer.LeafExists("B0_FitPVConst_KS0_P1_P_flat")){
+    reducer.CreateDoubleLeaf("varPionDTFMinP", -999999.).Minimum(reducer.GetInterimLeafByName("B0_FitPVConst_KS0_P0_P_flat"), reducer.GetInterimLeafByName("B0_FitPVConst_KS0_P1_P_flat"));
   }
 
   // End vertex chi2/ndof
