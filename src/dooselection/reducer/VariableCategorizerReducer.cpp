@@ -31,8 +31,8 @@ void VariableCategorizerReducer::set_variable(std::string variable_name, int nbi
     /// 6 int pointer to variable category 
     /// 7 double pointer to variable value 
     /// 8 reducer leaf pointer to variable category leaf
-    int* int_ptr=NULL; Double_t* double_ptr=NULL; dooselection::reducer::ReducerLeaf<Int_t>* leaf_ptr=NULL;
-    auto t = std::make_tuple(variable_name, nbins, range_min, range_max, variable_quantiles, variable_data_points, int_ptr, double_ptr, leaf_ptr);
+    int* int_ptr=NULL; Float_t* float_ptr=NULL; dooselection::reducer::ReducerLeaf<Int_t>* leaf_ptr=NULL;
+    auto t = std::make_tuple(variable_name, nbins, range_min, range_max, variable_quantiles, variable_data_points, int_ptr, float_ptr, leaf_ptr);
     variables_.push_back(t);
     doocore::io::sinfo << "-info-  \t" << "VariableCategorizerReducer \t" << "Added variable '" << variable_name << "' to list of variables to categorize" << " (" << nbins << " bins in range " << range_min << " - " << range_max << ")." << doocore::io::endmsg;
   // }
@@ -50,7 +50,7 @@ void VariableCategorizerReducer::CreateSpecialBranches(){
     dooselection::reducer::ReducerLeaf<Int_t>* variable_category_leaf = &(CreateIntLeaf(prefix_name_+boost::lexical_cast<std::string>(variable_binning)+"_"+variable_name, prefix_name_+boost::lexical_cast<std::string>(variable_binning)+"_"+variable_name, "Int_t", -1));
 
     std::get<6>(variable) = (Int_t*)variable_category_leaf->branch_address();
-    std::get<7>(variable) = (Double_t*)GetInterimLeafByName(variable_name).branch_address();
+    std::get<7>(variable) = (Float_t*)GetInterimLeafByName(variable_name).branch_address();
     std::get<8>(variable) = variable_category_leaf;
   }
 }

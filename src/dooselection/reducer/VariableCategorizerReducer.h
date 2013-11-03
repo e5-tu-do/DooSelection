@@ -65,7 +65,7 @@ class VariableCategorizerReducer : virtual public Reducer {
   /// 6 int pointer to variable category 
   /// 7 double pointer to variable value 
   /// 8 reducer leaf pointer to variable category leaf
-  std::vector< std::tuple< std::string, int, double, double, std::vector<double>, std::vector<double>, int*, Double_t*, dooselection::reducer::ReducerLeaf<Int_t>* > > variables_;
+  std::vector< std::tuple< std::string, int, double, double, std::vector<double>, std::vector<double>, int*, Float_t*, dooselection::reducer::ReducerLeaf<Int_t>* > > variables_;
 };
 
 } // namespace reducer
