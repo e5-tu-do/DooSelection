@@ -245,6 +245,12 @@ void Reducer::FillOutputTree() {
   FlushEvent();
 }
   
+void Reducer::LoadTreeFriendsEntryHook(long long entry) {
+  for (std::vector<TTree*>::iterator it=additional_input_tree_friends_.begin(), end=additional_input_tree_friends_.end(); it!=end; ++it) {
+    (*it)->GetEntry( entry<=(*it)->GetEntries() ? entry : (*it)->GetEntries() );
+  }
+}
+
 void Reducer::FlushEvent() {
   output_tree_->Fill();
   ++num_written_;
@@ -298,11 +304,26 @@ void Reducer::OpenInputFileAndTree(){
   cout << "Opening InputTree " << input_tree_path_ << endl;
   input_tree_ = (TTree*)input_file_->Get(input_tree_path_);
   
+  for (std::vector<TTree*>::iterator it=additional_input_tree_friends_.begin(), end=additional_input_tree_friends_.end(); it!=end; ++it) {
+    
+    if (input_tree_->GetEntries() != (*it)->GetEntries()) {
+      swarn << "Error in Reducer::OpenInputFileAndTree(): Input tree " << input_tree_->GetName() << " and friend " << (*it)->GetName() << " do not have equal number of entries (" << input_tree_->GetEntries() << " vs. " << (*it)->GetEntries() << "). " << endmsg;
+    }
+  }
+  
   if (input_tree_ == NULL || TString(input_tree_->IsA()->GetName()).CompareTo("TTree") != 0) {
     serr << "Could not open input tree! Giving up." << endmsg;
     input_file_->ls();
     throw 1;
   }
+}
+  
+void Reducer::AddTreeFriend(std::string file_name, std::string tree_name) {
+  TFile* input_file = new TFile(file_name.c_str());
+  TTree* input_tree = (TTree*)input_file->Get(tree_name.c_str());
+  
+  sinfo << "Adding tree " << file_name << ":" << tree_name << " as friend of input tree." << endmsg;
+  additional_input_tree_friends_.push_back(input_tree);
 }
 
 void Reducer::CreateInterimFileAndTree(){
@@ -577,6 +598,23 @@ void Reducer::InitializeInterimLeafMap(TTree* tree, std::vector<ReducerLeaf<Floa
       ReducerLeaf<Float_t>* leaf = new ReducerLeaf<Float_t>(leaf_tree);
       leaves->push_back(leaf);
     }
+  }
+  
+  for (std::vector<TTree*>::iterator it=additional_input_tree_friends_.begin(), end=additional_input_tree_friends_.end(); it!=end; ++it) {
+    TObjArray* leaf_list = (*it)->GetListOfLeaves();
+    int num_leaves       = leaf_list->GetEntries();
+    
+    // iterate over all leaves and sort them into map
+    for (int i=0; i<num_leaves; ++i) {
+      TLeaf* leaf_tree = dynamic_cast<TLeaf*>((*leaf_list)[i]);
+      
+      //sdebug << " leaf: " << leaf_tree->GetName() << " - " << leaf_tree->GetBranch()->TestBit(1024) << endmsg;
+      if (!leaf_tree->GetBranch()->TestBit(1024)) {
+        ReducerLeaf<Float_t>* leaf = new ReducerLeaf<Float_t>(leaf_tree);
+        leaves->push_back(leaf);
+      }
+    }
+
   }
   
   std::cout << num_leaves << " total leaves in interim tree" << std::endl;

@@ -26,6 +26,7 @@ enum ReducerLeafOperations {
   kMinimum,
   kMaximum,
   kConditionsMap,
+  kDoNotUpdate
 };
 
 // Haha, this is why I like C++: The function below needs to be declared for the
@@ -591,6 +592,9 @@ bool ReducerLeaf<T>::UpdateValue() {
         } else {
           *branch_address_templ_ = default_value_;
         }
+        break;
+      case kDoNotUpdate:
+        break;
       default:
         break;
     }

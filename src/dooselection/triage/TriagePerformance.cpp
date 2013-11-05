@@ -64,6 +64,9 @@ void Triage::PlotROC(std::string name, std::pair<TH1D, TH1D> hist_number_sig_bkg
     signal_efficiency[i] = FoM::SignalEfficiency(n_signal_events, n_background_events, max_n_sig_events, max_n_bkg_events);
     background_rejection[i] = FoM::BackgroundRejection(n_signal_events, n_background_events, max_n_sig_events, max_n_bkg_events);
   }
+  
+  TFile roc_file("roc_curve.root", "recreate");
+  
   TCanvas canvas("canvas", "canvas", 800, 600);
   TGraph roc_graph(nbins_, signal_efficiency, background_rejection);
 
@@ -77,10 +80,14 @@ void Triage::PlotROC(std::string name, std::pair<TH1D, TH1D> hist_number_sig_bkg
   roc_graph.GetYaxis()->SetLimits(0.,1.);
 
   roc_graph.Draw("ap");
+  
 
   fs::path filename = fs::path("PerformanceScans/pdf") / fs::path(std::string("ROC_")+name+".pdf");
   doocore::config::Summary::GetInstance().AddFile(filename);
   doocore::lutils::printPlot (&canvas, "ROC_"+name, "PerformanceScans/");
+  
+  roc_graph.Write("roc_curve");
+  roc_file.Close();
 }
 
 void Triage::PlotSignalEfficiency(std::string name, std::pair<TH1D, TH1D> hist_number_sig_bkg_events, std::vector<double> cut_values, double max_n_sig_events, double max_n_bkg_events){

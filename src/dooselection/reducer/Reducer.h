@@ -108,6 +108,8 @@ class TTreeFormula;
  *   - dooselection::reducer::Reducer::UpdateSpecialLeaves();
  *   \- virtual function to calculate values of higher level leaves like 
  *    - complicated vetos and such.
+ *   - dooselection::reducer::Reducer::LoadTreeFriendsEntryHook(long long);
+ *   \- virtual function to load tree friend entries.
  *   - dooselection::reducer::Reducer::EntryPassesSpecialCuts();
  *   \- virtual function to check if leaves fulfil higher level cuts like 
  *    - complicated vetos or any other requirement.
@@ -449,6 +451,14 @@ class Reducer {
   }
   ///@}
   
+  /**
+   *  @brief Add additional tree friends to input tree
+   *
+   *  @param file_name File to open the tree friend from
+   *  @param tree_name Tree to open in file
+   */
+  void AddTreeFriend(std::string file_name, std::string tree_name);
+  
   /** @name Leaf creation
    *  Functions creating new leaves in the output tree
    */
@@ -670,6 +680,23 @@ class Reducer {
   virtual void FillOutputTree();
   
   /**
+   *  @brief Hook for loading of friend entries
+   *
+   *  For each new interim tree entry that is loaded, this function is called 
+   *  with the interim tree entry number. In Reducer this will simply load the
+   *  appropriate entries in all tree friends as well. 
+   *
+   *  Derived Reducers like TupleMergeReducer can overwrite this function.
+   *
+   *  @warning In case the tree friend does not contain enough entries, the last 
+   *           event in the tree friends will be loaded instead. This will 
+   *           possibly lead to undesired behaviour.
+   *
+   *  @param entry The entry of the interim tree that is loaded.
+   */
+  virtual void LoadTreeFriendsEntryHook(long long entry);
+  
+  /**
    *  @brief Fill/flush the current event into the output tree
    *
    *  This function is responsible for filling the current event (i.e. all 
@@ -706,6 +733,11 @@ class Reducer {
 	 * Input tree protected to give derived classed possibility to work with it.
 	 */
   TTree* input_tree_;
+  
+  /**
+   *  @brief Additional tree friends to add to the input tree
+   */
+  std::vector<TTree*> additional_input_tree_friends_;
   
   /**
    * members needed for best candidate selection
@@ -782,6 +814,9 @@ class Reducer {
   void GetTreeEntryUpdateLeaves(TTree* tree, unsigned int i) {
     selected_entry_ = i;
     tree->GetEntry(i);
+    
+    LoadTreeFriendsEntryHook(i);
+    
     UpdateAllValues<Float_t>(float_leaves_);
     UpdateAllValues<Double_t>(double_leaves_);
     UpdateAllValues<Int_t>(int_leaves_);
