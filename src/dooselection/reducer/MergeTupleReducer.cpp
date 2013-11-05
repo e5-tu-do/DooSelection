@@ -71,9 +71,11 @@ void dooselection::reducer::MergeTupleReducer::ProcessInputTree() {
       }
       if (!entries_match) {
         ++index_tree;
+        if (index_tree >= input_tree_->GetEntries()) break;
         input_tree_->GetEvent(index_tree);
       }
     }
+    if (index_tree >= input_tree_->GetEntries()) break;
     
     if (entries_match) {
       event_mapping_.push_back(std::make_pair(index_tree, index_friend));
