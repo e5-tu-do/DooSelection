@@ -86,8 +86,8 @@ int main(int argc, char * argv[]){
   }
   else{
     input_sig_file_name = config.getString("general.input.sig_file");
-    input_bkg_file_name = config.getString("general.input.sig_file");
-    input_sig_tree_name = config.getString("general.input.bkg_tree");
+    input_bkg_file_name = config.getString("general.input.bkg_file");
+    input_sig_tree_name = config.getString("general.input.sig_tree");
     input_bkg_tree_name = config.getString("general.input.bkg_tree");
     if ((input_sig_file_name == "") || (input_bkg_file_name == "") || (input_sig_tree_name == "") || (input_bkg_tree_name == "") ){
       doocore::io::serr << "-ERROR- " << "When use different input files for signal and background, config objects: 'general.input.sig_file', 'general.input.bkg_file', 'general.input.sig_tree' and 'general.input.bkg_tree' have to be defined!" << doocore::io::endmsg;

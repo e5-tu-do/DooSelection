@@ -1,3 +1,13 @@
+/******************************************/
+// VariableCategorizerGrimReaper.cpp
+//
+// Standalone GrimReaper that creates new
+// category leaves with equaly filled bins
+//
+// Author: Christophe Cauet
+// Date: 2013-10-15
+/******************************************/
+
 // from DooCore
 #include "doocore/io/MsgStream.h"
 #include "doocore/config/EasyConfig.h"
