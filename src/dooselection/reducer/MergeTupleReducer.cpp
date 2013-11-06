@@ -59,7 +59,8 @@ void dooselection::reducer::MergeTupleReducer::ProcessInputTree() {
 
   long long index_tree = 0;
   input_tree_->GetEvent(index_tree);
-  for (long long index_friend=0; index_friend<(*it_friend)->GetEntries(); ++index_friend) {
+  long long index_friend=0;
+  for (index_friend=0; index_friend<(*it_friend)->GetEntries(); ++index_friend) {
     (*it_friend)->GetEvent(index_friend);
     
     bool entries_match = false;
@@ -101,6 +102,8 @@ void dooselection::reducer::MergeTupleReducer::ProcessInputTree() {
 
     }
   }
+  sinfo << "MergeTupleReducer::ProcessInputTree(): Finished analysing events. A total of " << frac_matched << "% (" << index_friend+1 << " events) have been matched." << endmsg;
+  
   input_tree_->SetBranchStatus("*", true);
 }
 
