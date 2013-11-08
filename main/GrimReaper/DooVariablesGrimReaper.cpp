@@ -633,11 +633,6 @@ int Bd2JpsiKS(const std::string& inputfile, const std::string& inputtree, const 
   ReducerLeaf<Int_t>& trigger_hlt1_highmass_leaf_ptr = reducer.CreateIntCopyLeaf("catTriggerHlt1HighMassTOS", reducer.GetInterimLeafByName("J_psi_1S_Hlt1DiMuonHighMassDecision_TOS"));
   ReducerLeaf<Int_t>& trigger_hlt2_detachedjpsi_leaf_ptr = reducer.CreateIntCopyLeaf("catTriggerHlt2DetachedJpsiTOS", reducer.GetInterimLeafByName("J_psi_1S_Hlt2DiMuonDetachedJPsiDecision_TOS"));
   ReducerLeaf<Int_t>& trigger_hlt2_jpsi_leaf_ptr = reducer.CreateIntCopyLeaf("catTriggerHlt2JpsiTOS", reducer.GetInterimLeafByName("J_psi_1S_Hlt2DiMuonJPsiDecision_TOS"));
-  
-  ReducerLeaf<Int_t>& catTriggerSetFull = reducer.CreateIntLeaf("catTriggerSetFull", -10);
-      TCut trigger_set_full = "((J_psi_1S_Hlt1DiMuonHighMassDecision_TOS==1)||(J_psi_1S_Hlt1TrackMuonDecision_TOS==1))&&(J_psi_1S_Hlt2DiMuonDetachedJPsiDecision_TOS==1)";
-      catTriggerSetFull.AddCondition("triggered", trigger_set_full.GetTitle(), 1);
-      catTriggerSetFull.AddCondition("not_triggered", (!trigger_set_full).GetTitle(), 0);
 
   ReducerLeaf<Int_t>& catTriggerSetAlmostUnbiased = reducer.CreateIntLeaf("catTriggerSetAlmostUnbiased", -10);
       TCut trigger_set_almost_unbiased = "J_psi_1S_Hlt2DiMuonDetachedJPsiDecision_TOS==1&&J_psi_1S_Hlt1DiMuonHighMassDecision_TOS==1";
@@ -660,9 +655,19 @@ int Bd2JpsiKS(const std::string& inputfile, const std::string& inputtree, const 
       catTriggerHlt1HighMassAndHlt2Jpsi.AddCondition("triggered", trigger_hlt1highmass_hlt2jpsi.GetTitle(), 1);
       catTriggerHlt1HighMassAndHlt2Jpsi.AddCondition("not_triggered", (!trigger_hlt1highmass_hlt2jpsi).GetTitle(), 0);
 
-  ReducerLeaf<Int_t>& catTriggerSets = reducer.CreateIntLeaf("catTriggerSets", -10);
-      catTriggerSets.AddCondition("almost_unbiased", trigger_set_almost_unbiased_and_jpsi.GetTitle(), 0);
-      catTriggerSets.AddCondition("excl_biased", trigger_set_excl_biased.GetTitle(), 1);
+  ReducerLeaf<Int_t>& catTriggerEfficiencySet = reducer.CreateIntLeaf("catTriggerEfficiencySet", -10);
+      TCut trigger_efficiency_set = "(J_psi_1S_Hlt1DiMuonHighMassDecision_TOS==1)||(J_psi_1S_Hlt1TrackMuonDecision_TOS==1)||(J_psi_1S_Hlt2DiMuonDetachedJPsiDecision_TOS==1)||(J_psi_1S_Hlt2DiMuonJPsiDecision_TOS==1)";
+      catTriggerEfficiencySet.AddCondition("triggered", trigger_efficiency_set.GetTitle(), 1);
+      catTriggerEfficiencySet.AddCondition("not_triggered", (!trigger_efficiency_set).GetTitle(), 0);
+
+  ReducerLeaf<Int_t>& catTriggerSet = reducer.CreateIntLeaf("catTriggerSet", -10);
+      TCut trigger_set = "((J_psi_1S_Hlt1DiMuonHighMassDecision_TOS==1)||(J_psi_1S_Hlt1TrackMuonDecision_TOS==1))&&(J_psi_1S_Hlt2DiMuonDetachedJPsiDecision_TOS==1)";
+      catTriggerSet.AddCondition("triggered", trigger_set.GetTitle(), 1);
+      catTriggerSet.AddCondition("not_triggered", (!trigger_set).GetTitle(), 0);
+
+  ReducerLeaf<Int_t>& catTriggerEfficiency = reducer.CreateIntLeaf("catTriggerEfficiency", -10);
+      catTriggerEfficiency.AddCondition("almost_unbiased", trigger_set_almost_unbiased_and_jpsi.GetTitle(), 0);
+      catTriggerEfficiency.AddCondition("excl_biased", trigger_set_excl_biased.GetTitle(), 1);
 
   ReducerLeaf<Int_t>& catTrigger = reducer.CreateIntLeaf("catTrigger", -10);
       catTrigger.AddCondition("almost_unbiased", trigger_set_almost_unbiased.GetTitle(), 0);
