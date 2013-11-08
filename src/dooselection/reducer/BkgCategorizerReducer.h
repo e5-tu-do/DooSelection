@@ -139,7 +139,8 @@ private:
   /**
    *  @brief Array to be linked to matrix from TupleToolMCDecayTree
    **/
-  Float_t               decay_matrix_[rows_][columns_];
+  //Float_t               decay_matrix_[rows_][columns_];
+  Float_t (*decay_matrix_)[columns_];
   /**
    *  @brief Name of decay matrix in tuple
    **/

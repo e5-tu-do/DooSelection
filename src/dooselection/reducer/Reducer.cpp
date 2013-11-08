@@ -9,6 +9,9 @@
 #include <unistd.h>
 
 // from BOOST
+#ifdef __GNUG__
+#define BOOST_NO_CXX11_SCOPED_ENUMS
+#endif
 #include <boost/filesystem.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/lexical_cast.hpp>
@@ -25,6 +28,7 @@
 #include "TTreeFormula.h"
 #include "TRandom.h"
 #include "TStopwatch.h"
+#include "TTreeFormula.h"
 
 // from DooCore
 #include <doocore/io/MsgStream.h>
@@ -42,8 +46,11 @@ bool Reducer::abort_loop_ = false;
 Reducer::Reducer() : 
 event_number_leaf_ptr_(NULL),
 run_number_leaf_ptr_(NULL),
+interim_file_(NULL),
+formula_input_tree_(NULL),
 best_candidate_leaf_ptr_(NULL),
-num_events_process_(-1)
+num_events_process_(-1),
+old_style_interim_tree_(false)
 {
   GenerateInterimFileName();
 }
@@ -51,13 +58,18 @@ num_events_process_(-1)
 Reducer::Reducer(std::string const& config_file_path) :
   event_number_leaf_ptr_(NULL),
   run_number_leaf_ptr_(NULL),
+  interim_file_(NULL),
+  formula_input_tree_(NULL),
   best_candidate_leaf_ptr_(NULL),
-  num_events_process_(-1)
+  num_events_process_(-1),
+  old_style_interim_tree_(false)
 {
   GenerateInterimFileName();
 }
 
 Reducer::~Reducer(){
+//  sdebug << "Reducer::~Reducer()" << endmsg;
+
   for (std::vector<ReducerLeaf<Float_t>* >::const_iterator it = interim_leaves_.begin(); it != interim_leaves_.end(); ++it) {
     delete *it;
   }
@@ -71,10 +83,25 @@ Reducer::~Reducer(){
     delete *it;
   }
   
+  if (formula_input_tree_ != NULL) {
+    delete formula_input_tree_;
+  }
+  
+  if (interim_file_ != NULL) {
+    interim_file_->Close();
+    delete interim_file_;
+  }
+  if (input_file_ != NULL) {
+    input_file_->Close();
+    delete input_file_;
+  }
+  
   // TODO: delete file and tree pointers
 }
 
 void Reducer::Initialize(){
+  TTree::SetMaxTreeSize(1000000000000);
+  
   PrepareIntitialTree();
   PrepareFinalTree();
 }
@@ -107,6 +134,11 @@ void Reducer::Run(){
   InitializeOutputBranches<Int_t>(output_tree_, int_leaves_);
   
   unsigned int num_entries         = interim_tree_->GetEntries();
+  
+  if (num_events_process_ != -1) {
+    num_entries = num_events_process_;
+  }
+  
   num_written_ = 0;
   //unsigned int num_written         = 0;
   //unsigned int num_best_candidates = 0;
@@ -120,7 +152,8 @@ void Reducer::Run(){
   }
   
   int i = 0;
-  int status_stepping = num_entries>100000 ? num_entries/10000 : 10;
+  int status_stepping       = num_entries>100000 ? num_entries/10000 : 10;
+  int status_stepping_redir = num_entries>1000 ? num_entries/100 : 10;
   
   TStopwatch sw;
   sw.Start();
@@ -145,9 +178,34 @@ void Reducer::Run(){
     if (isatty(fileno(stdout))) {
       //std::cout << (i+1) << std::endl;
       //std::cout << (i+1)%1000 << std::endl;
+//      sdebug << "num_written_%status_stepping = " << num_written_ << "%" << status_stepping << " = " << num_written_%status_stepping << endmsg;
       if ((num_written_%status_stepping) == 0) {
-        double frac = static_cast<double> (i)/num_entries*100.0;
-        printf("Progress %.2f %         \xd", frac);
+        double frac = static_cast<double>(i)/num_entries;
+        double time = sw.RealTime();
+        double ete  = time/frac-time;
+        sw.Start(false);
+        if (ete > 3600) {
+          printf("Progress %.2f %   (ETE: %.1f h, spent: %.0f s, t/evt: %.2f ms)      \xd", frac*100.0, ete/3600., time, time/num_written_*1000);
+        } else if (ete > 60) {
+          printf("Progress %.2f %   (ETE: %.0f min, spent: %.0f s, t/evt: %.2f ms)      \xd", frac*100.0, ete/60., time, time/num_written_*1000);
+        } else {
+          printf("Progress %.2f %   (ETE: %.0f s, spent: %.0f s, t/evt: %.2f ms)      \xd", frac*100.0, ete, time, time/num_written_*1000);
+        }
+        fflush(stdout);
+      }
+    } else {
+      if ((num_written_%status_stepping_redir) == 0) {
+        double frac = static_cast<double>(i)/num_entries;
+        double time = sw.RealTime();
+        double ete  = time/frac-time;
+        sw.Start(false);
+        if (ete > 3600) {
+          printf("Progress %.2f %   (ETE: %.1f h, spent: %.0f s, t/evt: %.2f ms)\n", frac*100.0, ete/3600., time, time/num_written_*1000);
+        } else if (ete > 60) {
+          printf("Progress %.2f %   (ETE: %.0f min, spent: %.0f s, t/evt: %.2f ms)\n", frac*100.0, ete/60., time, time/num_written_*1000);
+        } else {
+          printf("Progress %.2f %   (ETE: %.0f s, spent: %.0f s, t/evt: %.2f ms)\n", frac*100.0, ete, time, time/num_written_*1000);
+        }
         fflush(stdout);
       }
     }
@@ -160,17 +218,18 @@ void Reducer::Run(){
     }
   }
   double time = sw.RealTime();
-  sinfo << "Processing event loop took " << time << " s (" << time/num_written_*1000 << " ms/event)." << endmsg;
+  sinfo << "Processing event loop took " << time << " s (" << time/num_written_*1000 << " ms/event).                                 " << endmsg;
   
   output_tree_->Write();
   sinfo << "OutputTree " << output_tree_path_ << " written to file " << output_file_path_ << " with " << num_written_ << " candidates." << endmsg; // "(" << num_best_candidates << " were best candidates without special cuts)." << endl;
   
-  sinfo << "Removing interim file " << interim_file_path_ << endmsg;
-  using namespace boost::filesystem;
-  remove(path(interim_file_path_));
   output_file_->Close();
   delete output_file_;
   output_file_ = NULL;
+  
+  sinfo << "Removing interim file " << interim_file_path_ << endmsg;
+  using namespace boost::filesystem;
+  remove(path(interim_file_path_));
 }
   
 void Reducer::FillOutputTree() {
@@ -186,6 +245,12 @@ void Reducer::FillOutputTree() {
   FlushEvent();
 }
   
+void Reducer::LoadTreeFriendsEntryHook(long long entry) {
+  for (std::vector<TTree*>::iterator it=additional_input_tree_friends_.begin(), end=additional_input_tree_friends_.end(); it!=end; ++it) {
+    (*it)->GetEntry( entry<=(*it)->GetEntries() ? entry : (*it)->GetEntries() );
+  }
+}
+
 void Reducer::FlushEvent() {
   output_tree_->Fill();
   ++num_written_;
@@ -239,31 +304,72 @@ void Reducer::OpenInputFileAndTree(){
   cout << "Opening InputTree " << input_tree_path_ << endl;
   input_tree_ = (TTree*)input_file_->Get(input_tree_path_);
   
+  for (std::vector<TTree*>::iterator it=additional_input_tree_friends_.begin(), end=additional_input_tree_friends_.end(); it!=end; ++it) {
+    
+    if (input_tree_->GetEntries() != (*it)->GetEntries()) {
+      swarn << "Error in Reducer::OpenInputFileAndTree(): Input tree " << input_tree_->GetName() << " and friend " << (*it)->GetName() << " do not have equal number of entries (" << input_tree_->GetEntries() << " vs. " << (*it)->GetEntries() << "). " << endmsg;
+    }
+  }
+  
   if (input_tree_ == NULL || TString(input_tree_->IsA()->GetName()).CompareTo("TTree") != 0) {
     serr << "Could not open input tree! Giving up." << endmsg;
     input_file_->ls();
     throw 1;
   }
 }
+  
+void Reducer::AddTreeFriend(std::string file_name, std::string tree_name) {
+  TFile* input_file = new TFile(file_name.c_str());
+  TTree* input_tree = (TTree*)input_file->Get(tree_name.c_str());
+  
+  sinfo << "Adding tree " << file_name << ":" << tree_name << " as friend of input tree." << endmsg;
+  additional_input_tree_friends_.push_back(input_tree);
+}
 
 void Reducer::CreateInterimFileAndTree(){
   gROOT->cd();
   
-  cout << "Creating InterimFile " << interim_file_path_ << endl;
-  interim_file_ = new TFile(interim_file_path_,"RECREATE");
-  
-  if (num_events_process_ == -1) {
-    cout << "Creating InterimTree with cut " << cut_string_ << endl;
-    interim_tree_ = input_tree_->CopyTree(cut_string_/*, "", 2000*/);
+  if (!old_style_interim_tree_) {
+    sinfo << "Using input tree as interim tree." << endmsg;
+    
+    interim_tree_ = input_tree_;
+    
+    if (cut_string_.Length() > 0) {
+      sinfo << "Initializing tree formula with cut " << cut_string_ << endmsg;
+      formula_input_tree_ = new TTreeFormula("formula_input_tree_", cut_string_, interim_tree_);
+      
+      if (formula_input_tree_->GetNdim() == 0) {
+        serr << "Error in Reducer::CreateInterimFileAndTree(): Cut string cannot be evaluated. " << endmsg;
+        throw 32;
+      }
+    } else {
+      sinfo << "Copying tree without specific cut (cuts may apply through higher level Reducers)." << endmsg;
+    }
+    
+    if (num_events_process_ != -1) {
+      swarn << "Warning: Copying only " << num_events_process_ << " events." << endmsg;
+    }
   } else {
-    cout << "Creating InterimTree with cut " << cut_string_ << ", copying only "
-         << num_events_process_ << " events." << endl;
-    interim_tree_ = input_tree_->CopyTree(cut_string_, "", num_events_process_);
+  
+    cout << "Creating InterimFile " << interim_file_path_ << endl;
+    interim_file_ = new TFile(interim_file_path_,"RECREATE");
+    
+    if (num_events_process_ == -1 && cut_string_.Length() == 0) {
+      cout << "No cut specified. Interim tree not necessary." << endl;
+      interim_tree_ = input_tree_;
+    } else if (num_events_process_ == -1) {
+      cout << "Creating InterimTree with cut " << cut_string_ << endl;
+      interim_tree_ = input_tree_->CopyTree(cut_string_/*, "", 2000*/);
+    } else {
+      cout << "Creating InterimTree with cut " << cut_string_ << ", copying only "
+      << num_events_process_ << " events." << endl;
+      interim_tree_ = input_tree_->CopyTree(cut_string_, "", num_events_process_);
+    }
+    interim_tree_->Write();
+    input_tree_ = NULL;
+    cout << "Closing InputFile." << endl;
+    input_file_->Close();
   }
-  interim_tree_->Write();
-  input_tree_ = NULL;
-  cout << "Closing InputFile." << endl;
-  input_file_->Close();
 }
 
 void Reducer::CreateOutputFileAndTree(){
@@ -276,12 +382,7 @@ void Reducer::CreateOutputFileAndTree(){
   }
   
   cout << "Creating OutputTree " << output_tree_path_ << endl;
-  // FK: does this make sense?  
-  //output_tree_ = (TTree*)output_file_->Get(output_tree_path_);
-  
   output_tree_ = new TTree(output_tree_path_, "GrimReaperTree");
-  
-  //name_mapping_.push_back(std::pair<TString,TString>("B0_M", "B0_MASS"));
   
   InitializeInterimLeafMap(interim_tree_, &interim_leaves_);
   RenameBranches(&interim_leaves_, name_mapping_);
@@ -406,7 +507,7 @@ unsigned int Reducer::GetBestCandidate(TTree* tree, unsigned int pos_event_start
   if (event_number_leaf_ptr_ == NULL || run_number_leaf_ptr_ == NULL || best_candidate_leaf_ptr_ == NULL) {
     // without best candidate selection
     while (i<num_entries) {
-      if (EntryPassesSpecialCuts()) {
+      if ((formula_input_tree_ == NULL || formula_input_tree_->EvalInstance() != 0) && EntryPassesSpecialCuts()) {
         //std::cout << i << " " << runNumber << " " << eventNumber << std::endl;
         return i+1;
       }
@@ -444,7 +545,7 @@ unsigned int Reducer::GetBestCandidate(TTree* tree, unsigned int pos_event_start
       best_candidate_value_before = best_candidate_leaf_ptr_->GetValue();
       // check if event passes special cuts and if event is better than current
       // best candidate or if there is no best candidate in this event yet
-      if (EntryPassesSpecialCuts() && (best_candidate_leaf_ptr_->GetValue() < best_candidate_value_min || best_candidate_value_min == -1)) {
+      if ((formula_input_tree_ == NULL || formula_input_tree_->EvalInstance() != 0) && EntryPassesSpecialCuts() && (best_candidate_leaf_ptr_->GetValue() < best_candidate_value_min || best_candidate_value_min == -1)) {
         best_candidate_value_min = best_candidate_leaf_ptr_->GetValue();
         best_candidate           = i;
       }
@@ -490,9 +591,30 @@ void Reducer::InitializeInterimLeafMap(TTree* tree, std::vector<ReducerLeaf<Floa
   
   // iterate over all leaves and sort them into map
   for (int i=0; i<num_leaves; ++i) {
-    ReducerLeaf<Float_t>* leaf = new ReducerLeaf<Float_t>((TLeaf*)(*leaf_list)[i]);
+    TLeaf* leaf_tree = dynamic_cast<TLeaf*>((*leaf_list)[i]);
     
-    leaves->push_back(leaf);
+    //sdebug << " leaf: " << leaf_tree->GetName() << " - " << leaf_tree->GetBranch()->TestBit(1024) << endmsg;
+    if (!leaf_tree->GetBranch()->TestBit(1024)) {
+      ReducerLeaf<Float_t>* leaf = new ReducerLeaf<Float_t>(leaf_tree);
+      leaves->push_back(leaf);
+    }
+  }
+  
+  for (std::vector<TTree*>::iterator it=additional_input_tree_friends_.begin(), end=additional_input_tree_friends_.end(); it!=end; ++it) {
+    TObjArray* leaf_list = (*it)->GetListOfLeaves();
+    int num_leaves       = leaf_list->GetEntries();
+    
+    // iterate over all leaves and sort them into map
+    for (int i=0; i<num_leaves; ++i) {
+      TLeaf* leaf_tree = dynamic_cast<TLeaf*>((*leaf_list)[i]);
+      
+      //sdebug << " leaf: " << leaf_tree->GetName() << " - " << leaf_tree->GetBranch()->TestBit(1024) << endmsg;
+      if (!leaf_tree->GetBranch()->TestBit(1024)) {
+        ReducerLeaf<Float_t>* leaf = new ReducerLeaf<Float_t>(leaf_tree);
+        leaves->push_back(leaf);
+      }
+    }
+
   }
   
   std::cout << num_leaves << " total leaves in interim tree" << std::endl;

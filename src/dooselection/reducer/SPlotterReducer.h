@@ -70,7 +70,15 @@ class SPlotterReducer : virtual public Reducer {
    */
   void set_components_plot(const std::vector<std::string>& components_plot) {components_plot_ = components_plot;}
   
+  /**
+   *  @brief Set plot output directory
+   *
+   *  @param plot_directory plot output directory (default: PlotSPlotterReducer)
+   */
+  void set_plot_directory(const std::string& plot_directory) {plot_directory_ = plot_directory;}
+  
  protected:
+  virtual void ProcessInputTree();
   virtual void UpdateSpecialLeaves();
   virtual void CreateSpecialBranches();
   
@@ -99,6 +107,11 @@ class SPlotterReducer : virtual public Reducer {
    *  @brief Components to plot for doofit::plotting::Plot
    */
   std::vector<std::string> components_plot_;
+  
+  /**
+   *  @brief Plot output directory
+   */
+  std::string plot_directory_;
 };
 } // namespace reducer
 } // namespace dooselection
