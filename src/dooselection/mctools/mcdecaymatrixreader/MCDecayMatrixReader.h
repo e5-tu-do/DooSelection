@@ -6,7 +6,7 @@
 
 
 // from project
-#include "particle.h"
+#include "Particle.h"
 #include "CondDBTranslator.h"
 
 
