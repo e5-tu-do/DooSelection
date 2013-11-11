@@ -68,6 +68,8 @@ namespace dooselection {
         // Fill the map with decay-strings
         for (Int_t ev = 0; ev < interim_tree_->GetEntries(); ev++) {
           interim_tree_->GetEntry(ev);
+          // Debug output to check content of decay matrices
+          //          std::cout << "DecayMatrix Length: " << decay_matrix_length_leaf_->GetValue() << ", DecayMatrix Depth: " << decay_depth_leaf_->GetValue() << ", Motherparticle: " << decay_matrix_[0][0] << std::endl << std::endl;
           if (!(decay_depth_leaf_->GetValue() < 1)){
             
             //The following is ugly and will be changed soon, changes in MCDecayMatrixReader needed!
@@ -76,7 +78,10 @@ namespace dooselection {
             for (int i=0; i<*decay_matrix_length_lptr_; ++i){
               for (int j=0; j<columns_; ++j){
                 decaymatrix[i*columns_+j] = decay_matrix_[i][j];
+                // Debug output to print decay matrices on the terminal
+                //                std::cout << decaymatrix[i*columns_+j] << " ";
               }
+//              std::cout << std::endl;
             }
             
             
