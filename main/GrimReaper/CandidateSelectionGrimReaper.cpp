@@ -21,17 +21,17 @@
 
 int main(int argc, char * argv[]){
   doocore::io::sinfo << "-info-  \t" << "CandidateSelectionGrimReaper \t" << "Welcome!" << doocore::io::endmsg;
-  std::string inputfile, inputtree, outputfile, outputtree, best_or_random;
+  std::string inputfile, inputtree, outputfile, outputtree, best_candidate_leaf;
   if (argc == 6){
     inputfile = argv[1];
     inputtree = argv[2];
     outputfile = argv[3];
     outputtree = argv[4];
-    best_or_random = argv[5];
+    best_candidate_leaf = argv[5];
   }
   else{
     doocore::io::serr << "-ERROR- \t" << "CandidateSelectionGrimReaper \t" << "Parameters needed:" << doocore::io::endmsg;
-    doocore::io::serr << "-ERROR- \t" << "CandidateSelectionGrimReaper \t"<< "input_file_name input_tree_name output_file_name output_tree_name best_or_random" << doocore::io::endmsg;
+    doocore::io::serr << "-ERROR- \t" << "CandidateSelectionGrimReaper \t"<< "input_file_name input_tree_name output_file_name output_tree_name best_candidate_leaf" << doocore::io::endmsg;
     return 1;
   }
 
@@ -58,27 +58,12 @@ int main(int argc, char * argv[]){
     abort();
   }
 
-  if (best_or_random == "best"){
-    if (reducer.LeafExists("varDTFChi2ndof")){
-      reducer.SetBestCandidateLeaf<Float_t>(reducer.GetInterimLeafByName("varDTFChi2ndof"));
-    }
-    else if (reducer.LeafExists("varChi2ndof")){
-      doocore::io::swarn << "-warning- \t" << "CandidateSelectionGrimReaper: Leaf 'varDTFChi2ndof' does not exists, using 'varChi2ndof' instead." << doocore::io::endmsg;
-      reducer.SetBestCandidateLeaf<Float_t>(reducer.GetInterimLeafByName("varChi2ndof"));
-    } 
-    else{
-      doocore::io::serr << "-ERROR- \t" << "CandidateSelectionGrimReaper: Leaves 'varDTFChi2ndof' and 'varChi2ndof' do not exist!" << doocore::io::endmsg;
-      abort();
-    }
+  if (reducer.LeafExists(best_candidate_leaf)){
+    reducer.SetBestCandidateLeaf<Float_t>(reducer.GetInterimLeafByName(best_candidate_leaf));
   }
-  else if (best_or_random == "random"){
-    if (reducer.LeafExists("idxRandom")){
-      reducer.SetBestCandidateLeaf<Float_t>(reducer.GetInterimLeafByName("idxRandom"));
-    } 
-    else{
-      doocore::io::serr << "-ERROR- \t" << "CandidateSelectionGrimReaper: Leaf 'idxRandom' does not exist!" << doocore::io::endmsg;
-      abort();
-    }
+  else{
+    doocore::io::serr << "-ERROR- \t" << "CandidateSelectionGrimReaper: Leaf '" << best_candidate_leaf << "' does not exist!" << doocore::io::endmsg;
+    abort();
   }
   
   reducer.Run();
