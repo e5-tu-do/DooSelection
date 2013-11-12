@@ -4,6 +4,7 @@
 #include <iostream>
 #include <csignal>
 #include <cstdlib>
+#include <cassert>
 
 // POSIX/UNIX
 #include <unistd.h>
@@ -329,7 +330,7 @@ void Reducer::AddTreeFriend(std::string file_name, std::string tree_name) {
 void Reducer::CreateInterimFileAndTree(){
   gROOT->cd();
   
-  if (!old_style_interim_tree_) {
+  if (!old_style_interim_tree_ || (old_style_interim_tree_ && num_events_process_ == -1 && cut_string_.Length() == 0)) {
     sinfo << "Using input tree as interim tree." << endmsg;
     
     interim_tree_ = input_tree_;
@@ -355,8 +356,8 @@ void Reducer::CreateInterimFileAndTree(){
     interim_file_ = new TFile(interim_file_path_,"RECREATE");
     
     if (num_events_process_ == -1 && cut_string_.Length() == 0) {
-      cout << "No cut specified. Interim tree not necessary." << endl;
-      interim_tree_ = input_tree_;
+      serr << "Error in Reducer::CreateInterimFileAndTree(): This should never happen. " << endmsg;
+      assert(false);
     } else if (num_events_process_ == -1) {
       cout << "Creating InterimTree with cut " << cut_string_ << endl;
       interim_tree_ = input_tree_->CopyTree(cut_string_/*, "", 2000*/);
@@ -616,6 +617,13 @@ void Reducer::InitializeInterimLeafMap(TTree* tree, std::vector<ReducerLeaf<Floa
     }
 
   }
+  
+//  sdebug << "i: " << additional_input_tree_friends_.back()->GetLeaf("netOutput")->GetValuePointer() << endmsg;
+//  sdebug << "o: " << GetInterimLeafByName("netOutput").branch_address() << endmsg;
+//  
+//  sdebug << "i: " << interim_tree_->GetLeaf("runNumber")->GetValuePointer() << endmsg;
+//  sdebug << "o: " << GetInterimLeafByName("runNumber").branch_address() << endmsg;
+
   
   std::cout << num_leaves << " total leaves in interim tree" << std::endl;
   std::cout << leaves->size() << " leaves to be copied" << std::endl;

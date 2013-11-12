@@ -37,6 +37,7 @@ void dooselection::reducer::MergeTupleReducer::ProcessInputTree() {
   }
   
   input_tree_->SetBranchStatus("*", false);
+  (*it_friend)->SetBranchStatus("*", false);
   
   for (std::vector<std::pair<ReducerLeaf<ULong64_t>,ReducerLeaf<ULong64_t>>>::const_iterator it = event_identifiers.begin();
        it != event_identifiers.end(); ++it) {
@@ -68,7 +69,7 @@ void dooselection::reducer::MergeTupleReducer::ProcessInputTree() {
     while (!entries_match) {
       entries_match = true;
       for (const std::pair<ReducerLeaf<ULong64_t>,ReducerLeaf<ULong64_t>>& identifier : event_identifiers) {
-//        sdebug << "identifier.second.GetValue("<< identifier.second.name() <<") : " << identifier.second.GetValue() << endmsg;
+//        sdebug << "identifier.first.GetValue("<< identifier.first.name() <<") : " << identifier.first.GetValue() << ", " << "identifier.second.GetValue("<< identifier.second.name() <<") : " << identifier.second.GetValue() << endmsg;
         
         if (identifier.first.GetValue() != identifier.second.GetValue()) {
 //          sdebug << "identifier.first.GetValue() != identifier.second.GetValue() : " << identifier.first.GetValue() << " != " << identifier.second.GetValue() << endmsg;
@@ -102,9 +103,11 @@ void dooselection::reducer::MergeTupleReducer::ProcessInputTree() {
 
     }
   }
-  sinfo << "MergeTupleReducer::ProcessInputTree(): Finished analysing events. A total of " << frac_matched << "% (" << index_friend+1 << " events) have been matched." << endmsg;
+  frac_matched = static_cast<double>(event_mapping_.size())/num_entries*100.0;
+  sinfo << "MergeTupleReducer::ProcessInputTree(): Finished analysing events. A total of " << frac_matched << "% (" << event_mapping_.size() << " events) have been matched." << endmsg;
   
   input_tree_->SetBranchStatus("*", true);
+  (*it_friend)->SetBranchStatus("*", true);
 }
 
 void dooselection::reducer::MergeTupleReducer::CreateSpecialBranches() {
@@ -124,8 +127,19 @@ void dooselection::reducer::MergeTupleReducer::LoadTreeFriendsEntryHook(long lon
     
     *leaf_entries_matched_ = 1;
     
+//    sdebug << "i: " << additional_input_tree_friends_.back()->GetLeaf("netOutput")->GetValue() << endmsg;
+//    sdebug << "i: " << additional_input_tree_friends_.back()->GetLeaf("netOutput")->GetValuePointer() << endmsg;
+//    sdebug << "o: " << GetInterimLeafByName("netOutput").GetValue() << endmsg;
+//    sdebug << "o: " << GetInterimLeafByName("netOutput").branch_address() << endmsg;
+//
+//    sdebug << "i: " << interim_tree_->GetLeaf("runNumber")->GetValue() << endmsg;
+//    sdebug << "i: " << interim_tree_->GetLeaf("runNumber")->GetValuePointer() << endmsg;
+//    sdebug << "o: " << GetInterimLeafByName("runNumber").GetValue() << endmsg;
+//    sdebug << "o: " << GetInterimLeafByName("runNumber").branch_address() << endmsg;
+    
     event_mapping_.pop_front();
   } else {
+//    sdebug << "nomatch" << endmsg;
     *leaf_entries_matched_ = 0;
   }
 }
