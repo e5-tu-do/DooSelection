@@ -178,37 +178,37 @@ void dooselection::reducer::MergeTupleReducer::LoadTreeFriendsEntryHook(long lon
     *leaf_entries_matched_ = 0;
     
     for (auto pair : branch_addresses_equalise_int_) {
-      *pair.first = *pair.second;
+      *pair.second = *pair.first;
     }
     for (auto pair : branch_addresses_equalise_float_) {
-      *pair.first = *pair.second;
+      *pair.second = *pair.first;
     }
     for (auto pair : branch_addresses_equalise_double_) {
-      *pair.first = *pair.second;
+      *pair.second = *pair.first;
     }
     for (auto pair : branch_addresses_equalise_uint_) {
-      *pair.first = *pair.second;
+      *pair.second = *pair.first;
     }
     for (auto pair : branch_addresses_equalise_bool_) {
-      *pair.first = *pair.second;
+      *pair.second = *pair.first;
     }
     for (auto pair : branch_addresses_equalise_long_) {
-      *pair.first = *pair.second;
+      *pair.second = *pair.first;
     }
     for (auto pair : branch_addresses_equalise_ulong_) {
-      *pair.first = *pair.second;
+      *pair.second = *pair.first;
     }
     for (auto pair : branch_addresses_equalise_short_) {
-      *pair.first = *pair.second;
+      *pair.second = *pair.first;
     }
     for (auto pair : branch_addresses_equalise_ushort_) {
-      *pair.first = *pair.second;
+      *pair.second = *pair.first;
     }
     for (auto pair : branch_addresses_equalise_char_) {
-      *pair.first = *pair.second;
+      *pair.second = *pair.first;
     }
     for (auto pair : branch_addresses_equalise_uchar_) {
-      *pair.first = *pair.second;
+      *pair.second = *pair.first;
     }
   }
 }
