@@ -9,6 +9,7 @@
 
 // from DooCore
 #include <doocore/io/MsgStream.h>
+#include <doocore/io/Progress.h>
 
 using namespace doocore::io;
 
@@ -48,31 +49,24 @@ void dooselection::reducer::MergeTupleReducer::ProcessInputTree() {
   // precaching everything that should not be evaluated in the event loop
   ULong64_t num_entries = (*it_friend)->GetEntries();
   ULong64_t num_entries_tree = input_tree_->GetEntries();
-  double frac = 0.0;
-  int n_print_stepping = 500;
-  double frac_increment = static_cast<double>(n_print_stepping)/num_entries*100.0;
   double frac_matched = 0.0;
-  bool tty = isatty(fileno(stdout));
-  std::chrono::high_resolution_clock::time_point time_last = std::chrono::high_resolution_clock::now();
-  std::chrono::high_resolution_clock::time_point time_now = std::chrono::high_resolution_clock::now();
 
   sinfo << "MergeTupleReducer::ProcessInputTree(): Analysing events according to event identifiers." << endmsg;
 
   long long index_tree = 0;
   input_tree_->GetEvent(index_tree);
   long long index_friend=0;
+  doocore::io::Progress p("Event matching",num_entries);
   for (index_friend=0; index_friend<(*it_friend)->GetEntries(); ++index_friend) {
     (*it_friend)->GetEvent(index_friend);
     
     bool entries_match = false;
-
+    
     while (!entries_match) {
       entries_match = true;
       for (const std::pair<ReducerLeaf<ULong64_t>,ReducerLeaf<ULong64_t>>& identifier : event_identifiers) {
-//        sdebug << "identifier.first.GetValue("<< identifier.first.name() <<") : " << identifier.first.GetValue() << ", " << "identifier.second.GetValue("<< identifier.second.name() <<") : " << identifier.second.GetValue() << endmsg;
         
         if (identifier.first.GetValue() != identifier.second.GetValue()) {
-//          sdebug << "identifier.first.GetValue() != identifier.second.GetValue() : " << identifier.first.GetValue() << " != " << identifier.second.GetValue() << endmsg;
           entries_match = false;
         }
       }
@@ -80,16 +74,6 @@ void dooselection::reducer::MergeTupleReducer::ProcessInputTree() {
         ++index_tree;
         if (index_tree >= num_entries_tree) break;
         input_tree_->GetEvent(index_tree);
-      }
-      
-      time_now = std::chrono::high_resolution_clock::now();
-      if (tty && std::chrono::duration_cast<std::chrono::milliseconds>(time_now - time_last).count() > 100) {
-        time_last = std::chrono::high_resolution_clock::now();
-
-        frac = static_cast<double>(index_tree)/num_entries_tree*100.0;
-        frac_matched = static_cast<double>(event_mapping_.size())/num_entries*100.0;
-        printf("Progress %.2f % (matched %.2f %)        \xd", frac, frac_matched);
-        fflush(stdout);
       }
     }
     if (index_tree >= input_tree_->GetEntries()) break;
@@ -99,10 +83,10 @@ void dooselection::reducer::MergeTupleReducer::ProcessInputTree() {
       ++index_tree;
       input_tree_->GetEvent(index_tree);
       
-//      sdebug << "index_tree => index_friend : " << index_tree-1 << " => " << index_friend << endmsg;
-
+      ++p;
     }
   }
+  p.Finish();
   frac_matched = static_cast<double>(event_mapping_.size())/num_entries*100.0;
   sinfo << "MergeTupleReducer::ProcessInputTree(): Finished analysing events. A total of " << frac_matched << "% (" << event_mapping_.size() << " events) have been matched." << endmsg;
   
