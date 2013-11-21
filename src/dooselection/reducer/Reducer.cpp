@@ -618,9 +618,11 @@ void Reducer::InitializeInterimLeafMap(TTree* tree, std::vector<ReducerLeaf<Floa
       TLeaf* leaf_tree = dynamic_cast<TLeaf*>((*leaf_list)[i]);
       
       //sdebug << " leaf: " << leaf_tree->GetName() << " - " << leaf_tree->GetBranch()->TestBit(1024) << endmsg;
-      if (!leaf_tree->GetBranch()->TestBit(1024)) {
+      if (!leaf_tree->GetBranch()->TestBit(1024) && !LeafExists(leaf_tree->GetName())) {
         ReducerLeaf<Float_t>* leaf = new ReducerLeaf<Float_t>(leaf_tree);
         leaves->push_back(leaf);
+      } else if (LeafExists(leaf_tree->GetName())) {
+        swarn << "Warning in Reducer::InitializeInterimLeafMap(...): Leaf " << leaf_tree->GetName() << " in friend tree " << (*it)->GetName() << " already existing. Will ignore." << endmsg;
       }
     }
 
