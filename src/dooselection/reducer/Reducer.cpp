@@ -689,7 +689,7 @@ void Reducer::UpdateAllValues(std::vector<ReducerLeaf<T>* >& leaves) {
 void Reducer::GenerateInterimFileName() {
   using namespace boost::filesystem;
   boost::uuids::uuid uuid;
-  std::string s_uuid = std::to_string(uuid);
+  std::string s_uuid = boost::lexical_cast<std::string>(uuid);
 
   path tempfile = temp_directory_path() / s_uuid;
   tempfile.replace_extension(".root");
