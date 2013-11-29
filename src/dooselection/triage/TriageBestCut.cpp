@@ -50,7 +50,7 @@ void Triage::BestCutPerformance(Tuple* tuple, Classifier* classifier, PlotStyle 
     cut_string = classifier->expression();
   }
   else{
-    cut_string = classifier->expression()+classifier->cut_operator()+boost::lexical_cast<std::string>(classifier->best_cut_value());
+    cut_string = classifier->expression()+classifier->cut_operator()+std::to_string(classifier->best_cut_value());
   } 
   std::string interim_cutstring = cut_string;
 
@@ -58,7 +58,7 @@ void Triage::BestCutPerformance(Tuple* tuple, Classifier* classifier, PlotStyle 
   
   double margin = (tuple->observable_range().second-tuple->observable_range().first)*0.1;
 
-  std::string observable_range = "((" + tuple->observable_name() + ">" + boost::lexical_cast<std::string>(tuple->observable_range().first) + ")&&(" + tuple->observable_name() + "<" + boost::lexical_cast<std::string>(tuple->observable_range().second) + "))";
+  std::string observable_range = "((" + tuple->observable_name() + ">" + std::to_string(tuple->observable_range().first) + ")&&(" + tuple->observable_name() + "<" + std::to_string(tuple->observable_range().second) + "))";
   interim_cutstring = observable_range;
   if (cut_string != "") interim_cutstring += "&&(" + cut_string + ")";
 

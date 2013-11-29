@@ -42,7 +42,7 @@ int main(int argc, char * argv[]){
   summary.Add("Job name", job_name);
 
   bool debug_mode(config.getBool("general.debug_mode"));
-  summary.Add("Debug mode", boost::lexical_cast<std::string>(debug_mode));
+  summary.Add("Debug mode", std::to_string(debug_mode));
 
   summary.AddSection("Input");
   TString input_path(config.getString("general.input.path"));
