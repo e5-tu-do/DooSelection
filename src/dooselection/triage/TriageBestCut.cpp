@@ -85,7 +85,7 @@ void Triage::BestCutPerformance(Tuple* tuple, Classifier* classifier, PlotStyle 
   
   hist_without_cuts->SetLineColor(kBlack);
   hist_without_cuts->SetMinimum(0);
-  hist_without_cuts->SetXTitle(TString(tuple->observable_name()));
+  hist_without_cuts->SetXTitle(TString(tuple->observable_label()));
 
   tuple->tree().Draw(TString(tuple->observable_name())+">>hist_with_cuts", TString(interim_cutstring), "same");
   
