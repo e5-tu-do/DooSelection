@@ -5,6 +5,7 @@
 // from ROOT
 #include "TCanvas.h"
 #include "TTree.h"
+#include "TStyle.h"
 
 // from RooFit
 
@@ -85,7 +86,12 @@ void Triage::BestCutPerformance(Tuple* tuple, Classifier* classifier, PlotStyle 
   
   hist_without_cuts->SetLineColor(kBlack);
   hist_without_cuts->SetMinimum(0);
-  hist_without_cuts->SetXTitle(TString(tuple->observable_label()));
+  hist_without_cuts->SetXTitle(TString(tuple->observable_label())+" ("+TString(tuple->observable_unit())+")");
+  hist_without_cuts->SetYTitle(TString::Format("Candidates / ( %4.2f %s )", hist_without_cuts->GetBinWidth(1), tuple->observable_unit().c_str()));
+  hist_without_cuts->GetXaxis()->SetTitleSize(0.055);
+  hist_without_cuts->GetXaxis()->SetTitleOffset(1.25);
+  hist_without_cuts->GetYaxis()->SetTitleSize(0.05);
+  hist_without_cuts->GetYaxis()->SetTitleOffset(1.5);
 
   tuple->tree().Draw(TString(tuple->observable_name())+">>hist_with_cuts", TString(interim_cutstring), "same");
   
