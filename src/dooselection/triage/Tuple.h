@@ -35,6 +35,8 @@ class Tuple{
     filename_(filename),
     treename_(treename),
     observable_name_(observable_name),
+    observable_label_(observable_name),
+    observable_unit_(""),
     observable_range_(std::make_pair(observable_range_min,observable_range_max)),
     max_n_sig_events_(0.),
     max_n_bkg_events_(0.),
@@ -53,6 +55,8 @@ class Tuple{
   // setter
   void set_max_n_sig_events(double max_n_sig_events){max_n_sig_events_ = max_n_sig_events;}
   void set_max_n_bkg_events(double max_n_bkg_events){max_n_bkg_events_ = max_n_bkg_events;}
+  void set_observable_label(const std::string& observable_label){observable_label_ = observable_label;}
+  void set_observable_unit(const std::string& observable_unit){observable_unit_ = observable_unit;}
 
   // getter
   const std::string& name() const{return name_;}
@@ -60,6 +64,8 @@ class Tuple{
   const std::string& filename() const{return filename_;}
   const std::string& treename() const{return treename_;}
   const std::string& observable_name() const{return observable_name_;}
+  const std::string& observable_label() const{return observable_label_;}
+  const std::string& observable_unit() const{return observable_unit_;}
   std::pair<double, double> observable_range() const{return observable_range_;}
   double max_n_sig_events() const{return max_n_sig_events_;}
   double max_n_bkg_events() const{return max_n_bkg_events_;}
@@ -101,6 +107,8 @@ class Tuple{
   std::string filename_;
   std::string treename_;
   std::string observable_name_;
+  std::string observable_label_;
+  std::string observable_unit_;
   
   std::string global_cut_;
 

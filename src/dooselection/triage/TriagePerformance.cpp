@@ -259,10 +259,10 @@ void Triage::PlotEfficiencies(std::string name, std::pair<TH1D, TH1D> hist_numbe
      legend->SetNColumns(2);
      legend->AddEntry(&sigeff_graph, "Signal Efficiency","p");
      legend->AddEntry(&bkgeff_graph, "Background Efficiency","p");
-     legend->AddEntry(&significance_graph, TString("Significance (")+boost::lexical_cast<std::string>(significance_max.first)+" @cut value: "+boost::lexical_cast<std::string>(significance_max.second)+")","p");
-     legend->AddEntry(&significance_graph, TString("Weighted Significance (")+boost::lexical_cast<std::string>(wsignificance_max.first)+" @cut value: "+boost::lexical_cast<std::string>(wsignificance_max.second)+")","p");
-     legend->AddEntry(&purity_graph, TString("Purity (")+boost::lexical_cast<std::string>(purity_max.first)+" @cut value: "+boost::lexical_cast<std::string>(purity_max.second)+")","p");
-     legend->AddEntry(&sin2beta_graph, TString("sin2#beta FoM (")+boost::lexical_cast<std::string>(sin2beta_max.first)+" @cut value: "+boost::lexical_cast<std::string>(sin2beta_max.second)+")","p");
+     legend->AddEntry(&significance_graph, TString("Significance (")+std::to_string(significance_max.first)+" @cut value: "+std::to_string(significance_max.second)+")","p");
+     legend->AddEntry(&significance_graph, TString("Weighted Significance (")+std::to_string(wsignificance_max.first)+" @cut value: "+std::to_string(wsignificance_max.second)+")","p");
+     legend->AddEntry(&purity_graph, TString("Purity (")+std::to_string(purity_max.first)+" @cut value: "+std::to_string(purity_max.second)+")","p");
+     legend->AddEntry(&sin2beta_graph, TString("sin2#beta FoM (")+std::to_string(sin2beta_max.first)+" @cut value: "+std::to_string(sin2beta_max.second)+")","p");
      legend->Draw();
 
   canvas.cd(1);

@@ -42,7 +42,7 @@ void Triage::FillTriageHistContainerList(const int nbins){
   for(TupleList::iterator tuple = tuple_list_.begin(); tuple != tuple_list_.end(); tuple++){
     MaximalNumberOfEvents(*tuple);
     for(ClassifierList::iterator classifier = classifier_list_.begin(); classifier != classifier_list_.end(); classifier++){
-      hist_container_list_.push_back(TriageHistContainer((*tuple)->name()+"_"+(*classifier).name()+"_"+boost::lexical_cast<std::string>(nbins) ,*tuple, &(*classifier), (*tuple)->max_n_sig_events(), (*tuple)->max_n_bkg_events(), (*classifier).cut_values(), SigAndBkgEventNumbersHistogram(*tuple, &(*classifier), nbins)));
+      hist_container_list_.push_back(TriageHistContainer((*tuple)->name()+"_"+(*classifier).name()+"_"+std::to_string(nbins) ,*tuple, &(*classifier), (*tuple)->max_n_sig_events(), (*tuple)->max_n_bkg_events(), (*classifier).cut_values(), SigAndBkgEventNumbersHistogram(*tuple, &(*classifier), nbins)));
     }
   }
   hist_container_list_filled_ = true;
@@ -66,7 +66,7 @@ std::pair<double, double> Triage::NumberOfSigAndBkgEvents(Tuple* tuple, const st
     MCTuple* mctuple = dynamic_cast<MCTuple*>(tuple);
     if (debug_mode_) doocore::io::sdebug << "-debug- \t" << "using MC truth information…" << doocore::io::endmsg;
 
-    std::string observable_range = "(" + mctuple->observable_name() + ">" + boost::lexical_cast<std::string>(mctuple->observable_range().first) + ")&&(" + mctuple->observable_name() + "<" + boost::lexical_cast<std::string>(mctuple->observable_range().second) + ")";
+    std::string observable_range = "(" + mctuple->observable_name() + ">" + std::to_string(mctuple->observable_range().first) + ")&&(" + mctuple->observable_name() + "<" + std::to_string(mctuple->observable_range().second) + ")";
     std::string interim_cut_string = observable_range;
     if (cut_string != "") interim_cut_string += "&&(" + cut_string + ")";
     std::string signal_cut_string = interim_cut_string + "&&(" + mctuple->signal_cut() + ")";
@@ -86,7 +86,7 @@ std::pair<double, double> Triage::NumberOfSigAndBkgEvents(Tuple* tuple, const st
     TH1D sig_hist("sig_hist", "sig_hist", nbins, swtuple->sweights_range().first, swtuple->sweights_range().second);
     TH1D bkg_hist("bkg_hist", "bkg_hist", nbins, swtuple->sweights_range().first, swtuple->sweights_range().second);
 
-    std::string observable_range = "((" + tuple->observable_name() + ">" + boost::lexical_cast<std::string>(tuple->observable_range().first) + ")&&(" + tuple->observable_name() + "<" + boost::lexical_cast<std::string>(tuple->observable_range().second) + "))";
+    std::string observable_range = "((" + tuple->observable_name() + ">" + std::to_string(tuple->observable_range().first) + ")&&(" + tuple->observable_name() + "<" + std::to_string(tuple->observable_range().second) + "))";
     std::string interim_cut_string = observable_range;
     if (cut_string != "") interim_cut_string += "&&(" + cut_string + ")";
 
@@ -257,7 +257,7 @@ std::pair<TH1D, TH1D> Triage::SigAndBkgEventNumbersHistogram(Tuple* tuple, Class
   std::pair<TH1D, TH1D> hist_number_sig_bkg_events;
   std::vector<double> cut_values;
 
-  std::string hist_name = tuple->name()+"_"+classifier->name()+"_"+boost::lexical_cast<std::string>(nbins);
+  std::string hist_name = tuple->name()+"_"+classifier->name()+"_"+std::to_string(nbins);
   
   TCanvas canvas("c", "c", 800, 600);
   canvas.SetLogy();
@@ -271,21 +271,22 @@ std::pair<TH1D, TH1D> Triage::SigAndBkgEventNumbersHistogram(Tuple* tuple, Class
   hist_number_bkg_events.SetStats(false);
 
   double cut_value = classifier->range().first;
-  double cut_step  = (classifier->range().second-classifier->range().first)/nbins;
   cut_values.push_back(cut_value);
 
   doocore::io::sinfo << "Signal and background event numbers for tuple '" << tuple->name() << "' and classifier '" << classifier->name().c_str() << "'" << doocore::io::endmsg;
   for (unsigned int i = 1; i<= nbins; ++i){
+    doocore::io::sinfo << "Triage::SigAndBkgEventNumbersHistogram(...): Analysing classifier cut " << cut_value << doocore::io::endmsg;
     if ((i%1) == 0){
       double frac = static_cast<double> (i)/nbins*100.0;
-      printf("Progress %.2f %         \xd", frac);
+      printf("Progress %.2f %         \n", frac);
       fflush(stdout);
     }
-    std::string cut_string = classifier->expression()+classifier->cut_operator()+boost::lexical_cast<std::string>(cut_value);
+    std::string cut_string = classifier->expression()+classifier->cut_operator()+std::to_string(cut_value);
     std::pair<double, double> number_sig_bkg_events = NumberOfSigAndBkgEvents(tuple, cut_string);
     hist_number_sig_events.SetBinContent(i, number_sig_bkg_events.first);
     hist_number_bkg_events.SetBinContent(i, number_sig_bkg_events.second);
-    cut_value = cut_value + cut_step;
+    // better and more robust:
+    cut_value = (static_cast<double>(nbins-i)/static_cast<double>(nbins))*classifier->range().first + (static_cast<double>(i)/static_cast<double>(nbins))*classifier->range().second;
     cut_values.push_back(cut_value);
   }
 

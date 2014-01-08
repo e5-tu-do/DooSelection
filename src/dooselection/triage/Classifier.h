@@ -78,7 +78,7 @@ class Classifier{
       best_cut_string=  expression_;
     }
     else{
-       best_cut_string = expression_ + cut_operator_ + boost::lexical_cast<std::string>(best_cut_value_);
+       best_cut_string = expression_ + cut_operator_ + std::to_string(best_cut_value_);
     }
     return best_cut_string;
   }

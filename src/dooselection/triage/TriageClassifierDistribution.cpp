@@ -56,7 +56,7 @@ void Triage::ClassifierDistribution(Tuple* tuple, Classifier* classifier, const 
     TH1D* sig_hist = new TH1D("sig_hist", "sig_hist", nbins, minmax.first , minmax.second);
     TH1D* bkg_hist = new TH1D("bkg_hist", "bkg_hist", nbins, minmax.first , minmax.second);
 
-    std::string observable_range = "(" + mctuple->observable_name() + ">" + boost::lexical_cast<std::string>(mctuple->observable_range().first) + ")&&(" + mctuple->observable_name() + "<" + boost::lexical_cast<std::string>(mctuple->observable_range().second) + ")";
+    std::string observable_range = "(" + mctuple->observable_name() + ">" + std::to_string(mctuple->observable_range().first) + ")&&(" + mctuple->observable_name() + "<" + std::to_string(mctuple->observable_range().second) + ")";
     std::string interim_cut_string = observable_range;
     std::string signal_cut_string = interim_cut_string + "&&(" + mctuple->signal_cut() + ")";
     std::string background_cut_string = interim_cut_string + "&&(" + mctuple->background_cut() + ")";

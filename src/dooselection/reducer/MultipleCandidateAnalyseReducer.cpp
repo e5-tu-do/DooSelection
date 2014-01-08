@@ -15,7 +15,8 @@ using namespace boost::assign; // bring 'operator+=()' into scope
 // from RooFit
 
 // from DooCore
-#include "doocore/io/MsgStream.h"
+#include <doocore/io/MsgStream.h>
+#include <doocore/io/Progress.h>
 
 // from DooFit
 
@@ -40,6 +41,7 @@ void MultipleCandidateAnalyseReducer::AddEventIdentifier(const std::string& name
 }
   
 void MultipleCandidateAnalyseReducer::ProcessInputTree() {
+  using namespace doocore::io;
   if (do_multi_cand_analysis_){
     std::vector<ReducerLeaf<ULong64_t> > event_identifiers;
 
@@ -73,6 +75,7 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     
     sinfo << "MultipleCandidateAnalyseReducer::ProcessInputTree(): Analysing events according to event identifiers." << endmsg;
     std::vector<ULong64_t> last_identifier;
+    Progress p("Analysing multiple candidates", num_entries);
     for (ULong64_t i=0; i<num_entries; ++i) {
       input_tree_->GetEntry(i);
       
@@ -95,15 +98,11 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
       
       insert(mapping_id_tree_)(identifier, i);
       
-      if (tty && (i%n_print_stepping) == 0) {
-        // double frac = static_cast<double> (i)/num_entries*100.0;
-        frac += frac_increment;
-        printf("Progress %.2f %         \xd", frac);
-        fflush(stdout);
-      }
+      ++p;
       
       last_identifier = identifier;
     }
+    p.Finish();
     
     typedef std::multimap<std::vector<ULong64_t>, ULong64_t> MapType;
     std::map<int,int> multicand_histogram;

@@ -9,6 +9,7 @@
 
 // from DooCore
 #include <doocore/io/MsgStream.h>
+#include <doocore/io/Progress.h>
 
 using namespace doocore::io;
 
@@ -37,6 +38,7 @@ void dooselection::reducer::MergeTupleReducer::ProcessInputTree() {
   }
   
   input_tree_->SetBranchStatus("*", false);
+  (*it_friend)->SetBranchStatus("*", false);
   
   for (std::vector<std::pair<ReducerLeaf<ULong64_t>,ReducerLeaf<ULong64_t>>>::const_iterator it = event_identifiers.begin();
        it != event_identifiers.end(); ++it) {
@@ -47,31 +49,24 @@ void dooselection::reducer::MergeTupleReducer::ProcessInputTree() {
   // precaching everything that should not be evaluated in the event loop
   ULong64_t num_entries = (*it_friend)->GetEntries();
   ULong64_t num_entries_tree = input_tree_->GetEntries();
-  double frac = 0.0;
-  int n_print_stepping = 500;
-  double frac_increment = static_cast<double>(n_print_stepping)/num_entries*100.0;
   double frac_matched = 0.0;
-  bool tty = isatty(fileno(stdout));
-  std::chrono::high_resolution_clock::time_point time_last = std::chrono::high_resolution_clock::now();
-  std::chrono::high_resolution_clock::time_point time_now = std::chrono::high_resolution_clock::now();
 
   sinfo << "MergeTupleReducer::ProcessInputTree(): Analysing events according to event identifiers." << endmsg;
 
   long long index_tree = 0;
   input_tree_->GetEvent(index_tree);
   long long index_friend=0;
+  doocore::io::Progress p("Event matching",num_entries);
   for (index_friend=0; index_friend<(*it_friend)->GetEntries(); ++index_friend) {
     (*it_friend)->GetEvent(index_friend);
     
     bool entries_match = false;
-
+    
     while (!entries_match) {
       entries_match = true;
       for (const std::pair<ReducerLeaf<ULong64_t>,ReducerLeaf<ULong64_t>>& identifier : event_identifiers) {
-//        sdebug << "identifier.second.GetValue("<< identifier.second.name() <<") : " << identifier.second.GetValue() << endmsg;
         
         if (identifier.first.GetValue() != identifier.second.GetValue()) {
-//          sdebug << "identifier.first.GetValue() != identifier.second.GetValue() : " << identifier.first.GetValue() << " != " << identifier.second.GetValue() << endmsg;
           entries_match = false;
         }
       }
@@ -79,16 +74,6 @@ void dooselection::reducer::MergeTupleReducer::ProcessInputTree() {
         ++index_tree;
         if (index_tree >= num_entries_tree) break;
         input_tree_->GetEvent(index_tree);
-      }
-      
-      time_now = std::chrono::high_resolution_clock::now();
-      if (tty && std::chrono::duration_cast<std::chrono::milliseconds>(time_now - time_last).count() > 100) {
-        time_last = std::chrono::high_resolution_clock::now();
-
-        frac = static_cast<double>(index_tree)/num_entries_tree*100.0;
-        frac_matched = static_cast<double>(event_mapping_.size())/num_entries*100.0;
-        printf("Progress %.2f % (matched %.2f %)        \xd", frac, frac_matched);
-        fflush(stdout);
       }
     }
     if (index_tree >= input_tree_->GetEntries()) break;
@@ -98,18 +83,56 @@ void dooselection::reducer::MergeTupleReducer::ProcessInputTree() {
       ++index_tree;
       input_tree_->GetEvent(index_tree);
       
-//      sdebug << "index_tree => index_friend : " << index_tree-1 << " => " << index_friend << endmsg;
-
+      ++p;
     }
   }
-  sinfo << "MergeTupleReducer::ProcessInputTree(): Finished analysing events. A total of " << frac_matched << "% (" << index_friend+1 << " events) have been matched." << endmsg;
+  p.Finish();
+  frac_matched = static_cast<double>(event_mapping_.size())/num_entries*100.0;
+  sinfo << "MergeTupleReducer::ProcessInputTree(): Finished analysing events. A total of " << frac_matched << "% (" << event_mapping_.size() << " events) have been matched." << endmsg;
   
   input_tree_->SetBranchStatus("*", true);
+  (*it_friend)->SetBranchStatus("*", true);
 }
 
 void dooselection::reducer::MergeTupleReducer::CreateSpecialBranches() {
   leaf_entries_matched_ = &CreateIntLeaf("merged_entries");
   leaf_entries_matched_->SetOperation(*leaf_entries_matched_, *leaf_entries_matched_, kDoNotUpdate);
+  
+  for (auto pair : names_friend_leaves_equalise_) {
+    const ReducerLeaf<Float_t>& leaf_tree   = GetInterimLeafByName(pair.first.c_str());
+    const ReducerLeaf<Float_t>& leaf_friend = GetInterimLeafByName(pair.second.c_str());
+    
+    if (leaf_tree.type() != leaf_friend.type()) {
+      serr << "Error in MergeTupleReducer::CreateSpecialBranches(): Leaves to be equalised " << leaf_tree.name() << "(" << leaf_tree.type() << ") -> " << leaf_friend.name() << "(" << leaf_friend.type() << ") to not have equal types. This will most certainly go wrong" << endmsg;
+    }
+    
+    sinfo << "MergeTupleReducer::CreateSpecialBranches(): Will equalise " << leaf_tree.name() << "(" << leaf_tree.type() << ") -> " << leaf_friend.name() << "(" << leaf_friend.type() << ") for all events of the input tree." << endmsg;
+    if (leaf_tree.type() == "Int_t") {
+      branch_addresses_equalise_int_.push_back(std::make_pair((Int_t*)leaf_tree.branch_address(), (Int_t*)leaf_friend.branch_address()));
+    } else if (leaf_tree.type() == "Float_t") {
+      branch_addresses_equalise_float_.push_back(std::make_pair((Float_t*)leaf_tree.branch_address(), (Float_t*)leaf_friend.branch_address()));
+    } else if (leaf_tree.type() == "Double_t") {
+      branch_addresses_equalise_double_.push_back(std::make_pair((Double_t*)leaf_tree.branch_address(), (Double_t*)leaf_friend.branch_address()));
+    } else if (leaf_tree.type() == "UInt_t") {
+      branch_addresses_equalise_uint_.push_back(std::make_pair((UInt_t*)leaf_tree.branch_address(), (UInt_t*)leaf_friend.branch_address()));
+    } else if (leaf_tree.type() == "Bool_t") {
+      branch_addresses_equalise_bool_.push_back(std::make_pair((Bool_t*)leaf_tree.branch_address(), (Bool_t*)leaf_friend.branch_address()));
+    } else if (leaf_tree.type() == "Long64_t") {
+      branch_addresses_equalise_long_.push_back(std::make_pair((Long64_t*)leaf_tree.branch_address(), (Long64_t*)leaf_friend.branch_address()));
+    } else if (leaf_tree.type() == "Long64_t") {
+      branch_addresses_equalise_long_.push_back(std::make_pair((Long64_t*)leaf_tree.branch_address(), (Long64_t*)leaf_friend.branch_address()));
+    } else if (leaf_tree.type() == "ULong64_t") {
+      branch_addresses_equalise_ulong_.push_back(std::make_pair((ULong64_t*)leaf_tree.branch_address(), (ULong64_t*)leaf_friend.branch_address()));
+    } else if (leaf_tree.type() == "Short_t") {
+      branch_addresses_equalise_short_.push_back(std::make_pair((Short_t*)leaf_tree.branch_address(), (Short_t*)leaf_friend.branch_address()));
+    } else if (leaf_tree.type() == "UShort_t") {
+      branch_addresses_equalise_ushort_.push_back(std::make_pair((UShort_t*)leaf_tree.branch_address(), (UShort_t*)leaf_friend.branch_address()));
+    } else if (leaf_tree.type() == "Char_t") {
+      branch_addresses_equalise_char_.push_back(std::make_pair((Char_t*)leaf_tree.branch_address(), (Char_t*)leaf_friend.branch_address()));
+    } else if (leaf_tree.type() == "UChar_t") {
+      branch_addresses_equalise_uchar_.push_back(std::make_pair((UChar_t*)leaf_tree.branch_address(), (UChar_t*)leaf_friend.branch_address()));
+    }
+  }
 }
 
 void dooselection::reducer::MergeTupleReducer::LoadTreeFriendsEntryHook(long long entry) {
@@ -124,8 +147,52 @@ void dooselection::reducer::MergeTupleReducer::LoadTreeFriendsEntryHook(long lon
     
     *leaf_entries_matched_ = 1;
     
+//    sdebug << "i: " << additional_input_tree_friends_.back()->GetLeaf("netOutput")->GetValue() << endmsg;
+//    sdebug << "i: " << additional_input_tree_friends_.back()->GetLeaf("netOutput")->GetValuePointer() << endmsg;
+//    sdebug << "o: " << GetInterimLeafByName("netOutput").GetValue() << endmsg;
+//    sdebug << "o: " << GetInterimLeafByName("netOutput").branch_address() << endmsg;
+//
+//    sdebug << "i: " << interim_tree_->GetLeaf("runNumber")->GetValue() << endmsg;
+//    sdebug << "i: " << interim_tree_->GetLeaf("runNumber")->GetValuePointer() << endmsg;
+//    sdebug << "o: " << GetInterimLeafByName("runNumber").GetValue() << endmsg;
+//    sdebug << "o: " << GetInterimLeafByName("runNumber").branch_address() << endmsg;
+    
     event_mapping_.pop_front();
   } else {
     *leaf_entries_matched_ = 0;
+    
+    for (auto pair : branch_addresses_equalise_int_) {
+      *pair.second = *pair.first;
+    }
+    for (auto pair : branch_addresses_equalise_float_) {
+      *pair.second = *pair.first;
+    }
+    for (auto pair : branch_addresses_equalise_double_) {
+      *pair.second = *pair.first;
+    }
+    for (auto pair : branch_addresses_equalise_uint_) {
+      *pair.second = *pair.first;
+    }
+    for (auto pair : branch_addresses_equalise_bool_) {
+      *pair.second = *pair.first;
+    }
+    for (auto pair : branch_addresses_equalise_long_) {
+      *pair.second = *pair.first;
+    }
+    for (auto pair : branch_addresses_equalise_ulong_) {
+      *pair.second = *pair.first;
+    }
+    for (auto pair : branch_addresses_equalise_short_) {
+      *pair.second = *pair.first;
+    }
+    for (auto pair : branch_addresses_equalise_ushort_) {
+      *pair.second = *pair.first;
+    }
+    for (auto pair : branch_addresses_equalise_char_) {
+      *pair.second = *pair.first;
+    }
+    for (auto pair : branch_addresses_equalise_uchar_) {
+      *pair.second = *pair.first;
+    }
   }
 }

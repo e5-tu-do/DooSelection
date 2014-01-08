@@ -47,7 +47,7 @@ void VariableCategorizerReducer::CreateSpecialBranches(){
     }
     int variable_binning = std::get<1>(variable);
 
-    dooselection::reducer::ReducerLeaf<Int_t>* variable_category_leaf = &(CreateIntLeaf(prefix_name_+boost::lexical_cast<std::string>(variable_binning)+"_"+variable_name, prefix_name_+boost::lexical_cast<std::string>(variable_binning)+"_"+variable_name, "Int_t", -1));
+    dooselection::reducer::ReducerLeaf<Int_t>* variable_category_leaf = &(CreateIntLeaf(prefix_name_+std::to_string(variable_binning)+"_"+variable_name, prefix_name_+std::to_string(variable_binning)+"_"+variable_name, "Int_t", -1));
 
     std::get<6>(variable) = (Int_t*)variable_category_leaf->branch_address();
     std::get<7>(variable) = (Double_t*)GetInterimLeafByName(variable_name).branch_address();

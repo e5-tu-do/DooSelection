@@ -4,6 +4,7 @@
 #include <iostream>
 #include <csignal>
 #include <cstdlib>
+#include <cassert>
 
 // POSIX/UNIX
 #include <unistd.h>
@@ -32,6 +33,7 @@
 
 // from DooCore
 #include <doocore/io/MsgStream.h>
+#include <doocore/io/Progress.h>
 
 using namespace doocore::io;
 using namespace std;
@@ -157,6 +159,9 @@ void Reducer::Run(){
   
   TStopwatch sw;
   sw.Start();
+  
+  Progress p("Writing output tree", num_entries);
+  int last_i = 0;
   while (i<num_entries) {
   //for (int i=0; i<num_entries; ++i) {
     // best candidate selection: 
@@ -175,40 +180,43 @@ void Reducer::Run(){
       break;
     }
     
-    if (isatty(fileno(stdout))) {
-      //std::cout << (i+1) << std::endl;
-      //std::cout << (i+1)%1000 << std::endl;
-//      sdebug << "num_written_%status_stepping = " << num_written_ << "%" << status_stepping << " = " << num_written_%status_stepping << endmsg;
-      if ((num_written_%status_stepping) == 0) {
-        double frac = static_cast<double>(i)/num_entries;
-        double time = sw.RealTime();
-        double ete  = time/frac-time;
-        sw.Start(false);
-        if (ete > 3600) {
-          printf("Progress %.2f %   (ETE: %.1f h, spent: %.0f s, t/evt: %.2f ms)      \xd", frac*100.0, ete/3600., time, time/num_written_*1000);
-        } else if (ete > 60) {
-          printf("Progress %.2f %   (ETE: %.0f min, spent: %.0f s, t/evt: %.2f ms)      \xd", frac*100.0, ete/60., time, time/num_written_*1000);
-        } else {
-          printf("Progress %.2f %   (ETE: %.0f s, spent: %.0f s, t/evt: %.2f ms)      \xd", frac*100.0, ete, time, time/num_written_*1000);
-        }
-        fflush(stdout);
-      }
-    } else {
-      if ((num_written_%status_stepping_redir) == 0) {
-        double frac = static_cast<double>(i)/num_entries;
-        double time = sw.RealTime();
-        double ete  = time/frac-time;
-        sw.Start(false);
-        if (ete > 3600) {
-          printf("Progress %.2f %   (ETE: %.1f h, spent: %.0f s, t/evt: %.2f ms)\n", frac*100.0, ete/3600., time, time/num_written_*1000);
-        } else if (ete > 60) {
-          printf("Progress %.2f %   (ETE: %.0f min, spent: %.0f s, t/evt: %.2f ms)\n", frac*100.0, ete/60., time, time/num_written_*1000);
-        } else {
-          printf("Progress %.2f %   (ETE: %.0f s, spent: %.0f s, t/evt: %.2f ms)\n", frac*100.0, ete, time, time/num_written_*1000);
-        }
-        fflush(stdout);
-      }
-    }
+    p += (i-last_i);
+    last_i = i;
+    
+//    if (isatty(fileno(stdout))) {
+//      //std::cout << (i+1) << std::endl;
+//      //std::cout << (i+1)%1000 << std::endl;
+////      sdebug << "num_written_%status_stepping = " << num_written_ << "%" << status_stepping << " = " << num_written_%status_stepping << endmsg;
+//      if ((num_written_%status_stepping) == 0) {
+//        double frac = static_cast<double>(i)/num_entries;
+//        double time = sw.RealTime();
+//        double ete  = time/frac-time;
+//        sw.Start(false);
+//        if (ete > 3600) {
+//          printf("Progress %.2f %   (ETE: %.1f h, spent: %.0f s, t/evt: %.2f ms)      \xd", frac*100.0, ete/3600., time, time/num_written_*1000);
+//        } else if (ete > 60) {
+//          printf("Progress %.2f %   (ETE: %.0f min, spent: %.0f s, t/evt: %.2f ms)      \xd", frac*100.0, ete/60., time, time/num_written_*1000);
+//        } else {
+//          printf("Progress %.2f %   (ETE: %.0f s, spent: %.0f s, t/evt: %.2f ms)      \xd", frac*100.0, ete, time, time/num_written_*1000);
+//        }
+//        fflush(stdout);
+//      }
+//    } else {
+//      if ((num_written_%status_stepping_redir) == 0) {
+//        double frac = static_cast<double>(i)/num_entries;
+//        double time = sw.RealTime();
+//        double ete  = time/frac-time;
+//        sw.Start(false);
+//        if (ete > 3600) {
+//          printf("Progress %.2f %   (ETE: %.1f h, spent: %.0f s, t/evt: %.2f ms)\n", frac*100.0, ete/3600., time, time/num_written_*1000);
+//        } else if (ete > 60) {
+//          printf("Progress %.2f %   (ETE: %.0f min, spent: %.0f s, t/evt: %.2f ms)\n", frac*100.0, ete/60., time, time/num_written_*1000);
+//        } else {
+//          printf("Progress %.2f %   (ETE: %.0f s, spent: %.0f s, t/evt: %.2f ms)\n", frac*100.0, ete, time, time/num_written_*1000);
+//        }
+//        fflush(stdout);
+//      }
+//    }
     
     if (abort_loop_) {
       std::cout << "Aborting loop..." << std::endl;
@@ -217,6 +225,7 @@ void Reducer::Run(){
       break;
     }
   }
+  p.Finish();
   double time = sw.RealTime();
   sinfo << "Processing event loop took " << time << " s (" << time/num_written_*1000 << " ms/event).                                 " << endmsg;
   
@@ -329,7 +338,7 @@ void Reducer::AddTreeFriend(std::string file_name, std::string tree_name) {
 void Reducer::CreateInterimFileAndTree(){
   gROOT->cd();
   
-  if (!old_style_interim_tree_) {
+  if (!old_style_interim_tree_ || (old_style_interim_tree_ && num_events_process_ == -1 && cut_string_.Length() == 0)) {
     sinfo << "Using input tree as interim tree." << endmsg;
     
     interim_tree_ = input_tree_;
@@ -355,8 +364,8 @@ void Reducer::CreateInterimFileAndTree(){
     interim_file_ = new TFile(interim_file_path_,"RECREATE");
     
     if (num_events_process_ == -1 && cut_string_.Length() == 0) {
-      cout << "No cut specified. Interim tree not necessary." << endl;
-      interim_tree_ = input_tree_;
+      serr << "Error in Reducer::CreateInterimFileAndTree(): This should never happen. " << endmsg;
+      assert(false);
     } else if (num_events_process_ == -1) {
       cout << "Creating InterimTree with cut " << cut_string_ << endl;
       interim_tree_ = input_tree_->CopyTree(cut_string_/*, "", 2000*/);
@@ -609,13 +618,22 @@ void Reducer::InitializeInterimLeafMap(TTree* tree, std::vector<ReducerLeaf<Floa
       TLeaf* leaf_tree = dynamic_cast<TLeaf*>((*leaf_list)[i]);
       
       //sdebug << " leaf: " << leaf_tree->GetName() << " - " << leaf_tree->GetBranch()->TestBit(1024) << endmsg;
-      if (!leaf_tree->GetBranch()->TestBit(1024)) {
+      if (!leaf_tree->GetBranch()->TestBit(1024) && !LeafExists(leaf_tree->GetName())) {
         ReducerLeaf<Float_t>* leaf = new ReducerLeaf<Float_t>(leaf_tree);
         leaves->push_back(leaf);
+      } else if (LeafExists(leaf_tree->GetName())) {
+        swarn << "Warning in Reducer::InitializeInterimLeafMap(...): Leaf " << leaf_tree->GetName() << " in friend tree " << (*it)->GetName() << " already existing. Will ignore." << endmsg;
       }
     }
 
   }
+  
+//  sdebug << "i: " << additional_input_tree_friends_.back()->GetLeaf("netOutput")->GetValuePointer() << endmsg;
+//  sdebug << "o: " << GetInterimLeafByName("netOutput").branch_address() << endmsg;
+//  
+//  sdebug << "i: " << interim_tree_->GetLeaf("runNumber")->GetValuePointer() << endmsg;
+//  sdebug << "o: " << GetInterimLeafByName("runNumber").branch_address() << endmsg;
+
   
   std::cout << num_leaves << " total leaves in interim tree" << std::endl;
   std::cout << leaves->size() << " leaves to be copied" << std::endl;

@@ -53,6 +53,20 @@ class MergeTupleReducer : virtual public Reducer {
    */
   void AddEventIdentifier(const std::string& name_tree, const std::string& name_friend);
   
+  /**
+   *  @brief Add a leaves to equalise for non-matching entries
+   *
+   *  Add leaves by name to equalise. For all events in the input tree that are
+   *  not matched between input tree and friends the content of these friend's
+   *  leaves is set to the content of the respective input tree leaves.
+   *
+   *  @param name_tree name of the leaf in the input tree to use
+   *  @param name_friend name of the leaf in the first friend tree to use
+   */
+  void AddEqualiseLeaves(const std::string& name_tree, const std::string& name_friend) {
+    names_friend_leaves_equalise_.push_back(std::make_pair(name_tree,name_friend));
+  }
+  
  protected:
   
   /**
@@ -109,8 +123,66 @@ class MergeTupleReducer : virtual public Reducer {
    *  @brief Vector of names of leaves with unique event identifiers
    */
   std::vector<std::pair<std::string,std::string>> event_identifier_names_;
+  
+  /**
+   *  @brief Vector of names of leaves that are to be equalised for non-matching events
+   */
+  std::vector<std::pair<std::string,std::string>> names_friend_leaves_equalise_;
 
+  /**
+   *  @brief Int_t branch addresses to equalise
+   */
+  std::vector<std::pair<Int_t*,Int_t*>> branch_addresses_equalise_int_;
+  
+  /**
+   *  @brief Float_t branch addresses to equalise
+   */
+  std::vector<std::pair<Float_t*,Float_t*>> branch_addresses_equalise_float_;
+  
+  /**
+   *  @brief Double_t branch addresses to equalise
+   */
+  std::vector<std::pair<Double_t*,Double_t*>> branch_addresses_equalise_double_;
+  
+  /**
+   *  @brief UInt_t branch addresses to equalise
+   */
+  std::vector<std::pair<UInt_t*,UInt_t*>> branch_addresses_equalise_uint_;
 
+  /**
+   *  @brief Bool_t branch addresses to equalise
+   */
+  std::vector<std::pair<Bool_t*,Bool_t*>> branch_addresses_equalise_bool_;
+
+  /**
+   *  @brief Long64_t branch addresses to equalise
+   */
+  std::vector<std::pair<Long64_t*,Long64_t*>> branch_addresses_equalise_long_;
+
+  /**
+   *  @brief ULong64_t branch addresses to equalise
+   */
+  std::vector<std::pair<ULong64_t*,ULong64_t*>> branch_addresses_equalise_ulong_;
+
+  /**
+   *  @brief Short_t branch addresses to equalise
+   */
+  std::vector<std::pair<Short_t*,Short_t*>> branch_addresses_equalise_short_;
+
+  /**
+   *  @brief UShort_t branch addresses to equalise
+   */
+  std::vector<std::pair<UShort_t*,UShort_t*>> branch_addresses_equalise_ushort_;
+
+  /**
+   *  @brief Char_t branch addresses to equalise
+   */
+  std::vector<std::pair<Char_t*,Char_t*>> branch_addresses_equalise_char_;
+  
+  /**
+   *  @brief UChar_t branch addresses to equalise
+   */
+  std::vector<std::pair<UChar_t*,UChar_t*>> branch_addresses_equalise_uchar_;
 };
 } // namespace reducer
 } // namespace dooselection

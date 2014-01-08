@@ -41,7 +41,7 @@ void SPlotterReducer::ProcessInputTree() {
 void SPlotterReducer::CreateSpecialBranches() {
   doocore::io::EasyTuple etuple(interim_tree_, observables_);
   RooDataSet& data = etuple.ConvertToDataSet();
-  
+    
   splotfit_.set_input_data(&data);
   splotfit_.Fit();
   
