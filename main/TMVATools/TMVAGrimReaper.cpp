@@ -119,14 +119,23 @@ int main(int argc, char* argv[]){
 
   std::vector<std::string> float_variables = config.getVoStrings("variables.float");
   std::vector<std::string> integer_variables = config.getVoStrings("variables.integer");
+  std::vector<std::string> spectator_variables = config.getVoStrings("variables.spectator");
 
+  summary.AddSection("Float");
   for(std::vector<std::string>::iterator it = float_variables.begin(); it != float_variables.end(); it++){
     reducer.SetTMVAVariable((*it), reducer.GetInterimLeafByName((*it)));
     summary.Add("", *it);
   }
 
+  summary.AddSection("Integer");
   for(std::vector<std::string>::iterator it = integer_variables.begin(); it != integer_variables.end(); it++){
     reducer.SetTMVAVariable((*it), reducer.GetInterimLeafByName((*it)));
+    summary.Add("", *it);
+  }
+
+  summary.AddSection("Spectator");
+  for(std::vector<std::string>::iterator it = integer_variables.begin(); it != integer_variables.end(); it++){
+    reducer.SetTMVASpectatorVariable((*it), reducer.GetInterimLeafByName((*it)));
     summary.Add("", *it);
   }
 
