@@ -134,7 +134,7 @@ int main(int argc, char* argv[]){
   }
 
   summary.AddSection("Spectator");
-  for(std::vector<std::string>::iterator it = integer_variables.begin(); it != integer_variables.end(); it++){
+  for(std::vector<std::string>::iterator it = spectator_variables.begin(); it != spectator_variables.end(); it++){
     reducer.SetTMVASpectatorVariable((*it), reducer.GetInterimLeafByName((*it)));
     summary.Add("", *it);
   }
