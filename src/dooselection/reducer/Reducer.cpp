@@ -18,6 +18,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/bimap.hpp>
 #include <boost/regex.hpp>
+#include <boost/algorithm/string.hpp>
 
 // from ROOT
 #include "TROOT.h"
@@ -30,6 +31,9 @@
 #include "TRandom.h"
 #include "TStopwatch.h"
 #include "TTreeFormula.h"
+
+// from RooFit
+#include "RooArgSet.h"
 
 // from DooCore
 #include <doocore/io/MsgStream.h>
@@ -124,6 +128,13 @@ void Reducer::Run(){
   signal(SIGINT, Reducer::HandleSigInt);
 
   PrepareSpecialBranches();
+  
+  sinfo << "All branches that new leaves depend on are kept. " << endmsg;
+  ActivateDependentLeaves(float_leaves_);
+  ActivateDependentLeaves(double_leaves_);
+  ActivateDependentLeaves(int_leaves_);
+  ActivateDependentLeaves(ulong_leaves_);
+  ActivateDependentLeaves(long_leaves_);
 
   float_leaves_  = PurgeOutputBranches<Float_t,Float_t>(float_leaves_, interim_leaves_);
   double_leaves_ = PurgeOutputBranches<Double_t,Float_t>(double_leaves_, interim_leaves_);
@@ -338,13 +349,26 @@ void Reducer::AddTreeFriend(std::string file_name, std::string tree_name) {
 void Reducer::CreateInterimFileAndTree(){
   gROOT->cd();
   
-  if (!old_style_interim_tree_ || (old_style_interim_tree_ && num_events_process_ == -1 && cut_string_.Length() == 0)) {
+  if (!CreateUniqueInterimTree()) {
     sinfo << "Using input tree as interim tree." << endmsg;
     
     interim_tree_ = input_tree_;
     
     if (cut_string_.Length() > 0) {
       sinfo << "Initializing tree formula with cut " << cut_string_ << endmsg;
+      
+      // split cut string into tokens to iterate through these and reactivate all necessary leaves
+      std::string cut_string(cut_string_.Data());
+      std::vector<std::string> vector_split;
+      boost::split( vector_split, cut_string, boost::is_any_of("(())&|<>="), boost::token_compress_on );
+      for (auto token : vector_split) {
+        TLeaf* leaf = input_tree_->GetLeaf(token.c_str());
+        if (leaf != NULL) {
+          //sdebug << "Reactivating " << token << " (needed for cut string)" << endmsg;
+          input_tree_->SetBranchStatus(token.c_str(), 1);
+        }
+      }
+      
       formula_input_tree_ = new TTreeFormula("formula_input_tree_", cut_string_, interim_tree_);
       
       if (formula_input_tree_->GetNdim() == 0) {
@@ -420,6 +444,15 @@ void Reducer::add_branches_omit(std::set<TString> const& branches_omit){
     branches_omit_.insert(*it);
   }
 }
+  
+void Reducer::AddBranchesKeep(const RooArgSet& argset) {
+  TIterator* args_it = argset.createIterator();
+  RooAbsArg* arg = NULL;
+  
+  while ((arg = dynamic_cast<RooAbsArg*>(args_it->Next()))) {
+    add_branch_keep(arg->GetName());
+  }
+}
 
 void Reducer::InitializeBranches(){
   // iterate over regex containers for keeping/omitting branches and fill
@@ -476,6 +509,16 @@ void Reducer::InitializeBranches(){
       else{
         input_tree_->SetBranchStatus((*it_map).first,1);
       }
+    }
+    
+    if (event_number_leaf_ptr_ != NULL) {
+      input_tree_->SetBranchStatus(event_number_leaf_ptr_->name(),1);
+    }
+    if (run_number_leaf_ptr_ != NULL) {
+      input_tree_->SetBranchStatus(run_number_leaf_ptr_->name(),1);
+    }
+    if (best_candidate_leaf_ptr_ != NULL) {
+      input_tree_->SetBranchStatus(best_candidate_leaf_ptr_->name(),1);
     }
   }
   // If no branches to keep: Loop over all branches that should be omitted
@@ -628,13 +671,6 @@ void Reducer::InitializeInterimLeafMap(TTree* tree, std::vector<ReducerLeaf<Floa
 
   }
   
-//  sdebug << "i: " << additional_input_tree_friends_.back()->GetLeaf("netOutput")->GetValuePointer() << endmsg;
-//  sdebug << "o: " << GetInterimLeafByName("netOutput").branch_address() << endmsg;
-//  
-//  sdebug << "i: " << interim_tree_->GetLeaf("runNumber")->GetValuePointer() << endmsg;
-//  sdebug << "o: " << GetInterimLeafByName("runNumber").branch_address() << endmsg;
-
-  
   std::cout << num_leaves << " total leaves in interim tree" << std::endl;
   std::cout << leaves->size() << " leaves to be copied" << std::endl;
 }
@@ -720,6 +756,36 @@ void Reducer::HandleSigInt(int param) {
   
   abort_loop_ = true;
 }
+  
+const ReducerLeaf<Float_t>& Reducer::GetInterimLeafByName(const TString& name) {
+  const ReducerLeaf<Float_t>* leaf = NULL;
+  try {
+    leaf = &GetLeafByName<Float_t>(name, interim_leaves_);
+  } catch (int e) {
+    if (e==10 && !CreateUniqueInterimTree()) {
+      //swarn << "Reducer::GetInterimLeafByName(" << name << "): Leaf could not be found in interim tree. Will check if it is available in the input tree but deactivated." << endmsg;
+      
+      TLeaf* leaf_input_tree = input_tree_->GetLeaf(name);
+      if (leaf_input_tree != NULL) {
+        input_tree_->SetBranchStatus(name, 1);
+        ReducerLeaf<Float_t>* leaf_new = new ReducerLeaf<Float_t>(leaf_input_tree);
+        interim_leaves_.push_back(leaf_new);
+        swarn << "Reducer::GetInterimLeafByName(" << name << "): Re-enabling deactiavted leaf as it was requested." << endmsg;
+        leaf = &GetLeafByName<Float_t>(name, interim_leaves_);
+      } else {
+        serr << "Reducer::GetInterimLeafByName(" << name << "): Leaf could not be found in interim tree." << endmsg;
+        throw e;
+      }
+    } else {
+      serr << "Reducer::GetInterimLeafByName(" << name << "): Leaf could not be found in interim tree. Maybe it is deactivated and was not copied." << endmsg;
+      throw e;
+    }
+  }
+  
+  return *leaf;
+}
+  
+
 
 } // namespace reducer
 } // namespace dooselection
