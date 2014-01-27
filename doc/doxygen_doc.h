@@ -7,6 +7,12 @@
  * DooSelection is a ROOT-/TMVA-/RooFit-/Boost-based framework providing central
  * selection functionality which is useful in high energy physics analyses.
  *
+ * Here is an overview of the current DooSelection functionality:
+ *
+ * @li @link dooselection::reducer dooselection::reducer: is a framework to process and modify tuples. This includes applying selections, adding new leaves and perform higher level modifications. @endlink
+ * @li @link dooselection::triage dooselection::triage: is a framework to optimize cut based selections and calculate efficiencies and performance of selections (regular and multivariate) based on MC, sWeighted data, or using fits on data. @endlink
+ * @li Find a list of pre-installed executables: @ref exes
+ *
  * @section mp_simplesetup Simple setup via global DooSoftware installation
  * 
  * On all machines with a DooSoftware installation setup of DooSelection is very
@@ -102,6 +108,94 @@
  * }
  * @endcode
  *
+ */
+
+// Documentation of available executables
+/**
+ * @page exes Available executables (pre-installed with DooSelection)
+ *
+ * \tableofcontents
+ *
+ * @section exec_ArrayFlattenerGrimReaper ArrayFlattenerGrimReaper
+ * The ArrayFlattenerGrimReaper is able to flatten a tuple containing array-type
+ * entries. 
+ * 
+ * Parameters needed: name of input file, name of input tree, name of output file,
+ * name of output tree (no backslashes!), config file name
+ * 
+ * See an example of a config file:
+ * @verbinclude ArrayFlattenerGrimReaper.cfg
+ * 
+ * @section exec_CandidateSelectionGrimReaper CandidateSelectionGrimReaper
+ * The CandidateSelectionGrimReaper removes multiple candidates depending on a 
+ * given branch. The candidate with the smalles entry in the respective branch is
+ * chosen.
+ * 
+ * Parameters needed: name of input file, name of input tree, name of output file,
+ * name of output tree (no backslashes!), name of discriminating leaf.
+ * 
+ * @section exec_FitTupleGrimReaper FitTupleGrimReaper
+ * The FitTupleGrimReaper removes all leaves not matching the following regular
+ * expressions: "obs.*", "var.*", "cat.*", "par.*", "idx.*", and ".*_sw"
+ * 
+ * Parameters needed: name of input file, name of input tree, name of output file,
+ * name of output tree (no backslashes!)
+ *
+ * @section exec_MultiCutGrimReaper MultiCutGrimReaper
+ * The MultiCutGrimReaper performes cuts following multiple cut strings provided
+ * using a config file.
+ *
+ * Parameters needed: name of input file, name of input tree, name of output file,
+ * name of output tree (no backslashes!), config file name
+ *
+ * See an example of a config file:
+ * @verbinclude MultiCutGrimReaper.cfg
+ * @verbinclude MultiCutGrimReaper.cfg
+ * 
+ * @section exec_MultipleCandidateAnalyseGrimReaper MultipleCandidateAnalyseGrimReaper
+ * The MultipleCandidateAnalyseGrimReaper analyses a given tuple with a view to
+ * multiple candidates present in the tuple due to multiple PVs and B candidates.
+ * 
+ * Parameters needed: name of input file, name of input tree, name of output file, 
+ * name of output tree (no backslashes!)
+ *
+ * @section exec_SingleCutGrimReaper SingleCutGrimReaper
+ * The SingleCutGrimReaper performs a single cut.
+ *
+ * Parameters needed: name of input file, name of input tree, name of output file,
+ * name of output tree, cut string in quotation marks
+ * 
+ * @section exec_TMVAGrimReaper TMVAGrimReaper
+ * The TMVAGrimReaper applies a TMVA trained MVA on a provided tuple and adds a 
+ * branch containing the per-event classifier value.
+ * 
+ * Parameters needed: name of input file, name of input tree, name of output file,
+ * name of output tree (no backslashes!), config file name
+ * 
+ * See an example of a config file:
+ * @verbinclude TMVAGrimReaper.cfg 
+ *
+ * @section exec_VariableCategorizerGrimReaper VariableCategorizerGrimReaper
+ * The VariableCategorizerGrimReaper creates one or multiple new variables/categories
+ * containing equally filled bins depending on a given distribution of an existing
+ * variable. 
+ * 
+ * Parameters needed: name of input file, name of input tree, name of output file,
+ * name of output tree, config file name
+ * 
+ * See an example of a config file:
+ * @verbinclude VariableCategorizerGrimReaper.cfg
+ * 
+ * @section exec_VariableRenamerGrimReaper VariableRenamerGrimReaper
+ * The VariableRenamerGrimReaper renames existing branches according to a provided
+ * substitution
+ * 
+ * Parameters needed: name of input file, name of input tree, name of output file,
+ * name of output tree, config file name
+ * 
+ * See an example of a config file:
+ * @verbinclude VariableRenamerGrimReaper.cfg
+ * 
  */
 
 /**
