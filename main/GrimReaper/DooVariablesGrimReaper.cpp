@@ -135,7 +135,23 @@ cfg_tuple Configure(Reducer* rdcr, std::string& channel){
 void MCLeaves(Reducer* rdcr, cfg_tuple& cfg){}
 void MassLeaves(Reducer* rdcr, cfg_tuple& cfg){}
 void TimeLeaves(Reducer* rdcr, cfg_tuple& cfg){}
-void InfoLeaves(Reducer* rdcr, cfg_tuple& cfg){}
+
+void InfoLeaves(Reducer* rdcr, cfg_tuple& cfg){
+  // number of PVs
+  ReducerLeaf<Int_t>& var_npv_leaf = rdcr->CreateIntCopyLeaf("catNPV", rdcr->GetInterimLeafByName("nPV"));
+
+  // magnet direction
+  ReducerLeaf<Int_t>& var_mag_leaf = rdcr->CreateIntCopyLeaf("catMag", rdcr->GetInterimLeafByName("Polarity"));
+  
+  // number of tracks
+  ReducerLeaf<Int_t>& var_ntrack_leaf = rdcr->CreateIntCopyLeaf("catNTrack", rdcr->GetInterimLeafByName("nTracks"));
+
+  // data taking period
+  ReducerLeaf<Int_t>& cat_year_leaf = rdcr->CreateIntLeaf("catYear", 0);
+    cat_year_leaf.AddCondition("2011", "GpsTime < 1.325376e+15",  2011);
+    cat_year_leaf.AddCondition("2012", "GpsTime >= 1.325376e+15", 2012);
+}
+
 void CopyLeaves(Reducer* rdcr, cfg_tuple& cfg){}
 
 void TrackTypeLeaves(Reducer* rdcr, cfg_tuple& cfg){
