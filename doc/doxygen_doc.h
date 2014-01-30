@@ -150,7 +150,6 @@
  *
  * See an example of a config file:
  * @verbinclude MultiCutGrimReaper.cfg
- * @verbinclude MultiCutGrimReaper.cfg
  * 
  * @section exec_MultipleCandidateAnalyseGrimReaper MultipleCandidateAnalyseGrimReaper
  * The MultipleCandidateAnalyseGrimReaper analyses a given tuple with a view to
