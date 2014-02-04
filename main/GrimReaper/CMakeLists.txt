@@ -7,6 +7,7 @@ add_executable(MultipleCandidateAnalyseGrimReaper MultipleCandidateAnalyseGrimRe
 add_executable(CandidateSelectionGrimReaper CandidateSelectionGrimReaper.cpp)
 add_executable(DooVariablesGrimReaper DooVariablesGrimReaper.cpp)
 add_executable(FitTupleGrimReaper FitTupleGrimReaper.cpp)
+#add_executable(FlavourTaggingGrimReaper FlavourTaggingGrimReaper.cpp)
 add_executable(TMVAGrimReaper TMVAGrimReaper.cpp)
 
 target_link_libraries(SingleCutGrimReaper dsReducer ${ALL_LIBRARIES})
@@ -18,6 +19,7 @@ target_link_libraries(MultipleCandidateAnalyseGrimReaper dsReducer ${ALL_LIBRARI
 target_link_libraries(CandidateSelectionGrimReaper dsReducer ${ALL_LIBRARIES})
 target_link_libraries(DooVariablesGrimReaper dsReducer ${ALL_LIBRARIES})
 target_link_libraries(FitTupleGrimReaper dsReducer ${ALL_LIBRARIES})
+#target_link_libraries(FlavourTaggingGrimReaper dsReducer ${ALL_LIBRARIES})
 target_link_libraries(TMVAGrimReaper dsReducer ${DooCore_LIBRARIES} ${ROOFIT_LIBRARIES} ${ROOT_LIBRARIES} ${Boost_LIBRARIES})
 
 install(TARGETS SingleCutGrimReaper DESTINATION bin)
@@ -29,4 +31,5 @@ install(TARGETS MultipleCandidateAnalyseGrimReaper DESTINATION bin)
 install(TARGETS CandidateSelectionGrimReaper DESTINATION bin)
 install(TARGETS DooVariablesGrimReaper DESTINATION bin)
 install(TARGETS FitTupleGrimReaper DESTINATION bin)
+#install(TARGETS FlavourTaggingGrimReaper DESTINATION bin)
 install(TARGETS TMVAGrimReaper DESTINATION bin)
