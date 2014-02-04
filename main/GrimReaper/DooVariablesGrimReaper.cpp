@@ -175,9 +175,9 @@ void TriggerLeaves(Reducer* rdcr, cfg_tuple& cfg){}
 void VetoLeaves(Reducer* rdcr, cfg_tuple& cfg){
   // handle flattened tuples (REPLACE THIS BY CONFIG!)
   std::string flat_suffix = "";
-  if (reducer.LeafExists("flat_array_index") || reducer.LeafExists("idxPV")){
+  if (rdcr->LeafExists("flat_array_index") || rdcr->LeafExists("idxPV")){
     doocore::io::sinfo << "You are running the reducer over a flat tuple!" << doocore::io::endmsg;
-    if (!(reducer.LeafExists("idxPV"))) ReducerLeaf<Int_t>& flat_index_leaf_ptr = reducer.CreateIntCopyLeaf("idxPV", reducer.GetInterimLeafByName("flat_array_index"));
+    if (!(rdcr->LeafExists("idxPV"))) ReducerLeaf<Int_t>& flat_index_leaf_ptr = rdcr->CreateIntCopyLeaf("idxPV", rdcr->GetInterimLeafByName("flat_array_index"));
     flat_suffix = "_flat";
   }
 
