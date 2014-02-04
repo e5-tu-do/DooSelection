@@ -164,9 +164,46 @@ void MassLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   std::string flat_suffix = "";
   if (std::get<4>(cfg) == 4) flat_suffix = "_flat";
 
+  // create copies of mass observables for different fit constraints
+  // plus the 'nominal' mass observable depending on the following hierarchy
+  std::string main_observable_constraint = "";
+  std::string main_observable_constraint_error = "";
+  if (_rdcr->LeafExists(std::get<0>(cfg)+"_FitDaughtersPVConst_M")) {
+    if (main_observable_constraint == "") main_observable_constraint = "FitDaughtersPVConst_M";
+    if (main_observable_constraint_error == "") main_observable_constraint_error = "FitDaughtersPVConst_MERR";
+    ReducerLeaf<Double_t>& mass_jpsi_ks_pv_leaf     = _rdcr->CreateDoubleCopyLeaf("obsMassDaughtersPVConst", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitDaughtersPVConst_M"+flat_suffix));
+    ReducerLeaf<Double_t>& mass_err_jpsi_ks_pv_leaf = _rdcr->CreateDoubleCopyLeaf("obsMassErrDaughtersPVConst", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitDaughtersPVConst_MERR"+flat_suffix));
+  }
+  if (_rdcr->LeafExists(std::get<0>(cfg)+"_FitJpsiPVConst_M")) {
+    if (main_observable_constraint == "") main_observable_constraint = "FitJpsiPVConst_M";
+    if (main_observable_constraint_error == "") main_observable_constraint_error = "FitJpsiPVConst_MERR";
+    ReducerLeaf<Double_t>& mass_ks_pv_leaf     = _rdcr->CreateDoubleCopyLeaf("obsMassJpsiPVConst", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitJpsiPVConst_M"+flat_suffix));
+    ReducerLeaf<Double_t>& mass_err_ks_pv_leaf = _rdcr->CreateDoubleCopyLeaf("obsMassErrJpsiPVConst", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitJpsiPVConst_MERR"+flat_suffix));
+  } 
+  if (_rdcr->LeafExists(std::get<0>(cfg)+"_FitPVConst_M")) {
+    if (main_observable_constraint == "") main_observable_constraint = "FitPVConst_M";
+    if (main_observable_constraint_error == "") main_observable_constraint_error = "FitPVConst_MERR";
+    ReducerLeaf<Double_t>& mass_pv_leaf     = _rdcr->CreateDoubleCopyLeaf("obsMassPVConst", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_M"+flat_suffix));
+    ReducerLeaf<Double_t>& mass_err_pv_leaf = _rdcr->CreateDoubleCopyLeaf("obsMassErrPVConst", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_MERR"+flat_suffix));
+  } 
+  if (_rdcr->LeafExists(std::get<0>(cfg)+"_LOKI_MASS_JpsiKSConstr")) {
+    if (main_observable_constraint == "") main_observable_constraint = "LOKI_MASS_JpsiKSConstr";
+    if (main_observable_constraint_error == "") main_observable_constraint_error = "LOKI_MASSERR_JpsiKSConstr";
+    ReducerLeaf<Double_t>& mass_loki_jpsi_ks_pv_leaf     = _rdcr->CreateDoubleCopyLeaf("obsMassLokiDaughtersPVConst", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_LOKI_MASS_JpsiKSConstr"));
+    ReducerLeaf<Double_t>& mass_err_loki_jpsi_ks_pv_leaf = _rdcr->CreateDoubleCopyLeaf("obsMassErrLokiDaughtersPVConst", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_LOKI_MASSERR_JpsiKSConstr"));
+  } 
+  if (_rdcr->LeafExists(std::get<0>(cfg)+"_LOKI_MASS_JpsiConstr")) {
+    if (main_observable_constraint == "") main_observable_constraint = "LOKI_MASS_JpsiConstr";
+    if (main_observable_constraint_error == "") main_observable_constraint_error = "LOKI_MASSERR_JpsiConstr";
+    ReducerLeaf<Double_t>& mass_loki_jpsi_pv_leaf     = _rdcr->CreateDoubleCopyLeaf("obsMassLokiJpsiPVConst", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_LOKI_MASS_JpsiConstr"));
+    ReducerLeaf<Double_t>& mass_err_loki_jpsi_pv_leaf = _rdcr->CreateDoubleCopyLeaf("obsMassErrLokiJpsiPVConst", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_LOKI_MASSERR_JpsiConstr"));
+  }
+  ReducerLeaf<Double_t>& mass_jpsi_ks_pv_leaf     = _rdcr->CreateDoubleCopyLeaf("obsMass", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_"+main_observable_constraint+flat_suffix));
+  ReducerLeaf<Double_t>& mass_err_jpsi_ks_pv_leaf = _rdcr->CreateDoubleCopyLeaf("obsMassErr", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_"+main_observable_constraint_error+flat_suffix));
+  summary.Add("obsMass fit constraints", main_observable_constraint);
+
+  // old
   std::string fit_constraints;
-  ReducerLeaf<Double_t>* mass_leaf_ptr = NULL;
-  ReducerLeaf<Double_t>* mass_err_leaf_ptr = NULL;
   ReducerLeaf<Double_t>* jpsi_mass_leaf_ptr = NULL;
   ReducerLeaf<Double_t>* ks0_mass_leaf_ptr = NULL;
   ReducerLeaf<Double_t>* jpsi_mass_err_leaf_ptr = NULL;
@@ -174,8 +211,6 @@ void MassLeaves(Reducer* _rdcr, cfg_tuple& cfg){
 
   if (_rdcr->LeafExists(std::get<0>(cfg)+"_FitDaughtersPVConst_M")) {
     fit_constraints = "PVJpsiKSConst";
-    mass_leaf_ptr          = &_rdcr->CreateDoubleCopyLeaf("obsMass", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitDaughtersPVConst_M"+flat_suffix));
-    mass_err_leaf_ptr      = &_rdcr->CreateDoubleCopyLeaf("obsMassErr", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitDaughtersPVConst_MERR"+flat_suffix));
     jpsi_mass_leaf_ptr     = &_rdcr->CreateDoubleCopyLeaf("obsMassDauOne", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitDaughtersPVConst_J_psi_1S_M"+flat_suffix));
     jpsi_mass_err_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("obsMassErrDauOne", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitDaughtersPVConst_J_psi_1S_MERR"+flat_suffix));
     if (_rdcr->LeafExists(std::get<0>(cfg)+"_FitDaughtersPVConst_KS0_M") && _rdcr->LeafExists(std::get<0>(cfg)+"_FitDaughtersPVConst_KS0_MERR")) {
@@ -184,8 +219,6 @@ void MassLeaves(Reducer* _rdcr, cfg_tuple& cfg){
     }
   } else if (_rdcr->LeafExists(std::get<0>(cfg)+"_LOKI_MASS_JpsiKSConstr")) {
     fit_constraints = "JpsiKSConst";
-    mass_leaf_ptr          = &_rdcr->CreateDoubleCopyLeaf("obsMass", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_LOKI_MASS_JpsiKSConstr"));
-    mass_err_leaf_ptr      = &_rdcr->CreateDoubleCopyLeaf("obsMassErr", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_LOKI_MASSERR_JpsiKSConstr"));
     jpsi_mass_leaf_ptr     = &_rdcr->CreateDoubleCopyLeaf("obsMassDauOne", _rdcr->GetInterimLeafByName("J_psi_1S_MM"));
     jpsi_mass_err_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("obsMassErrDauOne", _rdcr->GetInterimLeafByName("J_psi_1S_MMERR"));
     if (_rdcr->LeafExists("KS0_MM")) {
@@ -194,8 +227,6 @@ void MassLeaves(Reducer* _rdcr, cfg_tuple& cfg){
     }
   } else if (_rdcr->LeafExists(std::get<0>(cfg)+"_LOKI_MASS_JpsiConstr")) {
     fit_constraints = "JpsiConst";
-    mass_leaf_ptr          = &_rdcr->CreateDoubleCopyLeaf("obsMass", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_LOKI_MASS_JpsiConstr"));
-    mass_err_leaf_ptr      = &_rdcr->CreateDoubleCopyLeaf("obsMassErr", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_LOKI_MASSERR_JpsiConstr"));
     jpsi_mass_leaf_ptr     = &_rdcr->CreateDoubleCopyLeaf("obsMassDauOne", _rdcr->GetInterimLeafByName("J_psi_1S_MM"));
     jpsi_mass_err_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("obsMassErrDauOne", _rdcr->GetInterimLeafByName("J_psi_1S_MMERR"));
     if (_rdcr->LeafExists("KS0_MM")) {
@@ -203,7 +234,7 @@ void MassLeaves(Reducer* _rdcr, cfg_tuple& cfg){
       jpsi_mass_err_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("obsMassErrDauTwo", _rdcr->GetInterimLeafByName("KS0_MMERR"));
     }
   }
-  summary.Add("Mass fit constraints", fit_constraints);
+  
 }
 
 void TimeLeaves(Reducer* _rdcr, cfg_tuple& cfg){
