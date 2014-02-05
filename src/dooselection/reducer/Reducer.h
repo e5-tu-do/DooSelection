@@ -842,6 +842,9 @@ class Reducer {
   void ActivateDependentLeaves(const std::vector<ReducerLeaf<T>* >& leaves) {
     using namespace doocore::io;
     for (auto leaf : leaves) {
+      sdebug << "leaf: " << leaf << endmsg;
+      sdebug << "leaf->leaf_pointer_one(): " << leaf->leaf_pointer_one() << endmsg;
+      sdebug << "leaf->leaf_pointer_one()->name(): " << leaf->leaf_pointer_one()->name() << endmsg;
       if (leaf->leaf_pointer_one() != NULL && input_tree_->GetLeaf(leaf->leaf_pointer_one()->name()) != NULL) {
         //sdebug << "Reactivating " << leaf->leaf_pointer_one()->name() << " (needed for operation in " << leaf->name() << ")" << endmsg;
         input_tree_->SetBranchStatus(leaf->leaf_pointer_one()->name(), 1);
