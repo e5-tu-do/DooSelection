@@ -845,13 +845,17 @@ class Reducer {
       sdebug << "leaf: " << leaf << endmsg;
       sdebug << "leaf->leaf_pointer_one(): " << leaf->leaf_pointer_one() << endmsg;
       sdebug << "leaf->leaf_pointer_one()->name(): " << leaf->leaf_pointer_one()->name() << endmsg;
-      if (leaf->leaf_pointer_one() != NULL && input_tree_->GetLeaf(leaf->leaf_pointer_one()->name()) != NULL) {
-        //sdebug << "Reactivating " << leaf->leaf_pointer_one()->name() << " (needed for operation in " << leaf->name() << ")" << endmsg;
-        input_tree_->SetBranchStatus(leaf->leaf_pointer_one()->name(), 1);
+      if (leaf->leaf_pointer_one() != NULL) {
+        if (input_tree_->GetLeaf(leaf->leaf_pointer_one()->name()) != NULL) {
+          //sdebug << "Reactivating " << leaf->leaf_pointer_one()->name() << " (needed for operation in " << leaf->name() << ")" << endmsg;
+          input_tree_->SetBranchStatus(leaf->leaf_pointer_one()->name(), 1);
+        }
       }
-      if (leaf->leaf_pointer_two() != NULL && input_tree_->GetLeaf(leaf->leaf_pointer_two()->name()) != NULL) {
-        //sdebug << "Reactivating " << leaf->leaf_pointer_two()->name() << " (needed for operation in " << leaf->name() << ")" << endmsg;
-        input_tree_->SetBranchStatus(leaf->leaf_pointer_two()->name(), 1);
+      if (leaf->leaf_pointer_two() != NULL) {
+        if (input_tree_->GetLeaf(leaf->leaf_pointer_two()->name()) != NULL) {
+          //sdebug << "Reactivating " << leaf->leaf_pointer_two()->name() << " (needed for operation in " << leaf->name() << ")" << endmsg;
+          input_tree_->SetBranchStatus(leaf->leaf_pointer_two()->name(), 1);
+        }
       }
       
       leaf->ActivateDependentConditionLeaves(input_tree_);
