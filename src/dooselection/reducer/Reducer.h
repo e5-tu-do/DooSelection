@@ -878,6 +878,7 @@ class Reducer {
     
     LoadTreeFriendsEntryHook(i);
     
+    UpdateSpecialLeaves();
     UpdateAllValues<Float_t>(float_leaves_);
     UpdateAllValues<Double_t>(double_leaves_);
     UpdateAllValues<Int_t>(int_leaves_);
