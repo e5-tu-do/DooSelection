@@ -8,7 +8,7 @@ TMVAClassificationReducer.cpp TMVAClassificationReducer.h ShufflerReducer.cpp
 ShufflerReducer.h BkgCategorizerReducer.cpp BkgCategorizerReducer.h
 Reducer.cpp Reducer.h ReducerLeaf.cpp ReducerLeaf.h KinematicReducerLeaf.h
 KinematicReducerLeaf.cpp VariableCategorizerReducer.h
-VariableCategorizerReducer.cppi SimSPlotReducer.cpp SimSPlotReducer.h)
+VariableCategorizerReducer.cpp SimSPlotReducer.cpp SimSPlotReducer.h)
 target_link_libraries(dsReducer dsMCTools "-lTMVA" ${ADDITIONAL_LIBRARIES} ${ALL_LIBRARIES})
 
 install(TARGETS dsReducer DESTINATION lib)
