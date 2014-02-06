@@ -38,9 +38,9 @@ int main(int argc, char * argv[]){
 
   reducer.AddEventIdentifier("idxEventNumber");
   reducer.AddEventIdentifier("idxRunNumber");
-  reducer.AddEventIdentifier("idxPV");
   reducer.AddEventIdentifier("eventNumber");
   reducer.AddEventIdentifier("runNumber");
+  reducer.AddEventCharacteristic("idxPV");
 
   reducer.Initialize();
   reducer.Run();
