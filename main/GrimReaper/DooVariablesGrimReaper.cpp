@@ -321,13 +321,11 @@ void TriggerLeaves(Reducer* _rdcr, cfg_tuple& cfg){
       catTrigger.AddCondition("almost_unbiased", trigger_set_almost_unbiased.GetTitle(), 0);
       catTrigger.AddCondition("excl_biased", trigger_set_excl_biased.GetTitle(), 1);
   
-  // Hlt2DiMuonJpsi prescale catogries
+  // Hlt2DiMuonJpsi prescale categories
   TCut hlt2_jpsi_prescale_tcks = "HLTTCK==7667767 || HLTTCK==7929912 || HLTTCK==7733303 || HLTTCK==7798839 || HLTTCK==10027074 || HLTTCK==10027075 || HLTTCK==10682436 || HLTTCK==10420293 || HLTTCK==11075654 || HLTTCK==10092610 || HLTTCK==10092611 || HLTTCK==10027076 || HLTTCK==10551365 || HLTTCK==11272262 || HLTTCK==11206726";
-  ReducerLeaf<Int_t>& catJpsiPrescale = _rdcr->CreateIntLeaf("catJpsiPrescale", -1);
-    catJpsiPrescale.AddCondition("prescale", hlt2_jpsi_prescale_tcks.GetTitle(), 1);
-    catJpsiPrescale.AddCondition("no-prescale", (!hlt2_jpsi_prescale_tcks).GetTitle(), 0);
-  
-  summary.Add("TriggerLeaves", true);
+  ReducerLeaf<Int_t>& catTriggerJpsiPrescale = _rdcr->CreateIntLeaf("catTriggerJpsiPrescale", -1);
+    catTriggerJpsiPrescale.AddCondition("prescale", hlt2_jpsi_prescale_tcks.GetTitle(), 1);
+    catTriggerJpsiPrescale.AddCondition("no-prescale", (!hlt2_jpsi_prescale_tcks).GetTitle(), 0);
 }
 
 void VetoLeaves(Reducer* _rdcr, cfg_tuple& cfg){
