@@ -76,7 +76,9 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     for (it = identfiers_begin; it != identfiers_end; ++it) {
       identifier.push_back(it->GetValue());
     }
-    insert(mapping_id_tree_)(identifier, i);
+    EventIdentifierBucket b;
+    b.first = i;
+    insert(mapping_id_tree_)(identifier, b);
     
     if (tty && (i%n_print_stepping) == 0) {
       // double frac = static_cast<double> (i)/num_entries*100.0;
@@ -86,21 +88,21 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     }
   }
   
-  typedef std::multimap<std::vector<ULong64_t>, ULong64_t> MapType;
+  //typedef std::multimap<std::vector<ULong64_t>, ULong64_t> MapType;
   std::map<int,int> multicand_histogram;
   
   sinfo << "MultipleCandidateAnalyseReducer::ProcessInputTree(): Analysing stored events for multiplicities." << endmsg;
   // iterating over unique keys with this trick:
-  for(MapType::const_iterator it = mapping_id_tree_.begin(), end = mapping_id_tree_.end();
+  for(EventMap::const_iterator it = mapping_id_tree_.begin(), end = mapping_id_tree_.end();
       it != end; it = mapping_id_tree_.upper_bound(it->first)) {
     
     // iterators inside a unique key
-    MapType::const_iterator it_start = it;
-    MapType::const_iterator it_end   = mapping_id_tree_.upper_bound(it->first);
+    EventMap::const_iterator it_start = it;
+    EventMap::const_iterator it_end   = mapping_id_tree_.upper_bound(it->first);
     
     // count possible multiple occurrences of one unique key
     int i = 0;
-    for (MapType::const_iterator it_same = it_start; it_same != it_end; ++it_same) {
+    for (EventMap::const_iterator it_same = it_start; it_same != it_end; ++it_same) {
       i++;
     }
     if (multicand_histogram.count(i) == 0) {
@@ -124,5 +126,5 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
   
   input_tree_->SetBranchStatus("*", true);
 }
-} // namespace reducer
+} // na mespace reducer
 } // namespace dooselection

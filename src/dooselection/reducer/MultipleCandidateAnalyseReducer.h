@@ -51,6 +51,9 @@ class MultipleCandidateAnalyseReducer : virtual public Reducer {
   virtual void ProcessInputTree();
   
  private:
+  typedef std::pair<ULong64_t, std::vector<ULong64_t> > EventIdentifierBucket;
+  typedef std::multimap<std::vector<ULong64_t>, EventIdentifierBucket> EventMap;
+  
   /**
    *  @brief Vector of names of leaves with unique event identifiers
    */
@@ -59,7 +62,7 @@ class MultipleCandidateAnalyseReducer : virtual public Reducer {
   /**
    *  @brief Mapping for unique event identifier and tree entry
    */
-  std::multimap<std::vector<ULong64_t>, ULong64_t> mapping_id_tree_;
+  EventMap mapping_id_tree_;
 };
 } // namespace reducer
 } // namespace dooselection
