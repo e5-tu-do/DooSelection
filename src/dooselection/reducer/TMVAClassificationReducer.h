@@ -57,6 +57,18 @@ class TMVAClassificationReducer : virtual public Reducer {
     }
   }
   
+  template<class T>
+  void SetTMVASpectatorVariable(const std::string& var_name, const ReducerLeaf<T>& leaf) {
+    if (tmva_xml_file_.Length() > 0) {
+      if (leaf.type() == "Float_t") {
+        tmva_reader_->AddSpectator(var_name, (Float_t*)leaf.branch_address());
+      } else {
+        ReducerLeaf<Float_t>& tmva_float_copy_leaf = CreateFloatCopyLeaf(leaf.name()+"_tmvafloatcopy", leaf);
+        tmva_reader_->AddSpectator(var_name, (Float_t*)tmva_float_copy_leaf.branch_address());
+      }
+    }
+  }
+
   void SetTMVAVariable(const std::string& var_name, Float_t* addr) {
     if (tmva_xml_file_.Length() > 0) tmva_reader_->AddVariable(var_name.c_str(), addr);
   }
@@ -75,16 +87,16 @@ class TMVAClassificationReducer : virtual public Reducer {
     if (tmva_xml_file_.Length() > 0) {
       sinfo << "TMVA weights are set. Creating BDT classifier." << endmsg;
       
-      tmva_classifier_				= &(CreateFloatLeaf(tmva_method_+"_classifier", tmva_method_+"_classifier", "Float_t"));
-      tmva_classifier_value_	= (Float_t*)tmva_classifier_->branch_address();
+      tmva_classifier_				= &(CreateDoubleLeaf(tmva_method_+"_classifier", tmva_method_+"_classifier", "Double_t"));
+      tmva_classifier_value_	= (Double_t*)tmva_classifier_->branch_address();
       
       tmva_reader_ 						= new TMVA::Reader("!Color");
     }
   }
 
  private:
-  ReducerLeaf<Float_t>	* tmva_classifier_;
-  Float_t								* tmva_classifier_value_;
+  ReducerLeaf<Double_t>	* tmva_classifier_;
+  Double_t							* tmva_classifier_value_;
 	TString									tmva_method_;
 	TMVA::Reader					* tmva_reader_;
 	TString									tmva_xml_file_;

@@ -5,6 +5,9 @@
 #include <iostream>
 #include <string>
 
+// from Boost
+#include <boost/algorithm/string.hpp>
+
 // from ROOT
 #include "TString.h"
 #include "TTree.h"
@@ -23,6 +26,10 @@ enum ReducerLeafOperations {
   kDivideLeaves,
   kEqualLeaf,
   kRandomizeLeaf,
+  kMinimum,
+  kMaximum,
+  kConditionsMap,
+  kDoNotUpdate
 };
 
 // Haha, this is why I like C++: The function below needs to be declared for the
@@ -30,6 +37,22 @@ enum ReducerLeafOperations {
 // needs to be declared before the function declaration.
 namespace dooselection {
 namespace reducer {
+  
+enum LeafDataType {
+  kDouble,
+  kInt,
+  kFloat,
+  kULong64,
+  kLong64,
+  kUInt,
+  kBool,
+  kShort,
+  kUShort,
+  kChar,
+  kUChar,
+  kUnknownType,
+};
+  
 template <class T>
 class ReducerLeaf;
   
@@ -94,6 +117,9 @@ public:
   const TString& name() const { return name_; }
   const TString& title() const { return title_; }
   const TString& type() const { return type_; }
+  
+  LeafDataType l_type() const { return l_type_; }
+  
   TTree* tree() const { return tree_; }
   TBranch* branch() { return leaf_->GetBranch(); }
   TString LeafString() const ;   ///< return leaf string for branch creation
@@ -202,6 +228,7 @@ public:
    * @param value the value corresponding to this cut.
    */
   void AddCondition(TString condition_name, TString condition, T value) {
+    leaf_operation_ = kConditionsMap;
     conditions_map_.push_back(std::pair<TTreeFormula*,T>(new TTreeFormula(condition_name,condition,tree_),value));
   }
 
@@ -232,6 +259,14 @@ public:
   void Equal(const ReducerLeaf<T1>& l, double c=1.0) {
     SetOperation<T1,T1>(l,l,kEqualLeaf,c,c);
   }
+  template<class T1, class T2>
+  void Minimum(const ReducerLeaf<T1>& l1, const ReducerLeaf<T2>& l2) {
+    SetOperation<T1,T2>(l1,l2,kMinimum,1.0,1.0);
+  }
+  template<class T1, class T2>
+  void Maximum(const ReducerLeaf<T1>& l1, const ReducerLeaf<T2>& l2) {
+    SetOperation<T1,T2>(l1,l2,kMaximum,1.0,1.0);
+  }
 
   /**
    *  @brief Set leaf to contain random values
@@ -247,8 +282,49 @@ public:
     random_generator_ = random_generator;
     SetOperation<T,T>(*this,*this,kRandomizeLeaf,1.0,1.0);
   }
-  ///@} 
+  ///@}
+  
+  /** @name Access dependent leaves
+   *  These functions help to access dependent leaves
+   */
+  ///@{
+  /**
+   *  @brief Get first dependent leaf
+   */
+  const ReducerLeaf<T>* leaf_pointer_one() const {
+    return leaf_pointer_one_;
+  }
 
+  /**
+   *  @brief Get second dependent leaf
+   */
+  const ReducerLeaf<T>* leaf_pointer_two() const {
+    return leaf_pointer_two_;
+  }
+  ///@}
+  
+  /**
+   *  @brief Activate all leaves in conditions map for a given tree
+   *
+   *  @param tree the TTree to actiavte dependent leaves in
+   */
+  void ActivateDependentConditionLeaves(TTree* tree) const {
+    for (auto condition : conditions_map_) {
+      const TTreeFormula* formula = condition.first;
+      
+      // split formula string into tokens to iterate through these and reactivate all necessary leaves
+      std::string cut_string(formula->GetTitle());
+      std::vector<std::string> vector_split;
+      boost::split(vector_split, cut_string, boost::is_any_of("(())&|<>="), boost::token_compress_on);
+      for (auto token : vector_split) {
+        TLeaf* leaf = tree->GetLeaf(token.c_str());
+        if (leaf != NULL) {
+          //doocore::io::sdebug << "Reactivating " << token << " (needed in conditions for " << name() << ")" << doocore::io::endmsg;
+          tree->SetBranchStatus(token.c_str(), 1);
+        }
+      }
+    }
+  }
   
   template<class T1>
   friend doocore::io::MsgStream& doocore::io::operator<<(doocore::io::MsgStream& lhs, const dooselection::reducer::ReducerLeaf<T1>& leaf);
@@ -260,10 +336,23 @@ protected:
   T default_value_;
 
 private:
+  
+  /**
+   *  @brief Set leaf type enum according to leaf type string
+   *
+   */
+  void SetLeafType();
+  
   TLeaf* leaf_;
   TString name_;
   TString title_;
   TString type_;
+  
+  /**
+   *  @brief Leaf type enum
+   */
+  LeafDataType l_type_;
+  
   void * branch_address_;           ///< address of branch contents 
   ///< for non-templating copy use
     
@@ -306,6 +395,7 @@ ReducerLeaf<T>::ReducerLeaf(TString name, TString title, TString type, TTree* tr
 name_(name),
 title_(title),
 type_(type),
+l_type_(kUnknownType),
 branch_address_(NULL),
 tree_(tree),
 default_value_(default_value),
@@ -314,6 +404,7 @@ leaf_pointer_two_(NULL),
 leaf_operation_(kNoneOperation),
 random_generator_(NULL)
 {
+  SetLeafType();
   branch_address_templ_ = new T();
   //std::cout << "regular constructor: " << this << ", name: " << name_ << "|" << &name_ << " (untemplated): " << branch_address_ << ", (templated): " << branch_address_templ_ << std::endl;
 }
@@ -324,6 +415,7 @@ ReducerLeaf<T>::ReducerLeaf(TLeaf * leaf)
 name_(leaf->GetName()),
 title_(leaf->GetTitle()),
 type_(leaf->GetTypeName()),
+l_type_(kUnknownType),
 branch_address_(leaf->GetValuePointer()),
 branch_address_templ_(NULL),
 tree_(NULL),
@@ -331,7 +423,8 @@ leaf_pointer_one_(NULL),
 leaf_pointer_two_(NULL),
 leaf_operation_(kNoneOperation),
 random_generator_(NULL)
- {
+{
+  SetLeafType();
 }
 
 template <class T>
@@ -339,7 +432,8 @@ ReducerLeaf<T>::ReducerLeaf(const ReducerLeaf<T>& r)
 : leaf_(r.leaf_),
 name_(r.name_),
 title_(r.title_),
-type_(r.type_), 
+type_(r.type_),
+l_type_(r.l_type_),
 branch_address_(r.branch_address_),
 branch_address_templ_(r.branch_address_templ_),
 tree_(r.tree_),
@@ -354,6 +448,36 @@ random_generator_(NULL)
 }
 
 template <class T>
+void ReducerLeaf<T>::SetLeafType() {
+  if (type_ == "Double_t") {
+    l_type_ = kDouble;
+  } else if (type_ == "Int_t") {
+    l_type_ = kInt;
+  } else if (type_ == "Float_t") {
+    l_type_ = kFloat;
+  } else if (type_ == "ULong64_t") {
+    l_type_ = kULong64;
+  } else if (type_ == "Long64_t") {
+    l_type_ = kLong64;
+  } else if (type_ == "UInt_t") {
+    l_type_ = kUInt;
+  } else if (type_ == "Bool_t") {
+    l_type_ = kBool;
+  } else if (type_ == "Short_t") {
+    l_type_ = kShort;
+  } else if (type_ == "UShort_t") {
+    l_type_ = kUShort;
+  } else if (type_ == "Char_t") {
+    l_type_ = kChar;
+  } else if (type_ == "UChar_t") {
+    l_type_ = kUChar;
+  } else {
+    doocore::io::serr << "ERROR in T ReducerLeaf<T>::SetLeafType(): Leaf type " << type_ << " in leaf " << name_ << " is unknown. Do not know how to handle that." << doocore::io::endmsg;
+    l_type_ = kUnknownType;
+  }
+}
+  
+template <class T>
 T ReducerLeaf<T>::GetValue(int i) const {
   // too high performance impact
 //  if (i>=Length()) {
@@ -361,39 +485,79 @@ T ReducerLeaf<T>::GetValue(int i) const {
 //    i=0;
 //  }
   
+//  doocore::io::sdebug << "Get leaf value for " << name() << doocore::io::endmsg;
+  
   // in case we have stored our value in branch_address_templ_ it's simple and 
   // we know that the type is correct.
   if (branch_address_ == NULL) {
     return branch_address_templ_[i];
   } else {
-    if (type_ == "Int_t") {
-      // tricky cast:
-      // void* -> Int_t* -> Int_t -> T
-      return static_cast<T>(static_cast<Int_t*>(branch_address_)[i]);
-    } else if (type_ == "Float_t") {
-      return static_cast<T>(static_cast<Float_t*>(branch_address_)[i]);
-    } else if (type_ == "Double_t") {
-      return static_cast<T>(static_cast<Double_t*>(branch_address_)[i]);
-    } else if (type_ == "ULong64_t") {
-      return static_cast<T>(static_cast<ULong64_t*>(branch_address_)[i]);
-    } else if (type_ == "Long64_t") {
-      return static_cast<T>(static_cast<Long64_t*>(branch_address_)[i]);
-    } else if (type_ == "UInt_t") {
-      return static_cast<T>(static_cast<UInt_t*>(branch_address_)[i]);
-    } else if (type_ == "Bool_t") {
-      return static_cast<T>(static_cast<Bool_t*>(branch_address_)[i]);
-    } else if (type_ == "Short_t") {
-      return static_cast<T>(static_cast<Short_t*>(branch_address_)[i]);
-    } else if (type_ == "UShort_t") {
-      return static_cast<T>(static_cast<UShort_t*>(branch_address_)[i]);
-    } else if (type_ == "Char_t") {
-      return static_cast<T>(static_cast<Char_t*>(branch_address_)[i]);
-    } else if (type_ == "UChar_t") {
-      return static_cast<T>(static_cast<UChar_t*>(branch_address_)[i]);
-    } else {
-      doocore::io::serr << "ERROR in T ReducerLeaf<T>::GetValue(int): Leaf type " << type_ << " in leaf " << name_ << " is unknown. Do not know how to handle that." << doocore::io::endmsg;
-      return T();
+    switch (l_type_) {
+      case kFloat:
+        return static_cast<T>(static_cast<Float_t*>(branch_address_)[i]);
+        break;
+      case kDouble:
+        return static_cast<T>(static_cast<Double_t*>(branch_address_)[i]);
+        break;
+      case kInt:
+        return static_cast<T>(static_cast<Int_t*>(branch_address_)[i]);
+        break;
+      case kULong64:
+        return static_cast<T>(static_cast<ULong64_t*>(branch_address_)[i]);
+        break;
+      case kLong64:
+        return static_cast<T>(static_cast<Long64_t*>(branch_address_)[i]);
+        break;
+      case kUInt:
+        return static_cast<T>(static_cast<UInt_t*>(branch_address_)[i]);
+        break;
+      case kBool:
+        return static_cast<T>(static_cast<Bool_t*>(branch_address_)[i]);
+        break;
+      case kShort:
+        return static_cast<T>(static_cast<Short_t*>(branch_address_)[i]);
+        break;
+      case kChar:
+        return static_cast<T>(static_cast<Char_t*>(branch_address_)[i]);
+        break;
+      case kUChar:
+        return static_cast<T>(static_cast<UChar_t*>(branch_address_)[i]);
+        break;
+        
+      default:
+        doocore::io::serr << "ERROR in T ReducerLeaf<T>::GetValue(int): Leaf type " << type_ << " in leaf " << name_ << " is unknown. Do not know how to handle that." << doocore::io::endmsg;
+        return T();
+        break;
     }
+    
+//    if (type_ == "Double_t") {
+//      return static_cast<T>(static_cast<Double_t*>(branch_address_)[i]);
+//    } else if (type_ == "Int_t") {
+//      // tricky cast:
+//      // void* -> Int_t* -> Int_t -> T
+//      return static_cast<T>(static_cast<Int_t*>(branch_address_)[i]);
+//    } else if (type_ == "Float_t") {
+//      return static_cast<T>(static_cast<Float_t*>(branch_address_)[i]);
+//    } else if (type_ == "ULong64_t") {
+//      return static_cast<T>(static_cast<ULong64_t*>(branch_address_)[i]);
+//    } else if (type_ == "Long64_t") {
+//      return static_cast<T>(static_cast<Long64_t*>(branch_address_)[i]);
+//    } else if (type_ == "UInt_t") {
+//      return static_cast<T>(static_cast<UInt_t*>(branch_address_)[i]);
+//    } else if (type_ == "Bool_t") {
+//      return static_cast<T>(static_cast<Bool_t*>(branch_address_)[i]);
+//    } else if (type_ == "Short_t") {
+//      return static_cast<T>(static_cast<Short_t*>(branch_address_)[i]);
+//    } else if (type_ == "UShort_t") {
+//      return static_cast<T>(static_cast<UShort_t*>(branch_address_)[i]);
+//    } else if (type_ == "Char_t") {
+//      return static_cast<T>(static_cast<Char_t*>(branch_address_)[i]);
+//    } else if (type_ == "UChar_t") {
+//      return static_cast<T>(static_cast<UChar_t*>(branch_address_)[i]);
+//    } else {
+//      doocore::io::serr << "ERROR in T ReducerLeaf<T>::GetValue(int): Leaf type " << type_ << " in leaf " << name_ << " is unknown. Do not know how to handle that." << doocore::io::endmsg;
+//      return T();
+//    }
   }
 }
 
@@ -420,10 +584,10 @@ bool ReducerLeaf<T>::EvalConditions() {
 
 template <class T>
 bool ReducerLeaf<T>::UpdateValue() {
+//  doocore::io::sdebug << "Updating leaf value for " << name() << doocore::io::endmsg;
+  
   bool matched = false;
-  if (!conditions_map_.empty()) {
-    return EvalConditions();
-  } else if (leaf_operation_ != kNoneOperation) {
+  if (leaf_operation_ != kNoneOperation) {
     // update our leaf pointers which could itself be depending on operations.
     
     switch (leaf_operation_) {
@@ -450,9 +614,30 @@ bool ReducerLeaf<T>::UpdateValue() {
         *branch_address_templ_ = leaf_factor_one_*leaf_pointer_one_->GetValue();
         matched = true;
         break;
+      case kMinimum:
+        leaf_pointer_one_->UpdateValue();
+        leaf_pointer_two_->UpdateValue();
+        *branch_address_templ_ = TMath::Min(leaf_factor_one_*leaf_pointer_one_->GetValue(), leaf_factor_two_*leaf_pointer_two_->GetValue());
+        matched = true;
+        break;
+      case kMaximum:
+        leaf_pointer_one_->UpdateValue();
+        leaf_pointer_two_->UpdateValue();
+        *branch_address_templ_ = TMath::Max(leaf_factor_one_*leaf_pointer_one_->GetValue(), leaf_factor_two_*leaf_pointer_two_->GetValue());
+        matched = true;
+        break;
       case kRandomizeLeaf:
         *branch_address_templ_ = random_generator_->Rndm()*1073741824.0;
         matched = true;
+        break;
+      case kConditionsMap:
+        if (!conditions_map_.empty()) {
+          return EvalConditions();
+        } else {
+          *branch_address_templ_ = default_value_;
+        }
+        break;
+      case kDoNotUpdate:
         break;
       default:
         break;
@@ -478,6 +663,12 @@ void ReducerLeaf<T>::SetOperation(const ReducerLeaf<T1>& l1, const ReducerLeaf<T
       break;
     case kEqualLeaf:
       std::cout << "Leaf " << name() << " = (" << c1 << ")*" << l1.name() << std::endl;
+      break;
+    case kMinimum:
+      std::cout << "Leaf " << name() << " = min(" << l1.name() << ", " << l2.name() << ")" << std::endl;
+      break;
+    case kMaximum:
+      std::cout << "Leaf " << name() << " = max(" << l1.name() << ", " << l2.name() << ")" << std::endl;
       break;
     case kRandomizeLeaf:
       std::cout << "Leaf " << name() << " = random number" << std::endl;

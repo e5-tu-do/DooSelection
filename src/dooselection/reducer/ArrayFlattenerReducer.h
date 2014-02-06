@@ -52,6 +52,9 @@ class ArrayFlattenerReducer : virtual public Reducer {
    *
    *  @param name_array_index name of index leaf
    */
+  void set_name_array_index(const std::string& name_array_index) {
+    name_array_index_ = name_array_index;
+  }
   
  protected:
   virtual void PrepareSpecialBranches();

@@ -22,6 +22,7 @@
 class TFile;
 class TLeaf;
 class TTreeFormula;
+class RooArgSet;
 
 /**
  * @namespace dooselection::reducer
@@ -108,6 +109,8 @@ class TTreeFormula;
  *   - dooselection::reducer::Reducer::UpdateSpecialLeaves();
  *   \- virtual function to calculate values of higher level leaves like 
  *    - complicated vetos and such.
+ *   - dooselection::reducer::Reducer::LoadTreeFriendsEntryHook(long long);
+ *   \- virtual function to load tree friend entries.
  *   - dooselection::reducer::Reducer::EntryPassesSpecialCuts();
  *   \- virtual function to check if leaves fulfil higher level cuts like 
  *    - complicated vetos or any other requirement.
@@ -201,6 +204,13 @@ class Reducer {
   void AddBranchesKeepRegex(std::string keep_regex) { branches_keep_regex_.push_back(keep_regex); }
   
   /**
+   *  @brief Add branches to keep by RooArgSet
+   *
+   *  @param argset argset with all observables to keep
+   */
+  void AddBranchesKeep(const RooArgSet& argset);
+  
+  /**
    *  @brief Add regular expression of branches to omit
    *
    *  @param omit_regex regular expression for branches to omit
@@ -238,16 +248,19 @@ class Reducer {
   void SetEventNumberLeaf(const ReducerLeaf<T>& leaf) {
     event_number_leaf_ptr_ = new ReducerLeaf<ULong64_t>(leaf.name(), leaf.title(), leaf.type(), leaf.tree());
     event_number_leaf_ptr_->set_branch_address(leaf.branch_address());
+    input_tree_->SetBranchStatus(event_number_leaf_ptr_->name(),1);
   }
   template<class T>
   void SetRunNumberLeaf(const ReducerLeaf<T>& leaf) {
     run_number_leaf_ptr_ = new ReducerLeaf<ULong64_t>(leaf.name(), leaf.title(), leaf.type(), leaf.tree());
     run_number_leaf_ptr_->set_branch_address(leaf.branch_address());
+    input_tree_->SetBranchStatus(run_number_leaf_ptr_->name(),1);
   }
   template<class T>
   void SetBestCandidateLeaf(const ReducerLeaf<T>& leaf) {
     best_candidate_leaf_ptr_ = new ReducerLeaf<Double_t>(leaf.name(), leaf.title(), leaf.type(), leaf.tree());
     best_candidate_leaf_ptr_->set_branch_address(leaf.branch_address());
+    input_tree_->SetBranchStatus(best_candidate_leaf_ptr_->name(),1);
   }
   ///@}
 
@@ -255,14 +268,33 @@ class Reducer {
    *  Functions accessing existing or to-be-created leaves
    */
   ///@{
+  /**
+   *  @brief Access a leaf in the interim tree.
+   *
+   *  This fuction is not const as it allows to also access leaves in the input 
+   *  tree that were previously deactivated. These will be reactivated in the 
+   *  process.
+   *
+   *  @param name name of the leaf.
+   *  @return the leaf as ReducerLeaf
+   */
+  const ReducerLeaf<Float_t>& GetInterimLeafByName(const TString& name);
+  
   const ReducerLeaf<Float_t>& GetInterimLeafByName(const TString& name) const {
     return GetLeafByName<Float_t>(name, interim_leaves_);
   }
+  
   const ReducerLeaf<Double_t>& GetDoubleLeafByName(const TString& name) const {
     return GetLeafByName<Double_t>(name, double_leaves_);
   }
   const ReducerLeaf<Float_t>& GetFloatLeafByName(const TString& name) const {
     return GetLeafByName<Float_t>(name, float_leaves_);
+  }
+  const ReducerLeaf<ULong64_t>& GetULongLeafByName(const TString& name) const {
+    return GetLeafByName<ULong64_t>(name, ulong_leaves_);
+  }
+  const ReducerLeaf<Long64_t>& GetLongLeafByName(const TString& name) const {
+    return GetLeafByName<Long64_t>(name, long_leaves_);
   }
   const ReducerLeaf<Int_t>& GetIntLeafByName(const TString& name) const {
     return GetLeafByName<Int_t>(name, int_leaves_);
@@ -287,6 +319,12 @@ class Reducer {
       if ((*it)->name() == name) return true;
     }
     for (std::vector<ReducerLeaf<Int_t>* >::const_iterator it = int_leaves_.begin(); it != int_leaves_.end(); ++it) {
+      if ((*it)->name() == name) return true;
+    }
+    for (std::vector<ReducerLeaf<ULong64_t>* >::const_iterator it = ulong_leaves_.begin(); it != ulong_leaves_.end(); ++it) {
+      if ((*it)->name() == name) return true;
+    }
+    for (std::vector<ReducerLeaf<Long64_t>* >::const_iterator it = long_leaves_.begin(); it != long_leaves_.end(); ++it) {
       if ((*it)->name() == name) return true;
     }
     return false;
@@ -351,7 +389,7 @@ class Reducer {
   std::vector<ReducerLeaf<Float_t>* >::const_iterator GetFloatLeavesBegin() const {
     return float_leaves_.begin();
   }
-  
+ 
   /**
    *  @brief Float leaves end iterator
    *
@@ -362,6 +400,54 @@ class Reducer {
    */
   std::vector<ReducerLeaf<Float_t>* >::const_iterator GetFloatLeavesEnd() const {
     return float_leaves_.end();
+  }
+  
+  /**
+   *  @brief Unsigned long leaves begin iterator
+   *
+   *  To iterate over all unsigned long leaves, this function will return the begin()
+   *  iterator of the corresponding vector.
+   *
+   *  @return begin() of ulong leaves vector
+   */
+  std::vector<ReducerLeaf<ULong64_t>* >::const_iterator GetULongLeavesBegin() const {
+    return ulong_leaves_.begin();
+  }
+  
+  /**
+   *  @brief Unsigned long leaves end iterator
+   *
+   *  To iterate over all unsigned long leaves, this function will return the end()
+   *  iterator of the corresponding vector.
+   *
+   *  @return end() of ulong leaves vector
+   */
+  std::vector<ReducerLeaf<ULong64_t>* >::const_iterator GetULongLeavesEnd() const {
+    return ulong_leaves_.end();
+  }
+  
+  /**
+   *  @brief Long leaves begin iterator
+   *
+   *  To iterate over all long leaves, this function will return the begin()
+   *  iterator of the corresponding vector.
+   *
+   *  @return begin() of long leaves vector
+   */
+  std::vector<ReducerLeaf<Long64_t>* >::const_iterator GetLongLeavesBegin() const {
+    return long_leaves_.begin();
+  }
+  
+  /**
+   *  @brief Long leaves end iterator
+   *
+   *  To iterate over all long leaves, this function will return the end()
+   *  iterator of the corresponding vector.
+   *
+   *  @return end() of long leaves vector
+   */
+  std::vector<ReducerLeaf<Long64_t>* >::const_iterator GetLongLeavesEnd() const {
+    return long_leaves_.end();
   }
 
   /**
@@ -389,6 +475,14 @@ class Reducer {
   }
   ///@}
   
+  /**
+   *  @brief Add additional tree friends to input tree
+   *
+   *  @param file_name File to open the tree friend from
+   *  @param tree_name Tree to open in file
+   */
+  void AddTreeFriend(std::string file_name, std::string tree_name);
+  
   /** @name Leaf creation
    *  Functions creating new leaves in the output tree
    */
@@ -409,6 +503,7 @@ class Reducer {
     new_leaf.Equal(leaf_to_copy, c);
     return new_leaf;
   }
+  
   ReducerLeaf<Float_t>& CreateFloatLeaf(TString name, TString title, TString type, Float_t default_value=0.0) {
     ReducerLeaf<Float_t>* new_leaf = new ReducerLeaf<Float_t>(name, title, type, interim_tree_, default_value);
     float_leaves_.push_back(new_leaf);
@@ -425,6 +520,41 @@ class Reducer {
     new_leaf.Equal(leaf_to_copy, c);
     return new_leaf;
   }
+  
+  ReducerLeaf<ULong64_t>& CreateULongLeaf(TString name, TString title, TString type, ULong64_t default_value=0) {
+    ReducerLeaf<ULong64_t>* new_leaf = new ReducerLeaf<ULong64_t>(name, title, type, interim_tree_, default_value);
+    ulong_leaves_.push_back(new_leaf);
+    return *new_leaf;
+  }
+  ReducerLeaf<ULong64_t>& CreateULongLeaf(TString name, Float_t default_value=0.0) {
+    ReducerLeaf<ULong64_t>* new_leaf = new ReducerLeaf<ULong64_t>(name, name, "ULong64_t", interim_tree_, default_value);
+    ulong_leaves_.push_back(new_leaf);
+    return *new_leaf;
+  }
+  template<class T>
+  ReducerLeaf<ULong64_t>& CreateULongCopyLeaf(TString name, const ReducerLeaf<T>& leaf_to_copy, double c=1.0) {
+    ReducerLeaf<ULong64_t>& new_leaf = CreateULongLeaf(name, name, "ULong64_t");
+    new_leaf.Equal(leaf_to_copy, c);
+    return new_leaf;
+  }
+  
+  ReducerLeaf<Long64_t>& CreateLongLeaf(TString name, TString title, TString type, ULong64_t default_value=0) {
+    ReducerLeaf<Long64_t>* new_leaf = new ReducerLeaf<Long64_t>(name, title, type, interim_tree_, default_value);
+    long_leaves_.push_back(new_leaf);
+    return *new_leaf;
+  }
+  ReducerLeaf<Long64_t>& CreateLongLeaf(TString name, Float_t default_value=0.0) {
+    ReducerLeaf<Long64_t>* new_leaf = new ReducerLeaf<Long64_t>(name, name, "Long64_t", interim_tree_, default_value);
+    long_leaves_.push_back(new_leaf);
+    return *new_leaf;
+  }
+  template<class T>
+  ReducerLeaf<Long64_t>& CreateLongCopyLeaf(TString name, const ReducerLeaf<T>& leaf_to_copy, double c=1.0) {
+    ReducerLeaf<Long64_t>& new_leaf = CreateLongLeaf(name, name, "Long64_t");
+    new_leaf.Equal(leaf_to_copy, c);
+    return new_leaf;
+  }
+  
   ReducerLeaf<Int_t>& CreateIntLeaf(TString name, TString title, TString type, Int_t default_value=0) {
     ReducerLeaf<Int_t>* new_leaf = new ReducerLeaf<Int_t>(name, title, type, interim_tree_, default_value);
     int_leaves_.push_back(new_leaf);
@@ -466,6 +596,32 @@ class Reducer {
    */
   void RegisterFloatLeaf(ReducerLeaf<Float_t>* leaf) {
     float_leaves_.push_back(leaf);
+  }
+  
+  /**
+   *  @brief Register externally created unsigned long leaf
+   *
+   *  An externally created unsigned long leaf will be registered internally in this
+   *  Reducer for output writing. The Reducer assumes to take over ownership of
+   *  this leaf.
+   *
+   *  @param leaf the leaf to be registered.
+   */
+  void RegisterULongLeaf(ReducerLeaf<ULong64_t>* leaf) {
+    ulong_leaves_.push_back(leaf);
+  }
+  
+  /**
+   *  @brief Register externally created long leaf
+   *
+   *  An externally created long leaf will be registered internally in this
+   *  Reducer for output writing. The Reducer assumes to take over ownership of
+   *  this leaf.
+   *
+   *  @param leaf the leaf to be registered.
+   */
+  void RegisterLongLeaf(ReducerLeaf<Long64_t>* leaf) {
+    long_leaves_.push_back(leaf);
   }
   
   /**
@@ -548,6 +704,23 @@ class Reducer {
   virtual void FillOutputTree();
   
   /**
+   *  @brief Hook for loading of friend entries
+   *
+   *  For each new interim tree entry that is loaded, this function is called 
+   *  with the interim tree entry number. In Reducer this will simply load the
+   *  appropriate entries in all tree friends as well. 
+   *
+   *  Derived Reducers like TupleMergeReducer can overwrite this function.
+   *
+   *  @warning In case the tree friend does not contain enough entries, the last 
+   *           event in the tree friends will be loaded instead. This will 
+   *           possibly lead to undesired behaviour.
+   *
+   *  @param entry The entry of the interim tree that is loaded.
+   */
+  virtual void LoadTreeFriendsEntryHook(long long entry);
+  
+  /**
    *  @brief Fill/flush the current event into the output tree
    *
    *  This function is responsible for filling the current event (i.e. all 
@@ -586,6 +759,11 @@ class Reducer {
   TTree* input_tree_;
   
   /**
+   *  @brief Additional tree friends to add to the input tree
+   */
+  std::vector<TTree*> additional_input_tree_friends_;
+  
+  /**
    * members needed for best candidate selection
    *
    */
@@ -612,6 +790,21 @@ class Reducer {
    *
    */
   void InitializeInterimLeafMap(TTree* tree, std::vector<ReducerLeaf<Float_t>* >* leaves);  
+  
+  /**
+   *  @brief Check if specific interim tree creation is necessary
+   *
+   *  This function will return whether a unique interim tree needs to be 
+   *  created by copying input tree into a new tree. By default, Reducer will 
+   *  try to avoid this time-consuming step and use the input tree directly.
+   *  The copying will only be performed if set_old_style_interim_tree() is 
+   *  used.
+   *
+   *  @return whether the interim tree is to be created or not
+   */
+  bool CreateUniqueInterimTree() const {
+    return !(!old_style_interim_tree_ || (old_style_interim_tree_ && num_events_process_ == -1 && cut_string_.Length() == 0));
+  }
   
   /**
    * Rename branches based on a given name mapping vector
@@ -641,6 +834,35 @@ class Reducer {
   std::vector<ReducerLeaf<T1>*> PurgeOutputBranches(const std::vector<ReducerLeaf<T1>* >& leaves, const std::vector<ReducerLeaf<T2>* >& interim_leaves) const;
   
   /**
+   *  @brief Activate all dependent leaves of given leaf list
+   *
+   *  @param leaves list of leaves to check
+   */
+  template<class T>
+  void ActivateDependentLeaves(const std::vector<ReducerLeaf<T>* >& leaves) {
+    using namespace doocore::io;
+    for (auto leaf : leaves) {
+//      sdebug << "leaf: " << leaf << endmsg;
+//      sdebug << "leaf->leaf_pointer_one(): " << leaf->leaf_pointer_one() << endmsg;
+//      sdebug << "leaf->leaf_pointer_one()->name(): " << leaf->leaf_pointer_one()->name() << endmsg;
+      if (leaf->leaf_pointer_one() != NULL) {
+        if (input_tree_->GetLeaf(leaf->leaf_pointer_one()->name()) != NULL) {
+          //sdebug << "Reactivating " << leaf->leaf_pointer_one()->name() << " (needed for operation in " << leaf->name() << ")" << endmsg;
+          input_tree_->SetBranchStatus(leaf->leaf_pointer_one()->name(), 1);
+        }
+      }
+      if (leaf->leaf_pointer_two() != NULL) {
+        if (input_tree_->GetLeaf(leaf->leaf_pointer_two()->name()) != NULL) {
+          //sdebug << "Reactivating " << leaf->leaf_pointer_two()->name() << " (needed for operation in " << leaf->name() << ")" << endmsg;
+          input_tree_->SetBranchStatus(leaf->leaf_pointer_two()->name(), 1);
+        }
+      }
+      
+      leaf->ActivateDependentConditionLeaves(input_tree_);
+    }
+  }
+  
+  /**
    * Get a ReducerLeaf by name from a ReducerLeaf vector
    *
    */
@@ -660,9 +882,15 @@ class Reducer {
   void GetTreeEntryUpdateLeaves(TTree* tree, unsigned int i) {
     selected_entry_ = i;
     tree->GetEntry(i);
+    
+    LoadTreeFriendsEntryHook(i);
+    
+    UpdateSpecialLeaves();
     UpdateAllValues<Float_t>(float_leaves_);
     UpdateAllValues<Double_t>(double_leaves_);
     UpdateAllValues<Int_t>(int_leaves_);
+    UpdateAllValues<ULong64_t>(ulong_leaves_);
+    UpdateAllValues<Long64_t>(long_leaves_);
     UpdateSpecialLeaves();
   }
   
@@ -703,6 +931,16 @@ class Reducer {
   std::vector<ReducerLeaf<Float_t>* >  interim_leaves_; ///< vector of all leaves in the interim tree
   std::vector<ReducerLeaf<Float_t>* >  float_leaves_;   ///< new float leaves for output tree
 
+  /**
+   *  @brief Container of newly created unsigned long leaves.
+   */
+  std::vector<ReducerLeaf<ULong64_t>* > ulong_leaves_;
+
+  /**
+   *  @brief Container of newly created signed long leaves.
+   */
+  std::vector<ReducerLeaf<Long64_t>* > long_leaves_;
+  
   /**
    *  @brief Container of newly created double leaves.
    */
@@ -755,7 +993,7 @@ const ReducerLeaf<T>& Reducer::GetLeafByName(const TString& name, const std::vec
     if ((*it)->name() == name) return *(*it);
   }
   
-  std::cerr << "ERROR in Reducer::GetLeafByName(const TString&, const std::vector<ReducerLeaf<T> >&): Leaf " << name << " not found." << std::endl;
+  //doocore::io::serr << "ERROR in Reducer::GetLeafByName(const TString&, const std::vector<ReducerLeaf<T> >&): Leaf " << name << " not found." << doocore::io::endmsg;
   throw 10;
 }
   

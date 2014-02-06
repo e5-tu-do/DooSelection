@@ -37,6 +37,11 @@ class MultipleCandidateAnalyseReducer : virtual public Reducer {
   MultipleCandidateAnalyseReducer();
   
   /**
+   *  @brief Destructor
+   */
+  virtual ~MultipleCandidateAnalyseReducer();
+  
+  /**
    *  @brief Add a leaf to event identifiers
    *
    *  Add a leaf by name as event identifier. Internally, the leaf will be 
@@ -47,13 +52,40 @@ class MultipleCandidateAnalyseReducer : virtual public Reducer {
    */
   void AddEventIdentifier(const std::string& name_leaf);
   
+  /**
+   *  @brief Set check for sequential identifiers
+   *
+   *  By activating this option (default: true), the 
+   *  MultipleCandidateAnalyseReducer will check whether all multiple candidates
+   *  identified by a unique identifier are sequential (i.e. all entries of the 
+   *  same event follow after each other). If an event is found whose identifier 
+   *  has also been found before (and another event lies in between), a warning 
+   *  will be printed.
+   *
+   *  @param check_sequential_identifiers whether to check for sequential identifiers
+   */
+  void set_check_sequential_identifiers(bool check_sequential_identifiers) { check_sequential_identifiers_ = check_sequential_identifiers; }
+  
  protected:
   virtual void ProcessInputTree();
-  
+  bool set_do_multi_cand_analysis(bool status){do_multi_cand_analysis_ = status;}
+
  private:
-  typedef std::pair<ULong64_t, std::vector<ULong64_t> > EventIdentifierBucket;
+  typedef std::pair<ULong64_t, std::vector<ULong64_t>> EventIdentifierBucket;
   typedef std::multimap<std::vector<ULong64_t>, EventIdentifierBucket> EventMap;
   
+  /**
+   *  @brief Bool to decide if the analysis runs or not
+   *  Use case: You write an inherited reducer that also does other things
+   *  and you want to specify if the analysis should run or not depending on whatever...
+   */
+  bool do_multi_cand_analysis_;
+  
+  /**
+   *  @brief Check for sequential identifiers.
+   */
+  bool check_sequential_identifiers_;
+
   /**
    *  @brief Vector of names of leaves with unique event identifiers
    */

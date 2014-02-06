@@ -33,7 +33,9 @@ BkgCategorizerReducer::BkgCategorizerReducer() :
   max_number_decays_(40) 
 {}
 
-BkgCategorizerReducer::~BkgCategorizerReducer() {}
+BkgCategorizerReducer::~BkgCategorizerReducer() {
+//  sdebug << "BkgCategorizerReducer::~BkgCategorizerReducer()" << endmsg;
+}
 
 void BkgCategorizerReducer::PrepareSpecialBranches() {
   std::string decaystring = "";
@@ -50,7 +52,10 @@ void BkgCategorizerReducer::PrepareSpecialBranches() {
     sw.Start();
     
     decay_matrix_length_lptr_ = (Int_t*)decay_matrix_length_leaf_->branch_address();
-    br_matrix->SetAddress(&decay_matrix_);    
+    
+    decay_matrix_ = (Float_t (*)[25])GetInterimLeafByName(decay_matrix_name_).branch_address();
+//    br_matrix->SetAddress(&decay_matrix_);
+    
     TBranch* br_depth  = interim_tree_->GetBranch(decay_depth_leaf_->name());
     //int matrix_length = 0;
     //interim_tree_->SetBranchAddress(decay_matrix_length_leaf_->name(), &matrix_length);
