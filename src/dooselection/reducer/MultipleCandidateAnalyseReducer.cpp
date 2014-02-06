@@ -191,7 +191,7 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
       if ((it->first).first > 1) {
         num_multicands_total += (it->first).first * it->second;
       }
-      num_singlecands += (it->first).first;
+      num_singlecands += it->second;
     }
     sinfo << "Total number of multiple candidates: " << num_multicands_total << " (" << static_cast<double>(num_multicands_total)/num_entries*100 << "%)" << endmsg;
     sinfo << "Total number of candidates after single candidate selection: " << num_singlecands << endmsg;
