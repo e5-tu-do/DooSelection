@@ -173,7 +173,7 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     sinfo << std::setw(10) << std::setfill(' ') << "# mc";
     sinfo << std::setw(10) << std::setfill(' ') << "# events";
     if (event_characteristics.size() > 0) {
-      sinfo << " | # occurences per (unique characteristics: " <<  additional_event_characteristics_ << ")" << endmsg;
+      sinfo << " | # occurences per unique characteristics: " <<  additional_event_characteristics_ << endmsg;
     } else {
       sinfo << endmsg;
     }
