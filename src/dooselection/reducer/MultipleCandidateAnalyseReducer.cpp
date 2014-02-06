@@ -192,6 +192,7 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
       }
     }
     sinfo << "Total number of multiple candidates: " << num_multicands_total << " (" << static_cast<double>(num_multicands_total)/num_entries*100 << "%)" << endmsg;
+    sinfo << "Total number of entries in tree: " << input_tree_->GetEntries() << endmsg;
   }
   
   input_tree_->SetBranchStatus("*", true);
