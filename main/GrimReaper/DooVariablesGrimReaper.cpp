@@ -145,7 +145,7 @@ void CopyLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   if (std::get<4>(cfg) == 4){
     ReducerLeaf<Int_t>& flat_index_leaf_ptr = _rdcr->CreateIntCopyLeaf("idxPV", _rdcr->GetInterimLeafByName("flat_array_index"));
   }
-  // track ghost probability
+  // track ghost probability (only if pions or muons are available)
   if (_rdcr->LeafExists("piplus_TRACK_GhostProb")){
     ReducerLeaf<Double_t>* pip_track_ghost_prob_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varPiPTrackGhostProb", _rdcr->GetInterimLeafByName("piplus_TRACK_GhostProb"));
     ReducerLeaf<Double_t>* pim_track_ghost_prob_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varPiMTrackGhostProb", _rdcr->GetInterimLeafByName("piminus_TRACK_GhostProb"));
