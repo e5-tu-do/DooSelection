@@ -173,11 +173,12 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     sinfo << std::setw(10) << std::setfill(' ') << "# mc";
     sinfo << std::setw(10) << std::setfill(' ') << "# events";
     if (event_characteristics.size() > 0) {
-      sinfo << " | # occurences per (unique characteristics: " <<  additional_event_characteristics_ << ")" << endmsg;
+      sinfo << " | # occurences per unique characteristics: " <<  additional_event_characteristics_ << endmsg;
     } else {
       sinfo << endmsg;
     }
     int num_multicands_total = 0;
+    int num_singlecands = 0;
     for (std::map<std::pair<int, std::vector<int>>,int>::const_iterator it = multicand_histogram.begin();
          it != multicand_histogram.end(); ++it) {
       sinfo << std::setw(10) << std::setfill(' ') << (it->first).first;
@@ -190,8 +191,10 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
       if ((it->first).first > 1) {
         num_multicands_total += (it->first).first * it->second;
       }
+      num_singlecands += it->second;
     }
     sinfo << "Total number of multiple candidates: " << num_multicands_total << " (" << static_cast<double>(num_multicands_total)/num_entries*100 << "%)" << endmsg;
+    sinfo << "Total number of candidates after single candidate selection: " << num_singlecands << endmsg;
     sinfo << "Total number of entries in tree: " << input_tree_->GetEntries() << endmsg;
   }
   
