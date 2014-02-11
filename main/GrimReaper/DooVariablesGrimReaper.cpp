@@ -649,36 +649,36 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
 
   // decay tree fit
   // fit status
-  ReducerLeaf<Int_t>& dtf_status_pv_constraint = reducer.CreateIntCopyLeaf("varDTFStatusPVConst", reducer.GetInterimLeafByName("B0_FitPVConst_status"+flat_suffix));
-  ReducerLeaf<Int_t>& dtf_status_daughters_pv_constraint = reducer.CreateIntCopyLeaf("varDTFStatusDaughtersPVConst", reducer.GetInterimLeafByName("B0_FitDaughtersPVConst_status"+flat_suffix));
+  ReducerLeaf<Int_t>& dtf_status_pv_constraint = _rdcr->CreateIntCopyLeaf("varDTFStatusPVConst", _rdcr->GetInterimLeafByName("B0_FitPVConst_status"+flat_suffix));
+  ReducerLeaf<Int_t>& dtf_status_daughters_pv_constraint = _rdcr->CreateIntCopyLeaf("varDTFStatusDaughtersPVConst", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_status"+flat_suffix));
 
   // chi2ndof
   ReducerLeaf<Double_t>* dtf_chi2ndof_leaf_ptr = NULL;
-  if (reducer.LeafExists("B0_FitDaughtersPVConst_chi2")) {
-    dtf_chi2ndof_leaf_ptr = &reducer.CreateDoubleLeaf("varDTFChi2ndof", -1.0);
-    dtf_chi2ndof_leaf_ptr->Divide(reducer.GetInterimLeafByName("B0_FitDaughtersPVConst_chi2"+flat_suffix),
-                                  reducer.GetInterimLeafByName("B0_FitDaughtersPVConst_nDOF"+flat_suffix));
-  } else if (reducer.LeafExists("B0_LOKI_DTF_CHI2NDOF")) {
-    dtf_chi2ndof_leaf_ptr = &reducer.CreateDoubleCopyLeaf("varDTFChi2ndof", reducer.GetInterimLeafByName("B0_LOKI_DTF_CHI2NDOF"));
+  if (_rdcr->LeafExists("B0_FitDaughtersPVConst_chi2")) {
+    dtf_chi2ndof_leaf_ptr = &_rdcr->CreateDoubleLeaf("varDTFChi2ndof", -1.0);
+    dtf_chi2ndof_leaf_ptr->Divide(_rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_chi2"+flat_suffix),
+                                  _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_nDOF"+flat_suffix));
+  } else if (_rdcr->LeafExists("B0_LOKI_DTF_CHI2NDOF")) {
+    dtf_chi2ndof_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDTFChi2ndof", _rdcr->GetInterimLeafByName("B0_LOKI_DTF_CHI2NDOF"));
   }
 
   // IP chi2
   ReducerLeaf<Double_t>* ip_chi2_leaf_ptr = NULL;
-  if (reducer.LeafExists("B0_FitDaughtersPVConst_IPCHI2")) {
-    ip_chi2_leaf_ptr = &reducer.CreateDoubleCopyLeaf("varDTFIPChi2", reducer.GetInterimLeafByName("B0_FitDaughtersPVConst_IPCHI2"+flat_suffix));
-  } else if (reducer.LeafExists("B0_IPCHI2_OWNPV")) {
-    ip_chi2_leaf_ptr = &reducer.CreateDoubleCopyLeaf("varIPChi2OwnPV", reducer.GetInterimLeafByName("B0_IPCHI2_OWNPV"));
+  if (_rdcr->LeafExists("B0_FitDaughtersPVConst_IPCHI2")) {
+    ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDTFIPChi2", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_IPCHI2"+flat_suffix));
+  } else if (_rdcr->LeafExists("B0_IPCHI2_OWNPV")) {
+    ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varIPChi2OwnPV", _rdcr->GetInterimLeafByName("B0_IPCHI2_OWNPV"));
   }
 
   // alternative daughter masses with different constraints
-  if (reducer.LeafExists("B0_FitPVConst_KS0_M"+flat_suffix)) ReducerLeaf<Double_t>& dtf_kaon_mass_pv_constraint = reducer.CreateDoubleCopyLeaf("varDTFKS0MassPVConst", reducer.GetInterimLeafByName("B0_FitPVConst_KS0_M"+flat_suffix));
-  if (reducer.LeafExists("B0_FitDaughtersPVConst_KS0_M"+flat_suffix)) ReducerLeaf<Double_t>& dtf_kaon_mass_daughters_pv_constraint = reducer.CreateDoubleCopyLeaf("varDTFKS0MassDaughtersPVConst", reducer.GetInterimLeafByName("B0_FitDaughtersPVConst_KS0_M"+flat_suffix));
-  if (reducer.LeafExists("B0_FitPVConst_J_psi_1S_M"+flat_suffix)) ReducerLeaf<Double_t>& dtf_kaon_mass_pv_constraint = reducer.CreateDoubleCopyLeaf("varDTFJpsiMassPVConst", reducer.GetInterimLeafByName("B0_FitPVConst_J_psi_1S_M"+flat_suffix));
-  if (reducer.LeafExists("B0_FitDaughtersPVConst_J_psi_1S_M"+flat_suffix)) ReducerLeaf<Double_t>& dtf_kaon_mass_daughters_pv_constraint = reducer.CreateDoubleCopyLeaf("varDTFJpsiMassDaughtersPVConst", reducer.GetInterimLeafByName("B0_FitDaughtersPVConst_J_psi_1S_M"+flat_suffix));
+  if (_rdcr->LeafExists("B0_FitPVConst_KS0_M"+flat_suffix)) ReducerLeaf<Double_t>& dtf_kaon_mass_pv_constraint = _rdcr->CreateDoubleCopyLeaf("varDTFKS0MassPVConst", _rdcr->GetInterimLeafByName("B0_FitPVConst_KS0_M"+flat_suffix));
+  if (_rdcr->LeafExists("B0_FitDaughtersPVConst_KS0_M"+flat_suffix)) ReducerLeaf<Double_t>& dtf_kaon_mass_daughters_pv_constraint = _rdcr->CreateDoubleCopyLeaf("varDTFKS0MassDaughtersPVConst", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_KS0_M"+flat_suffix));
+  if (_rdcr->LeafExists("B0_FitPVConst_J_psi_1S_M"+flat_suffix)) ReducerLeaf<Double_t>& dtf_kaon_mass_pv_constraint = _rdcr->CreateDoubleCopyLeaf("varDTFJpsiMassPVConst", _rdcr->GetInterimLeafByName("B0_FitPVConst_J_psi_1S_M"+flat_suffix));
+  if (_rdcr->LeafExists("B0_FitDaughtersPVConst_J_psi_1S_M"+flat_suffix)) ReducerLeaf<Double_t>& dtf_kaon_mass_daughters_pv_constraint = _rdcr->CreateDoubleCopyLeaf("varDTFJpsiMassDaughtersPVConst", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_J_psi_1S_M"+flat_suffix));
 
   // DTF PV position
-  if (reducer.LeafExists("B0_FitDaughtersPVConst_PV_X"+flat_suffix)) ReducerLeaf<Double_t>& dtf_pv_position_x = reducer.CreateDoubleCopyLeaf("varDTFPVPosX", reducer.GetInterimLeafByName("B0_FitDaughtersPVConst_PV_X"+flat_suffix));
-  if (reducer.LeafExists("B0_FitDaughtersPVConst_PV_Y"+flat_suffix)) ReducerLeaf<Double_t>& dtf_pv_position_y = reducer.CreateDoubleCopyLeaf("varDTFPVPosY", reducer.GetInterimLeafByName("B0_FitDaughtersPVConst_PV_Y"+flat_suffix));
-  if (reducer.LeafExists("B0_FitDaughtersPVConst_PV_Z"+flat_suffix)) ReducerLeaf<Double_t>& dtf_pv_position_z = reducer.CreateDoubleCopyLeaf("varDTFPVPosZ", reducer.GetInterimLeafByName("B0_FitDaughtersPVConst_PV_Z"+flat_suffix));
+  if (_rdcr->LeafExists("B0_FitDaughtersPVConst_PV_X"+flat_suffix)) ReducerLeaf<Double_t>& dtf_pv_position_x = _rdcr->CreateDoubleCopyLeaf("varDTFPVPosX", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_PV_X"+flat_suffix));
+  if (_rdcr->LeafExists("B0_FitDaughtersPVConst_PV_Y"+flat_suffix)) ReducerLeaf<Double_t>& dtf_pv_position_y = _rdcr->CreateDoubleCopyLeaf("varDTFPVPosY", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_PV_Y"+flat_suffix));
+  if (_rdcr->LeafExists("B0_FitDaughtersPVConst_PV_Z"+flat_suffix)) ReducerLeaf<Double_t>& dtf_pv_position_z = _rdcr->CreateDoubleCopyLeaf("varDTFPVPosZ", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_PV_Z"+flat_suffix));
 }
 
