@@ -32,7 +32,6 @@ using namespace doocore::io;
 // typedef tuple: head, daughters, stable particles, isMC, isFlat
 typedef std::tuple<std::string, std::list<std::string>, std::list<std::string>, bool, bool> cfg_tuple;
 cfg_tuple Configure(Reducer* _rdcr, std::string& _channel);
-void CopyLeaves(Reducer* _rdcr, cfg_tuple& cfg);
 void MCLeaves(Reducer* _rdcr, cfg_tuple& cfg);
 void MassLeaves(Reducer* _rdcr, cfg_tuple& cfg);
 void TimeLeaves(Reducer* _rdcr, cfg_tuple& cfg);
@@ -78,7 +77,6 @@ int main(int argc, char * argv[]){
   // add leaves  
   summary.AddSection("Added leaves");
   if (reducer->LeafExists(std::get<0>(cfg)+"_BKGCAT")) MCLeaves(reducer, cfg);
-  CopyLeaves(reducer, cfg);
   MassLeaves(reducer, cfg);
   TimeLeaves(reducer, cfg);
   TriggerLeaves(reducer, cfg);
@@ -129,31 +127,6 @@ cfg_tuple Configure(Reducer* _rdcr, std::string& _channel){
   if (isMC) sinfo << "-info-  \t" << "You are running the reducer over a MC tuple!" << endmsg;
 
   return std::make_tuple(head, daughters, stable_particles, isMC, isFlat);
-}
-
-void CopyLeaves(Reducer* _rdcr, cfg_tuple& cfg){
-  // event and run number
-  ReducerLeaf<Int_t>& event_number_leaf_ptr = _rdcr->CreateIntCopyLeaf("idxEventNumber", _rdcr->GetInterimLeafByName("eventNumber"));
-  ReducerLeaf<Int_t>& run_number_leaf_ptr = _rdcr->CreateIntCopyLeaf("idxRunNumber", _rdcr->GetInterimLeafByName("runNumber"));
-  // number of PVs
-  ReducerLeaf<Int_t>& var_npv_leaf = _rdcr->CreateIntCopyLeaf("catNPV", _rdcr->GetInterimLeafByName("nPV"));
-  // magnet direction
-  ReducerLeaf<Int_t>& var_mag_leaf = _rdcr->CreateIntCopyLeaf("catMag", _rdcr->GetInterimLeafByName("Polarity"));
-  // number of tracks
-  ReducerLeaf<Int_t>& var_ntrack_leaf = _rdcr->CreateIntCopyLeaf("catNTrack", _rdcr->GetInterimLeafByName("nTracks"));
-  // flat array index
-  if (std::get<4>(cfg) == 4){
-    ReducerLeaf<Int_t>& flat_index_leaf_ptr = _rdcr->CreateIntCopyLeaf("idxPV", _rdcr->GetInterimLeafByName("flat_array_index"));
-  }
-  // track ghost probability (only if pions or muons are available)
-  if (_rdcr->LeafExists("piplus_TRACK_GhostProb")){
-    ReducerLeaf<Double_t>* pip_track_ghost_prob_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varPiPTrackGhostProb", _rdcr->GetInterimLeafByName("piplus_TRACK_GhostProb"));
-    ReducerLeaf<Double_t>* pim_track_ghost_prob_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varPiMTrackGhostProb", _rdcr->GetInterimLeafByName("piminus_TRACK_GhostProb"));
-  }
-  if (_rdcr->LeafExists("muplus_TRACK_GhostProb")){
-    ReducerLeaf<Double_t>* mup_track_ghost_prob_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varMuPTrackGhostProb", _rdcr->GetInterimLeafByName("muplus_TRACK_GhostProb"));
-    ReducerLeaf<Double_t>* mum_track_ghost_prob_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varMuMTrackGhostProb", _rdcr->GetInterimLeafByName("muminus_TRACK_GhostProb"));
-  }
 }
 
 void MCLeaves(Reducer* _rdcr, cfg_tuple& cfg){}
@@ -614,6 +587,33 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   ReducerLeaf<Int_t>& random_leaf = _rdcr->CreateIntLeaf("idxRandom", -1);
   random_leaf.Randomize(random_generator_);
 
+  // background category
+  if (std::get<3>(cfg) == true){
+    ReducerLeaf<Int_t>& bkgcat_leaf = _rdcr->CreateIntCopyLeaf("catBkg", _rdcr->GetInterimLeafByName("B0_BKGCAT"));
+  }
+  // event and run number
+  ReducerLeaf<Int_t>& event_number_leaf_ptr = _rdcr->CreateIntCopyLeaf("idxEventNumber", _rdcr->GetInterimLeafByName("eventNumber"));
+  ReducerLeaf<Int_t>& run_number_leaf_ptr = _rdcr->CreateIntCopyLeaf("idxRunNumber", _rdcr->GetInterimLeafByName("runNumber"));
+  // number of PVs
+  ReducerLeaf<Int_t>& var_npv_leaf = _rdcr->CreateIntCopyLeaf("catNPV", _rdcr->GetInterimLeafByName("nPV"));
+  // magnet direction
+  ReducerLeaf<Int_t>& var_mag_leaf = _rdcr->CreateIntCopyLeaf("catMag", _rdcr->GetInterimLeafByName("Polarity"));
+  // number of tracks
+  ReducerLeaf<Int_t>& var_ntrack_leaf = _rdcr->CreateIntCopyLeaf("catNTrack", _rdcr->GetInterimLeafByName("nTracks"));
+  // flat array index
+  if (std::get<4>(cfg) == 4){
+    ReducerLeaf<Int_t>& flat_index_leaf_ptr = _rdcr->CreateIntCopyLeaf("idxPV", _rdcr->GetInterimLeafByName("flat_array_index"));
+  }
+  // track ghost probability (only if pions or muons are available)
+  if (_rdcr->LeafExists("piplus_TRACK_GhostProb")){
+    ReducerLeaf<Double_t>* pip_track_ghost_prob_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varPiPTrackGhostProb", _rdcr->GetInterimLeafByName("piplus_TRACK_GhostProb"));
+    ReducerLeaf<Double_t>* pim_track_ghost_prob_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varPiMTrackGhostProb", _rdcr->GetInterimLeafByName("piminus_TRACK_GhostProb"));
+  }
+  if (_rdcr->LeafExists("muplus_TRACK_GhostProb")){
+    ReducerLeaf<Double_t>* mup_track_ghost_prob_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varMuPTrackGhostProb", _rdcr->GetInterimLeafByName("muplus_TRACK_GhostProb"));
+    ReducerLeaf<Double_t>* mum_track_ghost_prob_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varMuMTrackGhostProb", _rdcr->GetInterimLeafByName("muminus_TRACK_GhostProb"));
+  }
+
   // maximal muon track fit chi2ndof
   _rdcr->CreateDoubleLeaf("varMuonMaxTrackFitChi2ndof", -999999.).Maximum(_rdcr->GetInterimLeafByName("muplus_TRACK_CHI2NDOF"), _rdcr->GetInterimLeafByName("muminus_TRACK_CHI2NDOF"));
   // maximal pion track fit chi2ndof
@@ -646,5 +646,39 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   ReducerLeaf<Int_t>& cat_year_leaf = _rdcr->CreateIntLeaf("catYear", 0);
     cat_year_leaf.AddCondition("2011", "GpsTime < 1.325376e+15",  2011);
     cat_year_leaf.AddCondition("2012", "GpsTime >= 1.325376e+15", 2012);
+
+  // decay tree fit
+  // fit status
+  ReducerLeaf<Int_t>& dtf_status_pv_constraint = _rdcr->CreateIntCopyLeaf("varDTFStatusPVConst", _rdcr->GetInterimLeafByName("B0_FitPVConst_status"+flat_suffix));
+  ReducerLeaf<Int_t>& dtf_status_daughters_pv_constraint = _rdcr->CreateIntCopyLeaf("varDTFStatusDaughtersPVConst", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_status"+flat_suffix));
+
+  // chi2ndof
+  ReducerLeaf<Double_t>* dtf_chi2ndof_leaf_ptr = NULL;
+  if (_rdcr->LeafExists("B0_FitDaughtersPVConst_chi2")) {
+    dtf_chi2ndof_leaf_ptr = &_rdcr->CreateDoubleLeaf("varDTFChi2ndof", -1.0);
+    dtf_chi2ndof_leaf_ptr->Divide(_rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_chi2"+flat_suffix),
+                                  _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_nDOF"+flat_suffix));
+  } else if (_rdcr->LeafExists("B0_LOKI_DTF_CHI2NDOF")) {
+    dtf_chi2ndof_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDTFChi2ndof", _rdcr->GetInterimLeafByName("B0_LOKI_DTF_CHI2NDOF"));
+  }
+
+  // IP chi2
+  ReducerLeaf<Double_t>* ip_chi2_leaf_ptr = NULL;
+  if (_rdcr->LeafExists("B0_FitDaughtersPVConst_IPCHI2")) {
+    ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDTFIPChi2", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_IPCHI2"+flat_suffix));
+  } else if (_rdcr->LeafExists("B0_IPCHI2_OWNPV")) {
+    ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varIPChi2OwnPV", _rdcr->GetInterimLeafByName("B0_IPCHI2_OWNPV"));
+  }
+
+  // alternative daughter masses with different constraints
+  if (_rdcr->LeafExists("B0_FitPVConst_KS0_M"+flat_suffix)) ReducerLeaf<Double_t>& dtf_kaon_mass_pv_constraint = _rdcr->CreateDoubleCopyLeaf("varDTFKS0MassPVConst", _rdcr->GetInterimLeafByName("B0_FitPVConst_KS0_M"+flat_suffix));
+  if (_rdcr->LeafExists("B0_FitDaughtersPVConst_KS0_M"+flat_suffix)) ReducerLeaf<Double_t>& dtf_kaon_mass_daughters_pv_constraint = _rdcr->CreateDoubleCopyLeaf("varDTFKS0MassDaughtersPVConst", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_KS0_M"+flat_suffix));
+  if (_rdcr->LeafExists("B0_FitPVConst_J_psi_1S_M"+flat_suffix)) ReducerLeaf<Double_t>& dtf_kaon_mass_pv_constraint = _rdcr->CreateDoubleCopyLeaf("varDTFJpsiMassPVConst", _rdcr->GetInterimLeafByName("B0_FitPVConst_J_psi_1S_M"+flat_suffix));
+  if (_rdcr->LeafExists("B0_FitDaughtersPVConst_J_psi_1S_M"+flat_suffix)) ReducerLeaf<Double_t>& dtf_kaon_mass_daughters_pv_constraint = _rdcr->CreateDoubleCopyLeaf("varDTFJpsiMassDaughtersPVConst", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_J_psi_1S_M"+flat_suffix));
+
+  // DTF PV position
+  if (_rdcr->LeafExists("B0_FitDaughtersPVConst_PV_X"+flat_suffix)) ReducerLeaf<Double_t>& dtf_pv_position_x = _rdcr->CreateDoubleCopyLeaf("varDTFPVPosX", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_PV_X"+flat_suffix));
+  if (_rdcr->LeafExists("B0_FitDaughtersPVConst_PV_Y"+flat_suffix)) ReducerLeaf<Double_t>& dtf_pv_position_y = _rdcr->CreateDoubleCopyLeaf("varDTFPVPosY", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_PV_Y"+flat_suffix));
+  if (_rdcr->LeafExists("B0_FitDaughtersPVConst_PV_Z"+flat_suffix)) ReducerLeaf<Double_t>& dtf_pv_position_z = _rdcr->CreateDoubleCopyLeaf("varDTFPVPosZ", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_PV_Z"+flat_suffix));
 }
 
