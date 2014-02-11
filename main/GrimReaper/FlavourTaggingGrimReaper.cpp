@@ -474,6 +474,14 @@ int Bd2JpsiKS(const std::string& inputfile, const std::string& inputtree, const 
   ReducerLeaf<Int_t>& var_tag_ss_pion_babar_leaf = reducer.CreateIntCopyLeaf("obsTagSSPion_BaBar", reducer.GetInterimLeafByName("B0_SS_Pion_DEC"), -1.0);
   ReducerLeaf<Int_t>& var_tag_vtxq_leaf = reducer.CreateIntCopyLeaf("obsTagVtxQ", reducer.GetInterimLeafByName("B0_VtxCharge_DEC"));
   ReducerLeaf<Int_t>& var_tag_vtxq_babar_leaf = reducer.CreateIntCopyLeaf("obsTagVtxQ_BaBar", reducer.GetInterimLeafByName("B0_VtxCharge_DEC"), -1.0);
+  if (reducer.LeafExists("B0_OS_Charm_DEC")){
+    ReducerLeaf<Int_t>& var_tag_os_charm_leaf = reducer.CreateIntCopyLeaf("obsTagOSCharm", reducer.GetInterimLeafByName("B0_OS_Charm_DEC"));
+    ReducerLeaf<Int_t>& var_tag_os_charm_babar_leaf = reducer.CreateIntCopyLeaf("obsTagOSCharm_BaBar", reducer.GetInterimLeafByName("B0_OS_Charm_DEC"), -1.0);  
+  }
+  if (reducer.LeafExists("B0_SS_Proton_DEC")){
+    ReducerLeaf<Int_t>& var_tag_ss_proton_leaf = reducer.CreateIntCopyLeaf("obsTagSSProton", reducer.GetInterimLeafByName("B0_SS_Proton_DEC"));
+    ReducerLeaf<Int_t>& var_tag_ss_proton_babar_leaf = reducer.CreateIntCopyLeaf("obsTagSSProton_BaBar", reducer.GetInterimLeafByName("B0_SS_Proton_DEC"), -1.0);    
+  }
 
   // Tag comparison
   ReducerLeaf<Int_t>& var_tag_ost_sspi_comp_leaf = reducer.CreateIntLeaf("catTagCompOSvsSSPion");
@@ -492,6 +500,8 @@ int Bd2JpsiKS(const std::string& inputfile, const std::string& inputtree, const 
   if (reducer.LeafExists("B0_SS_nnetKaon_DEC")) ReducerLeaf<Double_t>& var_tag_eta_ss_nnet_kaon_leaf = reducer.CreateDoubleCopyLeaf("obsEtaSSNNKaon", reducer.GetInterimLeafByName("B0_SS_nnetKaon_PROB"));
   ReducerLeaf<Double_t>& var_tag_eta_ss_pion_leaf = reducer.CreateDoubleCopyLeaf("obsEtaSSPion", reducer.GetInterimLeafByName("B0_SS_Pion_PROB"));
   ReducerLeaf<Double_t>& var_tag_eta_vtxq_leaf = reducer.CreateDoubleCopyLeaf("obsEtaVtxQ", reducer.GetInterimLeafByName("B0_VtxCharge_PROB"));
+  if (reducer.LeafExists("B0_OS_Charm_PROB")) ReducerLeaf<Double_t>& var_tag_eta_os_charm_leaf = reducer.CreateDoubleCopyLeaf("obsEtaOSCharm", reducer.GetInterimLeafByName("B0_OS_Charm_PROB"));
+  if (reducer.LeafExists("B0_SS_Proton_PROB")) ReducerLeaf<Double_t>& var_tag_eta_ss_proton_leaf = reducer.CreateDoubleCopyLeaf("obsEtaSSProton", reducer.GetInterimLeafByName("B0_SS_Proton_PROB"));
 
   // catEta: somehow this variable does not get written into the tuples anymore
   if (reducer.LeafExists("B0_TAGCAT")) ReducerLeaf<Int_t>& var_tagcat_leaf = reducer.CreateIntCopyLeaf("catEtaAll", reducer.GetInterimLeafByName("B0_TAGCAT"));
@@ -541,6 +551,18 @@ int Bd2JpsiKS(const std::string& inputfile, const std::string& inputtree, const 
   ReducerLeaf<Int_t>& cat_tagged_vtxq_leaf = reducer.CreateIntLeaf("catTaggedVtxQ", -1);
     cat_tagged_vtxq_leaf.AddCondition("Tagged",   "B0_VtxCharge_DEC != 0", 1);
     cat_tagged_vtxq_leaf.AddCondition("Untagged", "B0_VtxCharge_DEC == 0", 0);
+
+  if (reducer.LeafExists("B0_OS_Charm_DEC")){
+    ReducerLeaf<Int_t>& cat_tagged_os_charm_leaf = reducer.CreateIntLeaf("catTaggedOSCharm", -1);
+      cat_tagged_os_charm_leaf.AddCondition("Tagged",   "B0_OS_Charm_DEC != 0", 1);
+      cat_tagged_os_charm_leaf.AddCondition("Untagged", "B0_OS_Charm_DEC == 0", 0);
+  }
+
+  if (reducer.LeafExists("B0_SS_Proton_DEC")){
+    ReducerLeaf<Int_t>& cat_tagged_ss_proton_leaf = reducer.CreateIntLeaf("catTaggedSSProton", -1);
+      cat_tagged_ss_proton_leaf.AddCondition("Tagged",   "B0_SS_Proton_DEC != 0", 1);
+      cat_tagged_ss_proton_leaf.AddCondition("Untagged", "B0_SS_Proton_DEC == 0", 0);
+  }
 
   // catFinalState
   ReducerLeaf<Int_t>& var_finalstate_leaf = reducer.CreateIntLeaf("catFinalState", 0);
