@@ -32,7 +32,6 @@ using namespace doocore::io;
 // typedef tuple: head, daughters, stable particles, isMC, isFlat
 typedef std::tuple<std::string, std::list<std::string>, std::list<std::string>, bool, bool> cfg_tuple;
 cfg_tuple Configure(Reducer* _rdcr, std::string& _channel);
-void CopyLeaves(Reducer* _rdcr, cfg_tuple& cfg);
 void MCLeaves(Reducer* _rdcr, cfg_tuple& cfg);
 void MassLeaves(Reducer* _rdcr, cfg_tuple& cfg);
 void TimeLeaves(Reducer* _rdcr, cfg_tuple& cfg);
@@ -78,7 +77,6 @@ int main(int argc, char * argv[]){
   // add leaves  
   summary.AddSection("Added leaves");
   if (reducer->LeafExists(std::get<0>(cfg)+"_BKGCAT")) MCLeaves(reducer, cfg);
-  CopyLeaves(reducer, cfg);
   MassLeaves(reducer, cfg);
   TimeLeaves(reducer, cfg);
   TriggerLeaves(reducer, cfg);
@@ -129,31 +127,6 @@ cfg_tuple Configure(Reducer* _rdcr, std::string& _channel){
   if (isMC) sinfo << "-info-  \t" << "You are running the reducer over a MC tuple!" << endmsg;
 
   return std::make_tuple(head, daughters, stable_particles, isMC, isFlat);
-}
-
-void CopyLeaves(Reducer* _rdcr, cfg_tuple& cfg){
-  // event and run number
-  ReducerLeaf<Int_t>& event_number_leaf_ptr = _rdcr->CreateIntCopyLeaf("idxEventNumber", _rdcr->GetInterimLeafByName("eventNumber"));
-  ReducerLeaf<Int_t>& run_number_leaf_ptr = _rdcr->CreateIntCopyLeaf("idxRunNumber", _rdcr->GetInterimLeafByName("runNumber"));
-  // number of PVs
-  ReducerLeaf<Int_t>& var_npv_leaf = _rdcr->CreateIntCopyLeaf("catNPV", _rdcr->GetInterimLeafByName("nPV"));
-  // magnet direction
-  ReducerLeaf<Int_t>& var_mag_leaf = _rdcr->CreateIntCopyLeaf("catMag", _rdcr->GetInterimLeafByName("Polarity"));
-  // number of tracks
-  ReducerLeaf<Int_t>& var_ntrack_leaf = _rdcr->CreateIntCopyLeaf("catNTrack", _rdcr->GetInterimLeafByName("nTracks"));
-  // flat array index
-  if (std::get<4>(cfg) == 4){
-    ReducerLeaf<Int_t>& flat_index_leaf_ptr = _rdcr->CreateIntCopyLeaf("idxPV", _rdcr->GetInterimLeafByName("flat_array_index"));
-  }
-  // track ghost probability (only if pions or muons are available)
-  if (_rdcr->LeafExists("piplus_TRACK_GhostProb")){
-    ReducerLeaf<Double_t>* pip_track_ghost_prob_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varPiPTrackGhostProb", _rdcr->GetInterimLeafByName("piplus_TRACK_GhostProb"));
-    ReducerLeaf<Double_t>* pim_track_ghost_prob_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varPiMTrackGhostProb", _rdcr->GetInterimLeafByName("piminus_TRACK_GhostProb"));
-  }
-  if (_rdcr->LeafExists("muplus_TRACK_GhostProb")){
-    ReducerLeaf<Double_t>* mup_track_ghost_prob_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varMuPTrackGhostProb", _rdcr->GetInterimLeafByName("muplus_TRACK_GhostProb"));
-    ReducerLeaf<Double_t>* mum_track_ghost_prob_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varMuMTrackGhostProb", _rdcr->GetInterimLeafByName("muminus_TRACK_GhostProb"));
-  }
 }
 
 void MCLeaves(Reducer* _rdcr, cfg_tuple& cfg){}
@@ -613,6 +586,33 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   TRandom3* random_generator_ = new TRandom3(42);
   ReducerLeaf<Int_t>& random_leaf = _rdcr->CreateIntLeaf("idxRandom", -1);
   random_leaf.Randomize(random_generator_);
+
+  // background category
+  if (std::get<3>(cfg) == true){
+    ReducerLeaf<Int_t>& bkgcat_leaf = _rdcr->CreateIntCopyLeaf("catBkg", _rdcr->GetInterimLeafByName("B0_BKGCAT"));
+  }
+  // event and run number
+  ReducerLeaf<Int_t>& event_number_leaf_ptr = _rdcr->CreateIntCopyLeaf("idxEventNumber", _rdcr->GetInterimLeafByName("eventNumber"));
+  ReducerLeaf<Int_t>& run_number_leaf_ptr = _rdcr->CreateIntCopyLeaf("idxRunNumber", _rdcr->GetInterimLeafByName("runNumber"));
+  // number of PVs
+  ReducerLeaf<Int_t>& var_npv_leaf = _rdcr->CreateIntCopyLeaf("catNPV", _rdcr->GetInterimLeafByName("nPV"));
+  // magnet direction
+  ReducerLeaf<Int_t>& var_mag_leaf = _rdcr->CreateIntCopyLeaf("catMag", _rdcr->GetInterimLeafByName("Polarity"));
+  // number of tracks
+  ReducerLeaf<Int_t>& var_ntrack_leaf = _rdcr->CreateIntCopyLeaf("catNTrack", _rdcr->GetInterimLeafByName("nTracks"));
+  // flat array index
+  if (std::get<4>(cfg) == 4){
+    ReducerLeaf<Int_t>& flat_index_leaf_ptr = _rdcr->CreateIntCopyLeaf("idxPV", _rdcr->GetInterimLeafByName("flat_array_index"));
+  }
+  // track ghost probability (only if pions or muons are available)
+  if (_rdcr->LeafExists("piplus_TRACK_GhostProb")){
+    ReducerLeaf<Double_t>* pip_track_ghost_prob_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varPiPTrackGhostProb", _rdcr->GetInterimLeafByName("piplus_TRACK_GhostProb"));
+    ReducerLeaf<Double_t>* pim_track_ghost_prob_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varPiMTrackGhostProb", _rdcr->GetInterimLeafByName("piminus_TRACK_GhostProb"));
+  }
+  if (_rdcr->LeafExists("muplus_TRACK_GhostProb")){
+    ReducerLeaf<Double_t>* mup_track_ghost_prob_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varMuPTrackGhostProb", _rdcr->GetInterimLeafByName("muplus_TRACK_GhostProb"));
+    ReducerLeaf<Double_t>* mum_track_ghost_prob_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varMuMTrackGhostProb", _rdcr->GetInterimLeafByName("muminus_TRACK_GhostProb"));
+  }
 
   // maximal muon track fit chi2ndof
   _rdcr->CreateDoubleLeaf("varMuonMaxTrackFitChi2ndof", -999999.).Maximum(_rdcr->GetInterimLeafByName("muplus_TRACK_CHI2NDOF"), _rdcr->GetInterimLeafByName("muminus_TRACK_CHI2NDOF"));
