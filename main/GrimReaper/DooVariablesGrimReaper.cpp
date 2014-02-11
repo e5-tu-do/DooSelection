@@ -589,7 +589,7 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
 
   // background category
   if (std::get<3>(cfg) == true){
-    ReducerLeaf<Int_t>& bkgcat_leaf = _rdcr-.CreateIntCopyLeaf("catBkg", reducer.GetInterimLeafByName("B0_BKGCAT"));
+    ReducerLeaf<Int_t>& bkgcat_leaf = _rdcr->CreateIntCopyLeaf("catBkg", _rdcr->GetInterimLeafByName("B0_BKGCAT"));
   }
   // event and run number
   ReducerLeaf<Int_t>& event_number_leaf_ptr = _rdcr->CreateIntCopyLeaf("idxEventNumber", _rdcr->GetInterimLeafByName("eventNumber"));
