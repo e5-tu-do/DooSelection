@@ -147,7 +147,7 @@ public:
    *  These functions set global leaf properties.
    */
   ///@{
-  const TString& set_name(const TString& new_name) { name_=new_name; title_=new_name+"/"+type_; return name_; }
+  const TString& set_name(const TString& new_name) { name_=new_name; title_=new_name; return name_; }
   void set_branch_address(void* ptr) { branch_address_ = ptr; }
   void SetDefaultValue(T value) {
     default_value_ = value;
