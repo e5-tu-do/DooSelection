@@ -400,16 +400,17 @@ int Bd2JpsiKS(const std::string& inputfile, const std::string& inputtree, const 
 int main(int argc, char * argv[]){
   doocore::io::sinfo << "-info-  \t" << "FlavourTaggingGrimReaper \t" << "Welcome!" << doocore::io::endmsg;
   std::string inputfile, inputtree, outputfile, outputtree, decay_channel;
-  if (argc == 6){
+  if (argc == 5){
     inputfile = argv[1];
     inputtree = argv[2];
     outputfile = argv[3];
     outputtree = argv[4];
-    decay_channel = argv[5];
+    // decay_channel = argv[5];
+    decay_channel = "Bd2JpsiKS"; // always use this channel for now
   }
   else{
     doocore::io::serr << "-ERROR- \t" << "FlavourTaggingGrimReaper \t" << "Parameters needed:" << doocore::io::endmsg;
-    doocore::io::serr << "-ERROR- \t" << "FlavourTaggingGrimReaper \t"<< "input_file_name input_tree_name output_file_name output_tree_name decay_channel" << doocore::io::endmsg;
+    doocore::io::serr << "-ERROR- \t" << "FlavourTaggingGrimReaper \t"<< "input_file_name input_tree_name output_file_name output_tree_name" << doocore::io::endmsg;
     return 1;
   }
 
