@@ -51,6 +51,7 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
     cat_tagged_os_or_ss_pion_leaf_(NULL),
     cat_tagged_os_xor_ss_pion_leaf_(NULL),
     cat_tagged_os_ss_pion_leaf_(NULL),
+    cat_tagged_excl_os_ss_pion_leaf_(NULL),
     var_tag_eta_os_ss_pion_leaf_(NULL),
     var_tag_eta_os_ss_pion_exclusive_leaf_(NULL),
     var_tag_os_(NULL),
@@ -103,6 +104,7 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
   dooselection::reducer::ReducerLeaf<Int_t>* cat_tagged_os_or_ss_pion_leaf_; 
   dooselection::reducer::ReducerLeaf<Int_t>* cat_tagged_os_xor_ss_pion_leaf_;
   dooselection::reducer::ReducerLeaf<Int_t>* cat_tagged_os_ss_pion_leaf_;
+  dooselection::reducer::ReducerLeaf<Int_t>* cat_tagged_excl_os_ss_pion_leaf_;
   dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_os_ss_pion_leaf_;
   dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_os_ss_pion_exclusive_leaf_; 
   dooselection::reducer::ReducerLeaf<Int_t>* var_tag_os_with_nnet_kaon_sspion_leaf_;
@@ -127,6 +129,7 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
   Int_t* cat_tagged_os_or_ss_pion_value_;  
   Int_t* cat_tagged_os_xor_ss_pion_value_; 
   Int_t* cat_tagged_os_ss_pion_value_;
+  Int_t* cat_tagged_excl_os_ss_pion_value_;
   Double_t* var_tag_eta_os_ss_pion_value_;
   Double_t* var_tag_eta_os_ss_pion_exclusive_value_;
   Int_t* var_tag_os_with_nnet_kaon_sspion_value_;
@@ -166,6 +169,7 @@ void TaggingRdcr::CreateSpecialBranches(){
   cat_tagged_os_or_ss_pion_leaf_          = &CreateIntLeaf("catTaggedOSorSSPion");        // 0 for untagged, 1 for tagged
   cat_tagged_os_xor_ss_pion_leaf_         = &CreateIntLeaf("catTaggedOSxorSSPion");       // 0 for untagged, 1 for OS tag, -1 for SSPion tag
   cat_tagged_os_ss_pion_leaf_             = &CreateIntLeaf("catTaggedOSSSPion");          // 0 for untagged, 1 for excl. OS tag, -1 for excl. SSPion tag, 10 for combination of OS and SSPion
+  cat_tagged_excl_os_ss_pion_leaf_        = &CreateIntLeaf("catTaggedExclOSSSPion");      // 0 for untagged, 1 for excl. OS tag, -1 for (OS&&SSPion)||SSPion
   var_tag_eta_os_ss_pion_leaf_            = &CreateDoubleLeaf("obsEtaOSSSPion");
   var_tag_eta_os_ss_pion_exclusive_leaf_  = &CreateDoubleLeaf("obsEtaOSSSPionExcl");
 
@@ -193,6 +197,7 @@ void TaggingRdcr::CreateSpecialBranches(){
   cat_tagged_os_or_ss_pion_value_  = (Int_t*)cat_tagged_os_or_ss_pion_leaf_->branch_address();
   cat_tagged_os_xor_ss_pion_value_ = (Int_t*)cat_tagged_os_xor_ss_pion_leaf_->branch_address();
   cat_tagged_os_ss_pion_value_ = (Int_t*)cat_tagged_os_ss_pion_leaf_->branch_address();
+  cat_tagged_excl_os_ss_pion_value_ = (Int_t*)cat_tagged_excl_os_ss_pion_leaf_->branch_address();
   var_tag_eta_os_ss_pion_value_    = (Double_t*)var_tag_eta_os_ss_pion_leaf_->branch_address();
   var_tag_eta_os_ss_pion_exclusive_value_    = (Double_t*)var_tag_eta_os_ss_pion_exclusive_leaf_->branch_address();
 
@@ -286,23 +291,26 @@ void TaggingRdcr::UpdateSpecialLeaves(){
     }
   }
 
-  // sin2beta OS (with cut based OS kaon) + SSPion combination
+  // sin2beta OS (with cut based OS kaon) + SSPion combinations
   if ((*var_tag_os_==0) && (*var_tag_ss_pion_==0)){           // if OS and SSPion tags are 0, set everything to untagged
     *var_tag_os_sspion_value_ = 0;
     *var_tag_os_sspion_babar_value_ = 0;
     *cat_tagged_os_ss_pion_value_ = 0;
+    *cat_tagged_excl_os_ss_pion_value_ = 0;
     *var_tag_eta_os_ss_pion_value_ = 0.5;
   }
   else if ((*var_tag_os_!=0) && (*var_tag_ss_pion_==0)){      // if OS tagger exclusively has tag, write OS tag to combination
     *var_tag_os_sspion_value_ = *var_tag_os_;
     *var_tag_os_sspion_babar_value_ = -(*var_tag_os_);
     *cat_tagged_os_ss_pion_value_ = 1;
+    *cat_tagged_excl_os_ss_pion_value_ = 1;
     *var_tag_eta_os_ss_pion_value_ = *var_tag_eta_os_;
   }
   else if ((*var_tag_os_==0) && (*var_tag_ss_pion_!=0)){      // if SSPion tagger exclusively has tag, write OS tag to combination
     *var_tag_os_sspion_value_ = *var_tag_ss_pion_;
     *var_tag_os_sspion_babar_value_ = -(*var_tag_ss_pion_);
     *cat_tagged_os_ss_pion_value_ = -1;
+    *cat_tagged_excl_os_ss_pion_value_ = -1;
     *var_tag_eta_os_ss_pion_value_ = *var_tag_eta_ss_pion_;
   }
   else{                                                       // else, combine OS and SSPion tag decision and eta
@@ -337,6 +345,7 @@ void TaggingRdcr::UpdateSpecialLeaves(){
 
     // tag category
     *cat_tagged_os_ss_pion_value_ = 10;
+    *cat_tagged_excl_os_ss_pion_value_ = -1;
 
     // debug output
     // std::cout << "" << std::endl;
