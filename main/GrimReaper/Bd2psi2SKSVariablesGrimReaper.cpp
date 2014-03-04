@@ -221,10 +221,14 @@ void TimeLeaves(Reducer* _rdcr, cfg_tuple& cfg){
     tau_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("obsTime", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_LOKI_DTF_CTAU"), 1.0/0.299792458);
     tau_err_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("obsTimeErr", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_LOKI_DTF_CTAUERR"), 1.0/0.299792458);
   }
-
+  else if (_rdcr->LeafExists(std::get<0>(cfg)+"_TAU")){
+    fit_constraints = "NoDTF";
+    tau_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("obsTime", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_TAU"), 1000.0);
+    tau_err_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("obsTimeErr", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_TAUERR"), 1000.0);
+  }
   if (_rdcr->LeafExists(std::get<0>(cfg)+"_BKGCAT")){
     tau_true_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("obsTime_True", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_TRUETAU"), 1000.0);
-    tau_true_err_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("obsTimeErr_True", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_TRUETAU"), 1000.0); // ???????
+    // tau_true_err_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("obsTimeErr_True", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_TRUETAU"), 1000.0); // ???????
   }
 
   summary.Add("Time fit constraints", fit_constraints);
