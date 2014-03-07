@@ -116,6 +116,13 @@
  *
  * \tableofcontents
  *
+ * @section exec_AddCategoryGrimReaper AddCategoryGrimReaper
+ * The AddCategoryGrimReaper adds a new category leaf with the provided name
+ * and sets the value to the specified integer.
+ * 
+ * Parameters needed: name of input file, name of input tree, name of output file,
+ * name of output tree (no backslashes!), category_name, integer_value
+ *
  * @section exec_ArrayFlattenerGrimReaper ArrayFlattenerGrimReaper
  * The ArrayFlattenerGrimReaper is able to flatten a tuple containing array-type
  * entries. 
