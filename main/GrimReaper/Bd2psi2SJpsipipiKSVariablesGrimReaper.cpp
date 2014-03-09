@@ -1,5 +1,5 @@
 /******************************************/
-// Bd2psi2SKSVariablesGrimReaper.cpp
+// Bd2psi2SJpsipipiKSVariablesGrimReaper.cpp
 //
 // Standalone GrimReaper that adds a lot of
 // common variables to trees.
@@ -40,7 +40,7 @@ void VetoLeaves(Reducer* _rdcr, cfg_tuple& cfg);
 void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg);
 
 int main(int argc, char * argv[]){
-  sinfo << "-info-  \t" << "Bd2psi2SKSVariablesGrimReaper \t" << "Welcome!" << endmsg;
+  sinfo << "-info-  \t" << "Bd2psi2SJpsipipiKSVariablesGrimReaper \t" << "Welcome!" << endmsg;
   std::string inputfile, inputtree, outputfile, outputtree, decay_channel;
   if (argc == 5){
     inputfile = argv[1];
@@ -50,8 +50,8 @@ int main(int argc, char * argv[]){
     decay_channel = "Bd2psi2SKS";
   }
   else{
-    serr << "-ERROR- \t" << "Bd2psi2SKSVariablesGrimReaper \t" << "Parameters needed:" << endmsg;
-    serr << "-ERROR- \t" << "Bd2psi2SKSVariablesGrimReaper \t"<< "input_file_name input_tree_name output_file_name output_tree_name" << endmsg;
+    serr << "-ERROR- \t" << "Bd2psi2SJpsipipiKSVariablesGrimReaper \t" << "Parameters needed:" << endmsg;
+    serr << "-ERROR- \t" << "Bd2psi2SJpsipipiKSVariablesGrimReaper \t"<< "input_file_name input_tree_name output_file_name output_tree_name" << endmsg;
     return 1;
   }
 
@@ -110,8 +110,8 @@ cfg_tuple Configure(Reducer* _rdcr, std::string& _channel){
     isFlat = (_rdcr->LeafExists("flat_array_index") || _rdcr->LeafExists("idxPV"));
   }
   else{
-    serr << "-ERROR- \t" << "Bd2psi2SKSVariablesGrimReaper \t" << "No valid decay channel. Possible decay channels are:" << endmsg;
-    serr << "-ERROR- \t" << "Bd2psi2SKSVariablesGrimReaper \t" << "- Bd2psi2SKS" << endmsg;
+    serr << "-ERROR- \t" << "Bd2psi2SJpsipipiKSVariablesGrimReaper \t" << "No valid decay channel. Possible decay channels are:" << endmsg;
+    serr << "-ERROR- \t" << "Bd2psi2SJpsipipiKSVariablesGrimReaper \t" << "- Bd2psi2SKS" << endmsg;
   }
   summary.Add("Name", _channel);
   summary.Add("Head", head);
