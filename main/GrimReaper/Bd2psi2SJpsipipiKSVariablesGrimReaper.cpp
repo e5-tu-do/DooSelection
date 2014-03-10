@@ -454,17 +454,17 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   ReducerLeaf<Double_t>* dtf_psi_2s_chi2ndof_leaf_ptr = NULL;
   ReducerLeaf<Double_t>* dtf_loki_chi2ndof_leaf_ptr = NULL;
   if (_rdcr->LeafExists("B0_FitDaughtersPVConst2_chi2")) {
-    dtf_psi_2s_ks0_chi2ndof_leaf_ptr = &_rdcr->CreateDoubleLeaf("varDTFPsi2SKSConstChi2ndof", -1.0);
+    dtf_psi_2s_ks0_chi2ndof_leaf_ptr = &_rdcr->CreateDoubleLeaf("varDTFPsi2SKSPVConstChi2ndof", -1.0);
     dtf_psi_2s_ks0_chi2ndof_leaf_ptr->Divide(_rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst2_chi2"+flat_suffix),
                                   _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst2_nDOF"+flat_suffix));
   } 
   if (_rdcr->LeafExists("B0_FitDaughtersPVConst_chi2")) {
-    dtf_jpsi_ks0_chi2ndof_leaf_ptr = &_rdcr->CreateDoubleLeaf("varDTFJpsiKSConstChi2ndof", -1.0);
+    dtf_jpsi_ks0_chi2ndof_leaf_ptr = &_rdcr->CreateDoubleLeaf("varDTFJpsiKSPVConstChi2ndof", -1.0);
     dtf_jpsi_ks0_chi2ndof_leaf_ptr->Divide(_rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_chi2"+flat_suffix),
                                   _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_nDOF"+flat_suffix));
   } 
   if (_rdcr->LeafExists("B0_FitDaughtersPVConst1_chi2")) {
-    dtf_psi_2s_chi2ndof_leaf_ptr = &_rdcr->CreateDoubleLeaf("varDTFPsi2SConstChi2ndof", -1.0);
+    dtf_psi_2s_chi2ndof_leaf_ptr = &_rdcr->CreateDoubleLeaf("varDTFPsi2SPVConstChi2ndof", -1.0);
     dtf_psi_2s_chi2ndof_leaf_ptr->Divide(_rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst1_chi2"+flat_suffix),
                                   _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst1_nDOF"+flat_suffix));
   } 
@@ -478,13 +478,13 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   ReducerLeaf<Double_t>* ip_chi2_psi_2s_leaf_ptr = NULL;
   ReducerLeaf<Double_t>* ip_chi2_leaf_ptr = NULL;
   if (_rdcr->LeafExists("B0_FitDaughtersPVConst2_IPCHI2")) {
-    ip_chi2_psi_2s_ks0_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDTFPsi2SKSIPChi2", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst2_IPCHI2"+flat_suffix));
+    ip_chi2_psi_2s_ks0_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDTFPsi2SKSPVIPChi2", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst2_IPCHI2"+flat_suffix));
   }
   if (_rdcr->LeafExists("B0_FitDaughtersPVConst_IPCHI2")) {
-    ip_chi2_jpsi_ks0_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDTFJpsiKSIPChi2", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_IPCHI2"+flat_suffix));
+    ip_chi2_jpsi_ks0_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDTFJpsiKSPVIPChi2", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_IPCHI2"+flat_suffix));
   }
   if (_rdcr->LeafExists("B0_FitDaughtersPVConst1_IPCHI2")) {
-    ip_chi2_psi_2s_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDTFPsi2SIPChi2", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst1_IPCHI2"+flat_suffix));
+    ip_chi2_psi_2s_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDTFPsi2SPVIPChi2", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst1_IPCHI2"+flat_suffix));
   }
   if (_rdcr->LeafExists("B0_IPCHI2_OWNPV")) {
     ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varIPChi2OwnPV", _rdcr->GetInterimLeafByName("B0_IPCHI2_OWNPV"));
