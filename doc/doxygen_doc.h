@@ -165,6 +165,12 @@
  * Parameters needed: name of input file, name of input tree, name of output file, 
  * name of output tree (no backslashes!)
  *
+ * @section exec_RemoveSingleBranchGrimReaper RemoveSingleBranchGrimReaper
+ * The RemoveSingleBranchGrimReaper removes a single branch.
+ *
+ * Parameters needed: name of input file, name of input tree, name of output file,
+ * name of output tree, name of the branch to remove
+ *
  * @section exec_SingleCutGrimReaper SingleCutGrimReaper
  * The SingleCutGrimReaper performs a single cut.
  *
