@@ -170,8 +170,8 @@ void TaggingRdcr::CreateSpecialBranches(){
   // create special combination leaves
   var_tag_os_sspion_leaf_                 = &CreateIntLeaf("obsTagOSSSPion");             // OS if excl OS, SSPion if excl SSPion, OS+SSPion combination if both, 0 otherwise
   var_tag_os_sspion_babar_leaf_           = &CreateIntLeaf("obsTagOSSSPion_BaBar");       // see above, tag flipped
-  var_tag_os_sspion_exclusive_leaf_       = &CreateIntLeaf("obsTagOSSSPionExcl");         // OS if OS tag available, SSPion if excl SSPion, 0 otherwise
-  var_tag_os_sspion_exclusive_babar_leaf_ = &CreateIntLeaf("obsTagOSSSPionExcl_BaBar");   // see above, tag flipped
+  var_tag_os_sspion_exclusive_leaf_       = &CreateIntLeaf("obsTagOSExclSSPion");         // OS if OS tag available, SSPion if excl SSPion, 0 otherwise
+  var_tag_os_sspion_exclusive_babar_leaf_ = &CreateIntLeaf("obsTagOSExclSSPion_BaBar");   // see above, tag flipped
   var_tag_exclusive_os_sspion_leaf_       = &CreateIntLeaf("obsTagExclOSSSPion");         // OS if excl OS, OS+SSPion combination if SSPion tag available, 0 otherwise
   var_tag_exclusive_os_sspion_babar_leaf_ = &CreateIntLeaf("obsTagExclOSSSPion_BaBar");   // see above, tag flipped
   cat_tagged_os_or_ss_pion_leaf_          = &CreateIntLeaf("catTaggedOSorSSPion");        // 0 for untagged, 1 for tagged
@@ -180,7 +180,7 @@ void TaggingRdcr::CreateSpecialBranches(){
   cat_tagged_excl_os_ss_pion_leaf_        = &CreateIntLeaf("catTaggedExclOSSSPion");      // 0 for untagged, 1 for excl. OS tag, -1 for (OS&&SSPion)||SSPion
   var_tag_eta_exclusive_os_ss_pion_leaf_  = &CreateDoubleLeaf("obsEtaExclOSSSPion");      //    
   var_tag_eta_os_ss_pion_leaf_            = &CreateDoubleLeaf("obsEtaOSSSPion");          //  same as corresponding tag decision
-  var_tag_eta_os_ss_pion_exclusive_leaf_  = &CreateDoubleLeaf("obsEtaOSSSPionExcl");      // 
+  var_tag_eta_os_ss_pion_exclusive_leaf_  = &CreateDoubleLeaf("obsEtaOSExclSSPion");      // 
 
   if (LeafExists("B0_OS_nnetKaon_DEC")){
     var_tag_os_with_nnet_kaon_sspion_leaf_         = &CreateIntLeaf("obsTagOSwNNKaonSSPion");
