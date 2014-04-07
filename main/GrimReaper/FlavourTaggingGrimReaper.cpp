@@ -51,6 +51,7 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
     cat_tagged_os_or_ss_pion_leaf_(NULL),
     cat_tagged_os_xor_ss_pion_leaf_(NULL),
     cat_tagged_os_ss_pion_leaf_(NULL),
+    cat_tagged_excl_os_ss_pion_leaf_(NULL),
     var_tag_eta_os_ss_pion_leaf_(NULL),
     var_tag_eta_os_ss_pion_exclusive_leaf_(NULL),
     var_tag_os_(NULL),
@@ -100,11 +101,15 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
   dooselection::reducer::ReducerLeaf<Int_t>* var_tag_os_sspion_babar_leaf_;
   dooselection::reducer::ReducerLeaf<Int_t>* var_tag_os_sspion_exclusive_leaf_; 
   dooselection::reducer::ReducerLeaf<Int_t>* var_tag_os_sspion_exclusive_babar_leaf_; 
+  dooselection::reducer::ReducerLeaf<Int_t>* var_tag_exclusive_os_sspion_leaf_; 
+  dooselection::reducer::ReducerLeaf<Int_t>* var_tag_exclusive_os_sspion_babar_leaf_; 
   dooselection::reducer::ReducerLeaf<Int_t>* cat_tagged_os_or_ss_pion_leaf_; 
   dooselection::reducer::ReducerLeaf<Int_t>* cat_tagged_os_xor_ss_pion_leaf_;
   dooselection::reducer::ReducerLeaf<Int_t>* cat_tagged_os_ss_pion_leaf_;
+  dooselection::reducer::ReducerLeaf<Int_t>* cat_tagged_excl_os_ss_pion_leaf_;
   dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_os_ss_pion_leaf_;
-  dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_os_ss_pion_exclusive_leaf_; 
+  dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_os_ss_pion_exclusive_leaf_;
+  dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_exclusive_os_ss_pion_leaf_; 
   dooselection::reducer::ReducerLeaf<Int_t>* var_tag_os_with_nnet_kaon_sspion_leaf_;
   dooselection::reducer::ReducerLeaf<Int_t>* var_tag_os_with_nnet_kaon_sspion_babar_leaf_;
   dooselection::reducer::ReducerLeaf<Int_t>* cat_tagged_os_with_nnet_kaon_or_ss_pion_leaf_;
@@ -124,11 +129,15 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
   Int_t* var_tag_os_sspion_babar_value_;
   Int_t* var_tag_os_sspion_exclusive_value_;
   Int_t* var_tag_os_sspion_exclusive_babar_value_;
+  Int_t* var_tag_exclusive_os_sspion_value_;
+  Int_t* var_tag_exclusive_os_sspion_babar_value_;
   Int_t* cat_tagged_os_or_ss_pion_value_;  
   Int_t* cat_tagged_os_xor_ss_pion_value_; 
   Int_t* cat_tagged_os_ss_pion_value_;
+  Int_t* cat_tagged_excl_os_ss_pion_value_;
   Double_t* var_tag_eta_os_ss_pion_value_;
   Double_t* var_tag_eta_os_ss_pion_exclusive_value_;
+  Double_t* var_tag_eta_exclusive_os_ss_pion_value_;
   Int_t* var_tag_os_with_nnet_kaon_sspion_value_;
   Int_t* var_tag_os_with_nnet_kaon_sspion_babar_value_;
   Int_t* cat_tagged_os_with_nnet_kaon_or_ss_pion_value_;
@@ -159,15 +168,19 @@ void TaggingRdcr::CreateSpecialBranches(){
 
   /////// sin2beta OS + SSPion combination (both OS combinations (with cut based and neural net kaon))
   // create special combination leaves
-  var_tag_os_sspion_leaf_                 = &CreateIntLeaf("obsTagOSSSPion");
-  var_tag_os_sspion_babar_leaf_           = &CreateIntLeaf("obsTagOSSSPion_BaBar");
-  var_tag_os_sspion_exclusive_leaf_       = &CreateIntLeaf("obsTagOSSSPionExcl");
-  var_tag_os_sspion_exclusive_babar_leaf_ = &CreateIntLeaf("obsTagOSSSPionExcl_BaBar");
+  var_tag_os_sspion_leaf_                 = &CreateIntLeaf("obsTagOSSSPion");             // OS if excl OS, SSPion if excl SSPion, OS+SSPion combination if both, 0 otherwise
+  var_tag_os_sspion_babar_leaf_           = &CreateIntLeaf("obsTagOSSSPion_BaBar");       // see above, tag flipped
+  var_tag_os_sspion_exclusive_leaf_       = &CreateIntLeaf("obsTagOSSSPionExcl");         // OS if OS tag available, SSPion if excl SSPion, 0 otherwise
+  var_tag_os_sspion_exclusive_babar_leaf_ = &CreateIntLeaf("obsTagOSSSPionExcl_BaBar");   // see above, tag flipped
+  var_tag_exclusive_os_sspion_leaf_       = &CreateIntLeaf("obsTagExclOSSSPion");         // OS if excl OS, OS+SSPion combination if SSPion tag available, 0 otherwise
+  var_tag_exclusive_os_sspion_babar_leaf_ = &CreateIntLeaf("obsTagExclOSSSPion_BaBar");   // see above, tag flipped
   cat_tagged_os_or_ss_pion_leaf_          = &CreateIntLeaf("catTaggedOSorSSPion");        // 0 for untagged, 1 for tagged
   cat_tagged_os_xor_ss_pion_leaf_         = &CreateIntLeaf("catTaggedOSxorSSPion");       // 0 for untagged, 1 for OS tag, -1 for SSPion tag
   cat_tagged_os_ss_pion_leaf_             = &CreateIntLeaf("catTaggedOSSSPion");          // 0 for untagged, 1 for excl. OS tag, -1 for excl. SSPion tag, 10 for combination of OS and SSPion
-  var_tag_eta_os_ss_pion_leaf_            = &CreateDoubleLeaf("obsEtaOSSSPion");
-  var_tag_eta_os_ss_pion_exclusive_leaf_  = &CreateDoubleLeaf("obsEtaOSSSPionExcl");
+  cat_tagged_excl_os_ss_pion_leaf_        = &CreateIntLeaf("catTaggedExclOSSSPion");      // 0 for untagged, 1 for excl. OS tag, -1 for (OS&&SSPion)||SSPion
+  var_tag_eta_exclusive_os_ss_pion_leaf_  = &CreateDoubleLeaf("obsEtaExclOSSSPion");      //    
+  var_tag_eta_os_ss_pion_leaf_            = &CreateDoubleLeaf("obsEtaOSSSPion");          //  same as corresponding tag decision
+  var_tag_eta_os_ss_pion_exclusive_leaf_  = &CreateDoubleLeaf("obsEtaOSSSPionExcl");      // 
 
   if (LeafExists("B0_OS_nnetKaon_DEC")){
     var_tag_os_with_nnet_kaon_sspion_leaf_         = &CreateIntLeaf("obsTagOSwNNKaonSSPion");
@@ -190,11 +203,15 @@ void TaggingRdcr::CreateSpecialBranches(){
   var_tag_os_sspion_babar_value_   = (Int_t*)var_tag_os_sspion_babar_leaf_->branch_address();
   var_tag_os_sspion_exclusive_value_         = (Int_t*)var_tag_os_sspion_exclusive_leaf_->branch_address();  
   var_tag_os_sspion_exclusive_babar_value_   = (Int_t*)var_tag_os_sspion_exclusive_babar_leaf_->branch_address();
+  var_tag_exclusive_os_sspion_value_         = (Int_t*)var_tag_exclusive_os_sspion_leaf_->branch_address();  
+  var_tag_exclusive_os_sspion_babar_value_   = (Int_t*)var_tag_exclusive_os_sspion_babar_leaf_->branch_address();
   cat_tagged_os_or_ss_pion_value_  = (Int_t*)cat_tagged_os_or_ss_pion_leaf_->branch_address();
   cat_tagged_os_xor_ss_pion_value_ = (Int_t*)cat_tagged_os_xor_ss_pion_leaf_->branch_address();
   cat_tagged_os_ss_pion_value_ = (Int_t*)cat_tagged_os_ss_pion_leaf_->branch_address();
+  cat_tagged_excl_os_ss_pion_value_ = (Int_t*)cat_tagged_excl_os_ss_pion_leaf_->branch_address();
   var_tag_eta_os_ss_pion_value_    = (Double_t*)var_tag_eta_os_ss_pion_leaf_->branch_address();
   var_tag_eta_os_ss_pion_exclusive_value_    = (Double_t*)var_tag_eta_os_ss_pion_exclusive_leaf_->branch_address();
+  var_tag_eta_exclusive_os_ss_pion_value_    = (Double_t*)var_tag_eta_exclusive_os_ss_pion_leaf_->branch_address();
 
   if (LeafExists("B0_OS_nnetKaon_DEC")){
     var_tag_os_with_nnet_kaon_sspion_value_         = (Int_t*)var_tag_os_with_nnet_kaon_sspion_leaf_->branch_address();  
@@ -286,7 +303,7 @@ void TaggingRdcr::UpdateSpecialLeaves(){
     }
   }
 
-  // sin2beta OS (with cut based OS kaon) + SSPion combination
+  // sin2beta OS (with cut based OS kaon) + SSPion combinations
   if ((*var_tag_os_==0) && (*var_tag_ss_pion_==0)){           // if OS and SSPion tags are 0, set everything to untagged
     *var_tag_os_sspion_value_ = 0;
     *var_tag_os_sspion_babar_value_ = 0;
@@ -344,6 +361,53 @@ void TaggingRdcr::UpdateSpecialLeaves(){
     // std::cout << "OS tag / mistag " << os_dec << " / " << os_mistag << std::endl;
     // std::cout << "SS tag / mistag " << ss_dec << " / " << ss_mistag << std::endl;
     // std::cout << "Comb tag / mistag " << *var_tag_os_sspion_value_ << " / " << *var_tag_eta_os_ss_pion_value_ << std::endl;
+  }
+
+  // sin2beta OS (with cut based OS kaon) + SSPion combinations if SSPion tag is available
+  if ((*var_tag_os_==0) && (*var_tag_ss_pion_==0)){           // if OS and SSPion tags are 0, set everything to untagged
+    *var_tag_exclusive_os_sspion_value_ = 0;
+    *var_tag_exclusive_os_sspion_babar_value_ = 0;
+    *var_tag_eta_exclusive_os_ss_pion_value_ = 0.5;
+    *cat_tagged_excl_os_ss_pion_value_ = 0;
+  }
+  else if ((*var_tag_os_!=0) && (*var_tag_ss_pion_==0)){      // if OS tagger exclusively has tag, write OS tag to combination
+    *var_tag_exclusive_os_sspion_value_ = *var_tag_os_;
+    *var_tag_exclusive_os_sspion_babar_value_ = -(*var_tag_os_);
+    *var_tag_eta_exclusive_os_ss_pion_value_ = *var_tag_eta_os_;
+    *cat_tagged_excl_os_ss_pion_value_ = 1;
+  }
+  else{                                                       // else, combine OS and SSPion tag decision and eta
+    // this is the FT standard combination
+    // see page 106 of: https://cds.cern.ch/record/1456804/files/CERN-THESIS-2012-075.pdf
+    // as a reference.
+    int os_dec = *var_tag_os_;
+    int ss_dec = *var_tag_ss_pion_;
+    double os_mistag = *var_tag_eta_os_;
+    double ss_mistag = *var_tag_eta_ss_pion_;
+
+    double os_prob_b = (1.+os_dec)/2. - os_dec * (1.-os_mistag);
+    double os_prob_bbar = (1.-os_dec)/2. + os_dec * (1.-os_mistag);
+    double ss_prob_b = (1.+ss_dec)/2. - ss_dec * (1.-ss_mistag);
+    double ss_prob_bbar = (1.-ss_dec)/2. + ss_dec * (1.-ss_mistag);
+
+    double prob_b = os_prob_b * ss_prob_b;
+    double prob_bbar = os_prob_bbar * ss_prob_bbar;
+
+    double comb_prob_b = prob_b / (prob_b + prob_bbar);
+    double comb_prob_bbar = 1 - comb_prob_b;
+
+    // tag decision
+    if (comb_prob_b > comb_prob_bbar) *var_tag_exclusive_os_sspion_value_ = -1;   // probability for b quark content is larger than for bbar quark
+    if (comb_prob_b < comb_prob_bbar) *var_tag_exclusive_os_sspion_value_ = +1;   // probability for b quark content is smaller than for bbar quark
+    if (comb_prob_b > comb_prob_bbar) *var_tag_exclusive_os_sspion_babar_value_ = +1;   // vice versa for babar notation
+    if (comb_prob_b < comb_prob_bbar) *var_tag_exclusive_os_sspion_babar_value_ = -1;   // 
+
+    // mistag
+    double comb_prob = std::max(comb_prob_b,comb_prob_bbar) /(comb_prob_b + comb_prob_bbar);
+    *var_tag_eta_exclusive_os_ss_pion_value_ = 1. - comb_prob;
+
+    // tag category
+    *cat_tagged_excl_os_ss_pion_value_ = -1;
   }
 
   // sin2beta OS (with cut based OS kaon) + exclusive SSPion combination
