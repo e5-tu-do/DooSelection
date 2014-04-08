@@ -14,7 +14,9 @@
 #define BOOST_NO_CXX11_SCOPED_ENUMS
 #endif
 #include <boost/filesystem.hpp>
-#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/uuid.hpp>            // uuid class
+#include <boost/uuid/uuid_generators.hpp> // generators
+#include <boost/uuid/uuid_io.hpp>         // streaming operators etc.
 #include <boost/lexical_cast.hpp>
 #include <boost/bimap.hpp>
 #include <boost/regex.hpp>
@@ -724,9 +726,12 @@ void Reducer::UpdateAllValues(std::vector<ReducerLeaf<T>* >& leaves) {
 
 void Reducer::GenerateInterimFileName() {
   using namespace boost::filesystem;
-  boost::uuids::uuid uuid;
+  boost::uuids::uuid uuid = boost::uuids::random_generator()();
   std::string s_uuid = boost::lexical_cast<std::string>(uuid);
 
+//  using namespace doocore::io;
+//  sdebug << "The uuid is: " << s_uuid << endmsg;
+  
   path tempfile = temp_directory_path() / s_uuid;
   tempfile.replace_extension(".root");
   

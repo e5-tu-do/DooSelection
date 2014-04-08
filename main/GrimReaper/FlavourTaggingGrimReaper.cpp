@@ -8,7 +8,6 @@
 // Date: 2014-02-04 
 /******************************************/
 
-
 // from ROOT
 #include "TRandom3.h"
 #include "TCut.h"
@@ -26,45 +25,93 @@ using namespace dooselection::reducer;
 class TaggingRdcr : virtual public dooselection::reducer::Reducer {
  public:
   TaggingRdcr():
-    // OS with neural net kaon combination
+    // ______________________________________________________________________________________
+    // create leaves
+    // tag leaves
+    var_tag_os_nozero_leaf_(NULL),
+    var_tag_ss_pion_nozero_leaf_(NULL),
+    var_tag_os_ss_pion_leaf_(NULL),
+    var_tag_os_ss_pion_babar_leaf_(NULL),
+    var_tag_os_ss_pion_nozero_leaf_(NULL),
+    var_tag_os_exclusive_ss_pion_leaf_(NULL),
+    var_tag_os_exclusive_ss_pion_babar_leaf_(NULL),
+    var_tag_os_exclusive_ss_pion_nozero_leaf_(NULL),
+    var_tag_exclusive_os_ss_pion_leaf_(NULL),
+    var_tag_exclusive_os_ss_pion_babar_leaf_(NULL),
+    var_tag_exclusive_os_ss_pion_nozero_leaf_(NULL),
+    var_tag_os_with_nnet_kaon_sspion_leaf_(NULL),
+    var_tag_os_with_nnet_kaon_sspion_babar_leaf_(NULL),
+    var_tag_os_with_nnet_kaon_sspion_nozero_leaf_(NULL),
     var_tag_os_comb_with_nnet_kaon_leaf_(NULL),
     var_tag_os_comb_with_nnet_kaon_babar_leaf_(NULL),
-    cat_tagged_os_comb_with_nnet_kaon_leaf_(NULL),
+    // eta leaves
+    var_tag_eta_os_ss_pion_leaf_(NULL),
+    var_tag_eta_os_exclusive_ss_pion_leaf_(NULL),
+    var_tag_eta_exclusive_os_ss_pion_leaf_(NULL),
     var_tag_eta_os_comb_with_nnet_kaon_leaf_(NULL),
+    var_tag_eta_os_with_nnet_kaon_sspion_leaf_(NULL),
+    // cat tagged leaves
+    cat_tagged_os_comb_with_nnet_kaon_leaf_(NULL),
+    cat_tagged_os_or_ss_pion_leaf_(NULL),
+    cat_tagged_os_xor_ss_pion_leaf_(NULL),
+    cat_tagged_os_ss_pion_leaf_(NULL),
+    cat_tagged_os_exclusive_ss_pion_leaf_(NULL),
+    cat_tagged_exclusive_os_ss_pion_leaf_(NULL),
+    cat_tagged_os_with_nnet_kaon_or_sspion_leaf_(NULL),
+    cat_tagged_os_with_nnet_kaon_xor_ss_pion_leaf_(NULL),
+    // ______________________________________________________________________________________
+    // leaves to read
+    // tag leaves
+    var_tag_os_(NULL),
     var_tag_os_muon_(NULL),
     var_tag_os_electron_(NULL),
     var_tag_os_nnet_kaon_(NULL),
     var_tag_os_vtx_charge_(NULL),
+    var_tag_ss_pion_(NULL),
+    // eta leaves
+    var_tag_eta_os_(NULL),
     var_tag_eta_os_muon_(NULL),
     var_tag_eta_os_electron_(NULL),
     var_tag_eta_os_nnet_kaon_(NULL),
     var_tag_eta_os_vtx_charge_(NULL),
-    var_tag_os_comb_with_nnet_kaon_value_(NULL),
-    var_tag_os_comb_with_nnet_kaon_babar_value_(NULL),
-    cat_tagged_os_comb_with_nnet_kaon_value_(NULL),
-    var_tag_eta_os_comb_with_nnet_kaon_value_(NULL),
-    // sin2beta OS + SSPion combination
-    var_tag_os_sspion_leaf_(NULL),
-    var_tag_os_sspion_babar_leaf_(NULL),
-    var_tag_os_sspion_exclusive_leaf_(NULL),
-    var_tag_os_sspion_exclusive_babar_leaf_(NULL),
-    cat_tagged_os_or_ss_pion_leaf_(NULL),
-    cat_tagged_os_xor_ss_pion_leaf_(NULL),
-    cat_tagged_os_ss_pion_leaf_(NULL),
-    cat_tagged_excl_os_ss_pion_leaf_(NULL),
-    var_tag_eta_os_ss_pion_leaf_(NULL),
-    var_tag_eta_os_ss_pion_exclusive_leaf_(NULL),
-    var_tag_os_(NULL),
-    var_tag_ss_pion_(NULL),
+    var_tag_eta_ss_pion_(NULL),
+    // cat tagged leaves
     cat_tagged_os_(NULL),
     cat_tagged_ss_pion_(NULL),
-    var_tag_eta_os_(NULL),
-    var_tag_eta_ss_pion_(NULL),
-    var_tag_os_sspion_value_(NULL),
-    var_tag_os_sspion_babar_value_(NULL),
+    // ______________________________________________________________________________________
+    // leaves to write
+    // tag leaves
+    var_tag_os_nozero_value_(NULL),
+    var_tag_ss_pion_nozero_value_(NULL),
+    var_tag_os_ss_pion_value_(NULL),
+    var_tag_os_ss_pion_babar_value_(NULL),
+    var_tag_os_ss_pion_nozero_value_(NULL),
+    var_tag_os_exclusive_ss_pion_value_(NULL),
+    var_tag_os_exclusive_ss_pion_babar_value_(NULL),
+    var_tag_os_exclusive_ss_pion_nozero_value_(NULL),
+    var_tag_exclusive_os_ss_pion_value_(NULL),
+    var_tag_exclusive_os_ss_pion_babar_value_(NULL),
+    var_tag_exclusive_os_ss_pion_nozero_value_(NULL),
+    var_tag_os_with_nnet_kaon_sspion_value_(NULL),
+    var_tag_os_with_nnet_kaon_sspion_babar_value_(NULL),
+    var_tag_os_with_nnet_kaon_sspion_nozero_value_(NULL),
+    var_tag_os_comb_with_nnet_kaon_value_(NULL),
+    var_tag_os_comb_with_nnet_kaon_babar_value_(NULL),
+    // eta leaves
+    var_tag_eta_os_ss_pion_value_(NULL),
+    var_tag_eta_os_exclusive_ss_pion_value_(NULL),
+    var_tag_eta_exclusive_os_ss_pion_value_(NULL),
+    var_tag_eta_os_with_nnet_kaon_sspion_value_(NULL),
+    var_tag_eta_os_comb_with_nnet_kaon_value_(NULL),
+    // cat tagged leaves
     cat_tagged_os_or_ss_pion_value_(NULL),
     cat_tagged_os_xor_ss_pion_value_(NULL),
-    var_tag_eta_os_ss_pion_value_(NULL)
+    cat_tagged_os_ss_pion_value_(NULL),
+    cat_tagged_os_exclusive_ss_pion_value_(NULL),
+    cat_tagged_exclusive_os_ss_pion_value_(NULL),
+    cat_tagged_os_comb_with_nnet_kaon_value_(NULL),
+    cat_tagged_os_with_nnet_kaon_or_sspion_value_(NULL),
+    cat_tagged_os_with_nnet_kaon_xor_ss_pion_value_(NULL)
   {}
   virtual ~TaggingRdcr(){}
  protected:
@@ -72,166 +119,433 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
   virtual bool EntryPassesSpecialCuts();
   virtual void UpdateSpecialLeaves();
  private:
-  /////// OS with neural net kaon combination
+  // ______________________________________________________________________________________
   // create leaves
-  dooselection::reducer::ReducerLeaf<Int_t>* var_tag_os_comb_with_nnet_kaon_leaf_; 
-  dooselection::reducer::ReducerLeaf<Int_t>* var_tag_os_comb_with_nnet_kaon_babar_leaf_; 
-  dooselection::reducer::ReducerLeaf<Int_t>* cat_tagged_os_comb_with_nnet_kaon_leaf_; 
-  dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_os_comb_with_nnet_kaon_leaf_; 
-
-  // leaves to read
-  Int_t* var_tag_os_muon_;         
-  Int_t* var_tag_os_electron_; 
-  Int_t* var_tag_os_nnet_kaon_; 
-  Int_t* var_tag_os_vtx_charge_;    
-  Double_t* var_tag_eta_os_muon_;      
-  Double_t* var_tag_eta_os_electron_; 
-  Double_t* var_tag_eta_os_nnet_kaon_; 
-  Double_t* var_tag_eta_os_vtx_charge_; 
-
-  // leaves to write
-  Int_t* var_tag_os_comb_with_nnet_kaon_value_;         
-  Int_t* var_tag_os_comb_with_nnet_kaon_babar_value_;   
-  Int_t* cat_tagged_os_comb_with_nnet_kaon_value_;  
-  Double_t* var_tag_eta_os_comb_with_nnet_kaon_value_; 
-
-  /////// sin2beta OS + SSPion combination
-  // create leaves
-  dooselection::reducer::ReducerLeaf<Int_t>* var_tag_os_sspion_leaf_; 
-  dooselection::reducer::ReducerLeaf<Int_t>* var_tag_os_sspion_babar_leaf_;
-  dooselection::reducer::ReducerLeaf<Int_t>* var_tag_os_sspion_exclusive_leaf_; 
-  dooselection::reducer::ReducerLeaf<Int_t>* var_tag_os_sspion_exclusive_babar_leaf_; 
-  dooselection::reducer::ReducerLeaf<Int_t>* var_tag_exclusive_os_sspion_leaf_; 
-  dooselection::reducer::ReducerLeaf<Int_t>* var_tag_exclusive_os_sspion_babar_leaf_; 
-  dooselection::reducer::ReducerLeaf<Int_t>* cat_tagged_os_or_ss_pion_leaf_; 
-  dooselection::reducer::ReducerLeaf<Int_t>* cat_tagged_os_xor_ss_pion_leaf_;
-  dooselection::reducer::ReducerLeaf<Int_t>* cat_tagged_os_ss_pion_leaf_;
-  dooselection::reducer::ReducerLeaf<Int_t>* cat_tagged_excl_os_ss_pion_leaf_;
+  // tag leaves
+  dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_os_nozero_leaf_;
+  dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_ss_pion_nozero_leaf_;
+  dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_os_ss_pion_leaf_; 
+  dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_os_ss_pion_babar_leaf_;
+  dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_os_ss_pion_nozero_leaf_;
+  dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_os_exclusive_ss_pion_leaf_; 
+  dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_os_exclusive_ss_pion_babar_leaf_;
+  dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_os_exclusive_ss_pion_nozero_leaf_; 
+  dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_exclusive_os_ss_pion_leaf_; 
+  dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_exclusive_os_ss_pion_babar_leaf_;
+  dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_exclusive_os_ss_pion_nozero_leaf_; 
+  dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_os_with_nnet_kaon_sspion_leaf_;
+  dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_os_with_nnet_kaon_sspion_babar_leaf_;
+  dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_os_with_nnet_kaon_sspion_nozero_leaf_;
+  dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_os_comb_with_nnet_kaon_leaf_;
+  dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_os_comb_with_nnet_kaon_babar_leaf_; 
+  // eta leaves
   dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_os_ss_pion_leaf_;
-  dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_os_ss_pion_exclusive_leaf_;
-  dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_exclusive_os_ss_pion_leaf_; 
-  dooselection::reducer::ReducerLeaf<Int_t>* var_tag_os_with_nnet_kaon_sspion_leaf_;
-  dooselection::reducer::ReducerLeaf<Int_t>* var_tag_os_with_nnet_kaon_sspion_babar_leaf_;
-  dooselection::reducer::ReducerLeaf<Int_t>* cat_tagged_os_with_nnet_kaon_or_ss_pion_leaf_;
-  dooselection::reducer::ReducerLeaf<Int_t>* cat_tagged_os_with_nnet_kaon_xor_ss_pion_leaf_;
-  dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_os_with_nnet_kaon_ss_pion_leaf_;
+  dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_os_exclusive_ss_pion_leaf_;
+  dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_exclusive_os_ss_pion_leaf_;
+  dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_os_comb_with_nnet_kaon_leaf_;
+  dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_os_with_nnet_kaon_sspion_leaf_;
+  // cat tagged leaves
+  dooselection::reducer::ReducerLeaf<Int_t>*    cat_tagged_os_comb_with_nnet_kaon_leaf_;
+  dooselection::reducer::ReducerLeaf<Int_t>*    cat_tagged_os_or_ss_pion_leaf_; 
+  dooselection::reducer::ReducerLeaf<Int_t>*    cat_tagged_os_xor_ss_pion_leaf_;
+  dooselection::reducer::ReducerLeaf<Int_t>*    cat_tagged_os_ss_pion_leaf_;
+  dooselection::reducer::ReducerLeaf<Int_t>*    cat_tagged_os_exclusive_ss_pion_leaf_;
+  dooselection::reducer::ReducerLeaf<Int_t>*    cat_tagged_exclusive_os_ss_pion_leaf_;
+  dooselection::reducer::ReducerLeaf<Int_t>*    cat_tagged_os_with_nnet_kaon_or_sspion_leaf_;
+  dooselection::reducer::ReducerLeaf<Int_t>*    cat_tagged_os_with_nnet_kaon_xor_ss_pion_leaf_;
 
+
+  // ______________________________________________________________________________________
   // leaves to read
-  Int_t* var_tag_os_;         
-  Int_t* var_tag_ss_pion_;    
+  // tag leaves
+  Int_t* var_tag_os_; 
+  Short_t* var_tag_os_muon_;         
+  Short_t* var_tag_os_electron_; 
+  Short_t* var_tag_os_nnet_kaon_; 
+  Short_t* var_tag_os_vtx_charge_;            
+  Short_t* var_tag_ss_pion_;    
+  // eta leaves
+  Double_t* var_tag_eta_os_;      
+  Float_t* var_tag_eta_os_muon_;      
+  Float_t* var_tag_eta_os_electron_; 
+  Float_t* var_tag_eta_os_nnet_kaon_; 
+  Float_t* var_tag_eta_os_vtx_charge_; 
+  Float_t* var_tag_eta_ss_pion_;
+  // cat tagged leaves
   Int_t* cat_tagged_os_;      
   Int_t* cat_tagged_ss_pion_; 
-  Double_t* var_tag_eta_os_;      
-  Double_t* var_tag_eta_ss_pion_; 
 
+  // ______________________________________________________________________________________
   // leaves to write
-  Int_t* var_tag_os_sspion_value_;         
-  Int_t* var_tag_os_sspion_babar_value_;
-  Int_t* var_tag_os_sspion_exclusive_value_;
-  Int_t* var_tag_os_sspion_exclusive_babar_value_;
-  Int_t* var_tag_exclusive_os_sspion_value_;
-  Int_t* var_tag_exclusive_os_sspion_babar_value_;
+  // tag leaves
+  Int_t* var_tag_os_nozero_value_;
+  Int_t* var_tag_ss_pion_nozero_value_;
+  Int_t* var_tag_os_ss_pion_value_;         
+  Int_t* var_tag_os_ss_pion_babar_value_;
+  Int_t* var_tag_os_ss_pion_nozero_value_;
+  Int_t* var_tag_os_exclusive_ss_pion_value_;
+  Int_t* var_tag_os_exclusive_ss_pion_babar_value_;
+  Int_t* var_tag_os_exclusive_ss_pion_nozero_value_;
+  Int_t* var_tag_exclusive_os_ss_pion_value_;
+  Int_t* var_tag_exclusive_os_ss_pion_babar_value_;
+  Int_t* var_tag_exclusive_os_ss_pion_nozero_value_;
+  Int_t* var_tag_os_with_nnet_kaon_sspion_value_;
+  Int_t* var_tag_os_with_nnet_kaon_sspion_babar_value_;
+  Int_t* var_tag_os_with_nnet_kaon_sspion_nozero_value_;
+  Int_t* var_tag_os_comb_with_nnet_kaon_value_;         
+  Int_t* var_tag_os_comb_with_nnet_kaon_babar_value_;   
+  // eta leaves
+  Double_t* var_tag_eta_os_ss_pion_value_;
+  Double_t* var_tag_eta_os_exclusive_ss_pion_value_;
+  Double_t* var_tag_eta_exclusive_os_ss_pion_value_;
+  Double_t* var_tag_eta_os_with_nnet_kaon_sspion_value_;
+  Double_t* var_tag_eta_os_comb_with_nnet_kaon_value_; 
+  // cat tagged leaves
   Int_t* cat_tagged_os_or_ss_pion_value_;  
   Int_t* cat_tagged_os_xor_ss_pion_value_; 
   Int_t* cat_tagged_os_ss_pion_value_;
-  Int_t* cat_tagged_excl_os_ss_pion_value_;
-  Double_t* var_tag_eta_os_ss_pion_value_;
-  Double_t* var_tag_eta_os_ss_pion_exclusive_value_;
-  Double_t* var_tag_eta_exclusive_os_ss_pion_value_;
-  Int_t* var_tag_os_with_nnet_kaon_sspion_value_;
-  Int_t* var_tag_os_with_nnet_kaon_sspion_babar_value_;
-  Int_t* cat_tagged_os_with_nnet_kaon_or_ss_pion_value_;
+  Int_t* cat_tagged_os_exclusive_ss_pion_value_; 
+  Int_t* cat_tagged_exclusive_os_ss_pion_value_;   
+  Int_t* cat_tagged_os_comb_with_nnet_kaon_value_;
+  Int_t* cat_tagged_os_with_nnet_kaon_or_sspion_value_;
   Int_t* cat_tagged_os_with_nnet_kaon_xor_ss_pion_value_;
-  Double_t* var_tag_eta_os_with_nnet_kaon_ss_pion_value_;
 };
 
 void TaggingRdcr::CreateSpecialBranches(){
-  /////// OS with neural net kaon combination
-  var_tag_os_comb_with_nnet_kaon_leaf_       = &CreateIntLeaf("obsTagOSwNNKaon");
-  var_tag_os_comb_with_nnet_kaon_babar_leaf_ = &CreateIntLeaf("obsTagOSwNNKaon_BaBar");  
-  cat_tagged_os_comb_with_nnet_kaon_leaf_    = &CreateIntLeaf("catTaggedOSwNNKaon");
-  var_tag_eta_os_comb_with_nnet_kaon_leaf_   = &CreateDoubleLeaf("obsEtaOSwNNKaon");
+  // ______________________________________________________________________________________
+  // Create new leaves
+  // tag
+  var_tag_os_nozero_leaf_                     = &CreateIntLeaf("obsTagOS_NoZero");            // no zero tag but 1 for untagged
+  var_tag_ss_pion_nozero_leaf_                = &CreateIntLeaf("obsTagSSPion_NoZero");        // no zero tag but 1 for untagged
+  var_tag_os_ss_pion_leaf_                    = &CreateIntLeaf("obsTagOSSSPion");             // OS if excl OS, SSPion if excl SSPion, OS+SSPion combination if both, 0 otherwise
+  var_tag_os_ss_pion_babar_leaf_              = &CreateIntLeaf("obsTagOSSSPion_BaBar");       // see above, tag flipped
+  var_tag_os_ss_pion_nozero_leaf_             = &CreateIntLeaf("obsTagOSSSPion_NoZero");      // see above, no zero tag but 1 for untagged
+  var_tag_os_exclusive_ss_pion_leaf_          = &CreateIntLeaf("obsTagOSExclSSPion");         // OS if OS tag available, SSPion if excl SSPion, 0 otherwise
+  var_tag_os_exclusive_ss_pion_babar_leaf_    = &CreateIntLeaf("obsTagOSExclSSPion_BaBar");   // see above, tag flipped
+  var_tag_os_exclusive_ss_pion_nozero_leaf_   = &CreateIntLeaf("obsTagOSExclSSPion_NoZero");  // see above, no zero tag but 1 for untagged
+  var_tag_exclusive_os_ss_pion_leaf_          = &CreateIntLeaf("obsTagExclOSSSPion");         // OS if excl OS, OS+SSPion combination if SSPion tag available, 0 otherwise
+  var_tag_exclusive_os_ss_pion_babar_leaf_    = &CreateIntLeaf("obsTagExclOSSSPion_BaBar");   // see above, tag flipped
+  var_tag_exclusive_os_ss_pion_nozero_leaf_   = &CreateIntLeaf("obsTagExclOSSSPion_NoZero");  // see above, no zero tag but 1 for untagged
+  var_tag_os_comb_with_nnet_kaon_leaf_        = &CreateIntLeaf("obsTagOSwNNKaon");
+  var_tag_os_comb_with_nnet_kaon_babar_leaf_  = &CreateIntLeaf("obsTagOSwNNKaon_BaBar");  
+  // eta
+  var_tag_eta_os_ss_pion_leaf_                = &CreateDoubleLeaf("obsEtaOSSSPion");          //
+  var_tag_eta_os_exclusive_ss_pion_leaf_      = &CreateDoubleLeaf("obsEtaOSExclSSPion");      //  same as corresponding tag decision  
+  var_tag_eta_exclusive_os_ss_pion_leaf_      = &CreateDoubleLeaf("obsEtaExclOSSSPion");      //
+  var_tag_eta_os_comb_with_nnet_kaon_leaf_    = &CreateDoubleLeaf("obsEtaOSwNNKaon");
+  // cat tagged
+  cat_tagged_os_or_ss_pion_leaf_              = &CreateIntLeaf("catTaggedOSorSSPion");        // 0 for untagged, 1 for tagged
+  cat_tagged_os_xor_ss_pion_leaf_             = &CreateIntLeaf("catTaggedOSxorSSPion");       // 0 for untagged, 1 for OS tag, -1 for SSPion tag
+  cat_tagged_os_ss_pion_leaf_                 = &CreateIntLeaf("catTaggedOSSSPion");          // 0 for untagged, 1 for excl. OS tag, -1 for excl. SSPion tag, 10 for combination of OS and SSPion
+  cat_tagged_os_exclusive_ss_pion_leaf_       = &CreateIntLeaf("catTaggedOSExclSSPion");      // 0 for untagged, 1 for (OS&&SSPion)||OS tag, -1 for SSPion excl. 
+  cat_tagged_exclusive_os_ss_pion_leaf_       = &CreateIntLeaf("catTaggedExclOSSSPion");      // 0 for untagged, 1 for excl. OS tag, -1 for (OS&&SSPion)||SSPion tag
+  cat_tagged_os_comb_with_nnet_kaon_leaf_     = &CreateIntLeaf("catTaggedOSwNNKaon");
 
-  var_tag_os_muon_           = (Int_t*)GetInterimLeafByName("B0_OS_Muon_DEC").branch_address();     
-  var_tag_os_electron_       = (Int_t*)GetInterimLeafByName("B0_OS_Electron_DEC").branch_address();
-  if (LeafExists("B0_OS_nnetKaon_DEC")) var_tag_os_nnet_kaon_ = (Int_t*)GetInterimLeafByName("B0_OS_nnetKaon_DEC").branch_address();
-  var_tag_os_vtx_charge_     = (Int_t*)GetInterimLeafByName("B0_VtxCharge_DEC").branch_address();      
-  var_tag_eta_os_muon_       = (Double_t*)GetInterimLeafByName("B0_OS_Muon_PROB").branch_address();      
-  var_tag_eta_os_electron_   = (Double_t*)GetInterimLeafByName("B0_OS_Electron_PROB").branch_address();     
-  if (LeafExists("B0_OS_nnetKaon_DEC")) var_tag_eta_os_nnet_kaon_ = (Double_t*)GetInterimLeafByName("B0_OS_nnetKaon_PROB").branch_address();     
-  var_tag_eta_os_vtx_charge_ = (Double_t*)GetInterimLeafByName("B0_VtxCharge_PROB").branch_address();       
-
-  var_tag_os_comb_with_nnet_kaon_value_       = (Int_t*)var_tag_os_comb_with_nnet_kaon_leaf_->branch_address();
-  var_tag_os_comb_with_nnet_kaon_babar_value_ = (Int_t*)var_tag_os_comb_with_nnet_kaon_babar_leaf_->branch_address();
-  cat_tagged_os_comb_with_nnet_kaon_value_    = (Int_t*)cat_tagged_os_comb_with_nnet_kaon_leaf_->branch_address();
-  var_tag_eta_os_comb_with_nnet_kaon_value_   = (Double_t*)var_tag_eta_os_comb_with_nnet_kaon_leaf_->branch_address();
-
-  /////// sin2beta OS + SSPion combination (both OS combinations (with cut based and neural net kaon))
-  // create special combination leaves
-  var_tag_os_sspion_leaf_                 = &CreateIntLeaf("obsTagOSSSPion");             // OS if excl OS, SSPion if excl SSPion, OS+SSPion combination if both, 0 otherwise
-  var_tag_os_sspion_babar_leaf_           = &CreateIntLeaf("obsTagOSSSPion_BaBar");       // see above, tag flipped
-  var_tag_os_sspion_exclusive_leaf_       = &CreateIntLeaf("obsTagOSExclSSPion");         // OS if OS tag available, SSPion if excl SSPion, 0 otherwise
-  var_tag_os_sspion_exclusive_babar_leaf_ = &CreateIntLeaf("obsTagOSExclSSPion_BaBar");   // see above, tag flipped
-  var_tag_exclusive_os_sspion_leaf_       = &CreateIntLeaf("obsTagExclOSSSPion");         // OS if excl OS, OS+SSPion combination if SSPion tag available, 0 otherwise
-  var_tag_exclusive_os_sspion_babar_leaf_ = &CreateIntLeaf("obsTagExclOSSSPion_BaBar");   // see above, tag flipped
-  cat_tagged_os_or_ss_pion_leaf_          = &CreateIntLeaf("catTaggedOSorSSPion");        // 0 for untagged, 1 for tagged
-  cat_tagged_os_xor_ss_pion_leaf_         = &CreateIntLeaf("catTaggedOSxorSSPion");       // 0 for untagged, 1 for OS tag, -1 for SSPion tag
-  cat_tagged_os_ss_pion_leaf_             = &CreateIntLeaf("catTaggedOSSSPion");          // 0 for untagged, 1 for excl. OS tag, -1 for excl. SSPion tag, 10 for combination of OS and SSPion
-  cat_tagged_excl_os_ss_pion_leaf_        = &CreateIntLeaf("catTaggedExclOSSSPion");      // 0 for untagged, 1 for excl. OS tag, -1 for (OS&&SSPion)||SSPion
-  var_tag_eta_exclusive_os_ss_pion_leaf_  = &CreateDoubleLeaf("obsEtaExclOSSSPion");      //    
-  var_tag_eta_os_ss_pion_leaf_            = &CreateDoubleLeaf("obsEtaOSSSPion");          //  same as corresponding tag decision
-  var_tag_eta_os_ss_pion_exclusive_leaf_  = &CreateDoubleLeaf("obsEtaOSExclSSPion");      // 
-
+  // OS NNKaon
   if (LeafExists("B0_OS_nnetKaon_DEC")){
-    var_tag_os_with_nnet_kaon_sspion_leaf_         = &CreateIntLeaf("obsTagOSwNNKaonSSPion");
-    var_tag_os_with_nnet_kaon_sspion_babar_leaf_   = &CreateIntLeaf("obsTagOSwNNKaonSSPion_BaBar");
-    cat_tagged_os_with_nnet_kaon_or_ss_pion_leaf_  = &CreateIntLeaf("catTaggedOSwNNKaonorSSPion");     // 0 for untagged, 1 for tagged
-    cat_tagged_os_with_nnet_kaon_xor_ss_pion_leaf_ = &CreateIntLeaf("catTaggedOSwNNKaonxorSSPion");   // 0 for untagged, 1 for OS tag, -1 for SSPion tag
-    var_tag_eta_os_with_nnet_kaon_ss_pion_leaf_    = &CreateDoubleLeaf("obsEtaOSwNNKaonSSPion");
+    var_tag_os_with_nnet_kaon_sspion_leaf_          = &CreateIntLeaf("obsTagOSwNNKaonSSPion");
+    var_tag_os_with_nnet_kaon_sspion_babar_leaf_    = &CreateIntLeaf("obsTagOSwNNKaonSSPion_BaBar");
+    var_tag_eta_os_with_nnet_kaon_sspion_leaf_      = &CreateDoubleLeaf("obsEtaOSwNNKaonSSPion");
+    cat_tagged_os_with_nnet_kaon_or_sspion_leaf_    = &CreateIntLeaf("catTaggedOSwNNKaonorSSPion");     // 0 for untagged, 1 for tagged
+    cat_tagged_os_with_nnet_kaon_xor_ss_pion_leaf_  = &CreateIntLeaf("catTaggedOSwNNKaonxorSSPion");    // 0 for untagged, 1 for OS tag, -1 for SSPion tag
   }
 
-  // leaves to read
-  var_tag_os_          = (Int_t*)GetInterimLeafByName("B0_TAGDECISION_OS").branch_address();
-  var_tag_ss_pion_     = (Int_t*)GetInterimLeafByName("B0_SS_Pion_DEC").branch_address();
-  cat_tagged_os_       = (Int_t*)GetInterimLeafByName("B0_TAGDECISION_OS").branch_address();
-  cat_tagged_ss_pion_  = (Int_t*)GetInterimLeafByName("B0_SS_Pion_DEC").branch_address();
-  var_tag_eta_os_      = (Double_t*)GetInterimLeafByName("B0_TAGOMEGA_OS").branch_address();
-  var_tag_eta_ss_pion_ = (Double_t*)GetInterimLeafByName("B0_SS_Pion_PROB").branch_address();
+  // ______________________________________________________________________________________
+  // Link branch addresses
+  // tag
+  var_tag_os_                                 = (Int_t*)GetInterimLeafByName("B0_TAGDECISION_OS").branch_address();
+  var_tag_ss_pion_                            = (Short_t*)GetInterimLeafByName("B0_SS_Pion_DEC").branch_address();
+  var_tag_os_muon_                            = (Short_t*)GetInterimLeafByName("B0_OS_Muon_DEC").branch_address();     
+  var_tag_os_electron_                        = (Short_t*)GetInterimLeafByName("B0_OS_Electron_DEC").branch_address();
+  var_tag_os_vtx_charge_                      = (Short_t*)GetInterimLeafByName("B0_VtxCharge_DEC").branch_address(); 
+  var_tag_os_nozero_value_                    = (Int_t*)var_tag_os_nozero_leaf_->branch_address();
+  var_tag_ss_pion_nozero_value_               = (Int_t*)var_tag_ss_pion_nozero_leaf_->branch_address();
+  var_tag_os_ss_pion_value_                   = (Int_t*)var_tag_os_ss_pion_leaf_->branch_address();
+  var_tag_os_ss_pion_value_                   = (Int_t*)var_tag_os_ss_pion_leaf_->branch_address();  
+  var_tag_os_ss_pion_babar_value_             = (Int_t*)var_tag_os_ss_pion_babar_leaf_->branch_address();
+  var_tag_os_ss_pion_nozero_value_            = (Int_t*)var_tag_os_ss_pion_nozero_leaf_->branch_address();
+  var_tag_os_exclusive_ss_pion_value_         = (Int_t*)var_tag_os_exclusive_ss_pion_leaf_->branch_address();  
+  var_tag_os_exclusive_ss_pion_babar_value_   = (Int_t*)var_tag_os_exclusive_ss_pion_babar_leaf_->branch_address();
+  var_tag_os_exclusive_ss_pion_nozero_value_  = (Int_t*)var_tag_os_exclusive_ss_pion_nozero_leaf_->branch_address();
+  var_tag_exclusive_os_ss_pion_value_         = (Int_t*)var_tag_exclusive_os_ss_pion_leaf_->branch_address();  
+  var_tag_exclusive_os_ss_pion_babar_value_   = (Int_t*)var_tag_exclusive_os_ss_pion_babar_leaf_->branch_address();
+  var_tag_exclusive_os_ss_pion_nozero_value_  = (Int_t*)var_tag_exclusive_os_ss_pion_nozero_leaf_->branch_address();
+  // eta
+  var_tag_eta_os_                             = (Double_t*)GetInterimLeafByName("B0_TAGOMEGA_OS").branch_address();
+  var_tag_eta_ss_pion_                        = (Float_t*)GetInterimLeafByName("B0_SS_Pion_PROB").branch_address();
+  var_tag_eta_os_muon_                        = (Float_t*)GetInterimLeafByName("B0_OS_Muon_PROB").branch_address();      
+  var_tag_eta_os_electron_                    = (Float_t*)GetInterimLeafByName("B0_OS_Electron_PROB").branch_address();     
+  var_tag_eta_os_vtx_charge_                  = (Float_t*)GetInterimLeafByName("B0_VtxCharge_PROB").branch_address();
+  var_tag_eta_os_ss_pion_value_               = (Double_t*)var_tag_eta_os_ss_pion_leaf_->branch_address();
+  var_tag_eta_os_exclusive_ss_pion_value_     = (Double_t*)var_tag_eta_os_exclusive_ss_pion_leaf_->branch_address();
+  var_tag_eta_exclusive_os_ss_pion_value_     = (Double_t*)var_tag_eta_exclusive_os_ss_pion_leaf_->branch_address();
+  // cat tagged
+  cat_tagged_os_                              = (Int_t*)GetInterimLeafByName("B0_TAGDECISION_OS").branch_address();
+  cat_tagged_ss_pion_                         = (Int_t*)GetInterimLeafByName("B0_SS_Pion_DEC").branch_address();
+  cat_tagged_os_or_ss_pion_value_             = (Int_t*)cat_tagged_os_or_ss_pion_leaf_->branch_address();
+  cat_tagged_os_xor_ss_pion_value_            = (Int_t*)cat_tagged_os_xor_ss_pion_leaf_->branch_address();
+  cat_tagged_os_ss_pion_value_                = (Int_t*)cat_tagged_os_ss_pion_leaf_->branch_address();
+  cat_tagged_os_exclusive_ss_pion_value_      = (Int_t*)cat_tagged_os_exclusive_ss_pion_leaf_->branch_address();
+  cat_tagged_exclusive_os_ss_pion_value_      = (Int_t*)cat_tagged_exclusive_os_ss_pion_leaf_->branch_address();
+  cat_tagged_os_comb_with_nnet_kaon_value_    = (Int_t*)cat_tagged_os_comb_with_nnet_kaon_leaf_->branch_address();
 
-  // leaves to write
-  var_tag_os_sspion_value_         = (Int_t*)var_tag_os_sspion_leaf_->branch_address();  
-  var_tag_os_sspion_babar_value_   = (Int_t*)var_tag_os_sspion_babar_leaf_->branch_address();
-  var_tag_os_sspion_exclusive_value_         = (Int_t*)var_tag_os_sspion_exclusive_leaf_->branch_address();  
-  var_tag_os_sspion_exclusive_babar_value_   = (Int_t*)var_tag_os_sspion_exclusive_babar_leaf_->branch_address();
-  var_tag_exclusive_os_sspion_value_         = (Int_t*)var_tag_exclusive_os_sspion_leaf_->branch_address();  
-  var_tag_exclusive_os_sspion_babar_value_   = (Int_t*)var_tag_exclusive_os_sspion_babar_leaf_->branch_address();
-  cat_tagged_os_or_ss_pion_value_  = (Int_t*)cat_tagged_os_or_ss_pion_leaf_->branch_address();
-  cat_tagged_os_xor_ss_pion_value_ = (Int_t*)cat_tagged_os_xor_ss_pion_leaf_->branch_address();
-  cat_tagged_os_ss_pion_value_ = (Int_t*)cat_tagged_os_ss_pion_leaf_->branch_address();
-  cat_tagged_excl_os_ss_pion_value_ = (Int_t*)cat_tagged_excl_os_ss_pion_leaf_->branch_address();
-  var_tag_eta_os_ss_pion_value_    = (Double_t*)var_tag_eta_os_ss_pion_leaf_->branch_address();
-  var_tag_eta_os_ss_pion_exclusive_value_    = (Double_t*)var_tag_eta_os_ss_pion_exclusive_leaf_->branch_address();
-  var_tag_eta_exclusive_os_ss_pion_value_    = (Double_t*)var_tag_eta_exclusive_os_ss_pion_leaf_->branch_address();
-
+  // OS NNKaon
   if (LeafExists("B0_OS_nnetKaon_DEC")){
+    // tag
+    var_tag_os_nnet_kaon_                           = (Short_t*)GetInterimLeafByName("B0_OS_nnetKaon_DEC").branch_address();
     var_tag_os_with_nnet_kaon_sspion_value_         = (Int_t*)var_tag_os_with_nnet_kaon_sspion_leaf_->branch_address();  
     var_tag_os_with_nnet_kaon_sspion_babar_value_   = (Int_t*)var_tag_os_with_nnet_kaon_sspion_babar_leaf_->branch_address();
-    cat_tagged_os_with_nnet_kaon_or_ss_pion_value_  = (Int_t*)cat_tagged_os_with_nnet_kaon_or_ss_pion_leaf_->branch_address();
-    cat_tagged_os_with_nnet_kaon_xor_ss_pion_value_ = (Int_t*)cat_tagged_os_with_nnet_kaon_xor_ss_pion_leaf_->branch_address();  
-    var_tag_eta_os_with_nnet_kaon_ss_pion_value_    = (Double_t*)var_tag_eta_os_with_nnet_kaon_ss_pion_leaf_->branch_address(); 
-  } 
+    var_tag_os_comb_with_nnet_kaon_value_           = (Int_t*)var_tag_os_comb_with_nnet_kaon_leaf_->branch_address();
+    var_tag_os_comb_with_nnet_kaon_babar_value_     = (Int_t*)var_tag_os_comb_with_nnet_kaon_babar_leaf_->branch_address();
+    // eta
+    var_tag_eta_os_nnet_kaon_                       = (Float_t*)GetInterimLeafByName("B0_OS_nnetKaon_PROB").branch_address();
+    var_tag_eta_os_with_nnet_kaon_sspion_value_     = (Double_t*)var_tag_eta_os_with_nnet_kaon_sspion_leaf_->branch_address();
+    var_tag_eta_os_comb_with_nnet_kaon_value_       = (Double_t*)var_tag_eta_os_comb_with_nnet_kaon_leaf_->branch_address();
+    // cat tagged
+    cat_tagged_os_with_nnet_kaon_or_sspion_value_   = (Int_t*)cat_tagged_os_with_nnet_kaon_or_sspion_leaf_->branch_address();
+    cat_tagged_os_with_nnet_kaon_xor_ss_pion_value_ = (Int_t*)cat_tagged_os_with_nnet_kaon_xor_ss_pion_leaf_->branch_address();
+  }
 }
 
 bool TaggingRdcr::EntryPassesSpecialCuts(){return true;}
 
 void TaggingRdcr::UpdateSpecialLeaves(){
+  // Always using the FT standard combination
+  // see page 106 of: https://cds.cern.ch/record/1456804/files/CERN-THESIS-2012-075.pdf
+  // as a reference.
+  bool debug = false;
+
+  // ______________________________________________________________________________________
+  // Create new OS and SSPion tag observables that not contain zero tags
+  // ______________________________________________________________________________________
+  *var_tag_os_nozero_value_ = *var_tag_os_;
+  *var_tag_ss_pion_nozero_value_ = *var_tag_ss_pion_;
+  if ((*var_tag_os_==0)) *var_tag_os_nozero_value_ = 1;
+  if ((*var_tag_ss_pion_==0)) *var_tag_ss_pion_nozero_value_ = 1;
+
+  // ______________________________________________________________________________________
+  // OS+SS COMBINATION ({obsTag,obsEta,catTagged}OSSSPion)
+  // OS (excl) + SSPion (excl) + standard combination
+  // Categories:
+  //   0: untagged
+  //  +1: OS excl tagged
+  //  -1: SSPion excl tagged
+  //  10: OS+SSPion combination
+  // ______________________________________________________________________________________
+
+  if ((*var_tag_os_==0) && (*var_tag_ss_pion_==0)){           // if OS and SSPion tags are 0, set everything to untagged
+    *var_tag_os_ss_pion_value_        = 0;
+    *var_tag_os_ss_pion_babar_value_  = 0;
+    *var_tag_os_ss_pion_nozero_value_ = 1;
+    *var_tag_eta_os_ss_pion_value_    = 0.5;
+    *cat_tagged_os_ss_pion_value_     = 0;
+  }
+  else if ((*var_tag_os_!=0) && (*var_tag_ss_pion_==0)){      // if OS tagger exclusively has tag, write OS tag to combination
+    *var_tag_os_ss_pion_value_        = *var_tag_os_;
+    *var_tag_os_ss_pion_babar_value_  = -(*var_tag_os_);
+    *var_tag_os_ss_pion_nozero_value_ = *var_tag_os_;
+    *var_tag_eta_os_ss_pion_value_    = *var_tag_eta_os_;
+    *cat_tagged_os_ss_pion_value_     = 1;
+  }
+  else if ((*var_tag_os_==0) && (*var_tag_ss_pion_!=0)){      // if SSPion tagger exclusively has tag, write SSPion tag to combination
+    *var_tag_os_ss_pion_value_        = *var_tag_ss_pion_;
+    *var_tag_os_ss_pion_babar_value_  = -(*var_tag_ss_pion_);
+    *var_tag_os_ss_pion_nozero_value_ = *var_tag_ss_pion_;
+    *var_tag_eta_os_ss_pion_value_    = *var_tag_eta_ss_pion_;
+    *cat_tagged_os_ss_pion_value_     = -1;
+  }
+  else{                                                       // else, combine OS and SSPion tag decision and eta
+    int os_dec = *var_tag_os_;
+    int ss_dec = *var_tag_ss_pion_;
+    double os_mistag = *var_tag_eta_os_;
+    double ss_mistag = *var_tag_eta_ss_pion_;
+
+    double os_prob_b = (1.+os_dec)/2. - os_dec * (1.-os_mistag);
+    double os_prob_bbar = (1.-os_dec)/2. + os_dec * (1.-os_mistag);
+    double ss_prob_b = (1.+ss_dec)/2. - ss_dec * (1.-ss_mistag);
+    double ss_prob_bbar = (1.-ss_dec)/2. + ss_dec * (1.-ss_mistag);
+
+    double prob_b = os_prob_b * ss_prob_b;
+    double prob_bbar = os_prob_bbar * ss_prob_bbar;
+
+    double comb_prob_b = prob_b / (prob_b + prob_bbar);
+    double comb_prob_bbar = 1 - comb_prob_b;
+
+    // tag decision
+    if (comb_prob_b > comb_prob_bbar) *var_tag_os_ss_pion_value_        = -1;   // probability for b quark content is larger than for bbar quark
+    if (comb_prob_b < comb_prob_bbar) *var_tag_os_ss_pion_value_        = +1;   // probability for b quark content is smaller than for bbar quark
+    if (comb_prob_b > comb_prob_bbar) *var_tag_os_ss_pion_babar_value_  = +1;   // vice versa for babar notation
+    if (comb_prob_b < comb_prob_bbar) *var_tag_os_ss_pion_babar_value_  = -1;   //
+    if (comb_prob_b > comb_prob_bbar) *var_tag_os_ss_pion_nozero_value_ = -1;   // the same, just for the variable containing no zero entries
+    if (comb_prob_b < comb_prob_bbar) *var_tag_os_ss_pion_nozero_value_ = +1;   //
+
+    // mistag
+    double comb_prob = std::max(comb_prob_b,comb_prob_bbar) /(comb_prob_b + comb_prob_bbar);
+    *var_tag_eta_os_ss_pion_value_ = 1. - comb_prob;
+
+    // tag category
+    *cat_tagged_os_ss_pion_value_ = 10;
+
+    if (debug){
+      std::cout << "" << std::endl;
+      std::cout << "OSSSPion combination" << std::endl;
+      std::cout << "OS / SS tag address " << var_tag_os_ << " / " << var_tag_ss_pion_ << std::endl;
+      std::cout << "OS / SS mistag address " << var_tag_eta_os_ << " / " << var_tag_eta_ss_pion_ << std::endl;
+      std::cout << "OS tag / mistag " << os_dec << " / " << os_mistag << std::endl;
+      std::cout << "SS tag / mistag " << ss_dec << " / " << ss_mistag << std::endl;
+      std::cout << "Comb tag / mistag " << *var_tag_os_ss_pion_value_ << " / " << *var_tag_eta_os_ss_pion_value_ << std::endl;
+    }
+  }
+
+  // ______________________________________________________________________________________
+  // OS+SS COMBINATION ({obsTag,obsEta,catTagged}OSExclSSPion)
+  // OS + SSPion (excl)
+  // Categories:
+  //   0: untagged
+  //  +1: OS tagged
+  //  -1: SSPion excl tagged
+  // ______________________________________________________________________________________
+
+  if ((*var_tag_os_==0) && (*var_tag_ss_pion_==0)){           // if OS and SSPion tags are 0, set everything to untagged
+    *var_tag_os_exclusive_ss_pion_value_        = 0;
+    *var_tag_os_exclusive_ss_pion_babar_value_  = 0;
+    *var_tag_os_exclusive_ss_pion_nozero_value_ = 1;
+    *var_tag_eta_os_exclusive_ss_pion_value_    = 0.5;
+    *cat_tagged_os_exclusive_ss_pion_value_     = 0;
+  }
+  else if ((*var_tag_os_==0) && (*var_tag_ss_pion_!=0)){      // if SSPion tagger exclusively has tag, write SSPion tag to combination
+    *var_tag_os_exclusive_ss_pion_value_        = *var_tag_ss_pion_;
+    *var_tag_os_exclusive_ss_pion_babar_value_  = -(*var_tag_ss_pion_);
+    *var_tag_os_exclusive_ss_pion_nozero_value_ = *var_tag_ss_pion_;
+    *var_tag_eta_os_exclusive_ss_pion_value_    = *var_tag_eta_ss_pion_;
+    *cat_tagged_os_exclusive_ss_pion_value_     = -1;
+  }
+  else{                                                       // else, combine OS and SSPion tag decision and eta
+    int os_dec = *var_tag_os_;
+    int ss_dec = *var_tag_ss_pion_;
+    double os_mistag = *var_tag_eta_os_;
+    double ss_mistag = *var_tag_eta_ss_pion_;
+
+    double os_prob_b = (1.+os_dec)/2. - os_dec * (1.-os_mistag);
+    double os_prob_bbar = (1.-os_dec)/2. + os_dec * (1.-os_mistag);
+    double ss_prob_b = (1.+ss_dec)/2. - ss_dec * (1.-ss_mistag);
+    double ss_prob_bbar = (1.-ss_dec)/2. + ss_dec * (1.-ss_mistag);
+
+    double prob_b = os_prob_b * ss_prob_b;
+    double prob_bbar = os_prob_bbar * ss_prob_bbar;
+
+    double comb_prob_b = prob_b / (prob_b + prob_bbar);
+    double comb_prob_bbar = 1 - comb_prob_b;
+
+    // tag decision
+    if (comb_prob_b > comb_prob_bbar) *var_tag_os_exclusive_ss_pion_value_        = -1;   // probability for b quark content is larger than for bbar quark
+    if (comb_prob_b < comb_prob_bbar) *var_tag_os_exclusive_ss_pion_value_        = +1;   // probability for b quark content is smaller than for bbar quark
+    if (comb_prob_b > comb_prob_bbar) *var_tag_os_exclusive_ss_pion_babar_value_  = +1;   // vice versa for babar notation
+    if (comb_prob_b < comb_prob_bbar) *var_tag_os_exclusive_ss_pion_babar_value_  = -1;   // 
+    if (comb_prob_b > comb_prob_bbar) *var_tag_os_exclusive_ss_pion_nozero_value_ = -1;   // the same, just for the variable containing no zero entries
+    if (comb_prob_b < comb_prob_bbar) *var_tag_os_exclusive_ss_pion_nozero_value_ = +1;   //
+
+    // mistag
+    double comb_prob = std::max(comb_prob_b,comb_prob_bbar) /(comb_prob_b + comb_prob_bbar);
+    *var_tag_eta_os_exclusive_ss_pion_value_ = 1. - comb_prob;
+
+    // tag category
+    *cat_tagged_os_exclusive_ss_pion_value_ = 1;
+
+    if (debug){
+      std::cout << "" << std::endl;
+      std::cout << "OSExclSSPion combination" << std::endl;
+      std::cout << "OS / SS tag address " << var_tag_os_ << " / " << var_tag_ss_pion_ << std::endl;
+      std::cout << "OS / SS mistag address " << var_tag_eta_os_ << " / " << var_tag_eta_ss_pion_ << std::endl;
+      std::cout << "OS tag / mistag " << os_dec << " / " << os_mistag << std::endl;
+      std::cout << "SS tag / mistag " << ss_dec << " / " << ss_mistag << std::endl;
+      std::cout << "Comb tag / mistag " << *var_tag_os_exclusive_ss_pion_value_ << " / " << *var_tag_eta_os_exclusive_ss_pion_value_ << std::endl;
+    }
+  }
+
+  // ______________________________________________________________________________________
+  // OS+SS COMBINATION ({obsTag,obsEta,catTagged}ExclOSSSPion)
+  // OS (excl) + SSPion
+  // Categories:
+  //   0: untagged
+  //  +1: OS excl tagged
+  //  -1: SSPion tagged
+  // ______________________________________________________________________________________
+
+  if ((*var_tag_os_==0) && (*var_tag_ss_pion_==0)){           // if OS and SSPion tags are 0, set everything to untagged
+    *var_tag_exclusive_os_ss_pion_value_        = 0;
+    *var_tag_exclusive_os_ss_pion_babar_value_  = 0;
+    *var_tag_exclusive_os_ss_pion_nozero_value_ = 1;
+    *var_tag_eta_exclusive_os_ss_pion_value_    = 0.5;
+    *cat_tagged_exclusive_os_ss_pion_value_     = 0;
+  }
+  else if ((*var_tag_os_!=0) && (*var_tag_ss_pion_==0)){      // if OS tagger exclusively has tag, write OS tag to combination
+    *var_tag_exclusive_os_ss_pion_value_        = *var_tag_os_;
+    *var_tag_exclusive_os_ss_pion_babar_value_  = -(*var_tag_os_);
+    *var_tag_exclusive_os_ss_pion_nozero_value_ = *var_tag_os_;
+    *var_tag_eta_exclusive_os_ss_pion_value_    = *var_tag_eta_os_;
+    *cat_tagged_exclusive_os_ss_pion_value_     = 1;
+  }
+  else{                                                       // else, combine OS and SSPion tag decision and eta
+    int os_dec = *var_tag_os_;
+    int ss_dec = *var_tag_ss_pion_;
+    double os_mistag = *var_tag_eta_os_;
+    double ss_mistag = *var_tag_eta_ss_pion_;
+
+    double os_prob_b = (1.+os_dec)/2. - os_dec * (1.-os_mistag);
+    double os_prob_bbar = (1.-os_dec)/2. + os_dec * (1.-os_mistag);
+    double ss_prob_b = (1.+ss_dec)/2. - ss_dec * (1.-ss_mistag);
+    double ss_prob_bbar = (1.-ss_dec)/2. + ss_dec * (1.-ss_mistag);
+
+    double prob_b = os_prob_b * ss_prob_b;
+    double prob_bbar = os_prob_bbar * ss_prob_bbar;
+
+    double comb_prob_b = prob_b / (prob_b + prob_bbar);
+    double comb_prob_bbar = 1 - comb_prob_b;
+
+    // tag decision
+    if (comb_prob_b > comb_prob_bbar) *var_tag_exclusive_os_ss_pion_value_        = -1;   // probability for b quark content is larger than for bbar quark
+    if (comb_prob_b < comb_prob_bbar) *var_tag_exclusive_os_ss_pion_value_        = +1;   // probability for b quark content is smaller than for bbar quark
+    if (comb_prob_b > comb_prob_bbar) *var_tag_exclusive_os_ss_pion_babar_value_  = +1;   // vice versa for babar notation
+    if (comb_prob_b < comb_prob_bbar) *var_tag_exclusive_os_ss_pion_babar_value_  = -1;   // 
+    if (comb_prob_b > comb_prob_bbar) *var_tag_exclusive_os_ss_pion_nozero_value_ = -1;   // the same, just for the variable containing no zero entries
+    if (comb_prob_b < comb_prob_bbar) *var_tag_exclusive_os_ss_pion_nozero_value_ = +1;   //
+
+    // mistag
+    double comb_prob = std::max(comb_prob_b,comb_prob_bbar) /(comb_prob_b + comb_prob_bbar);
+    *var_tag_eta_exclusive_os_ss_pion_value_ = 1. - comb_prob;
+
+    // tag category
+    *cat_tagged_exclusive_os_ss_pion_value_ = -1;
+
+    if (debug){
+      std::cout << "" << std::endl;
+      std::cout << "ExclOSSSPion combination" << std::endl;
+      std::cout << "OS / SS tag address " << var_tag_os_ << " / " << var_tag_ss_pion_ << std::endl;
+      std::cout << "OS / SS mistag address " << var_tag_eta_os_ << " / " << var_tag_eta_ss_pion_ << std::endl;
+      std::cout << "OS tag / mistag " << os_dec << " / " << os_mistag << std::endl;
+      std::cout << "SS tag / mistag " << ss_dec << " / " << ss_mistag << std::endl;
+      std::cout << "Comb tag / mistag " << *var_tag_exclusive_os_ss_pion_value_ << " / " << *var_tag_eta_exclusive_os_ss_pion_value_ << std::endl;
+    }
+  }
+
+  // ______________________________________________________________________________________
+  // OS with neural net kaon
+  // ______________________________________________________________________________________
+
   double tagdecision=0; 
   double pnsum_a= 0.50; //hypothesis of truetag=+1 
   double pnsum_b= 0.50; //hypothesis of truetag=-1 
   double pnsum= 0.; 
 
-  // OS with neural net kaon combination
   if (LeafExists("B0_OS_nnetKaon_DEC")){
+    // ______________________________________________________________________________________
+    // OS with neural net kaon combination ({obsTag,obsEta,catTagged}OSwNNKaon)
+    // Categories:
+    //   0: untagged
+    //  +1: tagged
+    // ______________________________________________________________________________________
+
     // Get original tagging decision and mistag from the DTT 
     // in order to recompute OS and total decision and mistag, with nnetKaon (OS and SS) instead of classic ones 
     Double_t osw[4]; 
@@ -301,160 +615,36 @@ void TaggingRdcr::UpdateSpecialLeaves(){
     else{
       *cat_tagged_os_comb_with_nnet_kaon_value_ = 1;
     }
-  }
 
-  // sin2beta OS (with cut based OS kaon) + SSPion combinations
-  if ((*var_tag_os_==0) && (*var_tag_ss_pion_==0)){           // if OS and SSPion tags are 0, set everything to untagged
-    *var_tag_os_sspion_value_ = 0;
-    *var_tag_os_sspion_babar_value_ = 0;
-    *cat_tagged_os_ss_pion_value_ = 0;
-    *var_tag_eta_os_ss_pion_value_ = 0.5;
-  }
-  else if ((*var_tag_os_!=0) && (*var_tag_ss_pion_==0)){      // if OS tagger exclusively has tag, write OS tag to combination
-    *var_tag_os_sspion_value_ = *var_tag_os_;
-    *var_tag_os_sspion_babar_value_ = -(*var_tag_os_);
-    *cat_tagged_os_ss_pion_value_ = 1;
-    *var_tag_eta_os_ss_pion_value_ = *var_tag_eta_os_;
-  }
-  else if ((*var_tag_os_==0) && (*var_tag_ss_pion_!=0)){      // if SSPion tagger exclusively has tag, write OS tag to combination
-    *var_tag_os_sspion_value_ = *var_tag_ss_pion_;
-    *var_tag_os_sspion_babar_value_ = -(*var_tag_ss_pion_);
-    *cat_tagged_os_ss_pion_value_ = -1;
-    *var_tag_eta_os_ss_pion_value_ = *var_tag_eta_ss_pion_;
-  }
-  else{                                                       // else, combine OS and SSPion tag decision and eta
-    // this is the FT standard combination
-    // see page 106 of: https://cds.cern.ch/record/1456804/files/CERN-THESIS-2012-075.pdf
-    // as a reference.
-    int os_dec = *var_tag_os_;
-    int ss_dec = *var_tag_ss_pion_;
-    double os_mistag = *var_tag_eta_os_;
-    double ss_mistag = *var_tag_eta_ss_pion_;
+  // ______________________________________________________________________________________
+  // OS with neural net kaon + SS COMBINATION ({obsTag,obsEta,catTagged}OSwNNKaonSSPion)
+  // OS (excl) + SSPion
+  // Categories:
+  //   0: untagged
+  //  +1: OS excl tagged
+  //  -1: SSPion tagged
+  // ______________________________________________________________________________________
 
-    double os_prob_b = (1.+os_dec)/2. - os_dec * (1.-os_mistag);
-    double os_prob_bbar = (1.-os_dec)/2. + os_dec * (1.-os_mistag);
-    double ss_prob_b = (1.+ss_dec)/2. - ss_dec * (1.-ss_mistag);
-    double ss_prob_bbar = (1.-ss_dec)/2. + ss_dec * (1.-ss_mistag);
-
-    double prob_b = os_prob_b * ss_prob_b;
-    double prob_bbar = os_prob_bbar * ss_prob_bbar;
-
-    double comb_prob_b = prob_b / (prob_b + prob_bbar);
-    double comb_prob_bbar = 1 - comb_prob_b;
-
-    // tag decision
-    if (comb_prob_b > comb_prob_bbar) *var_tag_os_sspion_value_ = -1;   // probability for b quark content is larger than for bbar quark
-    if (comb_prob_b < comb_prob_bbar) *var_tag_os_sspion_value_ = +1;   // probability for b quark content is smaller than for bbar quark
-    if (comb_prob_b > comb_prob_bbar) *var_tag_os_sspion_babar_value_ = +1;   // vice versa for babar notation
-    if (comb_prob_b < comb_prob_bbar) *var_tag_os_sspion_babar_value_ = -1;   // 
-
-    // mistag
-    double comb_prob = std::max(comb_prob_b,comb_prob_bbar) /(comb_prob_b + comb_prob_bbar);
-    *var_tag_eta_os_ss_pion_value_ = 1. - comb_prob;
-
-    // tag category
-    *cat_tagged_os_ss_pion_value_ = 10;
-
-    // debug output
-    // std::cout << "" << std::endl;
-    // std::cout << "using oss ss pion combintation" << std::endl;
-    // std::cout << "OS tag / mistag " << os_dec << " / " << os_mistag << std::endl;
-    // std::cout << "SS tag / mistag " << ss_dec << " / " << ss_mistag << std::endl;
-    // std::cout << "Comb tag / mistag " << *var_tag_os_sspion_value_ << " / " << *var_tag_eta_os_ss_pion_value_ << std::endl;
-  }
-
-  // sin2beta OS (with cut based OS kaon) + SSPion combinations if SSPion tag is available
-  if ((*var_tag_os_==0) && (*var_tag_ss_pion_==0)){           // if OS and SSPion tags are 0, set everything to untagged
-    *var_tag_exclusive_os_sspion_value_ = 0;
-    *var_tag_exclusive_os_sspion_babar_value_ = 0;
-    *var_tag_eta_exclusive_os_ss_pion_value_ = 0.5;
-    *cat_tagged_excl_os_ss_pion_value_ = 0;
-  }
-  else if ((*var_tag_os_!=0) && (*var_tag_ss_pion_==0)){      // if OS tagger exclusively has tag, write OS tag to combination
-    *var_tag_exclusive_os_sspion_value_ = *var_tag_os_;
-    *var_tag_exclusive_os_sspion_babar_value_ = -(*var_tag_os_);
-    *var_tag_eta_exclusive_os_ss_pion_value_ = *var_tag_eta_os_;
-    *cat_tagged_excl_os_ss_pion_value_ = 1;
-  }
-  else{                                                       // else, combine OS and SSPion tag decision and eta
-    // this is the FT standard combination
-    // see page 106 of: https://cds.cern.ch/record/1456804/files/CERN-THESIS-2012-075.pdf
-    // as a reference.
-    int os_dec = *var_tag_os_;
-    int ss_dec = *var_tag_ss_pion_;
-    double os_mistag = *var_tag_eta_os_;
-    double ss_mistag = *var_tag_eta_ss_pion_;
-
-    double os_prob_b = (1.+os_dec)/2. - os_dec * (1.-os_mistag);
-    double os_prob_bbar = (1.-os_dec)/2. + os_dec * (1.-os_mistag);
-    double ss_prob_b = (1.+ss_dec)/2. - ss_dec * (1.-ss_mistag);
-    double ss_prob_bbar = (1.-ss_dec)/2. + ss_dec * (1.-ss_mistag);
-
-    double prob_b = os_prob_b * ss_prob_b;
-    double prob_bbar = os_prob_bbar * ss_prob_bbar;
-
-    double comb_prob_b = prob_b / (prob_b + prob_bbar);
-    double comb_prob_bbar = 1 - comb_prob_b;
-
-    // tag decision
-    if (comb_prob_b > comb_prob_bbar) *var_tag_exclusive_os_sspion_value_ = -1;   // probability for b quark content is larger than for bbar quark
-    if (comb_prob_b < comb_prob_bbar) *var_tag_exclusive_os_sspion_value_ = +1;   // probability for b quark content is smaller than for bbar quark
-    if (comb_prob_b > comb_prob_bbar) *var_tag_exclusive_os_sspion_babar_value_ = +1;   // vice versa for babar notation
-    if (comb_prob_b < comb_prob_bbar) *var_tag_exclusive_os_sspion_babar_value_ = -1;   // 
-
-    // mistag
-    double comb_prob = std::max(comb_prob_b,comb_prob_bbar) /(comb_prob_b + comb_prob_bbar);
-    *var_tag_eta_exclusive_os_ss_pion_value_ = 1. - comb_prob;
-
-    // tag category
-    *cat_tagged_excl_os_ss_pion_value_ = -1;
-  }
-
-  // sin2beta OS (with cut based OS kaon) + exclusive SSPion combination
-  if (*var_tag_os_!=0){ // if OS tagger has tag, write OS tag to combination and 
-    *var_tag_os_sspion_exclusive_value_ = *var_tag_os_;
-    *var_tag_os_sspion_exclusive_babar_value_ = -(*var_tag_os_);
-    *cat_tagged_os_or_ss_pion_value_ = 1;
-    *cat_tagged_os_xor_ss_pion_value_ = 1;
-    *var_tag_eta_os_ss_pion_exclusive_value_ = *var_tag_eta_os_;
-  }
-  else if ((*var_tag_os_==0) && (*var_tag_ss_pion_!=0)){
-    *var_tag_os_sspion_exclusive_value_ = *var_tag_ss_pion_;
-    *var_tag_os_sspion_exclusive_babar_value_ = -(*var_tag_ss_pion_);
-    *cat_tagged_os_or_ss_pion_value_ = 1;
-    *cat_tagged_os_xor_ss_pion_value_ = -1;
-    *var_tag_eta_os_ss_pion_exclusive_value_ = *var_tag_eta_ss_pion_;
-  }
-  else{
-    *var_tag_os_sspion_exclusive_value_ = 0;
-    *var_tag_os_sspion_exclusive_babar_value_ = 0;
-    *cat_tagged_os_or_ss_pion_value_ = 0;
-    *cat_tagged_os_xor_ss_pion_value_ = 0;
-    *var_tag_eta_os_ss_pion_exclusive_value_ = 0.5;
-  }
-
-  // sin2beta OS (with neural net kaon) + SSPion combination
-  if (LeafExists("B0_OS_nnetKaon_DEC")){
     if (tagdecision!=0){ // if OS tagger has tag, write OS tag to combination and 
       *var_tag_os_with_nnet_kaon_sspion_value_ = tagdecision;
       *var_tag_os_with_nnet_kaon_sspion_babar_value_ = -1.*tagdecision;
-      *cat_tagged_os_with_nnet_kaon_or_ss_pion_value_ = 1;
+      *cat_tagged_os_with_nnet_kaon_or_sspion_value_ = 1;
       *cat_tagged_os_with_nnet_kaon_xor_ss_pion_value_ = 1;
-      *var_tag_eta_os_with_nnet_kaon_ss_pion_value_ = 1-pnsum;
+      *var_tag_eta_os_with_nnet_kaon_sspion_value_ = 1-pnsum;
     }
     else if ((tagdecision==0) && (*var_tag_ss_pion_!=0)){
       *var_tag_os_with_nnet_kaon_sspion_value_ = *var_tag_ss_pion_;
       *var_tag_os_with_nnet_kaon_sspion_babar_value_ = -(*var_tag_ss_pion_);
-      *cat_tagged_os_with_nnet_kaon_or_ss_pion_value_ = 1;
+      *cat_tagged_os_with_nnet_kaon_or_sspion_value_ = 1;
       *cat_tagged_os_with_nnet_kaon_xor_ss_pion_value_ = -1;
-      *var_tag_eta_os_with_nnet_kaon_ss_pion_value_ = *var_tag_eta_ss_pion_;
+      *var_tag_eta_os_with_nnet_kaon_sspion_value_ = *var_tag_eta_ss_pion_;
     }
     else{
       *var_tag_os_with_nnet_kaon_sspion_value_ = 0;
       *var_tag_os_with_nnet_kaon_sspion_babar_value_ = 0;
-      *cat_tagged_os_with_nnet_kaon_or_ss_pion_value_ = 0;
+      *cat_tagged_os_with_nnet_kaon_or_sspion_value_ = 0;
       *cat_tagged_os_with_nnet_kaon_xor_ss_pion_value_ = 0;
-      *var_tag_eta_os_with_nnet_kaon_ss_pion_value_ = 0.5;
+      *var_tag_eta_os_with_nnet_kaon_sspion_value_ = 0.5;
     }
   }
 }
