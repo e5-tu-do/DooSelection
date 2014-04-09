@@ -77,7 +77,7 @@ void ShufflerReducer::SetShuffleLeaves(std::size_t shuffler_idx, ReducerLeaf<Flo
 }
 
 void ShufflerReducer::UpdateSpecialLeaves() {
-  int i = 0;
+//  int i = 0;
   
   for (std::vector<std::pair<int, ShuffleLeafVec> >::iterator it_shuffler = shufflers_.begin();
        it_shuffler != shufflers_.end(); ++it_shuffler) {

@@ -140,7 +140,6 @@ class Reducer {
  /** \publicsection */
  public:
   Reducer();
-  Reducer( std::string const& );
   virtual ~Reducer();
 
   /** @name Main running functions for Reducer
@@ -969,7 +968,7 @@ class Reducer {
   static bool abort_loop_;
   
   ///< SIGINT handler (i.e. CTRL-C)
-  static void HandleSigInt(int param);
+  static void HandleSigInt(int);
   
   /**
    *  @brief maximum number of events to process
