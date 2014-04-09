@@ -412,13 +412,14 @@ random_generator_(NULL)
 
 template <class T>
 ReducerLeaf<T>::ReducerLeaf(TLeaf * leaf)
-: leaf_(leaf), 
+:
+  branch_address_templ_(NULL),
+  leaf_(leaf), 
 name_(leaf->GetName()),
 title_(leaf->GetTitle()),
 type_(leaf->GetTypeName()),
 l_type_(kUnknownType),
 branch_address_(leaf->GetValuePointer()),
-branch_address_templ_(NULL),
 tree_(NULL),
 leaf_pointer_one_(NULL),
 leaf_pointer_two_(NULL),
@@ -430,13 +431,14 @@ random_generator_(NULL)
 
 template <class T>
 ReducerLeaf<T>::ReducerLeaf(const ReducerLeaf<T>& r) 
-: leaf_(r.leaf_),
+  :
+  branch_address_templ_(r.branch_address_templ_),
+leaf_(r.leaf_),
 name_(r.name_),
 title_(r.title_),
 type_(r.type_),
 l_type_(r.l_type_),
 branch_address_(r.branch_address_),
-branch_address_templ_(r.branch_address_templ_),
 tree_(r.tree_),
 leaf_pointer_one_(r.leaf_pointer_one_),
 leaf_pointer_two_(r.leaf_pointer_two_),

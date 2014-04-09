@@ -20,7 +20,7 @@ int ShufflerReducer::RegisterShuffler() {
   return shufflers_.size()-1;
 }
 
-void ShufflerReducer::SetShuffleLeaves(int shuffler_idx, ReducerLeaf<Float_t>* new_leaf1, ReducerLeaf<Float_t>* new_leaf2,
+void ShufflerReducer::SetShuffleLeaves(std::size_t shuffler_idx, ReducerLeaf<Float_t>* new_leaf1, ReducerLeaf<Float_t>* new_leaf2,
                       const ReducerLeaf<Float_t>* base_leaf1, const ReducerLeaf<Float_t>* base_leaf2) {
   if (shuffler_idx >= shufflers_.size()) {
     serr << "Shuffler #" << shuffler_idx << " not registered!" << endmsg;
@@ -45,7 +45,7 @@ void ShufflerReducer::SetShuffleLeaves(int shuffler_idx, ReducerLeaf<Float_t>* n
   }
 }
 
-void ShufflerReducer::SetShuffleLeaves(int shuffler_idx, ReducerLeaf<Float_t>* new_leaf1,
+void ShufflerReducer::SetShuffleLeaves(std::size_t shuffler_idx, ReducerLeaf<Float_t>* new_leaf1,
                       ReducerLeaf<Float_t>* new_leaf2,
                       ReducerLeaf<Float_t>* new_leaf3,
                       const ReducerLeaf<Float_t>* base_leaf1,

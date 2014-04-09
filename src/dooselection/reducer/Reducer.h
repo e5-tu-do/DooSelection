@@ -516,8 +516,8 @@ class Reducer {
   }
   template<class T>
   ReducerLeaf<Float_t>& CreateFloatCopyLeaf(TString name, const ReducerLeaf<T>& leaf_to_copy, double c=1.0) {
-    ReducerLeaf<Float_t>& new_leaf(CreateFloatLeaf(name, name, "Float_t");
-    new_leaf.Equal(leaf_to_copy, c));
+    ReducerLeaf<Float_t>& new_leaf(CreateFloatLeaf(name, name, "Float_t"));
+    new_leaf.Equal(leaf_to_copy, c);
     return new_leaf;
   }
   
@@ -533,8 +533,8 @@ class Reducer {
   }
   template<class T>
   ReducerLeaf<ULong64_t>& CreateULongCopyLeaf(TString name, const ReducerLeaf<T>& leaf_to_copy, double c=1.0) {
-    ReducerLeaf<ULong64_t>& new_leaf(CreateULongLeaf(name, name, "ULong64_t");
-    new_leaf.Equal(leaf_to_copy, c));
+    ReducerLeaf<ULong64_t>& new_leaf(CreateULongLeaf(name, name, "ULong64_t"));
+    new_leaf.Equal(leaf_to_copy, c);
     return new_leaf;
   }
   
@@ -550,8 +550,8 @@ class Reducer {
   }
   template<class T>
   ReducerLeaf<Long64_t>& CreateLongCopyLeaf(TString name, const ReducerLeaf<T>& leaf_to_copy, double c=1.0) {
-    ReducerLeaf<Long64_t>& new_leaf(CreateLongLeaf(name, name, "Long64_t");
-    new_leaf.Equal(leaf_to_copy, c));
+    ReducerLeaf<Long64_t>& new_leaf(CreateLongLeaf(name, name, "Long64_t"));
+    new_leaf.Equal(leaf_to_copy, c);
     return new_leaf;
   }
   
@@ -567,8 +567,8 @@ class Reducer {
   }
   template<class T>
   ReducerLeaf<Int_t>& CreateIntCopyLeaf(TString name, const ReducerLeaf<T>& leaf_to_copy, double c=1.0) {
-    ReducerLeaf<Int_t>& new_leaf(CreateIntLeaf(name, name, "Int_t");
-    new_leaf.Equal(leaf_to_copy, c));
+    ReducerLeaf<Int_t>& new_leaf(CreateIntLeaf(name, name, "Int_t"));
+    new_leaf.Equal(leaf_to_copy, c);
     return new_leaf;
   }
   
