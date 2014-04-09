@@ -53,9 +53,9 @@ void dooselection::reducer::MergeTupleReducer::ProcessInputTree() {
 
   sinfo << "MergeTupleReducer::ProcessInputTree(): Analysing events according to event identifiers." << endmsg;
 
-  long long index_tree = 0;
+  ULong64_t index_tree = 0;
   input_tree_->GetEvent(index_tree);
-  long long index_friend=0;
+  ULong64_t index_friend=0;
   doocore::io::Progress p("Event matching",num_entries);
   for (index_friend=0; index_friend<(*it_friend)->GetEntries(); ++index_friend) {
     (*it_friend)->GetEvent(index_friend);

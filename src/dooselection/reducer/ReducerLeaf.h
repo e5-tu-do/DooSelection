@@ -391,14 +391,15 @@ private:
 
 template <class T>
 ReducerLeaf<T>::ReducerLeaf(TString name, TString title, TString type, TTree* tree, T default_value)
-: leaf_(NULL),
+:
+default_value_(default_value),
+leaf_(NULL),
 name_(name),
 title_(title),
 type_(type),
 l_type_(kUnknownType),
 branch_address_(NULL),
 tree_(tree),
-default_value_(default_value),
 leaf_pointer_one_(NULL),
 leaf_pointer_two_(NULL),
 leaf_operation_(kNoneOperation),
