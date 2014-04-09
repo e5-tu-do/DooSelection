@@ -63,18 +63,6 @@ old_style_interim_tree_(false)
   GenerateInterimFileName();
 }
 
-Reducer::Reducer(std::string const& config_file_path) :
-  event_number_leaf_ptr_(NULL),
-  run_number_leaf_ptr_(NULL),
-  interim_file_(NULL),
-  formula_input_tree_(NULL),
-  best_candidate_leaf_ptr_(NULL),
-  num_events_process_(-1),
-  old_style_interim_tree_(false)
-{
-  GenerateInterimFileName();
-}
-
 Reducer::~Reducer(){
 //  sdebug << "Reducer::~Reducer()" << endmsg;
 
@@ -148,7 +136,7 @@ void Reducer::Run(){
   InitializeOutputBranches<Double_t>(output_tree_, double_leaves_);
   InitializeOutputBranches<Int_t>(output_tree_, int_leaves_);
   
-  unsigned int num_entries         = interim_tree_->GetEntries();
+  int num_entries         = interim_tree_->GetEntries();
   
   if (num_events_process_ != -1) {
     num_entries = num_events_process_;
@@ -167,8 +155,8 @@ void Reducer::Run(){
   }
   
   int i = 0;
-  int status_stepping       = num_entries>100000 ? num_entries/10000 : 10;
-  int status_stepping_redir = num_entries>1000 ? num_entries/100 : 10;
+//  int status_stepping       = num_entries>100000 ? num_entries/10000 : 10;
+//  int status_stepping_redir = num_entries>1000 ? num_entries/100 : 10;
   
   TStopwatch sw;
   sw.Start();
@@ -554,7 +542,7 @@ void Reducer::InitializeBranches(){
 }
 
 unsigned int Reducer::GetBestCandidate(TTree* tree, unsigned int pos_event_start, unsigned int num_entries) {
-  int i = pos_event_start;
+  unsigned int i = pos_event_start;
   
   GetTreeEntryUpdateLeaves(tree, i);
   
@@ -753,7 +741,7 @@ TString const& Reducer::cut_string() const{
   return cut_string_;
 }
 
-void Reducer::HandleSigInt(int param) {
+void Reducer::HandleSigInt(int) {
   std::cout << "Caught Ctrl-C. Will abort loop." << std::endl << std::endl;
   
   // in case of second sigint exit the program
