@@ -24,7 +24,7 @@ CondDBTranslator::CondDBTranslator(){
   TString pathPart1(getenv ("DOOSELECTIONSYS"));
   TString path = pathPart1 + "/include/dooselection/mctools/mcdecaymatrixreader/CondDB_particle_table.txt";
 
-  ifstream particle_table_file;
+  std::ifstream particle_table_file;
   particle_table_file.open(path);
 
   std::string line = "";
