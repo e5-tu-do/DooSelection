@@ -22,6 +22,7 @@
 class TFile;
 class TLeaf;
 class TTreeFormula;
+class RooArgSet;
 
 /**
  * @namespace dooselection::reducer
@@ -203,6 +204,13 @@ class Reducer {
   void AddBranchesKeepRegex(std::string keep_regex) { branches_keep_regex_.push_back(keep_regex); }
   
   /**
+   *  @brief Add branches to keep by RooArgSet
+   *
+   *  @param argset argset with all observables to keep
+   */
+  void AddBranchesKeep(const RooArgSet& argset);
+  
+  /**
    *  @brief Add regular expression of branches to omit
    *
    *  @param omit_regex regular expression for branches to omit
@@ -240,16 +248,19 @@ class Reducer {
   void SetEventNumberLeaf(const ReducerLeaf<T>& leaf) {
     event_number_leaf_ptr_ = new ReducerLeaf<ULong64_t>(leaf.name(), leaf.title(), leaf.type(), leaf.tree());
     event_number_leaf_ptr_->set_branch_address(leaf.branch_address());
+    input_tree_->SetBranchStatus(event_number_leaf_ptr_->name(),1);
   }
   template<class T>
   void SetRunNumberLeaf(const ReducerLeaf<T>& leaf) {
     run_number_leaf_ptr_ = new ReducerLeaf<ULong64_t>(leaf.name(), leaf.title(), leaf.type(), leaf.tree());
     run_number_leaf_ptr_->set_branch_address(leaf.branch_address());
+    input_tree_->SetBranchStatus(run_number_leaf_ptr_->name(),1);
   }
   template<class T>
   void SetBestCandidateLeaf(const ReducerLeaf<T>& leaf) {
     best_candidate_leaf_ptr_ = new ReducerLeaf<Double_t>(leaf.name(), leaf.title(), leaf.type(), leaf.tree());
     best_candidate_leaf_ptr_->set_branch_address(leaf.branch_address());
+    input_tree_->SetBranchStatus(best_candidate_leaf_ptr_->name(),1);
   }
   ///@}
 
@@ -257,9 +268,22 @@ class Reducer {
    *  Functions accessing existing or to-be-created leaves
    */
   ///@{
+  /**
+   *  @brief Access a leaf in the interim tree.
+   *
+   *  This fuction is not const as it allows to also access leaves in the input 
+   *  tree that were previously deactivated. These will be reactivated in the 
+   *  process.
+   *
+   *  @param name name of the leaf.
+   *  @return the leaf as ReducerLeaf
+   */
+  const ReducerLeaf<Float_t>& GetInterimLeafByName(const TString& name);
+  
   const ReducerLeaf<Float_t>& GetInterimLeafByName(const TString& name) const {
     return GetLeafByName<Float_t>(name, interim_leaves_);
   }
+  
   const ReducerLeaf<Double_t>& GetDoubleLeafByName(const TString& name) const {
     return GetLeafByName<Double_t>(name, double_leaves_);
   }
@@ -768,6 +792,21 @@ class Reducer {
   void InitializeInterimLeafMap(TTree* tree, std::vector<ReducerLeaf<Float_t>* >* leaves);  
   
   /**
+   *  @brief Check if specific interim tree creation is necessary
+   *
+   *  This function will return whether a unique interim tree needs to be 
+   *  created by copying input tree into a new tree. By default, Reducer will 
+   *  try to avoid this time-consuming step and use the input tree directly.
+   *  The copying will only be performed if set_old_style_interim_tree() is 
+   *  used.
+   *
+   *  @return whether the interim tree is to be created or not
+   */
+  bool CreateUniqueInterimTree() const {
+    return !(!old_style_interim_tree_ || (old_style_interim_tree_ && num_events_process_ == -1 && cut_string_.Length() == 0));
+  }
+  
+  /**
    * Rename branches based on a given name mapping vector
    *
    */
@@ -795,6 +834,35 @@ class Reducer {
   std::vector<ReducerLeaf<T1>*> PurgeOutputBranches(const std::vector<ReducerLeaf<T1>* >& leaves, const std::vector<ReducerLeaf<T2>* >& interim_leaves) const;
   
   /**
+   *  @brief Activate all dependent leaves of given leaf list
+   *
+   *  @param leaves list of leaves to check
+   */
+  template<class T>
+  void ActivateDependentLeaves(const std::vector<ReducerLeaf<T>* >& leaves) {
+    using namespace doocore::io;
+    for (auto leaf : leaves) {
+//      sdebug << "leaf: " << leaf << endmsg;
+//      sdebug << "leaf->leaf_pointer_one(): " << leaf->leaf_pointer_one() << endmsg;
+//      sdebug << "leaf->leaf_pointer_one()->name(): " << leaf->leaf_pointer_one()->name() << endmsg;
+      if (leaf->leaf_pointer_one() != NULL) {
+        if (input_tree_->GetLeaf(leaf->leaf_pointer_one()->name()) != NULL) {
+          //sdebug << "Reactivating " << leaf->leaf_pointer_one()->name() << " (needed for operation in " << leaf->name() << ")" << endmsg;
+          input_tree_->SetBranchStatus(leaf->leaf_pointer_one()->name(), 1);
+        }
+      }
+      if (leaf->leaf_pointer_two() != NULL) {
+        if (input_tree_->GetLeaf(leaf->leaf_pointer_two()->name()) != NULL) {
+          //sdebug << "Reactivating " << leaf->leaf_pointer_two()->name() << " (needed for operation in " << leaf->name() << ")" << endmsg;
+          input_tree_->SetBranchStatus(leaf->leaf_pointer_two()->name(), 1);
+        }
+      }
+      
+      leaf->ActivateDependentConditionLeaves(input_tree_);
+    }
+  }
+  
+  /**
    * Get a ReducerLeaf by name from a ReducerLeaf vector
    *
    */
@@ -817,6 +885,7 @@ class Reducer {
     
     LoadTreeFriendsEntryHook(i);
     
+    UpdateSpecialLeaves();
     UpdateAllValues<Float_t>(float_leaves_);
     UpdateAllValues<Double_t>(double_leaves_);
     UpdateAllValues<Int_t>(int_leaves_);
@@ -924,7 +993,7 @@ const ReducerLeaf<T>& Reducer::GetLeafByName(const TString& name, const std::vec
     if ((*it)->name() == name) return *(*it);
   }
   
-  std::cerr << "ERROR in Reducer::GetLeafByName(const TString&, const std::vector<ReducerLeaf<T> >&): Leaf " << name << " not found." << std::endl;
+  //doocore::io::serr << "ERROR in Reducer::GetLeafByName(const TString&, const std::vector<ReducerLeaf<T> >&): Leaf " << name << " not found." << doocore::io::endmsg;
   throw 10;
 }
   

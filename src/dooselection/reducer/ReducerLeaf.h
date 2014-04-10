@@ -5,6 +5,9 @@
 #include <iostream>
 #include <string>
 
+// from Boost
+#include <boost/algorithm/string.hpp>
+
 // from ROOT
 #include "TString.h"
 #include "TTree.h"
@@ -144,7 +147,7 @@ public:
    *  These functions set global leaf properties.
    */
   ///@{
-  const TString& set_name(const TString& new_name) { name_=new_name; title_=new_name+"/"+type_; return name_; }
+  const TString& set_name(const TString& new_name) { name_=new_name; title_=new_name; return name_; }
   void set_branch_address(void* ptr) { branch_address_ = ptr; }
   void SetDefaultValue(T value) {
     default_value_ = value;
@@ -279,8 +282,49 @@ public:
     random_generator_ = random_generator;
     SetOperation<T,T>(*this,*this,kRandomizeLeaf,1.0,1.0);
   }
-  ///@} 
+  ///@}
+  
+  /** @name Access dependent leaves
+   *  These functions help to access dependent leaves
+   */
+  ///@{
+  /**
+   *  @brief Get first dependent leaf
+   */
+  const ReducerLeaf<T>* leaf_pointer_one() const {
+    return leaf_pointer_one_;
+  }
 
+  /**
+   *  @brief Get second dependent leaf
+   */
+  const ReducerLeaf<T>* leaf_pointer_two() const {
+    return leaf_pointer_two_;
+  }
+  ///@}
+  
+  /**
+   *  @brief Activate all leaves in conditions map for a given tree
+   *
+   *  @param tree the TTree to actiavte dependent leaves in
+   */
+  void ActivateDependentConditionLeaves(TTree* tree) const {
+    for (auto condition : conditions_map_) {
+      const TTreeFormula* formula = condition.first;
+      
+      // split formula string into tokens to iterate through these and reactivate all necessary leaves
+      std::string cut_string(formula->GetTitle());
+      std::vector<std::string> vector_split;
+      boost::split(vector_split, cut_string, boost::is_any_of("(())&|<>="), boost::token_compress_on);
+      for (auto token : vector_split) {
+        TLeaf* leaf = tree->GetLeaf(token.c_str());
+        if (leaf != NULL) {
+          //doocore::io::sdebug << "Reactivating " << token << " (needed in conditions for " << name() << ")" << doocore::io::endmsg;
+          tree->SetBranchStatus(token.c_str(), 1);
+        }
+      }
+    }
+  }
   
   template<class T1>
   friend doocore::io::MsgStream& doocore::io::operator<<(doocore::io::MsgStream& lhs, const dooselection::reducer::ReducerLeaf<T1>& leaf);

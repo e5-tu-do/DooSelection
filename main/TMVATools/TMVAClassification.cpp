@@ -170,15 +170,16 @@ int main(int argc, char * argv[]){
     tree = (TTree*)file->Get(input_tree_name);
 
     std::vector<std::string> cut_variables;
-    TTreeFormula form("form_cut", sig_cut, tree);
-    TLeaf* leaf = form.GetLeaf(0);
-    int i = 1;
-    while (leaf != NULL) {
-      cut_variables.push_back(leaf->GetName());
-      leaf = form.GetLeaf(i);
-      ++i;
+    if (config.getBool("general.use_cuts")){
+      TTreeFormula form("form_cut", sig_cut, tree);
+      TLeaf* leaf = form.GetLeaf(0);
+      int i = 1;
+      while (leaf != NULL) {
+        cut_variables.push_back(leaf->GetName());
+        leaf = form.GetLeaf(i);
+        ++i;
+      }
     }
-    
     
     tree->SetBranchStatus("*", false);
     
@@ -193,9 +194,11 @@ int main(int argc, char * argv[]){
          it != end; ++it) {
       tree->SetBranchStatus(it->c_str(), true);
     }
-    for (std::vector<std::string>::const_iterator it = cut_variables.begin(), end = cut_variables.end();
-         it != end; ++it) {
-      tree->SetBranchStatus(it->c_str(), true);
+    if (config.getBool("general.use_cuts")){
+      for (std::vector<std::string>::const_iterator it = cut_variables.begin(), end = cut_variables.end();
+           it != end; ++it) {
+        tree->SetBranchStatus(it->c_str(), true);
+      }
     }
 
     /// ################################################################################################################## 
@@ -256,11 +259,11 @@ int main(int argc, char * argv[]){
   std::vector<std::string> methods = config.getVoStrings("factory.methods");;
 
   for(std::vector<std::string>::iterator it = methods.begin(); it != methods.end(); it++){
-    boost::regex expr("(.*)\\s*,{1}\\s*(.*)\\s*,{1}\\s*(.*)");
+    boost::regex expr("(.*)\\s*/{1}\\s*(.*)\\s*/{1}\\s*(.*)");
     boost::match_results<std::string::const_iterator> what;
     TMVA::Types::EMVA method_type;
 
-
+    if (debug_mode) doocore::io::serr << *it << doocore::io::endmsg;
     if( regex_search( *it, what, expr ) ) {
       std::string type( what[1].first, what[1].second );
       std::string name( what[2].first, what[2].second );
@@ -280,7 +283,7 @@ int main(int argc, char * argv[]){
       else if (type == "TMVA::Types::kSVM"){method_type = TMVA::Types::kSVM;}
       else if (type == "TMVA::Types::kRuleFit"){method_type = TMVA::Types::kRuleFit;}
       else{doocore::io::serr << "Unknown TMVA method type '" << type << "'! Abort!" << doocore::io::endmsg; return 0;}
-
+      
       factory->BookMethod(method_type, name, options);
       summary.Add(name, options);
     }
