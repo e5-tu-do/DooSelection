@@ -85,7 +85,7 @@ void BkgCategorizerReducer::PrepareSpecialBranches() {
     std::map<std::string,int>::const_iterator iter; 
     
     sinfo << "Finished analysing most common decays: " << endmsg;
-    for (int i=0; i< max_number_decays_ && i<decay_counter_.size(); ++i) {
+    for (std::size_t i=0; i< max_number_decays_ && i<decay_counter_.size(); ++i) {
       std::string max_key = "";
       int max_counts = 0;
       for (iter=decay_counter_.begin(); iter!=decay_counter_.end(); iter++) {
@@ -115,7 +115,7 @@ void BkgCategorizerReducer::UpdateSpecialLeaves() {
   if (decay_depth_leaf_ != NULL) {
     if (!(decay_depth_leaf_->GetValue() < 1)) {
       std::string decaystring = IDTranslator::makedecaystring(decay_matrix_, *decay_matrix_length_lptr_, columns_, 0, 0, "", true, true);
-      int j = 0;
+      std::size_t j = 0;
       while(j < max_number_decays_ && j < decay_vector_.size() && decaystring != decay_vector_.at(j).second){
         j++;
       }
