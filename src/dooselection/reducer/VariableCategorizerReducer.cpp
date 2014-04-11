@@ -59,7 +59,7 @@ void VariableCategorizerReducer::PrepareSpecialBranches(){
   int nevents = interim_tree_->GetEntries();
   for (auto& variable: variables_){
     std::string variable_name = std::get<0>(variable);
-    int variable_binning = std::get<1>(variable);
+    unsigned int variable_binning = std::get<1>(variable);
     double variable_range_min = std::get<2>(variable);
     double variable_range_max = std::get<3>(variable);
     std::vector<double> data_points;
@@ -71,7 +71,7 @@ void VariableCategorizerReducer::PrepareSpecialBranches(){
     for (Int_t ev = 0; ev < nevents; ev++){
       double frac = static_cast<double>(ev)/nevents;
       if (isatty(fileno(stdout))){
-        if ( (ev%100) == 0 ) printf("Progress %.2f % \xd", frac*100.0);
+        if ( (ev%100) == 0 ) printf("Progress %.2f %% \xd", frac*100.0);
       }
       interim_tree_->GetEvent(ev);
       value = *std::get<7>(variable);
@@ -107,11 +107,11 @@ bool VariableCategorizerReducer::EntryPassesSpecialCuts(){return true;}
 void VariableCategorizerReducer::UpdateSpecialLeaves(){
   for (auto& variable: variables_){
     std::string variable_name = std::get<0>(variable);
-    int variable_binning = std::get<1>(variable);
+//    unsigned int variable_binning = std::get<1>(variable);
     double variable_range_min = std::get<2>(variable);
     double variable_range_max = std::get<3>(variable);
     std::vector<double> quantiles = std::get<4>(variable);
-    int nquantiles = quantiles.size();
+    unsigned int nquantiles = quantiles.size();
 
     int category = -1;
     for (unsigned int i=0; i<nquantiles; i++){
