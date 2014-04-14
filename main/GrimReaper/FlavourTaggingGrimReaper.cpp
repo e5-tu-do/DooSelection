@@ -699,6 +699,10 @@ int Bd2JpsiKS(const std::string& inputfile, const std::string& inputtree, const 
     ReducerLeaf<Int_t>& vtag_true_babar_leaf = reducer.CreateIntLeaf("obsTag_BaBar_True", 0);
     vtag_true_babar_leaf.AddCondition("B0",    "B0_TRUEID>0", -1);
     vtag_true_babar_leaf.AddCondition("B0bar", "B0_TRUEID<0", +1);
+
+    ReducerLeaf<Int_t>& vtag_true_nozero_leaf = reducer.CreateIntLeaf("obsTag_NoZero_True", 1);
+    vtag_true_nozero_leaf.AddCondition("B0",    "B0_TRUEID>0", +1);
+    vtag_true_nozero_leaf.AddCondition("B0bar", "B0_TRUEID<0", -1);
   }
 
   // catTagger
