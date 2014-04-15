@@ -211,22 +211,22 @@ void TimeLeaves(Reducer* _rdcr, cfg_tuple& cfg){
 void TriggerLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   doocore::config::Summary& summary = doocore::config::Summary::GetInstance();
   // trigger categories
-  ReducerLeaf<Int_t>& trigger_l0_global_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerL0GlobalTOS", _rdcr->GetInterimLeafByName("J_psi_1S_L0Global_TOS"));
-  ReducerLeaf<Int_t>& trigger_hlt1_global_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt1GlobalTOS", _rdcr->GetInterimLeafByName("J_psi_1S_Hlt1Global_TOS"));
-  ReducerLeaf<Int_t>& trigger_hlt2_global_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt2GlobalTOS", _rdcr->GetInterimLeafByName("J_psi_1S_Hlt2Global_TOS"));
-  ReducerLeaf<Int_t>& trigger_hlt1_trackmuon_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt1TrackMuonTOS", _rdcr->GetInterimLeafByName("J_psi_1S_Hlt1TrackMuonDecision_TOS"));
-  ReducerLeaf<Int_t>& trigger_hlt1_highmass_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt1HighMassTOS", _rdcr->GetInterimLeafByName("J_psi_1S_Hlt1DiMuonHighMassDecision_TOS"));
-  ReducerLeaf<Int_t>& trigger_hlt1_no_ip_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt1NoIPTOS", _rdcr->GetInterimLeafByName("J_psi_1S_Hlt1SingleMuonNoIPDecision_TOS"));
-  ReducerLeaf<Int_t>& trigger_hlt2_detachedjpsi_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt2DetachedJpsiTOS", _rdcr->GetInterimLeafByName("J_psi_1S_Hlt2DiMuonDetachedJPsiDecision_TOS"));
-  ReducerLeaf<Int_t>& trigger_hlt2_jpsi_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt2JpsiTOS", _rdcr->GetInterimLeafByName("J_psi_1S_Hlt2DiMuonJPsiDecision_TOS"));
+  ReducerLeaf<Int_t>& trigger_l0_global_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerL0GlobalTOS", _rdcr->GetInterimLeafByName("psi_2S_L0Global_TOS"));
+  ReducerLeaf<Int_t>& trigger_hlt1_global_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt1GlobalTOS", _rdcr->GetInterimLeafByName("psi_2S_Hlt1Global_TOS"));
+  ReducerLeaf<Int_t>& trigger_hlt2_global_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt2GlobalTOS", _rdcr->GetInterimLeafByName("psi_2S_Hlt2Global_TOS"));
+  ReducerLeaf<Int_t>& trigger_hlt1_trackmuon_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt1TrackMuonTOS", _rdcr->GetInterimLeafByName("psi_2S_Hlt1TrackMuonDecision_TOS"));
+  ReducerLeaf<Int_t>& trigger_hlt1_highmass_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt1HighMassTOS", _rdcr->GetInterimLeafByName("psi_2S_Hlt1DiMuonHighMassDecision_TOS"));
+  ReducerLeaf<Int_t>& trigger_hlt1_no_ip_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt1NoIPTOS", _rdcr->GetInterimLeafByName("psi_2S_Hlt1SingleMuonNoIPDecision_TOS"));
+  ReducerLeaf<Int_t>& trigger_hlt2_detachedjpsi_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt2DetachedJpsiTOS", _rdcr->GetInterimLeafByName("psi_2S_Hlt2DiMuonDetachedJPsiDecision_TOS"));
+  ReducerLeaf<Int_t>& trigger_hlt2_jpsi_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt2JpsiTOS", _rdcr->GetInterimLeafByName("psi_2S_Hlt2DiMuonJPsiDecision_TOS"));
 
   ReducerLeaf<Int_t>& catTriggerSetNoIP = _rdcr->CreateIntLeaf("catTriggerSetNoIP", -10);
-      TCut trigger_set_no_ip = "((J_psi_1S_Hlt1DiMuonHighMassDecision_TOS==1)||(J_psi_1S_Hlt1TrackMuonDecision_TOS==1)||(J_psi_1S_Hlt1SingleMuonNoIPDecision_TOS==1))&&((J_psi_1S_Hlt2DiMuonDetachedJPsiDecision_TOS==1)||(J_psi_1S_Hlt2DiMuonJPsiDecision_TOS==1))";
+      TCut trigger_set_no_ip = "((psi_2S_Hlt1DiMuonHighMassDecision_TOS==1)||(psi_2S_Hlt1TrackMuonDecision_TOS==1)||(psi_2S_Hlt1SingleMuonNoIPDecision_TOS==1))&&((psi_2S_Hlt2DiMuonDetachedJPsiDecision_TOS==1)||(psi_2S_Hlt2DiMuonJPsiDecision_TOS==1))";
       catTriggerSetNoIP.AddCondition("triggered", trigger_set_no_ip.GetTitle(), 1);
       catTriggerSetNoIP.AddCondition("not_triggered", (!trigger_set_no_ip).GetTitle(), 0);
 
   ReducerLeaf<Int_t>& catTriggerSet = _rdcr->CreateIntLeaf("catTriggerSet", -10);
-      TCut trigger_set = "((J_psi_1S_Hlt1DiMuonHighMassDecision_TOS==1)||(J_psi_1S_Hlt1TrackMuonDecision_TOS==1))&&((J_psi_1S_Hlt2DiMuonDetachedJPsiDecision_TOS==1)||(J_psi_1S_Hlt2DiMuonJPsiDecision_TOS==1))";
+      TCut trigger_set = "((psi_2S_Hlt1DiMuonHighMassDecision_TOS==1)||(psi_2S_Hlt1TrackMuonDecision_TOS==1))&&((psi_2S_Hlt2DiMuonDetachedJPsiDecision_TOS==1)||(psi_2S_Hlt2DiMuonJPsiDecision_TOS==1))";
       catTriggerSet.AddCondition("triggered", trigger_set.GetTitle(), 1);
       catTriggerSet.AddCondition("not_triggered", (!trigger_set).GetTitle(), 0);
 }
@@ -388,7 +388,7 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   // End vertex chi2/ndof
   _rdcr->CreateDoubleLeaf("varBEndVtxChi2ndof", -99999999.).Divide(_rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_ENDVERTEX_CHI2"), _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_ENDVERTEX_NDOF"));
   _rdcr->CreateDoubleLeaf("varPsi2SEndVtxChi2ndof", -99999999.).Divide(_rdcr->GetInterimLeafByName("psi_2S_ENDVERTEX_CHI2"), _rdcr->GetInterimLeafByName("psi_2S_ENDVERTEX_NDOF"));
-  _rdcr->CreateDoubleLeaf("varJPsiEndVtxChi2ndof", -99999999.).Divide(_rdcr->GetInterimLeafByName("J_psi_1S_ENDVERTEX_CHI2"), _rdcr->GetInterimLeafByName("J_psi_1S_ENDVERTEX_NDOF"));
+  _rdcr->CreateDoubleLeaf("varPsi2SEndVtxChi2ndof", -99999999.).Divide(_rdcr->GetInterimLeafByName("psi_2S_ENDVERTEX_CHI2"), _rdcr->GetInterimLeafByName("psi_2S_ENDVERTEX_NDOF"));
   _rdcr->CreateDoubleLeaf("varKSEndVtxChi2ndof", -99999999.).Divide(_rdcr->GetInterimLeafByName("KS0_ENDVERTEX_CHI2"), _rdcr->GetInterimLeafByName("KS0_ENDVERTEX_NDOF"));
   // minimal muon transverse momentum
   if (_rdcr->LeafExists(std::get<0>(cfg)+"_FitPVConst_J_psi_1S_P0_PT"+flat_suffix) && _rdcr->LeafExists(std::get<0>(cfg)+"_FitPVConst_J_psi_1S_P1_PT"+flat_suffix)){
