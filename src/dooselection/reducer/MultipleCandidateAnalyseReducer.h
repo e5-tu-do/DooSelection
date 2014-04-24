@@ -87,7 +87,7 @@ class MultipleCandidateAnalyseReducer : virtual public Reducer {
   
  protected:
   virtual void ProcessInputTree();
-  bool set_do_multi_cand_analysis(bool status){do_multi_cand_analysis_ = status;}
+  void set_do_multi_cand_analysis(bool status){do_multi_cand_analysis_ = status;}
 
  private:
   typedef std::vector<ULong64_t> UniqueEventIdentifier;

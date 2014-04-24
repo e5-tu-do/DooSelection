@@ -101,7 +101,7 @@ void SPlotterReducer::CreateSpecialBranches() {
 void SPlotterReducer::UpdateSpecialLeaves() {
   for (std::map<std::string,RooDataSet*>::const_iterator it = sweighted_datasets_.begin(), end = sweighted_datasets_.end();
        it != end; ++it) {
-    const RooArgSet* sweighted_values = (*it).second->get(selected_entry_);
+    (*it).second->get(selected_entry_);
     *sweight_leaves_[(*it).first] = (*it).second->weight();
   }
 }
