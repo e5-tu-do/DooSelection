@@ -63,7 +63,7 @@ public:
    *  @param base_leaf1 base variable 1
    *  @param base_leaf2 base variable 2
    */
-  void SetShuffleLeaves(int shuffler_idx, ReducerLeaf<Float_t>* new_leaf1,
+  void SetShuffleLeaves(std::size_t shuffler_idx, ReducerLeaf<Float_t>* new_leaf1,
                         ReducerLeaf<Float_t>* new_leaf2,
                         const ReducerLeaf<Float_t>* base_leaf1,
                         const ReducerLeaf<Float_t>* base_leaf2);
@@ -82,7 +82,7 @@ public:
    *  @param base_leaf2 base variable 2
    *  @param base_leaf3 base variable 3
    */
-  void SetShuffleLeaves(int shuffler_idx, ReducerLeaf<Float_t>* new_leaf1,
+  void SetShuffleLeaves(std::size_t shuffler_idx, ReducerLeaf<Float_t>* new_leaf1,
                         ReducerLeaf<Float_t>* new_leaf2,
                         ReducerLeaf<Float_t>* new_leaf3,
                         const ReducerLeaf<Float_t>* base_leaf1,

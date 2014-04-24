@@ -140,7 +140,6 @@ class Reducer {
  /** \publicsection */
  public:
   Reducer();
-  Reducer( std::string const& );
   virtual ~Reducer();
 
   /** @name Main running functions for Reducer
@@ -488,86 +487,86 @@ class Reducer {
    */
   ///@{
   ReducerLeaf<Double_t>& CreateDoubleLeaf(TString name, TString title, TString type, Double_t default_value=0.0) {
-    ReducerLeaf<Double_t>* new_leaf = new ReducerLeaf<Double_t>(name, title, type, interim_tree_, default_value);
+    ReducerLeaf<Double_t>* new_leaf(new ReducerLeaf<Double_t>(name, title, type, interim_tree_, default_value));
     double_leaves_.push_back(new_leaf);
     return *new_leaf;
   }
   ReducerLeaf<Double_t>& CreateDoubleLeaf(TString name, Double_t default_value=0.0) {
-    ReducerLeaf<Double_t>* new_leaf = new ReducerLeaf<Double_t>(name, name, "Double_t", interim_tree_, default_value);
+    ReducerLeaf<Double_t>* new_leaf(new ReducerLeaf<Double_t>(name, name, "Double_t", interim_tree_, default_value));
     double_leaves_.push_back(new_leaf);
     return *new_leaf;
   }
   template<class T>
   ReducerLeaf<Double_t>& CreateDoubleCopyLeaf(TString name, const ReducerLeaf<T>& leaf_to_copy, double c=1.0) {
-    ReducerLeaf<Double_t>& new_leaf = CreateDoubleLeaf(name, name, "Double_t");
+    ReducerLeaf<Double_t>& new_leaf(CreateDoubleLeaf(name, name, "Double_t"));
     new_leaf.Equal(leaf_to_copy, c);
     return new_leaf;
   }
   
   ReducerLeaf<Float_t>& CreateFloatLeaf(TString name, TString title, TString type, Float_t default_value=0.0) {
-    ReducerLeaf<Float_t>* new_leaf = new ReducerLeaf<Float_t>(name, title, type, interim_tree_, default_value);
+    ReducerLeaf<Float_t>* new_leaf(new ReducerLeaf<Float_t>(name, title, type, interim_tree_, default_value));
     float_leaves_.push_back(new_leaf);
     return *new_leaf;
   }
   ReducerLeaf<Float_t>& CreateFloatLeaf(TString name, Float_t default_value=0.0) {    
-    ReducerLeaf<Float_t>* new_leaf = new ReducerLeaf<Float_t>(name, name, "Float_t", interim_tree_, default_value);
+    ReducerLeaf<Float_t>* new_leaf(new ReducerLeaf<Float_t>(name, name, "Float_t", interim_tree_, default_value));
     float_leaves_.push_back(new_leaf);
     return *new_leaf;
   }
   template<class T>
   ReducerLeaf<Float_t>& CreateFloatCopyLeaf(TString name, const ReducerLeaf<T>& leaf_to_copy, double c=1.0) {
-    ReducerLeaf<Float_t>& new_leaf = CreateFloatLeaf(name, name, "Float_t");
+    ReducerLeaf<Float_t>& new_leaf(CreateFloatLeaf(name, name, "Float_t"));
     new_leaf.Equal(leaf_to_copy, c);
     return new_leaf;
   }
   
   ReducerLeaf<ULong64_t>& CreateULongLeaf(TString name, TString title, TString type, ULong64_t default_value=0) {
-    ReducerLeaf<ULong64_t>* new_leaf = new ReducerLeaf<ULong64_t>(name, title, type, interim_tree_, default_value);
+    ReducerLeaf<ULong64_t>* new_leaf(new ReducerLeaf<ULong64_t>(name, title, type, interim_tree_, default_value));
     ulong_leaves_.push_back(new_leaf);
     return *new_leaf;
   }
   ReducerLeaf<ULong64_t>& CreateULongLeaf(TString name, Float_t default_value=0.0) {
-    ReducerLeaf<ULong64_t>* new_leaf = new ReducerLeaf<ULong64_t>(name, name, "ULong64_t", interim_tree_, default_value);
+    ReducerLeaf<ULong64_t>* new_leaf(new ReducerLeaf<ULong64_t>(name, name, "ULong64_t", interim_tree_, default_value));
     ulong_leaves_.push_back(new_leaf);
     return *new_leaf;
   }
   template<class T>
   ReducerLeaf<ULong64_t>& CreateULongCopyLeaf(TString name, const ReducerLeaf<T>& leaf_to_copy, double c=1.0) {
-    ReducerLeaf<ULong64_t>& new_leaf = CreateULongLeaf(name, name, "ULong64_t");
+    ReducerLeaf<ULong64_t>& new_leaf(CreateULongLeaf(name, name, "ULong64_t"));
     new_leaf.Equal(leaf_to_copy, c);
     return new_leaf;
   }
   
   ReducerLeaf<Long64_t>& CreateLongLeaf(TString name, TString title, TString type, ULong64_t default_value=0) {
-    ReducerLeaf<Long64_t>* new_leaf = new ReducerLeaf<Long64_t>(name, title, type, interim_tree_, default_value);
+    ReducerLeaf<Long64_t>* new_leaf(new ReducerLeaf<Long64_t>(name, title, type, interim_tree_, default_value));
     long_leaves_.push_back(new_leaf);
     return *new_leaf;
   }
   ReducerLeaf<Long64_t>& CreateLongLeaf(TString name, Float_t default_value=0.0) {
-    ReducerLeaf<Long64_t>* new_leaf = new ReducerLeaf<Long64_t>(name, name, "Long64_t", interim_tree_, default_value);
+    ReducerLeaf<Long64_t>* new_leaf(new ReducerLeaf<Long64_t>(name, name, "Long64_t", interim_tree_, default_value));
     long_leaves_.push_back(new_leaf);
     return *new_leaf;
   }
   template<class T>
   ReducerLeaf<Long64_t>& CreateLongCopyLeaf(TString name, const ReducerLeaf<T>& leaf_to_copy, double c=1.0) {
-    ReducerLeaf<Long64_t>& new_leaf = CreateLongLeaf(name, name, "Long64_t");
+    ReducerLeaf<Long64_t>& new_leaf(CreateLongLeaf(name, name, "Long64_t"));
     new_leaf.Equal(leaf_to_copy, c);
     return new_leaf;
   }
   
   ReducerLeaf<Int_t>& CreateIntLeaf(TString name, TString title, TString type, Int_t default_value=0) {
-    ReducerLeaf<Int_t>* new_leaf = new ReducerLeaf<Int_t>(name, title, type, interim_tree_, default_value);
+    ReducerLeaf<Int_t>* new_leaf(new ReducerLeaf<Int_t>(name, title, type, interim_tree_, default_value));
     int_leaves_.push_back(new_leaf);
     return *new_leaf;
   }
   ReducerLeaf<Int_t>& CreateIntLeaf(TString name, Int_t default_value=0) {
-    ReducerLeaf<Int_t>* new_leaf = new ReducerLeaf<Int_t>(name, name, "Int_t", interim_tree_, default_value);
+    ReducerLeaf<Int_t>* new_leaf(new ReducerLeaf<Int_t>(name, name, "Int_t", interim_tree_, default_value));
     int_leaves_.push_back(new_leaf);
     return *new_leaf;
   }
   template<class T>
   ReducerLeaf<Int_t>& CreateIntCopyLeaf(TString name, const ReducerLeaf<T>& leaf_to_copy, double c=1.0) {
-    ReducerLeaf<Int_t>& new_leaf = CreateIntLeaf(name, name, "Int_t");
+    ReducerLeaf<Int_t>& new_leaf(CreateIntLeaf(name, name, "Int_t"));
     new_leaf.Equal(leaf_to_copy, c);
     return new_leaf;
   }
@@ -969,7 +968,7 @@ class Reducer {
   static bool abort_loop_;
   
   ///< SIGINT handler (i.e. CTRL-C)
-  static void HandleSigInt(int param);
+  static void HandleSigInt(int);
   
   /**
    *  @brief maximum number of events to process

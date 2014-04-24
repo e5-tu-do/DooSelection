@@ -29,9 +29,9 @@ void SimSPlotReducer::ProcessInputTree() {
   
 void SimSPlotReducer::CreateSpecialBranches() {
     
-  int argc = 1;
-  char* argv[1];
-  argv[0] = "";
+//  int argc = 1;
+//  char* argv[1];
+//  argv[0] = "";
 
   interim_tree_->SetBranchStatus("*", 1);
     
@@ -54,9 +54,11 @@ void SimSPlotReducer::CreateSpecialBranches() {
 }
 
 void SimSPlotReducer::UpdateSpecialLeaves() {
-  const RooArgSet* sweighted_values_bkg = data_bkg_sw_.get(selected_entry_);
+  //const RooArgSet* sweighted_values_bkg =
+  data_bkg_sw_.get(selected_entry_);
   *sweight_leaves_["Bkg"] = data_bkg_sw_.weight();
-  const RooArgSet* sweighted_values_sig = data_sig_sw_.get(selected_entry_);
+  //const RooArgSet* sweighted_values_sig =
+  data_sig_sw_.get(selected_entry_);
   *sweight_leaves_["Sig"] = data_sig_sw_.weight();
 }
 } // namespace reducer
