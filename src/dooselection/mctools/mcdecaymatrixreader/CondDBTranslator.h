@@ -74,6 +74,8 @@ public:
   /**
    *  @brief Method to translate a given MC ID of a particle into its charge, which is returned as a string
    *
+   *  If a given ID is not included in the CondDB Table, than the ID is returned converted as a string
+   *
    */
   std::string TranslateIDintoCharge(int ID);
   
@@ -110,6 +112,8 @@ public:
   /**
    *  @brief Method to translate a given MC ID of a particle into its antiparticles name, which is returned as a string
    *
+   *  If a given ID is not included in the CondDB Table, than the ID is returned converted as a string
+   *
    */
   std::string TranslateIDintoAntiparticleName(int ID);
   
@@ -134,6 +138,19 @@ private:
    */
   std::map<int, std::string> table_lines_;
 
+  /**
+   *  @brief Private method to get specific information out of a CondDB Line
+   *
+   */
+  std::string GetInfoFromCondDBLine(std::string CondDBLine, int Startpoint);
+  
+  /**
+   *  @brief Method to translate a given MC ID of a particle into the corresponding line in the CondDB Table, which is returned as a string
+   *
+   *  If an ID is not included in the CondDBTable, than an empty string is returned.
+   *
+   */
+  std::string GetCorrespondingLine(int ID);
 
 };
 

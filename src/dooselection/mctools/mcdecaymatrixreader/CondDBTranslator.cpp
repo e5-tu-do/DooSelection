@@ -53,125 +53,86 @@ CondDBTranslator::~CondDBTranslator(){
   
 }
 
+std::string CondDBTranslator::GetCorrespondingLine(int ID){
+  std::map<int, std::string>::const_iterator iter = table_lines_.find(ID);
+  if(iter==table_lines_.end()){
+    std::cout << "<<<<<<<<<< WARNING: searched particle ID " << ID << " is NOT included in the CondDB Particle Table >>>>>>>>>" << std::endl;
+    return "";
+  }
+  else {
+    return iter->second;
+  }
+}
 
+  
+std::string CondDBTranslator::GetInfoFromCondDBLine(std::string CondDBLine, int Startpoint){
+  if(CondDBLine==""){
+    return CondDBLine;
+  }
+  else{
+    std::string PartialStringFromLine = "";
+    for(int i=Startpoint; CondDBLine.substr(i,1) != "|"; ++i){
+      if(CondDBLine.substr(i,1) != " "){
+        PartialStringFromLine += CondDBLine.at(i);
+      }
+    }
+    return PartialStringFromLine;
+  }
+  
+}
 
 std::string CondDBTranslator::TranslateIDintoName(int ID){
-  std::map<int, std::string>::const_iterator iter = table_lines_.find(ID);
-  std::string particleLine = iter->second;
-  
-  std::string particleName = "";
-  
-  for(int i=2; particleLine.substr(i,1) != "|"; ++i){
-    if(particleLine.substr(i,1) != " "){
-      particleName += particleLine.at(i);
-    }
+  std::string particleName = GetInfoFromCondDBLine(GetCorrespondingLine(ID), 2);
+  if(particleName==""){
+    std::ostringstream temp;
+    temp << ID;
+    std::string ID_string(temp.str());
+    particleName = ID_string;
   }
   return particleName;
 }
-
+  
 
 std::string CondDBTranslator::TranslateIDintoCharge(int ID){
-  std::map<int, std::string>::const_iterator iter = table_lines_.find(ID);
-  std::string particleLine = iter->second;
-  
-  std::string particleCharge = "";
-  
-  for(int i=36; particleLine.substr(i,1) != "|"; ++i){
-    if(particleLine.substr(i,1) != " "){
-      particleCharge += particleLine.at(i);
-    }
-  }
-  return particleCharge;
+  return GetInfoFromCondDBLine(GetCorrespondingLine(ID), 36);
 }
 
 
 std::string CondDBTranslator::TranslateIDintoMass(int ID){
-  std::map<int, std::string>::const_iterator iter = table_lines_.find(ID);
-  std::string particleLine = iter->second;
-  
-  std::string particleMass = "";
-  
-  for(int i=43; particleLine.substr(i,1) != "|"; ++i){
-    if(particleLine.substr(i,1) != " "){
-      particleMass += particleLine.at(i);
-    }
-  }
-  return particleMass;
+  return GetInfoFromCondDBLine(GetCorrespondingLine(ID), 43);
 }
 
 
 std::string CondDBTranslator::TranslateIDintoCTauGamma(int ID){
-  std::map<int, std::string>::const_iterator iter = table_lines_.find(ID);
-  std::string particleLine = iter->second;
-  
-  std::string particleCTauGamma = "";
-  
-  for(int i=57; particleLine.substr(i,1) != "|"; ++i){
-    if(particleLine.substr(i,1) != " "){
-      particleCTauGamma += particleLine.at(i);
-    }
-  }
-  return particleCTauGamma;
+  return GetInfoFromCondDBLine(GetCorrespondingLine(ID), 57);
 }
 
 
 std::string CondDBTranslator::TranslateIDintoMaxWidth(int ID){
-  std::map<int, std::string>::const_iterator iter = table_lines_.find(ID);
-  std::string particleLine = iter->second;
-  
-  std::string particleMaxWidth = "";
-  
-  for(int i=74; particleLine.substr(i,1) != "|"; ++i){
-    if(particleLine.substr(i,1) != " "){
-      particleMaxWidth += particleLine.at(i);
-    }
-  }
-  return particleMaxWidth;
+  return GetInfoFromCondDBLine(GetCorrespondingLine(ID), 74);
 }
 
 
 std::string CondDBTranslator::TranslateIDintoEvtGenName(int ID){
-  std::map<int, std::string>::const_iterator iter = table_lines_.find(ID);
-  std::string particleLine = iter->second;
-  
-  std::string particleEvtGenName = "";
-  
-  for(int i=87; particleLine.substr(i,1) != "|"; ++i){
-    if(particleLine.substr(i,1) != " "){
-      particleEvtGenName += particleLine.at(i);
-    }
-  }
-  return particleEvtGenName;
+  return GetInfoFromCondDBLine(GetCorrespondingLine(ID), 87);
 }
 
 
 std::string CondDBTranslator::TranslateIDintoPythiaID(int ID){
-  std::map<int, std::string>::const_iterator iter = table_lines_.find(ID);
-  std::string particleLine = iter->second;
-  
-  std::string particlePythiaID = "";
-  
-  for(int i=110; particleLine.substr(i,1) != "|"; ++i){
-    if(particleLine.substr(i,1) != " "){
-      particlePythiaID += particleLine.at(i);
-    }
-  }
-  return particlePythiaID;
+  return GetInfoFromCondDBLine(GetCorrespondingLine(ID), 110);
 }
 
 
 std::string CondDBTranslator::TranslateIDintoAntiparticleName(int ID){
-  std::map<int, std::string>::const_iterator iter = table_lines_.find(ID);
-  std::string particleLine = iter->second;
-  
-  std::string particleAntiparticleName = "";
-  
-  for(int i=123; particleLine.substr(i,1) != "|"; ++i){
-    if(particleLine.substr(i,1) != " "){
-      particleAntiparticleName += particleLine.at(i);
-    }
+  std::string particleAntiparticleName = GetInfoFromCondDBLine(GetCorrespondingLine(ID), 123);
+  if(particleAntiparticleName==""){
+    std::ostringstream temp;
+    temp << ID;
+    std::string ID_string(temp.str());
+    particleAntiparticleName = ID_string;
+    return particleAntiparticleName;
   }
-  if(particleAntiparticleName != "self-cc"){
+  else if(particleAntiparticleName != "self-cc"){
     return particleAntiparticleName;
   }
   else {
@@ -183,8 +144,7 @@ std::string CondDBTranslator::TranslateIDintoAntiparticleName(int ID){
 Particle CondDBTranslator::CreateFullPropParticle(int ID){
   Particle new_particle;
   
-  std::map<int, std::string>::const_iterator iter = table_lines_.find(ID);
-  std::string particleLine = iter->second;
+  std::string particleLine = GetCorrespondingLine(ID);
 
   new_particle.set_mc_id(ID);
   
