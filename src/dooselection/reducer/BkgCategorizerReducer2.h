@@ -158,11 +158,12 @@ namespace dooselection {
       /**
        *  @brief Static column array size from TupleToolMCDecayTree
        **/
-      static const int      columns_ 	= 25;
+      int      columns_ 	= 0;
       /**
        *  @brief Array to be linked to matrix from TupleToolMCDecayTree
        **/
-      Float_t               decay_matrix_[rows_][columns_];
+      //Float_t               decay_matrix_[rows_][columns_];
+      Float_t               decay_matrix_[1000];
       /**
        *  @brief Name of decay matrix in tuple
        **/

@@ -58,12 +58,22 @@ namespace dooselection {
         interim_tree_->SetBranchStatus(br_depth->GetName(), true);
         interim_tree_->SetBranchStatus(br_matrix->GetName(), true);
         
-       
+        
+        //Get column sitze
+        for (Int_t ev = 0; ev < interim_tree_->GetEntries(); ev++) {
+          TLeaf *l = br_matrix->GetLeaf("B0_DECAYMTRX");
+          interim_tree_->GetEntry(ev);
+          if (!(decay_depth_leaf_->GetValue() < 1)){
+            columns_ = l->GetLen()/decay_matrix_length_leaf_->GetValue();
+            break;
+          }
+        }
+
         //Create the temporary particle, which is overwritten for each event in the event loop below by the decay_matrix_reader_
         //After the particle is overwritten the DecayStrings are created using methods from the particle class
         dooselection::mctools::mcdecaymatrixreader::Particle tempParticle;
-       
         
+
         
         // Fill the map with decay-strings
         for (Int_t ev = 0; ev < interim_tree_->GetEntries(); ev++) {
@@ -73,19 +83,19 @@ namespace dooselection {
           if (!(decay_depth_leaf_->GetValue() < 1)){
             
             //The following is ugly and will be changed soon, changes in MCDecayMatrixReader needed!
-            Float_t* decaymatrix = new Float_t[*decay_matrix_length_lptr_*columns_];
+//            Float_t* decaymatrix = new Float_t[*decay_matrix_length_lptr_*columns_];
             
-            for (int i=0; i<*decay_matrix_length_lptr_; ++i){
-              for (int j=0; j<columns_; ++j){
-                decaymatrix[i*columns_+j] = decay_matrix_[i][j];
-                // Debug output to print decay matrices on the terminal
-                //                std::cout << decaymatrix[i*columns_+j] << " ";
-              }
-//              std::cout << std::endl;
-            }
+//            for (int i=0; i<*decay_matrix_length_lptr_; ++i){
+//              for (int j=0; j<columns_; ++j){
+//                decaymatrix[i*columns_+j] = decay_matrix_[i][j];
+//                // Debug output to print decay matrices on the terminal
+//                //                std::cout << decaymatrix[i*columns_+j] << " ";
+//              }
+////              std::cout << std::endl;
+//            }
             
             
-            tempParticle = decay_matrix_reader_.createMinimalDecayingParticle(decaymatrix, *decay_matrix_length_lptr_, columns_, 0, 0);
+            tempParticle = decay_matrix_reader_.createMinimalDecayingParticle(decay_matrix_, *decay_matrix_length_lptr_, columns_, 0, 0);
             std::string decay_string = tempParticle.GetCompleteDecay();
             std::map<std::string,int>::const_iterator iter = decay_counter_.find(decay_string);
             
@@ -130,7 +140,7 @@ namespace dooselection {
                   decay_string_referencer.insert(pair<std::string, std::string>(decay_string_initialstate_conjugated,decay_string));
                 }
               }
-            delete [] decaymatrix;
+//            delete [] decaymatrix;
 
           }
         }
@@ -184,14 +194,14 @@ namespace dooselection {
           std::string decaystring = "";
           
           //The following is ugly and will be changed soon, changes in MCDecayMatrixReader needed!
-          Float_t* decaymatrix = new Float_t[*decay_matrix_length_lptr_*columns_];
-          
-          for (int i=0; i<*decay_matrix_length_lptr_; ++i){
-            for (int j=0; j<columns_; ++j){
-              decaymatrix[i*columns_+j] = decay_matrix_[i][j];
-            }
-          }
-          tempParticle = decay_matrix_reader_.createMinimalDecayingParticle(decaymatrix, *decay_matrix_length_lptr_, columns_, 0, 0);
+//          Float_t* decaymatrix = new Float_t[*decay_matrix_length_lptr_*columns_];
+//          
+//          for (int i=0; i<*decay_matrix_length_lptr_; ++i){
+//            for (int j=0; j<columns_; ++j){
+//              decaymatrix[i*columns_+j] = decay_matrix_[i][j];
+//            }
+//          }
+          tempParticle = decay_matrix_reader_.createMinimalDecayingParticle(decay_matrix_, *decay_matrix_length_lptr_, columns_, 0, 0);
           
           if (mode_ == ChargesRel) {
             decaystring = tempParticle.GetCompleteDecay();
@@ -216,7 +226,7 @@ namespace dooselection {
           else {
             *background_category_lptr_ = j+1;
           }
-          delete [] decaymatrix;
+//          delete [] decaymatrix;
         } else {
           *background_category_lptr_ = 100;
         }
