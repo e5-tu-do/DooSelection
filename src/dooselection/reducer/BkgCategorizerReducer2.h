@@ -44,11 +44,16 @@ namespace dooselection {
       virtual ~BkgCategorizerReducer2();
 
       /**
-       *  @brief Setter for the mode that handles how decays are counted, that contain the same but charge conjugated particles, Default is ChargesIrrel, explanation below
+       *  @brief Setter for the mode that handles how decays are counted that contain the same but charge conjugated particles, Default is ChargesIrrel, explanation below
+       *
        *  There are four Modes:
-       *  ChargesRel:          Charges are relevant = taken into account (Decays, that are in any way charge conjuagted, are counted independently)
-       *  ChargesIrrel:        Charges are completely irrelevant (Decays, that are in any way charge conjuagted, are added)
+       *
+       *  ChargesRel:          Charges are relevant = taken into account (Decays, that contain at lease one particle that is charge conjugated compared to an already counted decay are counted separately)
+       *
+       *  ChargesIrrel:        Charges are completely irrelevant (All Decays, that decay into the same particles, are counted as equal, no matter if there are charge conjugations)
+       *
        *  ChargesFinalStIrrel: Charges in the final state are irrelevant, i.e. Decays with the same charge in the initial state but conjugated final state are added
+       *
        *  ChargesInStIrrel:    Charges in the initial state are irrelevant, i.e. Decays with same charges in the final state but conjugated initial state are added
        *
        *  Default is ChargesIrrel! This is the setter method that allows to change the mode!
@@ -66,6 +71,10 @@ namespace dooselection {
        *  @brief Setter for background_category_leaf_
        **/
       void set_background_category_leaf(ReducerLeaf<Int_t>& leaf) { background_category_leaf_ = &leaf; }
+      /**
+       *  @brief Setter for the number of different decays that are taken into account, default is 40
+       **/
+      void set_max_number_of_decays(int max_number_of_decays){ max_number_decays_ = max_number_of_decays; }
       /**
        *  @brief Setter for decay_matrix_length_
        **/
@@ -154,15 +163,15 @@ namespace dooselection {
       /**
        *  @brief Static row array size from TupleToolMCDecayTree
        **/
-      static const int      rows_ 		= 35;
+      static const int                  rows_ 		= 35;
       /**
-       *  @brief Static column array size from TupleToolMCDecayTree
+       *  @brief Column array size - Value is set in PrepareSpecialBranches
        **/
-      static const int      columns_ 	= 25;
+      int                               columns_ 	= 0;
       /**
        *  @brief Array to be linked to matrix from TupleToolMCDecayTree
        **/
-      Float_t               decay_matrix_[rows_][columns_];
+      Float_t                           *decay_matrix_;
       /**
        *  @brief Name of decay matrix in tuple
        **/
@@ -191,9 +200,13 @@ namespace dooselection {
        *  @brief Run Mode, that handles how decays are counted, that contain the same but charge conjugated particles, Default is ChargesIrrel, explanation below
        *
        *  There are four Modes:
+       *
        *  ChargesRel:          Charges are relevant = taken into account (Decays, that are in any way charge conjuagted, are counted independently)
+       *
        *  ChargesIrrel:        Charges are completely irrelevant (Decays, that are in any way charge conjuagted, are added)
+       *
        *  ChargesFinalStIrrel: Charges in the final state are irrelevant, i.e. Decays with the same charge in the initial state but conjugated final state are added
+       *
        *  ChargesInStIrrel:    Charges in the initial state are irrelevant, i.e. Decays with same charges in the final state but conjugated initial state are added
        *
        *  Default is ChargesIrrel! There is a setter method to change the mode!
