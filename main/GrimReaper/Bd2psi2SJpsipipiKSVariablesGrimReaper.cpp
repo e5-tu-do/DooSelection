@@ -137,7 +137,8 @@ void MassLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   doocore::config::Summary& summary = doocore::config::Summary::GetInstance();
   // handle flattened tuples
   std::string flat_suffix = "";
-  if (std::get<4>(cfg) == 4) flat_suffix = "_flat";
+  if (std::get<4>(cfg)) flat_suffix = "_flat";
+  sinfo << "-info-  \t" << "Setting flat suffix to " << flat_suffix << endmsg;
 
   // create copies of mass observables for different fit constraints
   // plus the 'nominal' mass observable depending on the following hierarchy
