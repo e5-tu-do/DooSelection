@@ -202,7 +202,7 @@ void TimeLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   // handle flattened tuples
   std::string flat_suffix = "";
   std::string fit_constraints = "";
-  if (std::get<4>(cfg) == 4) flat_suffix = "_flat";
+  if (std::get<4>(cfg)) flat_suffix = "_flat";
 
   ReducerLeaf<Double_t>* tau_leaf_ptr = NULL;
   ReducerLeaf<Double_t>* tau_true_leaf_ptr = NULL;
@@ -262,7 +262,7 @@ void VetoLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   doocore::config::Summary& summary = doocore::config::Summary::GetInstance();
   // handle flattened tuples
   std::string flat_suffix = "";
-  if (std::get<4>(cfg) == 4) flat_suffix = "_flat";
+  if (std::get<4>(cfg)) flat_suffix = "_flat";
 
   // veto leafs
   std::string piplus_px, piplus_py, piplus_pz;
@@ -377,7 +377,7 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   doocore::config::Summary& summary = doocore::config::Summary::GetInstance();
   // handle flattened tuples
   std::string flat_suffix = "";
-  if (std::get<4>(cfg) == 4) flat_suffix = "_flat";
+  if (std::get<4>(cfg)) flat_suffix = "_flat";
 
   // random leaf
   TRandom3* random_generator_ = new TRandom3(42);
@@ -385,7 +385,7 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   random_leaf.Randomize(random_generator_);
 
   // background category
-  if (std::get<3>(cfg) == true){
+  if (std::get<3>(cfg)){
     ReducerLeaf<Int_t>& bkgcat_leaf = _rdcr->CreateIntCopyLeaf("catBkg", _rdcr->GetInterimLeafByName("B0_BKGCAT"));
   }
   // event and run number
@@ -400,7 +400,7 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   // number of tracks
   ReducerLeaf<Int_t>& var_ntrack_leaf = _rdcr->CreateIntCopyLeaf("catNTrack", _rdcr->GetInterimLeafByName("nTracks"));
   // flat array index
-  if (std::get<4>(cfg) == 4){
+  if (std::get<4>(cfg)){
     ReducerLeaf<Int_t>& flat_index_leaf_ptr = _rdcr->CreateIntCopyLeaf("idxPV", _rdcr->GetInterimLeafByName("flat_array_index"));
   }
 
