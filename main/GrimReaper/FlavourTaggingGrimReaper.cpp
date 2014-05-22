@@ -51,6 +51,7 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
     var_tag_eta_os_comb_with_nnet_kaon_leaf_(NULL),
     var_tag_eta_os_with_nnet_kaon_sspion_leaf_(NULL),
     // cat tagged leaves
+    cat_tagged_os_std_comb_leaf_(NULL),
     cat_tagged_os_comb_with_nnet_kaon_leaf_(NULL),
     cat_tagged_os_or_ss_pion_leaf_(NULL),
     cat_tagged_os_xor_ss_pion_leaf_(NULL),
@@ -65,6 +66,7 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
     var_tag_os_(NULL),
     var_tag_os_muon_(NULL),
     var_tag_os_electron_(NULL),
+    var_tag_os_kaon_(NULL),
     var_tag_os_nnet_kaon_(NULL),
     var_tag_os_vtx_charge_(NULL),
     var_tag_ss_pion_(NULL),
@@ -72,6 +74,7 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
     var_tag_eta_os_(NULL),
     var_tag_eta_os_muon_(NULL),
     var_tag_eta_os_electron_(NULL),
+    var_tag_eta_os_kaon_(NULL),
     var_tag_eta_os_nnet_kaon_(NULL),
     var_tag_eta_os_vtx_charge_(NULL),
     var_tag_eta_ss_pion_(NULL),
@@ -81,6 +84,9 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
     // ______________________________________________________________________________________
     // leaves to write
     // tag leaves
+    var_tag_os_std_comb_value_(NULL),
+    var_tag_os_std_comb_nozero_value_(NULL),
+    var_tag_os_std_comb_babar_value_(NULL),
     var_tag_os_nozero_value_(NULL),
     var_tag_ss_pion_nozero_value_(NULL),
     var_tag_os_ss_pion_value_(NULL),
@@ -98,12 +104,14 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
     var_tag_os_comb_with_nnet_kaon_value_(NULL),
     var_tag_os_comb_with_nnet_kaon_babar_value_(NULL),
     // eta leaves
+    var_tag_eta_os_std_comb_value_(NULL),
     var_tag_eta_os_ss_pion_value_(NULL),
     var_tag_eta_os_exclusive_ss_pion_value_(NULL),
     var_tag_eta_exclusive_os_ss_pion_value_(NULL),
     var_tag_eta_os_with_nnet_kaon_sspion_value_(NULL),
     var_tag_eta_os_comb_with_nnet_kaon_value_(NULL),
     // cat tagged leaves
+    cat_tagged_os_std_comb_value_(NULL),
     cat_tagged_os_or_ss_pion_value_(NULL),
     cat_tagged_os_xor_ss_pion_value_(NULL),
     cat_tagged_os_ss_pion_value_(NULL),
@@ -122,6 +130,9 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
   // ______________________________________________________________________________________
   // create leaves
   // tag leaves
+  dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_os_std_comb_leaf_;
+  dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_os_std_comb_nozero_leaf_;
+  dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_os_std_comb_babar_leaf_;
   dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_os_nozero_leaf_;
   dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_ss_pion_nozero_leaf_;
   dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_os_ss_pion_leaf_; 
@@ -139,12 +150,14 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
   dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_os_comb_with_nnet_kaon_leaf_;
   dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_os_comb_with_nnet_kaon_babar_leaf_; 
   // eta leaves
+  dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_os_std_comb_leaf_;
   dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_os_ss_pion_leaf_;
   dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_os_exclusive_ss_pion_leaf_;
   dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_exclusive_os_ss_pion_leaf_;
   dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_os_comb_with_nnet_kaon_leaf_;
   dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_os_with_nnet_kaon_sspion_leaf_;
   // cat tagged leaves
+  dooselection::reducer::ReducerLeaf<Int_t>*    cat_tagged_os_std_comb_leaf_;
   dooselection::reducer::ReducerLeaf<Int_t>*    cat_tagged_os_comb_with_nnet_kaon_leaf_;
   dooselection::reducer::ReducerLeaf<Int_t>*    cat_tagged_os_or_ss_pion_leaf_; 
   dooselection::reducer::ReducerLeaf<Int_t>*    cat_tagged_os_xor_ss_pion_leaf_;
@@ -161,6 +174,7 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
   Int_t* var_tag_os_; 
   Short_t* var_tag_os_muon_;         
   Short_t* var_tag_os_electron_; 
+  Short_t* var_tag_os_kaon_; 
   Short_t* var_tag_os_nnet_kaon_; 
   Short_t* var_tag_os_vtx_charge_;            
   Short_t* var_tag_ss_pion_;    
@@ -168,16 +182,20 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
   Double_t* var_tag_eta_os_;      
   Float_t* var_tag_eta_os_muon_;      
   Float_t* var_tag_eta_os_electron_; 
+  Float_t* var_tag_eta_os_kaon_; 
   Float_t* var_tag_eta_os_nnet_kaon_; 
   Float_t* var_tag_eta_os_vtx_charge_; 
   Float_t* var_tag_eta_ss_pion_;
   // cat tagged leaves
   Int_t* cat_tagged_os_;      
-  Int_t* cat_tagged_ss_pion_; 
+  Int_t* cat_tagged_ss_pion_;
 
   // ______________________________________________________________________________________
   // leaves to write
   // tag leaves
+  Int_t* var_tag_os_std_comb_value_;
+  Int_t* var_tag_os_std_comb_nozero_value_;
+  Int_t* var_tag_os_std_comb_babar_value_;
   Int_t* var_tag_os_nozero_value_;
   Int_t* var_tag_ss_pion_nozero_value_;
   Int_t* var_tag_os_ss_pion_value_;         
@@ -195,12 +213,14 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
   Int_t* var_tag_os_comb_with_nnet_kaon_value_;         
   Int_t* var_tag_os_comb_with_nnet_kaon_babar_value_;   
   // eta leaves
+  Double_t* var_tag_eta_os_std_comb_value_;
   Double_t* var_tag_eta_os_ss_pion_value_;
   Double_t* var_tag_eta_os_exclusive_ss_pion_value_;
   Double_t* var_tag_eta_exclusive_os_ss_pion_value_;
   Double_t* var_tag_eta_os_with_nnet_kaon_sspion_value_;
   Double_t* var_tag_eta_os_comb_with_nnet_kaon_value_; 
   // cat tagged leaves
+  Int_t* cat_tagged_os_std_comb_value_;
   Int_t* cat_tagged_os_or_ss_pion_value_;  
   Int_t* cat_tagged_os_xor_ss_pion_value_; 
   Int_t* cat_tagged_os_ss_pion_value_;
@@ -215,6 +235,9 @@ void TaggingRdcr::CreateSpecialBranches(){
   // ______________________________________________________________________________________
   // Create new leaves
   // tag
+  var_tag_os_std_comb_leaf_                   = &CreateIntLeaf("obsTagOS_StdComb");            // 1,-1,0 for std combination
+  var_tag_os_std_comb_nozero_leaf_            = &CreateIntLeaf("obsTagOS_StdComb_NoZero");     // no zero tag but 1 for untagged
+  var_tag_os_std_comb_babar_leaf_             = &CreateIntLeaf("obsTagOS_StdComb_BaBar");      // see two above, tag flipped
   var_tag_os_nozero_leaf_                     = &CreateIntLeaf("obsTagOS_NoZero");            // no zero tag but 1 for untagged
   var_tag_ss_pion_nozero_leaf_                = &CreateIntLeaf("obsTagSSPion_NoZero");        // no zero tag but 1 for untagged
   var_tag_os_ss_pion_leaf_                    = &CreateIntLeaf("obsTagOSSSPion");             // OS if excl OS, SSPion if excl SSPion, OS+SSPion combination if both, 0 otherwise
@@ -229,11 +252,13 @@ void TaggingRdcr::CreateSpecialBranches(){
   var_tag_os_comb_with_nnet_kaon_leaf_        = &CreateIntLeaf("obsTagOSwNNKaon");
   var_tag_os_comb_with_nnet_kaon_babar_leaf_  = &CreateIntLeaf("obsTagOSwNNKaon_BaBar");  
   // eta
+  var_tag_eta_os_std_comb_leaf_               = &CreateDoubleLeaf("obsEtaOS_StdComb");
   var_tag_eta_os_ss_pion_leaf_                = &CreateDoubleLeaf("obsEtaOSSSPion");          //
   var_tag_eta_os_exclusive_ss_pion_leaf_      = &CreateDoubleLeaf("obsEtaOSExclSSPion");      //  same as corresponding tag decision  
   var_tag_eta_exclusive_os_ss_pion_leaf_      = &CreateDoubleLeaf("obsEtaExclOSSSPion");      //
   var_tag_eta_os_comb_with_nnet_kaon_leaf_    = &CreateDoubleLeaf("obsEtaOSwNNKaon");
   // cat tagged
+  cat_tagged_os_std_comb_leaf_                = &CreateIntLeaf("catTaggedOS_StdComb");        // 0 for untagged, 1 for tagged
   cat_tagged_os_or_ss_pion_leaf_              = &CreateIntLeaf("catTaggedOSorSSPion");        // 0 for untagged, 1 for tagged
   cat_tagged_os_xor_ss_pion_leaf_             = &CreateIntLeaf("catTaggedOSxorSSPion");       // 0 for untagged, 1 for OS tag, -1 for SSPion tag
   cat_tagged_os_ss_pion_leaf_                 = &CreateIntLeaf("catTaggedOSSSPion");          // 0 for untagged, 1 for excl. OS tag, -1 for excl. SSPion tag, 10 for combination of OS and SSPion
@@ -257,7 +282,11 @@ void TaggingRdcr::CreateSpecialBranches(){
   var_tag_ss_pion_                            = (Short_t*)GetInterimLeafByName("B0_SS_Pion_DEC").branch_address();
   var_tag_os_muon_                            = (Short_t*)GetInterimLeafByName("B0_OS_Muon_DEC").branch_address();     
   var_tag_os_electron_                        = (Short_t*)GetInterimLeafByName("B0_OS_Electron_DEC").branch_address();
-  var_tag_os_vtx_charge_                      = (Short_t*)GetInterimLeafByName("B0_VtxCharge_DEC").branch_address(); 
+  var_tag_os_kaon_                            = (Short_t*)GetInterimLeafByName("B0_OS_Kaon_DEC").branch_address();
+  var_tag_os_vtx_charge_                      = (Short_t*)GetInterimLeafByName("B0_VtxCharge_DEC").branch_address();
+  var_tag_os_std_comb_value_                  = (Int_t*)var_tag_os_std_comb_leaf_->branch_address();
+  var_tag_os_std_comb_nozero_value_           = (Int_t*)var_tag_os_std_comb_nozero_leaf_->branch_address();
+  var_tag_os_std_comb_babar_value_            = (Int_t*)var_tag_os_std_comb_babar_leaf_->branch_address();
   var_tag_os_nozero_value_                    = (Int_t*)var_tag_os_nozero_leaf_->branch_address();
   var_tag_ss_pion_nozero_value_               = (Int_t*)var_tag_ss_pion_nozero_leaf_->branch_address();
   var_tag_os_ss_pion_value_                   = (Int_t*)var_tag_os_ss_pion_leaf_->branch_address();
@@ -274,14 +303,17 @@ void TaggingRdcr::CreateSpecialBranches(){
   var_tag_eta_os_                             = (Double_t*)GetInterimLeafByName("B0_TAGOMEGA_OS").branch_address();
   var_tag_eta_ss_pion_                        = (Float_t*)GetInterimLeafByName("B0_SS_Pion_PROB").branch_address();
   var_tag_eta_os_muon_                        = (Float_t*)GetInterimLeafByName("B0_OS_Muon_PROB").branch_address();      
-  var_tag_eta_os_electron_                    = (Float_t*)GetInterimLeafByName("B0_OS_Electron_PROB").branch_address();     
+  var_tag_eta_os_electron_                    = (Float_t*)GetInterimLeafByName("B0_OS_Electron_PROB").branch_address();
+  var_tag_eta_os_kaon_                        = (Float_t*)GetInterimLeafByName("B0_OS_Kaon_PROB").branch_address();     
   var_tag_eta_os_vtx_charge_                  = (Float_t*)GetInterimLeafByName("B0_VtxCharge_PROB").branch_address();
+  var_tag_eta_os_std_comb_value_              = (Double_t*)var_tag_eta_os_std_comb_leaf_->branch_address();
   var_tag_eta_os_ss_pion_value_               = (Double_t*)var_tag_eta_os_ss_pion_leaf_->branch_address();
   var_tag_eta_os_exclusive_ss_pion_value_     = (Double_t*)var_tag_eta_os_exclusive_ss_pion_leaf_->branch_address();
   var_tag_eta_exclusive_os_ss_pion_value_     = (Double_t*)var_tag_eta_exclusive_os_ss_pion_leaf_->branch_address();
   // cat tagged
   cat_tagged_os_                              = (Int_t*)GetInterimLeafByName("B0_TAGDECISION_OS").branch_address();
   cat_tagged_ss_pion_                         = (Int_t*)GetInterimLeafByName("B0_SS_Pion_DEC").branch_address();
+  cat_tagged_os_std_comb_value_               = (Int_t*)cat_tagged_os_std_comb_leaf_->branch_address();
   cat_tagged_os_or_ss_pion_value_             = (Int_t*)cat_tagged_os_or_ss_pion_leaf_->branch_address();
   cat_tagged_os_xor_ss_pion_value_            = (Int_t*)cat_tagged_os_xor_ss_pion_leaf_->branch_address();
   cat_tagged_os_ss_pion_value_                = (Int_t*)cat_tagged_os_ss_pion_leaf_->branch_address();
@@ -322,6 +354,100 @@ void TaggingRdcr::UpdateSpecialLeaves(){
   *var_tag_ss_pion_nozero_value_ = *var_tag_ss_pion_;
   if ((*var_tag_os_==0)) *var_tag_os_nozero_value_ = 1;
   if ((*var_tag_ss_pion_==0)) *var_tag_ss_pion_nozero_value_ = 1;
+
+  // ______________________________________________________________________________________
+  // OS COMBINATION ({obsTag,obsEta,catTagged}OS_StdComb)
+  // OS standard combination
+  // Categories:
+  //   0: untagged
+  //  +1: tagged
+  // ______________________________________________________________________________________
+  double tagdecision=0; 
+  double pnsum_a= 0.50; //hypothesis of truetag=+1 
+  double pnsum_b= 0.50; //hypothesis of truetag=-1 
+  double pnsum= 0.; 
+
+  Double_t osw[4]; 
+  Int_t osdec[4]; 
+  osw[0] = *var_tag_eta_os_muon_; 
+  osw[1] = *var_tag_eta_os_electron_; 
+  osw[2] = *var_tag_eta_os_kaon_; 
+  osw[3] = *var_tag_eta_os_vtx_charge_; 
+
+  osdec[0] = *var_tag_os_muon_; 
+  osdec[1] = *var_tag_os_electron_; 
+  osdec[2] = *var_tag_os_kaon_;
+  osdec[3] = *var_tag_os_vtx_charge_; 
+
+   // cout << "========> ol2 " << osw[1] << endl; 
+
+  // Ol recompute the combined probability and tag decision for SSK+OS 
+  // First recompute the OS decision and mistag, with B0_OS_nnetKaon instead of B0_OS_Kaon 
+  // to be sure redefine the variables
+  tagdecision=0; 
+  pnsum_a= 0.50; //hypothesis of truetag=+1 
+  pnsum_b= 0.50; //hypothesis of truetag=-1 
+  pnsum= 0.; 
+
+  // calibration for Reco14 (2011 and 2012)
+  // see Stefanias email 20131012
+  // double m_ProbMin_OS = 0.5; 
+  // double m_P0_Cal_OS = 0.423; 
+  // double m_P1_Cal_OS = 0.875;
+  // double m_Eta_Cal_OS = 0.403; 
+  double m_ProbMin_OS = 0.5; 
+  double m_P0_Cal_OS = 0.0; 
+  double m_P1_Cal_OS = 1.0;
+  double m_Eta_Cal_OS = 0.0; 
+
+  for( int i = 0; i != 4; ++i ){ //multiply all probabilities 
+    const double mtag = osdec[i]; 
+    // std::cout << " in loop, i = " << i << " dec = " << osdec[i] << " w = " << osw[i] << std::endl; 
+
+    if(!mtag) continue; 
+
+    const double pn = 1-osw[i]; //probability of 'right' 
+    pnsum_a *= ((1-mtag)/2 + mtag*pn ); // p 
+    pnsum_b *= ((1+mtag)/2 - mtag*pn ); //(1-p) 
+  } 
+  if(pnsum_a > pnsum_b) tagdecision = +1; 
+  if(pnsum_a < pnsum_b) tagdecision = -1; 
+
+  //normalise probability to the only two possible flavours: 
+  pnsum = std::max(pnsum_a,pnsum_b) /(pnsum_a + pnsum_b); 
+
+  //Calibration (w=1-pn) w' = p0 + p1(w-eta) 
+  pnsum = 1 - m_P0_Cal_OS - m_P1_Cal_OS * ( (1-pnsum)-m_Eta_Cal_OS); 
+
+  //throw away poorly significant tags
+  if(pnsum < m_ProbMin_OS || tagdecision == 0){ 
+    pnsum = 0.50; 
+    tagdecision = 0; 
+  }
+  // B0_TAGDECISION_OS = tagdecision; 
+  // B0_TAGOMEGA_OS = 1-pnsum ; 
+
+  *var_tag_os_std_comb_value_ = tagdecision;
+  *var_tag_os_std_comb_babar_value_ = -1.*tagdecision; 
+  *var_tag_eta_os_std_comb_value_ = 1-pnsum; 
+  if (tagdecision==0){
+    *var_tag_os_std_comb_nozero_value_ = 1;
+    *cat_tagged_os_std_comb_value_ = 0;       
+  }
+  else{
+    *var_tag_os_std_comb_nozero_value_ = tagdecision;
+    *cat_tagged_os_std_comb_value_ = 1;
+  }
+
+  if (debug){
+    std::cout << "" << std::endl;
+    std::cout << "OS standard combination" << std::endl;
+    std::cout << "OS muon tag / mistag (with address): \t" << osdec[0] << " (" << &osdec[0] << ") / " << osw[0] << " (" << &osw[0] << ")" << std::endl;
+    std::cout << "OS electron tag / mistag (with address): " << osdec[1] << " (" << &osdec[1] << ") / " << osw[1] << " (" << &osw[1] << ")" << std::endl;
+    std::cout << "OS kaon tag / mistag (with address): \t" << osdec[2] << " (" << &osdec[2] << ") / " << osw[2] << " (" << &osw[2] << ")" << std::endl;
+    std::cout << "OS VtxQ tag / mistag (with address): \t" << osdec[3] << " (" << &osdec[3] << ") / " << osw[3] << " (" << &osw[3] << ")" << std::endl;
+    std::cout << "Comb tag / mistag " << *var_tag_os_std_comb_value_ << " / " << *var_tag_eta_os_std_comb_value_ << std::endl;
+  }
 
   // ______________________________________________________________________________________
   // OS+SS COMBINATION ({obsTag,obsEta,catTagged}OSSSPion)
@@ -532,11 +658,6 @@ void TaggingRdcr::UpdateSpecialLeaves(){
   // ______________________________________________________________________________________
   // OS with neural net kaon
   // ______________________________________________________________________________________
-
-  double tagdecision=0; 
-  double pnsum_a= 0.50; //hypothesis of truetag=+1 
-  double pnsum_b= 0.50; //hypothesis of truetag=-1 
-  double pnsum= 0.; 
 
   if (LeafExists("B0_OS_nnetKaon_DEC")){
     // ______________________________________________________________________________________
