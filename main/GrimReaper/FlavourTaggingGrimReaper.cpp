@@ -119,9 +119,11 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
     cat_tagged_exclusive_os_ss_pion_value_(NULL),
     cat_tagged_os_comb_with_nnet_kaon_value_(NULL),
     cat_tagged_os_with_nnet_kaon_or_sspion_value_(NULL),
-    cat_tagged_os_with_nnet_kaon_xor_ss_pion_value_(NULL)
+    cat_tagged_os_with_nnet_kaon_xor_ss_pion_value_(NULL),
+    head_("")
   {}
   virtual ~TaggingRdcr(){}
+  void set_head(const std::string& head){head_ = head;}
  protected:
   virtual void CreateSpecialBranches();
   virtual bool EntryPassesSpecialCuts();
@@ -229,6 +231,9 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
   Int_t* cat_tagged_os_comb_with_nnet_kaon_value_;
   Int_t* cat_tagged_os_with_nnet_kaon_or_sspion_value_;
   Int_t* cat_tagged_os_with_nnet_kaon_xor_ss_pion_value_;
+
+  // head name
+  std::string head_;
 };
 
 void TaggingRdcr::CreateSpecialBranches(){
@@ -267,7 +272,7 @@ void TaggingRdcr::CreateSpecialBranches(){
   cat_tagged_os_comb_with_nnet_kaon_leaf_     = &CreateIntLeaf("catTaggedOSwNNKaon");
 
   // OS NNKaon
-  if (LeafExists("B0_OS_nnetKaon_DEC")){
+  if (LeafExists(head_+"_OS_nnetKaon_DEC")){
     var_tag_os_with_nnet_kaon_sspion_leaf_          = &CreateIntLeaf("obsTagOSwNNKaonSSPion");
     var_tag_os_with_nnet_kaon_sspion_babar_leaf_    = &CreateIntLeaf("obsTagOSwNNKaonSSPion_BaBar");
     var_tag_eta_os_with_nnet_kaon_sspion_leaf_      = &CreateDoubleLeaf("obsEtaOSwNNKaonSSPion");
@@ -278,12 +283,12 @@ void TaggingRdcr::CreateSpecialBranches(){
   // ______________________________________________________________________________________
   // Link branch addresses
   // tag
-  var_tag_os_                                 = (Int_t*)GetInterimLeafByName("B0_TAGDECISION_OS").branch_address();
-  var_tag_ss_pion_                            = (Short_t*)GetInterimLeafByName("B0_SS_Pion_DEC").branch_address();
-  var_tag_os_muon_                            = (Short_t*)GetInterimLeafByName("B0_OS_Muon_DEC").branch_address();     
-  var_tag_os_electron_                        = (Short_t*)GetInterimLeafByName("B0_OS_Electron_DEC").branch_address();
-  var_tag_os_kaon_                            = (Short_t*)GetInterimLeafByName("B0_OS_Kaon_DEC").branch_address();
-  var_tag_os_vtx_charge_                      = (Short_t*)GetInterimLeafByName("B0_VtxCharge_DEC").branch_address();
+  var_tag_os_                                 = (Int_t*)GetInterimLeafByName(head_+"_TAGDECISION_OS").branch_address();
+  var_tag_ss_pion_                            = (Short_t*)GetInterimLeafByName(head_+"_SS_Pion_DEC").branch_address();
+  var_tag_os_muon_                            = (Short_t*)GetInterimLeafByName(head_+"_OS_Muon_DEC").branch_address();     
+  var_tag_os_electron_                        = (Short_t*)GetInterimLeafByName(head_+"_OS_Electron_DEC").branch_address();
+  var_tag_os_kaon_                            = (Short_t*)GetInterimLeafByName(head_+"_OS_Kaon_DEC").branch_address();
+  var_tag_os_vtx_charge_                      = (Short_t*)GetInterimLeafByName(head_+"_VtxCharge_DEC").branch_address();
   var_tag_os_std_comb_value_                  = (Int_t*)var_tag_os_std_comb_leaf_->branch_address();
   var_tag_os_std_comb_nozero_value_           = (Int_t*)var_tag_os_std_comb_nozero_leaf_->branch_address();
   var_tag_os_std_comb_babar_value_            = (Int_t*)var_tag_os_std_comb_babar_leaf_->branch_address();
@@ -300,19 +305,19 @@ void TaggingRdcr::CreateSpecialBranches(){
   var_tag_exclusive_os_ss_pion_babar_value_   = (Int_t*)var_tag_exclusive_os_ss_pion_babar_leaf_->branch_address();
   var_tag_exclusive_os_ss_pion_nozero_value_  = (Int_t*)var_tag_exclusive_os_ss_pion_nozero_leaf_->branch_address();
   // eta
-  var_tag_eta_os_                             = (Double_t*)GetInterimLeafByName("B0_TAGOMEGA_OS").branch_address();
-  var_tag_eta_ss_pion_                        = (Float_t*)GetInterimLeafByName("B0_SS_Pion_PROB").branch_address();
-  var_tag_eta_os_muon_                        = (Float_t*)GetInterimLeafByName("B0_OS_Muon_PROB").branch_address();      
-  var_tag_eta_os_electron_                    = (Float_t*)GetInterimLeafByName("B0_OS_Electron_PROB").branch_address();
-  var_tag_eta_os_kaon_                        = (Float_t*)GetInterimLeafByName("B0_OS_Kaon_PROB").branch_address();     
-  var_tag_eta_os_vtx_charge_                  = (Float_t*)GetInterimLeafByName("B0_VtxCharge_PROB").branch_address();
+  var_tag_eta_os_                             = (Double_t*)GetInterimLeafByName(head_+"_TAGOMEGA_OS").branch_address();
+  var_tag_eta_ss_pion_                        = (Float_t*)GetInterimLeafByName(head_+"_SS_Pion_PROB").branch_address();
+  var_tag_eta_os_muon_                        = (Float_t*)GetInterimLeafByName(head_+"_OS_Muon_PROB").branch_address();      
+  var_tag_eta_os_electron_                    = (Float_t*)GetInterimLeafByName(head_+"_OS_Electron_PROB").branch_address();
+  var_tag_eta_os_kaon_                        = (Float_t*)GetInterimLeafByName(head_+"_OS_Kaon_PROB").branch_address();     
+  var_tag_eta_os_vtx_charge_                  = (Float_t*)GetInterimLeafByName(head_+"_VtxCharge_PROB").branch_address();
   var_tag_eta_os_std_comb_value_              = (Double_t*)var_tag_eta_os_std_comb_leaf_->branch_address();
   var_tag_eta_os_ss_pion_value_               = (Double_t*)var_tag_eta_os_ss_pion_leaf_->branch_address();
   var_tag_eta_os_exclusive_ss_pion_value_     = (Double_t*)var_tag_eta_os_exclusive_ss_pion_leaf_->branch_address();
   var_tag_eta_exclusive_os_ss_pion_value_     = (Double_t*)var_tag_eta_exclusive_os_ss_pion_leaf_->branch_address();
   // cat tagged
-  cat_tagged_os_                              = (Int_t*)GetInterimLeafByName("B0_TAGDECISION_OS").branch_address();
-  cat_tagged_ss_pion_                         = (Int_t*)GetInterimLeafByName("B0_SS_Pion_DEC").branch_address();
+  cat_tagged_os_                              = (Int_t*)GetInterimLeafByName(head_+"_TAGDECISION_OS").branch_address();
+  cat_tagged_ss_pion_                         = (Int_t*)GetInterimLeafByName(head_+"_SS_Pion_DEC").branch_address();
   cat_tagged_os_std_comb_value_               = (Int_t*)cat_tagged_os_std_comb_leaf_->branch_address();
   cat_tagged_os_or_ss_pion_value_             = (Int_t*)cat_tagged_os_or_ss_pion_leaf_->branch_address();
   cat_tagged_os_xor_ss_pion_value_            = (Int_t*)cat_tagged_os_xor_ss_pion_leaf_->branch_address();
@@ -322,15 +327,15 @@ void TaggingRdcr::CreateSpecialBranches(){
   cat_tagged_os_comb_with_nnet_kaon_value_    = (Int_t*)cat_tagged_os_comb_with_nnet_kaon_leaf_->branch_address();
 
   // OS NNKaon
-  if (LeafExists("B0_OS_nnetKaon_DEC")){
+  if (LeafExists(head_+"_OS_nnetKaon_DEC")){
     // tag
-    var_tag_os_nnet_kaon_                           = (Short_t*)GetInterimLeafByName("B0_OS_nnetKaon_DEC").branch_address();
+    var_tag_os_nnet_kaon_                           = (Short_t*)GetInterimLeafByName(head_+"_OS_nnetKaon_DEC").branch_address();
     var_tag_os_with_nnet_kaon_sspion_value_         = (Int_t*)var_tag_os_with_nnet_kaon_sspion_leaf_->branch_address();  
     var_tag_os_with_nnet_kaon_sspion_babar_value_   = (Int_t*)var_tag_os_with_nnet_kaon_sspion_babar_leaf_->branch_address();
     var_tag_os_comb_with_nnet_kaon_value_           = (Int_t*)var_tag_os_comb_with_nnet_kaon_leaf_->branch_address();
     var_tag_os_comb_with_nnet_kaon_babar_value_     = (Int_t*)var_tag_os_comb_with_nnet_kaon_babar_leaf_->branch_address();
     // eta
-    var_tag_eta_os_nnet_kaon_                       = (Float_t*)GetInterimLeafByName("B0_OS_nnetKaon_PROB").branch_address();
+    var_tag_eta_os_nnet_kaon_                       = (Float_t*)GetInterimLeafByName(head_+"_OS_nnetKaon_PROB").branch_address();
     var_tag_eta_os_with_nnet_kaon_sspion_value_     = (Double_t*)var_tag_eta_os_with_nnet_kaon_sspion_leaf_->branch_address();
     var_tag_eta_os_comb_with_nnet_kaon_value_       = (Double_t*)var_tag_eta_os_comb_with_nnet_kaon_leaf_->branch_address();
     // cat tagged
@@ -345,7 +350,7 @@ void TaggingRdcr::UpdateSpecialLeaves(){
   // Always using the FT standard combination
   // see page 106 of: https://cds.cern.ch/record/1456804/files/CERN-THESIS-2012-075.pdf
   // as a reference.
-  bool debug = false;
+  bool debug = true;
 
   // ______________________________________________________________________________________
   // Create new OS and SSPion tag observables that not contain zero tags
@@ -390,15 +395,17 @@ void TaggingRdcr::UpdateSpecialLeaves(){
   pnsum= 0.; 
 
   // calibration for Reco14 (2011 and 2012)
-  // see Stefanias email 20131012
+  // see Stefanias email 20130920
+  double m_ProbMin_OS = 0.5;
+  double m_P0_Cal_OS = 0.392;
+  double m_P1_Cal_OS = 0.953;
+  double m_Eta_Cal_OS = 0.362;
+  
+  // no calibration
   // double m_ProbMin_OS = 0.5; 
-  // double m_P0_Cal_OS = 0.423; 
-  // double m_P1_Cal_OS = 0.875;
-  // double m_Eta_Cal_OS = 0.403; 
-  double m_ProbMin_OS = 0.5; 
-  double m_P0_Cal_OS = 0.0; 
-  double m_P1_Cal_OS = 1.0;
-  double m_Eta_Cal_OS = 0.0; 
+  // double m_P0_Cal_OS = 0.0; 
+  // double m_P1_Cal_OS = 1.0;
+  // double m_Eta_Cal_OS = 0.0; 
 
   for( int i = 0; i != 4; ++i ){ //multiply all probabilities 
     const double mtag = osdec[i]; 
@@ -770,38 +777,47 @@ void TaggingRdcr::UpdateSpecialLeaves(){
   }
 }
 
-int Bd2JpsiKS(const std::string& inputfile, const std::string& inputtree, const std::string& outputfile, const std::string& outputtree, const std::string& decay_channel);
+int B2JpsiKS(const std::string& inputfile, const std::string& inputtree, const std::string& outputfile, const std::string& outputtree, const std::string& decay_channel);
 
 int main(int argc, char * argv[]){
   doocore::io::sinfo << "-info-  \t" << "FlavourTaggingGrimReaper \t" << "Welcome!" << doocore::io::endmsg;
   std::string inputfile, inputtree, outputfile, outputtree, decay_channel;
-  if (argc == 5){
+  if (argc == 6){
     inputfile = argv[1];
     inputtree = argv[2];
     outputfile = argv[3];
     outputtree = argv[4];
-    // decay_channel = argv[5];
-    decay_channel = "Bd2JpsiKS"; // always use this channel for now
+    decay_channel = argv[5];
+    // decay_channel = "Bd2JpsiKS"; // always use this channel for now
   }
   else{
     doocore::io::serr << "-ERROR- \t" << "FlavourTaggingGrimReaper \t" << "Parameters needed:" << doocore::io::endmsg;
-    doocore::io::serr << "-ERROR- \t" << "FlavourTaggingGrimReaper \t"<< "input_file_name input_tree_name output_file_name output_tree_name" << doocore::io::endmsg;
+    doocore::io::serr << "-ERROR- \t" << "FlavourTaggingGrimReaper \t"<< "input_file_name input_tree_name output_file_name output_tree_name decay_channel" << doocore::io::endmsg;
     return 1;
   }
 
-  if (decay_channel=="Bd2JpsiKS"){
-    doocore::io::sinfo << "-info-  \t" << "FlavourTaggingGrimReaper \t" << "Decay: Bd2JpsiKS" << doocore::io::endmsg;
-    Bd2JpsiKS(inputfile, inputtree, outputfile, outputtree, decay_channel);
+  if (decay_channel=="Bd2JpsiKS" || decay_channel=="Bs2JpsiKS"){
+    doocore::io::sinfo << "-info-  \t" << "FlavourTaggingGrimReaper \t" << "Decay: " << decay_channel << doocore::io::endmsg;
+    B2JpsiKS(inputfile, inputtree, outputfile, outputtree, decay_channel);
   }
   else{
-    doocore::io::serr << "-ERROR- \t" << "FlavourTaggingGrimReaper \t" << "No valid decay channel. Possible decay channels are:" << doocore::io::endmsg;
-    doocore::io::serr << "-ERROR- \t" << "FlavourTaggingGrimReaper \t" << "- Bd2JspiKS" << doocore::io::endmsg;
+    doocore::io::serr << "-ERROR- \t" << "FlavourTaggingGrimReaper \t" << "'" << decay_channel << "' is no valid decay channel. Possible decay channels are:" << doocore::io::endmsg;
+    doocore::io::serr << "-ERROR- \t" << "FlavourTaggingGrimReaper \t" << "- Bd2JpsiKS" << doocore::io::endmsg;
+    doocore::io::serr << "-ERROR- \t" << "FlavourTaggingGrimReaper \t" << "- Bs2JpsiKS" << doocore::io::endmsg;
   }
   doocore::io::sinfo << "-info- \t" << "FlavourTaggingGrimReaper \t" << "Done!" << doocore::io::endmsg;
 }
 
-int Bd2JpsiKS(const std::string& inputfile, const std::string& inputtree, const std::string& outputfile, const std::string& outputtree, const std::string& decay_channel){
+int B2JpsiKS(const std::string& inputfile, const std::string& inputtree, const std::string& outputfile, const std::string& outputtree, const std::string& decay_channel){
   TaggingRdcr reducer;
+  std::string head = "";
+  if (decay_channel == "Bd2JpsiKS"){
+    head = "B0";
+  }
+  else if (decay_channel == "Bs2JpsiKS"){
+    head = "B_s0";
+  }
+  reducer.set_head(head);
 
   reducer.set_input_file_path(inputfile);
   reducer.set_input_tree_path(inputtree);
@@ -811,56 +827,56 @@ int Bd2JpsiKS(const std::string& inputfile, const std::string& inputtree, const 
   reducer.Initialize();
 
   // handle MC specific stuff
-  if (reducer.LeafExists("B0_BKGCAT") && reducer.LeafExists("B0_TRUEID")){
+  if (reducer.LeafExists(head+"_BKGCAT") && reducer.LeafExists(head+"_TRUEID")){
     // flavour tagging true tag
     ReducerLeaf<Int_t>& vtag_true_leaf = reducer.CreateIntLeaf("obsTag_True", 0);
-    vtag_true_leaf.AddCondition("B0",    "B0_TRUEID>0", +1);
-    vtag_true_leaf.AddCondition("B0bar", "B0_TRUEID<0", -1);
+    vtag_true_leaf.AddCondition("B0",    head+"_TRUEID>0", +1);
+    vtag_true_leaf.AddCondition("B0bar", head+"_TRUEID<0", -1);
 
     ReducerLeaf<Int_t>& vtag_true_babar_leaf = reducer.CreateIntLeaf("obsTag_BaBar_True", 0);
-    vtag_true_babar_leaf.AddCondition("B0",    "B0_TRUEID>0", -1);
-    vtag_true_babar_leaf.AddCondition("B0bar", "B0_TRUEID<0", +1);
+    vtag_true_babar_leaf.AddCondition("B0",    head+"_TRUEID>0", -1);
+    vtag_true_babar_leaf.AddCondition("B0bar", head+"_TRUEID<0", +1);
 
     ReducerLeaf<Int_t>& vtag_true_nozero_leaf = reducer.CreateIntLeaf("obsTag_NoZero_True", 1);
-    vtag_true_nozero_leaf.AddCondition("B0",    "B0_TRUEID>0", +1);
-    vtag_true_nozero_leaf.AddCondition("B0bar", "B0_TRUEID<0", -1);
+    vtag_true_nozero_leaf.AddCondition("B0",    head+"_TRUEID>0", +1);
+    vtag_true_nozero_leaf.AddCondition("B0bar", head+"_TRUEID<0", -1);
   }
 
   // catTagger
-  ReducerLeaf<Int_t>& var_tagger_leaf = reducer.CreateIntCopyLeaf("catTagger", reducer.GetInterimLeafByName("B0_TAGGER"));
+  ReducerLeaf<Int_t>& var_tagger_leaf = reducer.CreateIntCopyLeaf("catTagger", reducer.GetInterimLeafByName(head+"_TAGGER"));
 
   // obsTag
-  ReducerLeaf<Int_t>& var_tag_all_leaf = reducer.CreateIntCopyLeaf("obsTagAll", reducer.GetInterimLeafByName("B0_TAGDECISION"));
-  ReducerLeaf<Int_t>& var_tag_all_babar_leaf = reducer.CreateIntCopyLeaf("obsTagAll_BaBar", reducer.GetInterimLeafByName("B0_TAGDECISION"), -1.0);
-  ReducerLeaf<Int_t>& var_tag_os_leaf = reducer.CreateIntCopyLeaf("obsTagOS", reducer.GetInterimLeafByName("B0_TAGDECISION_OS"));
-  ReducerLeaf<Int_t>& var_tag_os_babar_leaf = reducer.CreateIntCopyLeaf("obsTagOS_BaBar", reducer.GetInterimLeafByName("B0_TAGDECISION_OS"), -1.0);
-  ReducerLeaf<Int_t>& var_tag_os_mu_leaf = reducer.CreateIntCopyLeaf("obsTagOSMuon", reducer.GetInterimLeafByName("B0_OS_Muon_DEC"));
-  ReducerLeaf<Int_t>& var_tag_os_mu_babar_leaf = reducer.CreateIntCopyLeaf("obsTagOSMuon_BaBar", reducer.GetInterimLeafByName("B0_OS_Muon_DEC"), -1.0);
-  ReducerLeaf<Int_t>& var_tag_os_electron_leaf = reducer.CreateIntCopyLeaf("obsTagOSElectron", reducer.GetInterimLeafByName("B0_OS_Electron_DEC"));
-  ReducerLeaf<Int_t>& var_tag_os_electron_babar_leaf = reducer.CreateIntCopyLeaf("obsTagOSElectron_BaBar", reducer.GetInterimLeafByName("B0_OS_Electron_DEC"), -1.0);
-  ReducerLeaf<Int_t>& var_tag_os_kaon_leaf = reducer.CreateIntCopyLeaf("obsTagOSKaon", reducer.GetInterimLeafByName("B0_OS_Kaon_DEC"));
-  if (reducer.LeafExists("B0_OS_nnetKaon_DEC")){
-    ReducerLeaf<Int_t>& var_tag_os_kaon_babar_leaf = reducer.CreateIntCopyLeaf("obsTagOSKaon_BaBar", reducer.GetInterimLeafByName("B0_OS_Kaon_DEC"), -1.0);
-    ReducerLeaf<Int_t>& var_tag_os_nnet_kaon_leaf = reducer.CreateIntCopyLeaf("obsTagOSNNKaon", reducer.GetInterimLeafByName("B0_OS_nnetKaon_DEC"));
-    ReducerLeaf<Int_t>& var_tag_os_nnet_kaon_babar_leaf = reducer.CreateIntCopyLeaf("obsTagOSNNKaon_BaBar", reducer.GetInterimLeafByName("B0_OS_nnetKaon_DEC"), -1.0);
+  ReducerLeaf<Int_t>& var_tag_all_leaf = reducer.CreateIntCopyLeaf("obsTagAll", reducer.GetInterimLeafByName(head+"_TAGDECISION"));
+  ReducerLeaf<Int_t>& var_tag_all_babar_leaf = reducer.CreateIntCopyLeaf("obsTagAll_BaBar", reducer.GetInterimLeafByName(head+"_TAGDECISION"), -1.0);
+  ReducerLeaf<Int_t>& var_tag_os_leaf = reducer.CreateIntCopyLeaf("obsTagOS", reducer.GetInterimLeafByName(head+"_TAGDECISION_OS"));
+  ReducerLeaf<Int_t>& var_tag_os_babar_leaf = reducer.CreateIntCopyLeaf("obsTagOS_BaBar", reducer.GetInterimLeafByName(head+"_TAGDECISION_OS"), -1.0);
+  ReducerLeaf<Int_t>& var_tag_os_mu_leaf = reducer.CreateIntCopyLeaf("obsTagOSMuon", reducer.GetInterimLeafByName(head+"_OS_Muon_DEC"));
+  ReducerLeaf<Int_t>& var_tag_os_mu_babar_leaf = reducer.CreateIntCopyLeaf("obsTagOSMuon_BaBar", reducer.GetInterimLeafByName(head+"_OS_Muon_DEC"), -1.0);
+  ReducerLeaf<Int_t>& var_tag_os_electron_leaf = reducer.CreateIntCopyLeaf("obsTagOSElectron", reducer.GetInterimLeafByName(head+"_OS_Electron_DEC"));
+  ReducerLeaf<Int_t>& var_tag_os_electron_babar_leaf = reducer.CreateIntCopyLeaf("obsTagOSElectron_BaBar", reducer.GetInterimLeafByName(head+"_OS_Electron_DEC"), -1.0);
+  ReducerLeaf<Int_t>& var_tag_os_kaon_leaf = reducer.CreateIntCopyLeaf("obsTagOSKaon", reducer.GetInterimLeafByName(head+"_OS_Kaon_DEC"));
+  if (reducer.LeafExists(head+"_OS_nnetKaon_DEC")){
+    ReducerLeaf<Int_t>& var_tag_os_kaon_babar_leaf = reducer.CreateIntCopyLeaf("obsTagOSKaon_BaBar", reducer.GetInterimLeafByName(head+"_OS_Kaon_DEC"), -1.0);
+    ReducerLeaf<Int_t>& var_tag_os_nnet_kaon_leaf = reducer.CreateIntCopyLeaf("obsTagOSNNKaon", reducer.GetInterimLeafByName(head+"_OS_nnetKaon_DEC"));
+    ReducerLeaf<Int_t>& var_tag_os_nnet_kaon_babar_leaf = reducer.CreateIntCopyLeaf("obsTagOSNNKaon_BaBar", reducer.GetInterimLeafByName(head+"_OS_nnetKaon_DEC"), -1.0);
   }
-  ReducerLeaf<Int_t>& var_tag_ss_kaon_leaf = reducer.CreateIntCopyLeaf("obsTagSSKaon", reducer.GetInterimLeafByName("B0_SS_Kaon_DEC"));
-  ReducerLeaf<Int_t>& var_tag_ss_kaon_babar_leaf = reducer.CreateIntCopyLeaf("obsTagSSKaon_BaBar", reducer.GetInterimLeafByName("B0_SS_Kaon_DEC"), -1.0);
-  if (reducer.LeafExists("B0_SS_nnetKaon_DEC")){
-    ReducerLeaf<Int_t>& var_tag_ss_nnet_kaon_leaf = reducer.CreateIntCopyLeaf("obsTagSSNNKaon", reducer.GetInterimLeafByName("B0_SS_nnetKaon_DEC"));
-    ReducerLeaf<Int_t>& var_tag_ss_nnet_kaon_babar_leaf = reducer.CreateIntCopyLeaf("obsTagSSNNKaon_BaBar", reducer.GetInterimLeafByName("B0_SS_nnetKaon_DEC"), -1.0);
+  ReducerLeaf<Int_t>& var_tag_ss_kaon_leaf = reducer.CreateIntCopyLeaf("obsTagSSKaon", reducer.GetInterimLeafByName(head+"_SS_Kaon_DEC"));
+  ReducerLeaf<Int_t>& var_tag_ss_kaon_babar_leaf = reducer.CreateIntCopyLeaf("obsTagSSKaon_BaBar", reducer.GetInterimLeafByName(head+"_SS_Kaon_DEC"), -1.0);
+  if (reducer.LeafExists(head+"_SS_nnetKaon_DEC")){
+    ReducerLeaf<Int_t>& var_tag_ss_nnet_kaon_leaf = reducer.CreateIntCopyLeaf("obsTagSSNNKaon", reducer.GetInterimLeafByName(head+"_SS_nnetKaon_DEC"));
+    ReducerLeaf<Int_t>& var_tag_ss_nnet_kaon_babar_leaf = reducer.CreateIntCopyLeaf("obsTagSSNNKaon_BaBar", reducer.GetInterimLeafByName(head+"_SS_nnetKaon_DEC"), -1.0);
   }
-  ReducerLeaf<Int_t>& var_tag_ss_pion_leaf = reducer.CreateIntCopyLeaf("obsTagSSPion", reducer.GetInterimLeafByName("B0_SS_Pion_DEC"));
-  ReducerLeaf<Int_t>& var_tag_ss_pion_babar_leaf = reducer.CreateIntCopyLeaf("obsTagSSPion_BaBar", reducer.GetInterimLeafByName("B0_SS_Pion_DEC"), -1.0);
-  ReducerLeaf<Int_t>& var_tag_vtxq_leaf = reducer.CreateIntCopyLeaf("obsTagVtxQ", reducer.GetInterimLeafByName("B0_VtxCharge_DEC"));
-  ReducerLeaf<Int_t>& var_tag_vtxq_babar_leaf = reducer.CreateIntCopyLeaf("obsTagVtxQ_BaBar", reducer.GetInterimLeafByName("B0_VtxCharge_DEC"), -1.0);
-  if (reducer.LeafExists("B0_OS_Charm_DEC")){
-    ReducerLeaf<Int_t>& var_tag_os_charm_leaf = reducer.CreateIntCopyLeaf("obsTagOSCharm", reducer.GetInterimLeafByName("B0_OS_Charm_DEC"));
-    ReducerLeaf<Int_t>& var_tag_os_charm_babar_leaf = reducer.CreateIntCopyLeaf("obsTagOSCharm_BaBar", reducer.GetInterimLeafByName("B0_OS_Charm_DEC"), -1.0);  
+  ReducerLeaf<Int_t>& var_tag_ss_pion_leaf = reducer.CreateIntCopyLeaf("obsTagSSPion", reducer.GetInterimLeafByName(head+"_SS_Pion_DEC"));
+  ReducerLeaf<Int_t>& var_tag_ss_pion_babar_leaf = reducer.CreateIntCopyLeaf("obsTagSSPion_BaBar", reducer.GetInterimLeafByName(head+"_SS_Pion_DEC"), -1.0);
+  ReducerLeaf<Int_t>& var_tag_vtxq_leaf = reducer.CreateIntCopyLeaf("obsTagVtxQ", reducer.GetInterimLeafByName(head+"_VtxCharge_DEC"));
+  ReducerLeaf<Int_t>& var_tag_vtxq_babar_leaf = reducer.CreateIntCopyLeaf("obsTagVtxQ_BaBar", reducer.GetInterimLeafByName(head+"_VtxCharge_DEC"), -1.0);
+  if (reducer.LeafExists(head+"_OS_Charm_DEC")){
+    ReducerLeaf<Int_t>& var_tag_os_charm_leaf = reducer.CreateIntCopyLeaf("obsTagOSCharm", reducer.GetInterimLeafByName(head+"_OS_Charm_DEC"));
+    ReducerLeaf<Int_t>& var_tag_os_charm_babar_leaf = reducer.CreateIntCopyLeaf("obsTagOSCharm_BaBar", reducer.GetInterimLeafByName(head+"_OS_Charm_DEC"), -1.0);  
   }
-  if (reducer.LeafExists("B0_SS_Proton_DEC")){
-    ReducerLeaf<Int_t>& var_tag_ss_proton_leaf = reducer.CreateIntCopyLeaf("obsTagSSProton", reducer.GetInterimLeafByName("B0_SS_Proton_DEC"));
-    ReducerLeaf<Int_t>& var_tag_ss_proton_babar_leaf = reducer.CreateIntCopyLeaf("obsTagSSProton_BaBar", reducer.GetInterimLeafByName("B0_SS_Proton_DEC"), -1.0);    
+  if (reducer.LeafExists(head+"_SS_Proton_DEC")){
+    ReducerLeaf<Int_t>& var_tag_ss_proton_leaf = reducer.CreateIntCopyLeaf("obsTagSSProton", reducer.GetInterimLeafByName(head+"_SS_Proton_DEC"));
+    ReducerLeaf<Int_t>& var_tag_ss_proton_babar_leaf = reducer.CreateIntCopyLeaf("obsTagSSProton_BaBar", reducer.GetInterimLeafByName(head+"_SS_Proton_DEC"), -1.0);    
   }
 
   // Tag comparison
@@ -870,84 +886,84 @@ int Bd2JpsiKS(const std::string& inputfile, const std::string& inputtree, const 
     var_tag_ost_sspi_comp_babar_leaf.Multiply(var_tag_os_babar_leaf, var_tag_ss_pion_babar_leaf);
 
   // obsEta
-  ReducerLeaf<Double_t>& var_tag_eta_leaf = reducer.CreateDoubleCopyLeaf("obsEtaAll", reducer.GetInterimLeafByName("B0_TAGOMEGA"));
-  ReducerLeaf<Double_t>& var_tag_eta_os_leaf = reducer.CreateDoubleCopyLeaf("obsEtaOS", reducer.GetInterimLeafByName("B0_TAGOMEGA_OS"));
-  ReducerLeaf<Double_t>& var_tag_eta_os_mu_leaf = reducer.CreateDoubleCopyLeaf("obsEtaOSMuon", reducer.GetInterimLeafByName("B0_OS_Muon_PROB"));
-  ReducerLeaf<Double_t>& var_tag_eta_os_electron_leaf = reducer.CreateDoubleCopyLeaf("obsEtaOSElectron", reducer.GetInterimLeafByName("B0_OS_Electron_PROB"));
-  ReducerLeaf<Double_t>& var_tag_eta_os_kaon_leaf = reducer.CreateDoubleCopyLeaf("obsEtaOSKaon", reducer.GetInterimLeafByName("B0_OS_Kaon_PROB"));
-  if (reducer.LeafExists("B0_OS_nnetKaon_DEC")) ReducerLeaf<Double_t>& var_tag_eta_os_nnet_kaon_leaf = reducer.CreateDoubleCopyLeaf("obsEtaOSNNKaon", reducer.GetInterimLeafByName("B0_OS_nnetKaon_PROB"));
-  ReducerLeaf<Double_t>& var_tag_eta_ss_kaon_leaf = reducer.CreateDoubleCopyLeaf("obsEtaSSKaon", reducer.GetInterimLeafByName("B0_SS_Kaon_PROB"));
-  if (reducer.LeafExists("B0_SS_nnetKaon_DEC")) ReducerLeaf<Double_t>& var_tag_eta_ss_nnet_kaon_leaf = reducer.CreateDoubleCopyLeaf("obsEtaSSNNKaon", reducer.GetInterimLeafByName("B0_SS_nnetKaon_PROB"));
-  ReducerLeaf<Double_t>& var_tag_eta_ss_pion_leaf = reducer.CreateDoubleCopyLeaf("obsEtaSSPion", reducer.GetInterimLeafByName("B0_SS_Pion_PROB"));
-  ReducerLeaf<Double_t>& var_tag_eta_vtxq_leaf = reducer.CreateDoubleCopyLeaf("obsEtaVtxQ", reducer.GetInterimLeafByName("B0_VtxCharge_PROB"));
-  if (reducer.LeafExists("B0_OS_Charm_PROB")) ReducerLeaf<Double_t>& var_tag_eta_os_charm_leaf = reducer.CreateDoubleCopyLeaf("obsEtaOSCharm", reducer.GetInterimLeafByName("B0_OS_Charm_PROB"));
-  if (reducer.LeafExists("B0_SS_Proton_PROB")) ReducerLeaf<Double_t>& var_tag_eta_ss_proton_leaf = reducer.CreateDoubleCopyLeaf("obsEtaSSProton", reducer.GetInterimLeafByName("B0_SS_Proton_PROB"));
+  ReducerLeaf<Double_t>& var_tag_eta_leaf = reducer.CreateDoubleCopyLeaf("obsEtaAll", reducer.GetInterimLeafByName(head+"_TAGOMEGA"));
+  ReducerLeaf<Double_t>& var_tag_eta_os_leaf = reducer.CreateDoubleCopyLeaf("obsEtaOS", reducer.GetInterimLeafByName(head+"_TAGOMEGA_OS"));
+  ReducerLeaf<Double_t>& var_tag_eta_os_mu_leaf = reducer.CreateDoubleCopyLeaf("obsEtaOSMuon", reducer.GetInterimLeafByName(head+"_OS_Muon_PROB"));
+  ReducerLeaf<Double_t>& var_tag_eta_os_electron_leaf = reducer.CreateDoubleCopyLeaf("obsEtaOSElectron", reducer.GetInterimLeafByName(head+"_OS_Electron_PROB"));
+  ReducerLeaf<Double_t>& var_tag_eta_os_kaon_leaf = reducer.CreateDoubleCopyLeaf("obsEtaOSKaon", reducer.GetInterimLeafByName(head+"_OS_Kaon_PROB"));
+  if (reducer.LeafExists(head+"_OS_nnetKaon_DEC")) ReducerLeaf<Double_t>& var_tag_eta_os_nnet_kaon_leaf = reducer.CreateDoubleCopyLeaf("obsEtaOSNNKaon", reducer.GetInterimLeafByName(head+"_OS_nnetKaon_PROB"));
+  ReducerLeaf<Double_t>& var_tag_eta_ss_kaon_leaf = reducer.CreateDoubleCopyLeaf("obsEtaSSKaon", reducer.GetInterimLeafByName(head+"_SS_Kaon_PROB"));
+  if (reducer.LeafExists(head+"_SS_nnetKaon_DEC")) ReducerLeaf<Double_t>& var_tag_eta_ss_nnet_kaon_leaf = reducer.CreateDoubleCopyLeaf("obsEtaSSNNKaon", reducer.GetInterimLeafByName(head+"_SS_nnetKaon_PROB"));
+  ReducerLeaf<Double_t>& var_tag_eta_ss_pion_leaf = reducer.CreateDoubleCopyLeaf("obsEtaSSPion", reducer.GetInterimLeafByName(head+"_SS_Pion_PROB"));
+  ReducerLeaf<Double_t>& var_tag_eta_vtxq_leaf = reducer.CreateDoubleCopyLeaf("obsEtaVtxQ", reducer.GetInterimLeafByName(head+"_VtxCharge_PROB"));
+  if (reducer.LeafExists(head+"_OS_Charm_PROB")) ReducerLeaf<Double_t>& var_tag_eta_os_charm_leaf = reducer.CreateDoubleCopyLeaf("obsEtaOSCharm", reducer.GetInterimLeafByName(head+"_OS_Charm_PROB"));
+  if (reducer.LeafExists(head+"_SS_Proton_PROB")) ReducerLeaf<Double_t>& var_tag_eta_ss_proton_leaf = reducer.CreateDoubleCopyLeaf("obsEtaSSProton", reducer.GetInterimLeafByName(head+"_SS_Proton_PROB"));
 
   // catEta: somehow this variable does not get written into the tuples anymore
-  if (reducer.LeafExists("B0_TAGCAT")) ReducerLeaf<Int_t>& var_tagcat_leaf = reducer.CreateIntCopyLeaf("catEtaAll", reducer.GetInterimLeafByName("B0_TAGCAT"));
-  if (reducer.LeafExists("B0_TAGCAT_OS")) ReducerLeaf<Int_t>& var_tagcat_os_leaf = reducer.CreateIntCopyLeaf("catEtaOS", reducer.GetInterimLeafByName("B0_TAGCAT_OS"));
+  if (reducer.LeafExists(head+"_TAGCAT")) ReducerLeaf<Int_t>& var_tagcat_leaf = reducer.CreateIntCopyLeaf("catEtaAll", reducer.GetInterimLeafByName(head+"_TAGCAT"));
+  if (reducer.LeafExists(head+"_TAGCAT_OS")) ReducerLeaf<Int_t>& var_tagcat_os_leaf = reducer.CreateIntCopyLeaf("catEtaOS", reducer.GetInterimLeafByName(head+"_TAGCAT_OS"));
 
   // catTagged
   ReducerLeaf<Int_t>& cat_tagged_leaf = reducer.CreateIntLeaf("catTaggedAll", -1);
-    cat_tagged_leaf.AddCondition("Tagged",   "B0_TAGDECISION != 0", 1);
-    cat_tagged_leaf.AddCondition("Untagged", "B0_TAGDECISION == 0", 0);
+    cat_tagged_leaf.AddCondition("Tagged",   head+"_TAGDECISION != 0", 1);
+    cat_tagged_leaf.AddCondition("Untagged", head+"_TAGDECISION == 0", 0);
   
   ReducerLeaf<Int_t>& cat_tagged_os_leaf = reducer.CreateIntLeaf("catTaggedOS", -1);
-    cat_tagged_os_leaf.AddCondition("Tagged",   "B0_TAGDECISION_OS != 0", 1);
-    cat_tagged_os_leaf.AddCondition("Untagged", "B0_TAGDECISION_OS == 0", 0);
+    cat_tagged_os_leaf.AddCondition("Tagged",   head+"_TAGDECISION_OS != 0", 1);
+    cat_tagged_os_leaf.AddCondition("Untagged", head+"_TAGDECISION_OS == 0", 0);
 
   ReducerLeaf<Int_t>& cat_tagged_os_muon_leaf = reducer.CreateIntLeaf("catTaggedOSMuon", -1);
-    cat_tagged_os_muon_leaf.AddCondition("Tagged",   "B0_OS_Muon_DEC != 0", 1);
-    cat_tagged_os_muon_leaf.AddCondition("Untagged", "B0_OS_Muon_DEC == 0", 0);
+    cat_tagged_os_muon_leaf.AddCondition("Tagged",   head+"_OS_Muon_DEC != 0", 1);
+    cat_tagged_os_muon_leaf.AddCondition("Untagged", head+"_OS_Muon_DEC == 0", 0);
 
   ReducerLeaf<Int_t>& cat_tagged_os_electron_leaf = reducer.CreateIntLeaf("catTaggedOSElectron", -1);
-    cat_tagged_os_electron_leaf.AddCondition("Tagged",   "B0_OS_Electron_DEC != 0", 1);
-    cat_tagged_os_electron_leaf.AddCondition("Untagged", "B0_OS_Electron_DEC == 0", 0);
+    cat_tagged_os_electron_leaf.AddCondition("Tagged",   head+"_OS_Electron_DEC != 0", 1);
+    cat_tagged_os_electron_leaf.AddCondition("Untagged", head+"_OS_Electron_DEC == 0", 0);
 
   ReducerLeaf<Int_t>& cat_tagged_os_kaon_leaf = reducer.CreateIntLeaf("catTaggedOSKaon", -1);
-    cat_tagged_os_kaon_leaf.AddCondition("Tagged",   "B0_OS_Kaon_DEC != 0", 1);
-    cat_tagged_os_kaon_leaf.AddCondition("Untagged", "B0_OS_Kaon_DEC == 0", 0);
+    cat_tagged_os_kaon_leaf.AddCondition("Tagged",   head+"_OS_Kaon_DEC != 0", 1);
+    cat_tagged_os_kaon_leaf.AddCondition("Untagged", head+"_OS_Kaon_DEC == 0", 0);
   
-  if (reducer.LeafExists("B0_OS_nnetKaon_DEC")){
+  if (reducer.LeafExists(head+"_OS_nnetKaon_DEC")){
     ReducerLeaf<Int_t>& cat_tagged_os_nnet_kaon_leaf = reducer.CreateIntLeaf("catTaggedOSNNKaon", -1);
-      cat_tagged_os_nnet_kaon_leaf.AddCondition("Tagged",   "B0_OS_nnetKaon_DEC != 0", 1);
-      cat_tagged_os_nnet_kaon_leaf.AddCondition("Untagged", "B0_OS_nnetKaon_DEC == 0", 0);
+      cat_tagged_os_nnet_kaon_leaf.AddCondition("Tagged",   head+"_OS_nnetKaon_DEC != 0", 1);
+      cat_tagged_os_nnet_kaon_leaf.AddCondition("Untagged", head+"_OS_nnetKaon_DEC == 0", 0);
   }
 
   ReducerLeaf<Int_t>& cat_tagged_ss_kaon_leaf = reducer.CreateIntLeaf("catTaggedSSKaon", -1);
-    cat_tagged_ss_kaon_leaf.AddCondition("Tagged",   "B0_SS_Kaon_DEC != 0", 1);
-    cat_tagged_ss_kaon_leaf.AddCondition("Untagged", "B0_SS_Kaon_DEC == 0", 0);
+    cat_tagged_ss_kaon_leaf.AddCondition("Tagged",   head+"_SS_Kaon_DEC != 0", 1);
+    cat_tagged_ss_kaon_leaf.AddCondition("Untagged", head+"_SS_Kaon_DEC == 0", 0);
 
-  if (reducer.LeafExists("B0_SS_nnetKaon_DEC")){
+  if (reducer.LeafExists(head+"_SS_nnetKaon_DEC")){
     ReducerLeaf<Int_t>& cat_tagged_ss_nnet_kaon_leaf = reducer.CreateIntLeaf("catTaggedSSNNKaon", -1);
-      cat_tagged_ss_nnet_kaon_leaf.AddCondition("Tagged",   "B0_SS_nnetKaon_DEC != 0", 1);
-      cat_tagged_ss_nnet_kaon_leaf.AddCondition("Untagged", "B0_SS_nnetKaon_DEC == 0", 0);
+      cat_tagged_ss_nnet_kaon_leaf.AddCondition("Tagged",   head+"_SS_nnetKaon_DEC != 0", 1);
+      cat_tagged_ss_nnet_kaon_leaf.AddCondition("Untagged", head+"_SS_nnetKaon_DEC == 0", 0);
   }
 
   ReducerLeaf<Int_t>& cat_tagged_ss_pion_leaf = reducer.CreateIntLeaf("catTaggedSSPion", -1);
-    cat_tagged_ss_pion_leaf.AddCondition("Tagged",   "B0_SS_Pion_DEC != 0", 1);
-    cat_tagged_ss_pion_leaf.AddCondition("Untagged", "B0_SS_Pion_DEC == 0", 0);
+    cat_tagged_ss_pion_leaf.AddCondition("Tagged",   head+"_SS_Pion_DEC != 0", 1);
+    cat_tagged_ss_pion_leaf.AddCondition("Untagged", head+"_SS_Pion_DEC == 0", 0);
 
   ReducerLeaf<Int_t>& cat_tagged_vtxq_leaf = reducer.CreateIntLeaf("catTaggedVtxQ", -1);
-    cat_tagged_vtxq_leaf.AddCondition("Tagged",   "B0_VtxCharge_DEC != 0", 1);
-    cat_tagged_vtxq_leaf.AddCondition("Untagged", "B0_VtxCharge_DEC == 0", 0);
+    cat_tagged_vtxq_leaf.AddCondition("Tagged",   head+"_VtxCharge_DEC != 0", 1);
+    cat_tagged_vtxq_leaf.AddCondition("Untagged", head+"_VtxCharge_DEC == 0", 0);
 
-  if (reducer.LeafExists("B0_OS_Charm_DEC")){
+  if (reducer.LeafExists(head+"_OS_Charm_DEC")){
     ReducerLeaf<Int_t>& cat_tagged_os_charm_leaf = reducer.CreateIntLeaf("catTaggedOSCharm", -1);
-      cat_tagged_os_charm_leaf.AddCondition("Tagged",   "B0_OS_Charm_DEC != 0", 1);
-      cat_tagged_os_charm_leaf.AddCondition("Untagged", "B0_OS_Charm_DEC == 0", 0);
+      cat_tagged_os_charm_leaf.AddCondition("Tagged",   head+"_OS_Charm_DEC != 0", 1);
+      cat_tagged_os_charm_leaf.AddCondition("Untagged", head+"_OS_Charm_DEC == 0", 0);
   }
 
-  if (reducer.LeafExists("B0_SS_Proton_DEC")){
+  if (reducer.LeafExists(head+"_SS_Proton_DEC")){
     ReducerLeaf<Int_t>& cat_tagged_ss_proton_leaf = reducer.CreateIntLeaf("catTaggedSSProton", -1);
-      cat_tagged_ss_proton_leaf.AddCondition("Tagged",   "B0_SS_Proton_DEC != 0", 1);
-      cat_tagged_ss_proton_leaf.AddCondition("Untagged", "B0_SS_Proton_DEC == 0", 0);
+      cat_tagged_ss_proton_leaf.AddCondition("Tagged",   head+"_SS_Proton_DEC != 0", 1);
+      cat_tagged_ss_proton_leaf.AddCondition("Untagged", head+"_SS_Proton_DEC == 0", 0);
   }
 
   // catFinalState
   ReducerLeaf<Int_t>& var_finalstate_leaf = reducer.CreateIntLeaf("catFinalState", 0);
-    var_finalstate_leaf.AddCondition("B0",    "B0_ID>0", +1);
-    var_finalstate_leaf.AddCondition("B0bar", "B0_ID<0", -1);
+    var_finalstate_leaf.AddCondition("B0",    head+"_ID>0", +1);
+    var_finalstate_leaf.AddCondition("B0bar", head+"_ID<0", -1);
 
   // catXi
   ReducerLeaf<Int_t>& xi_leaf = reducer.CreateIntLeaf("catXiAll");
