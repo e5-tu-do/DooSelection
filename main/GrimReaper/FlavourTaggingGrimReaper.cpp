@@ -395,11 +395,11 @@ void TaggingRdcr::UpdateSpecialLeaves(){
   pnsum= 0.; 
 
   // calibration for Reco14 (2011 and 2012)
-  // see Stefanias email 20130920
+  // see Stefanias email 20140523
   double m_ProbMin_OS = 0.5;
-  double m_P0_Cal_OS = 0.392;
-  double m_P1_Cal_OS = 0.953;
-  double m_Eta_Cal_OS = 0.362;
+  double m_P0_Cal_OS = 0.390;
+  double m_P1_Cal_OS = 0.899;
+  double m_Eta_Cal_OS = 0.365;
   
   // no calibration
   // double m_ProbMin_OS = 0.5; 
