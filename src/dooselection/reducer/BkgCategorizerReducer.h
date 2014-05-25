@@ -156,7 +156,7 @@ private:
   /**
    *  @brief Maximum number of decays to categorize
    **/
-  int                   max_number_decays_;
+  std::size_t max_number_decays_;
 };
 
 } // namespace reducer

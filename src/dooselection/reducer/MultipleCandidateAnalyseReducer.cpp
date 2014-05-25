@@ -87,10 +87,6 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     std::vector<ReducerLeaf<ULong64_t> >::const_iterator identfiers_begin = event_identifiers.begin();
     std::vector<ReducerLeaf<ULong64_t> >::const_iterator identfiers_end   = event_identifiers.end();
     std::vector<ReducerLeaf<ULong64_t> >::const_iterator it;
-    double frac = 0.0;
-    int n_print_stepping = 500;
-    double frac_increment = static_cast<double>(n_print_stepping)/num_entries*100.0;
-    bool tty = isatty(fileno(stdout));
     
     sinfo << "MultipleCandidateAnalyseReducer::ProcessInputTree(): Analysing events according to event identifiers." << endmsg;
     std::vector<ULong64_t> last_identifier;
