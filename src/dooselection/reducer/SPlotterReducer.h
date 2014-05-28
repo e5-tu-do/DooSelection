@@ -77,6 +77,13 @@ class SPlotterReducer : virtual public Reducer {
    */
   void set_plot_directory(const std::string& plot_directory) {plot_directory_ = plot_directory;}
   
+  /**
+   *  @brief Set external fitting arguments
+   *
+   *  @param ext_fit_args list of external fitting arguments
+   */
+  void set_fit_args(RooLinkedList* ext_fit_args = NULL) {ext_fit_args_ = ext_fit_args;}
+  
  protected:
   virtual void ProcessInputTree();
   virtual void UpdateSpecialLeaves();
@@ -112,6 +119,11 @@ class SPlotterReducer : virtual public Reducer {
    *  @brief Plot output directory
    */
   std::string plot_directory_;
+  
+  /**
+   *  @brief External fitting arguments
+   */
+  RooLinkedList* ext_fit_args_;
 };
 } // namespace reducer
 } // namespace dooselection

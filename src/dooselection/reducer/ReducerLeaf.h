@@ -147,7 +147,7 @@ public:
    *  These functions set global leaf properties.
    */
   ///@{
-  const TString& set_name(const TString& new_name) { name_=new_name; title_=new_name+"/"+type_; return name_; }
+  const TString& set_name(const TString& new_name) { name_=new_name; title_=new_name; return name_; }
   void set_branch_address(void* ptr) { branch_address_ = ptr; }
   void SetDefaultValue(T value) {
     default_value_ = value;
@@ -391,14 +391,15 @@ private:
 
 template <class T>
 ReducerLeaf<T>::ReducerLeaf(TString name, TString title, TString type, TTree* tree, T default_value)
-: leaf_(NULL),
+:
+default_value_(default_value),
+leaf_(NULL),
 name_(name),
 title_(title),
 type_(type),
 l_type_(kUnknownType),
 branch_address_(NULL),
 tree_(tree),
-default_value_(default_value),
 leaf_pointer_one_(NULL),
 leaf_pointer_two_(NULL),
 leaf_operation_(kNoneOperation),
@@ -411,13 +412,14 @@ random_generator_(NULL)
 
 template <class T>
 ReducerLeaf<T>::ReducerLeaf(TLeaf * leaf)
-: leaf_(leaf), 
+:
+  branch_address_templ_(NULL),
+  leaf_(leaf), 
 name_(leaf->GetName()),
 title_(leaf->GetTitle()),
 type_(leaf->GetTypeName()),
 l_type_(kUnknownType),
 branch_address_(leaf->GetValuePointer()),
-branch_address_templ_(NULL),
 tree_(NULL),
 leaf_pointer_one_(NULL),
 leaf_pointer_two_(NULL),
@@ -429,13 +431,14 @@ random_generator_(NULL)
 
 template <class T>
 ReducerLeaf<T>::ReducerLeaf(const ReducerLeaf<T>& r) 
-: leaf_(r.leaf_),
+  :
+  branch_address_templ_(r.branch_address_templ_),
+leaf_(r.leaf_),
 name_(r.name_),
 title_(r.title_),
 type_(r.type_),
 l_type_(r.l_type_),
 branch_address_(r.branch_address_),
-branch_address_templ_(r.branch_address_templ_),
 tree_(r.tree_),
 leaf_pointer_one_(r.leaf_pointer_one_),
 leaf_pointer_two_(r.leaf_pointer_two_),

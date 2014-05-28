@@ -1,2 +1,2 @@
-add_subdirectory(TestReducer)
-add_subdirectory(TestVeto)
+#add_subdirectory(TestReducer)
+#add_subdirectory(TestVeto)

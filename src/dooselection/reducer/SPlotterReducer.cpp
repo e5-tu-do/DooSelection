@@ -28,7 +28,8 @@ namespace reducer {
 SPlotterReducer::SPlotterReducer(doofit::fitter::splot::SPlotFit2& spf, RooArgSet observables) :
   splotfit_(spf),
   observables_(observables),
-  plot_directory_("PlotSPlotterReducer")
+  plot_directory_("PlotSPlotterReducer"),
+  ext_fit_args_(NULL)
 {
   set_old_style_interim_tree(true);
 }
@@ -43,7 +44,7 @@ void SPlotterReducer::CreateSpecialBranches() {
   RooDataSet& data = etuple.ConvertToDataSet();
     
   splotfit_.set_input_data(&data);
-  splotfit_.Fit();
+  splotfit_.Fit(ext_fit_args_);
   
 //  int argc = 1;
 //  
@@ -100,7 +101,7 @@ void SPlotterReducer::CreateSpecialBranches() {
 void SPlotterReducer::UpdateSpecialLeaves() {
   for (std::map<std::string,RooDataSet*>::const_iterator it = sweighted_datasets_.begin(), end = sweighted_datasets_.end();
        it != end; ++it) {
-    const RooArgSet* sweighted_values = (*it).second->get(selected_entry_);
+    (*it).second->get(selected_entry_);
     *sweight_leaves_[(*it).first] = (*it).second->weight();
   }
 }

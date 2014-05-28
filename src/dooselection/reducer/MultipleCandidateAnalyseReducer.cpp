@@ -87,10 +87,6 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     std::vector<ReducerLeaf<ULong64_t> >::const_iterator identfiers_begin = event_identifiers.begin();
     std::vector<ReducerLeaf<ULong64_t> >::const_iterator identfiers_end   = event_identifiers.end();
     std::vector<ReducerLeaf<ULong64_t> >::const_iterator it;
-    double frac = 0.0;
-    int n_print_stepping = 500;
-    double frac_increment = static_cast<double>(n_print_stepping)/num_entries*100.0;
-    bool tty = isatty(fileno(stdout));
     
     sinfo << "MultipleCandidateAnalyseReducer::ProcessInputTree(): Analysing events according to event identifiers." << endmsg;
     std::vector<ULong64_t> last_identifier;
@@ -175,7 +171,7 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     sinfo << std::setw(10) << std::setfill(' ') << "# mc";
     sinfo << std::setw(10) << std::setfill(' ') << "# events";
     if (event_characteristics.size() > 0) {
-      sinfo << " | # occurences per (unique characteristics: " <<  additional_event_characteristics_ << ")" << endmsg;
+      sinfo << " | # occurences per unique characteristics: " <<  additional_event_characteristics_ << endmsg;
     } else {
       sinfo << endmsg;
     }
@@ -185,6 +181,7 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     int num_events_with_multiple_b_candidates = 0;
     int num_events_with_multiple_pvs = 0;
     int num_multicands_total = 0;
+    int num_singlecands = 0;
     for (std::map<std::pair<int, std::vector<int>>,int>::const_iterator it = multicand_histogram.begin();
          it != multicand_histogram.end(); ++it) {
       sinfo << std::setw(10) << std::setfill(' ') << (it->first).first;         // number of multiple candidates in event

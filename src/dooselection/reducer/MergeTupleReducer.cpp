@@ -53,11 +53,11 @@ void dooselection::reducer::MergeTupleReducer::ProcessInputTree() {
 
   sinfo << "MergeTupleReducer::ProcessInputTree(): Analysing events according to event identifiers." << endmsg;
 
-  long long index_tree = 0;
+  ULong64_t index_tree = 0;
   input_tree_->GetEvent(index_tree);
-  long long index_friend=0;
+  ULong64_t index_friend=0;
   doocore::io::Progress p("Event matching",num_entries);
-  for (index_friend=0; index_friend<(*it_friend)->GetEntries(); ++index_friend) {
+  for (index_friend=0; index_friend<static_cast<ULong64_t>((*it_friend)->GetEntries()); ++index_friend) {
     (*it_friend)->GetEvent(index_friend);
     
     bool entries_match = false;
@@ -76,7 +76,7 @@ void dooselection::reducer::MergeTupleReducer::ProcessInputTree() {
         input_tree_->GetEvent(index_tree);
       }
     }
-    if (index_tree >= input_tree_->GetEntries()) break;
+    if (index_tree >= static_cast<ULong64_t>(input_tree_->GetEntries())) break;
     
     if (entries_match) {
       event_mapping_.push_back(std::make_pair(index_tree, index_friend));
