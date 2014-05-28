@@ -169,7 +169,9 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
       }
     }
     
-    sinfo << "MultipleCandidateAnalyseReducer::ProcessInputTree(): Analysis finished. Printing number of multiple candidates (# mc) vs. number of occurrences (# evts)" << endmsg;
+    sinfo << "MultipleCandidateAnalyseReducer::ProcessInputTree(): Analysis finished." << endmsg; 
+    sinfo.Ruler();
+    sinfo << "Total number of multiple candidates (# mc) vs. number of occurrences (# evts)" << endmsg;
     sinfo << std::setw(10) << std::setfill(' ') << "# mc";
     sinfo << std::setw(10) << std::setfill(' ') << "# events";
     if (event_characteristics.size() > 0) {
@@ -177,21 +179,79 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     } else {
       sinfo << endmsg;
     }
+    std::map<int, int> map_multiple_b_candidates;
+    std::map<int, int> map_multiple_pvs;
+    int num_multiple_b_candidates = 0;
+    int num_events_with_multiple_b_candidates = 0;
+    int num_events_with_multiple_pvs = 0;
     int num_multicands_total = 0;
     for (std::map<std::pair<int, std::vector<int>>,int>::const_iterator it = multicand_histogram.begin();
          it != multicand_histogram.end(); ++it) {
-      sinfo << std::setw(10) << std::setfill(' ') << (it->first).first;
-      sinfo << std::setw(10) << std::setfill(' ') << it->second;
+      sinfo << std::setw(10) << std::setfill(' ') << (it->first).first;         // number of multiple candidates in event
+      sinfo << std::setw(10) << std::setfill(' ') << it->second;                // number of events of this type
       if ((it->first).second.size() > 0) {
-        sinfo << " | " << (it->first).second << endmsg;
+        sinfo << " | " << (it->first).second << endmsg;                         // occurences per unique characteristics
+
+        // now count the multiple B candidate occurences per event
+        int max_entry_of_characteristics = 1;
+        for (auto entry : (it->first).second){
+          if (max_entry_of_characteristics < entry){
+            max_entry_of_characteristics = entry;
+          }
+          // std::cout << entry << " " << max_entry_of_characteristics << std::endl;
+        }
+        
+        if (max_entry_of_characteristics > 1){
+          if (map_multiple_b_candidates.count(max_entry_of_characteristics) == 0) {
+            map_multiple_b_candidates[max_entry_of_characteristics] =  (it->second) * max_entry_of_characteristics;
+          } else {
+            map_multiple_b_candidates[max_entry_of_characteristics] += (it->second) * max_entry_of_characteristics;
+          }
+          num_multiple_b_candidates += (it->second) * max_entry_of_characteristics;
+          num_events_with_multiple_b_candidates += (it->second);
+        }
+        else{
+          map_multiple_b_candidates[1] +=  (it->second);
+          num_multiple_b_candidates += (it->second);
+        }
+
+        // number of PVs
+        if (map_multiple_pvs.count((it->first).second.size()) == 0) {
+          map_multiple_pvs[(it->first).second.size()] =  (it->second);
+        } else {
+          map_multiple_pvs[(it->first).second.size()] += (it->second);
+        }
+        if ((it->first).second.size() > 1){
+          num_events_with_multiple_pvs += (it->second);
+        }
+
       } else {
         sinfo << endmsg;
       }
       if ((it->first).first > 1) {
         num_multicands_total += (it->first).first * it->second;
       }
+      num_singlecands += it->second;
     }
-    sinfo << "Total number of multiple candidates: " << num_multicands_total << " (" << static_cast<double>(num_multicands_total)/num_entries*100 << "%)" << endmsg;
+    sinfo << "Total number of B candidates: " << num_multiple_b_candidates << endmsg;
+    sinfo << std::setw(10) << std::setfill(' ') << "# mc"; 
+    sinfo << std::setw(10) << std::setfill(' ') << "# events" << endmsg;
+    for (auto entry: map_multiple_b_candidates){
+      sinfo << std::setw(10) << std::setfill(' ') << entry.first;
+      sinfo << std::setw(10) << std::setfill(' ') << entry.second << endmsg;
+    }
+    sinfo << "Total number of events with multiple B candidates: " << num_events_with_multiple_b_candidates << " (" << static_cast<double>(num_events_with_multiple_b_candidates)/num_singlecands*100 << "%)" << endmsg;
+    sinfo << "Total number of events with multiple occurences of additional characteristics (#nc): " << num_events_with_multiple_pvs << " (" << static_cast<double>(num_events_with_multiple_pvs)/num_singlecands*100 << "%)" << endmsg;
+    sinfo << std::setw(10) << std::setfill(' ') << "# nc"; 
+    sinfo << std::setw(10) << std::setfill(' ') << "# events" << endmsg;
+    for (auto entry: map_multiple_pvs){
+      sinfo << std::setw(10) << std::setfill(' ') << entry.first;
+      sinfo << std::setw(10) << std::setfill(' ') << entry.second << endmsg;
+    }
+    sinfo << "Total number of multiple candidates (incl B and additional characteristics): " << num_multicands_total << " (" << static_cast<double>(num_multicands_total)/num_entries*100 << "%)" << endmsg;
+    sinfo << "Total number of candidates after single candidate selection: " << num_singlecands << endmsg;
+    sinfo << "Total number of entries in tree: " << input_tree_->GetEntries() << endmsg;
+    sinfo.Ruler();
   }
   
   input_tree_->SetBranchStatus("*", true);
