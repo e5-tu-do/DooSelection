@@ -233,33 +233,44 @@ Particle CondDBTranslator::CreateFullPropParticle(int ID){
 Particle CondDBTranslator::CreateMinimalParticle(int ID){
   Particle new_particle;
 
-  std::map<int, std::string>::const_iterator iter = table_lines_.find(ID);
-  std::string particleLine = iter->second;
+  std::string particleLine = GetCorrespondingLine(ID);
 
   new_particle.set_mc_id(ID);
   
-  
   std::string particleName = "";
-  for(int i=2; particleLine.substr(i,1) != "|"; ++i){
-    if(particleLine.substr(i,1) != " "){
-      particleName += particleLine.at(i);
-    }
-  }
-  new_particle.set_name(particleName);
-  
-  
   std::string particleAntiparticleName = "";
-  for(int i=123; particleLine.substr(i,1) != "|"; ++i){
-    if(particleLine.substr(i,1) != " "){
-      particleAntiparticleName += particleLine.at(i);
+
+
+  //if the line corresponding to the ID is found, read out the (anti-)particles name and set both
+  if (particleLine != "") {
+    for(int i=2; particleLine.substr(i,1) != "|"; ++i){
+      if(particleLine.substr(i,1) != " "){
+        particleName += particleLine.at(i);
+      }
+    }
+    new_particle.set_name(particleName);
+  
+  
+    for(int i=123; particleLine.substr(i,1) != "|"; ++i){
+      if(particleLine.substr(i,1) != " "){
+        particleAntiparticleName += particleLine.at(i);
+      }
+    }
+    if(particleAntiparticleName != "self-cc"){
+      new_particle.set_antiparticlename(particleAntiparticleName);
+    }
+    else {
+      new_particle.set_antiparticlename(particleName);
     }
   }
-  if(particleAntiparticleName != "self-cc"){
-    new_particle.set_antiparticlename(particleAntiparticleName);
-  }
+  //if the particle is not included in the CondDB, convert the ID into a string and use it as name
   else {
-    new_particle.set_antiparticlename(particleName);
+    std::stringstream temp;
+    temp << ID;
+    particleName = temp.str();
+    particleAntiparticleName = temp.str();
   }
+
   
   return new_particle;
 }

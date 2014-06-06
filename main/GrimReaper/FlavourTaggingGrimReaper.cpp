@@ -384,7 +384,7 @@ void TaggingRdcr::UpdateSpecialLeaves(){
   // Always using the FT standard combination
   // see page 106 of: https://cds.cern.ch/record/1456804/files/CERN-THESIS-2012-075.pdf
   // as a reference.
-  bool debug = true;
+  bool debug = false;
 
   // ______________________________________________________________________________________
   // Create new OS and SSPion tag observables that not contain zero tags
