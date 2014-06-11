@@ -32,7 +32,6 @@ using namespace doocore::io;
 // typedef tuple: head, daughters, stable particles, isMC, isFlat
 typedef std::tuple<std::string, std::list<std::string>, std::list<std::string>, bool, bool> cfg_tuple;
 cfg_tuple Configure(Reducer* _rdcr, std::string& _channel);
-void MCLeaves(Reducer* _rdcr, cfg_tuple& cfg);
 void MassLeaves(Reducer* _rdcr, cfg_tuple& cfg);
 void TimeLeaves(Reducer* _rdcr, cfg_tuple& cfg);
 void TriggerLeaves(Reducer* _rdcr, cfg_tuple& cfg);
@@ -76,7 +75,6 @@ int main(int argc, char * argv[]){
 
   // add leaves  
   summary.AddSection("Added leaves");
-  if (reducer->LeafExists(std::get<0>(cfg)+"_BKGCAT")) MCLeaves(reducer, cfg);
   MassLeaves(reducer, cfg);
   TimeLeaves(reducer, cfg);
   TriggerLeaves(reducer, cfg);
@@ -128,8 +126,6 @@ cfg_tuple Configure(Reducer* _rdcr, std::string& _channel){
 
   return std::make_tuple(head, daughters, stable_particles, isMC, isFlat);
 }
-
-void MCLeaves(Reducer* _rdcr, cfg_tuple& cfg){}
 
 void MassLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   doocore::config::Summary& summary = doocore::config::Summary::GetInstance();
@@ -208,7 +204,6 @@ void MassLeaves(Reducer* _rdcr, cfg_tuple& cfg){
       jpsi_mass_err_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("obsMassErrDauTwo", _rdcr->GetInterimLeafByName("KS0_MMERR"));
     }
   }
-  
 }
 
 void TimeLeaves(Reducer* _rdcr, cfg_tuple& cfg){
@@ -670,6 +665,17 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   } else if (_rdcr->LeafExists("B0_IPCHI2_OWNPV")) {
     ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varIPChi2OwnPV", _rdcr->GetInterimLeafByName("B0_IPCHI2_OWNPV"));
   }
+
+  // momentum leaves for CPT violation analysis
+  // standard leaves
+  ReducerLeaf<Double_t>& var_tag_b0_momentum_x_leaf = _rdcr->CreateDoubleCopyLeaf("obsMomentumX", _rdcr->GetInterimLeafByName("B0_PX"));
+  ReducerLeaf<Double_t>& var_tag_b0_momentum_y_leaf = _rdcr->CreateDoubleCopyLeaf("obsMomentumY", _rdcr->GetInterimLeafByName("B0_PY"));
+  ReducerLeaf<Double_t>& var_tag_b0_momentum_z_leaf = _rdcr->CreateDoubleCopyLeaf("obsMomentumZ", _rdcr->GetInterimLeafByName("B0_PZ"));
+  // DTF leaves
+  ReducerLeaf<Float_t>& var_tag_b0_dtf_momentum_p_leaf =      _rdcr->CreateFloatCopyLeaf("obsDTFMomentum", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_P"+flat_suffix));
+  ReducerLeaf<Float_t>& var_tag_b0_dtf_momentum_p_err_leaf =  _rdcr->CreateFloatCopyLeaf("obsDTFMomentumError", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_PERR"+flat_suffix));
+  ReducerLeaf<Float_t>& var_tag_b0_dtf_momentum_pt_leaf =     _rdcr->CreateFloatCopyLeaf("obsDTFTransverseMomentum", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_PT"+flat_suffix));
+  ReducerLeaf<Float_t>& var_tag_b0_dtf_momentum_pt_err_leaf = _rdcr->CreateFloatCopyLeaf("obsDTFTransverseMomentumError", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_PTERR"+flat_suffix));
 
   // alternative daughter masses with different constraints
   if (_rdcr->LeafExists("B0_FitPVConst_KS0_M"+flat_suffix)) ReducerLeaf<Double_t>& dtf_kaon_mass_pv_constraint = _rdcr->CreateDoubleCopyLeaf("varDTFKS0MassPVConst", _rdcr->GetInterimLeafByName("B0_FitPVConst_KS0_M"+flat_suffix));

@@ -40,6 +40,7 @@ int main(int argc, char * argv[]){
   reducer.AddBranchesKeepRegex("cat.*");
   reducer.AddBranchesKeepRegex("par.*");
   reducer.AddBranchesKeepRegex("idx.*");
+  reducer.AddBranchesKeepRegex("Gps.*");
   reducer.AddBranchesKeepRegex(".*_sw");
 
   reducer.Initialize();
