@@ -191,6 +191,7 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     int num_multiple_pvs = 0;
     int num_events_with_multiple_pvs = 0;
     int num_multicands_total = 0;
+    int num_events_with_multicands_total = 0;
     int num_singlecands = 0;
     
     for (std::map<std::pair<int, std::vector<int>>,int>::const_iterator it = multicand_histogram.begin();
@@ -243,11 +244,14 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
         sinfo << endmsg;
       }
       if ((it->first).first > 1) {
-        num_multicands_total += (it->first).first * it->second;
+        num_multicands_total += it->second * (it->first).first;
+        num_events_with_multicands_total += it->second;
       }
       num_singlecands += it->second;
     }
-    sinfo << "Overall number of multiple candidates (multiple B candidates and multiple occurences of additional characteristics): " << num_multicands_total << " (" << static_cast<double>(num_multicands_total)/num_entries*100 << "%)" << endmsg;
+    sinfo << "Overall number of multiple candidates: " << num_multicands_total << " (" << static_cast<double>(num_multicands_total)/num_entries*100 << "%)" << endmsg;
+    sinfo << "Overall number of events with multiple candidates: " << num_events_with_multicands_total << " (" << static_cast<double>(num_events_with_multicands_total)/num_entries*100 << "%)" << endmsg;
+    sinfo << "Overall number of multiple candidates to discard: " << num_multicands_total - num_events_with_multicands_total << " (" << static_cast<double>(num_multicands_total - num_events_with_multicands_total)/num_entries*100 << "%)" << endmsg;
     sinfo << endmsg;
     sinfo << "Number of multiple B candidates per event (# mBc) vs. number of B candidates matching this criteria (# Bc)" << endmsg;
     sinfo << std::setw(10) << std::setfill(' ') << "# mBc"; 
@@ -258,7 +262,7 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     }
     sinfo << "Total number of B candidates: " << num_multiple_b_candidates << endmsg;
     sinfo << endmsg;
-    sinfo << "Number of multiple B candidates per event (# mBc) vs. number of occurrences (# evts): " << num_events_with_multiple_b_candidates << " (" << static_cast<double>(num_events_with_multiple_b_candidates)/num_singlecands*100 << "%)" << endmsg;
+    sinfo << "Number of multiple B candidates per event (# mBc) vs. number of occurrences (# evts): " << num_events_with_multiple_b_candidates << " (" << static_cast<double>(num_events_with_multiple_b_candidates)/num_entries*100 << "%)" << endmsg;
     sinfo << std::setw(10) << std::setfill(' ') << "# mBc";
     sinfo << std::setw(10) << std::setfill(' ') << "# evts" << endmsg;
     for (auto entry: map_events_with_multiple_b_candidates){
@@ -275,7 +279,7 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     }
     sinfo << "Total number of multiple occurences (>1) of additional characteristics: " << num_multiple_pvs << endmsg;
     sinfo << endmsg;
-    sinfo << "Number of multiple occurences of additional characteristics (# moac) vs. number of occurrences (# evts): " << num_events_with_multiple_pvs << " (" << static_cast<double>(num_events_with_multiple_pvs)/num_singlecands*100 << "%)" << endmsg;
+    sinfo << "Number of multiple occurences of additional characteristics (# moac) vs. number of occurrences (# evts): " << num_events_with_multiple_pvs << " (" << static_cast<double>(num_events_with_multiple_pvs)/num_entries*100 << "%)" << endmsg;
     sinfo << std::setw(10) << std::setfill(' ') << "# moac"; 
     sinfo << std::setw(10) << std::setfill(' ') << "# evts" << endmsg;
     for (auto entry: map_events_with_multiple_pvs){
