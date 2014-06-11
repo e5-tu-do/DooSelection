@@ -169,19 +169,31 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
     sinfo.Ruler();
     sinfo << "Total number of multiple candidates (# mc) vs. number of occurrences (# evts)" << endmsg;
     sinfo << std::setw(10) << std::setfill(' ') << "# mc";
-    sinfo << std::setw(10) << std::setfill(' ') << "# events";
+    sinfo << std::setw(10) << std::setfill(' ') << "# evts";
     if (event_characteristics.size() > 0) {
       sinfo << " | # occurences per unique characteristics: " <<  additional_event_characteristics_ << endmsg;
     } else {
       sinfo << endmsg;
     }
+
     std::map<int, int> map_multiple_b_candidates;
+    std::map<int, int> map_events_with_multiple_b_candidates;
     std::map<int, int> map_multiple_pvs;
+    std::map<int, int> map_events_with_multiple_pvs;
+
+    map_multiple_b_candidates[1] = 0;
+    map_events_with_multiple_b_candidates[1] = 0;
+    map_multiple_pvs[1] = 0;
+    map_events_with_multiple_pvs[1] = 0;
+
     int num_multiple_b_candidates = 0;
     int num_events_with_multiple_b_candidates = 0;
+    int num_multiple_pvs = 0;
     int num_events_with_multiple_pvs = 0;
     int num_multicands_total = 0;
+    int num_events_with_multicands_total = 0;
     int num_singlecands = 0;
+    
     for (std::map<std::pair<int, std::vector<int>>,int>::const_iterator it = multicand_histogram.begin();
          it != multicand_histogram.end(); ++it) {
       sinfo << std::setw(10) << std::setfill(' ') << (it->first).first;         // number of multiple candidates in event
@@ -201,24 +213,30 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
         if (max_entry_of_characteristics > 1){
           if (map_multiple_b_candidates.count(max_entry_of_characteristics) == 0) {
             map_multiple_b_candidates[max_entry_of_characteristics] =  (it->second) * max_entry_of_characteristics;
+            map_events_with_multiple_b_candidates[max_entry_of_characteristics] =  (it->second);
           } else {
             map_multiple_b_candidates[max_entry_of_characteristics] += (it->second) * max_entry_of_characteristics;
+            map_events_with_multiple_b_candidates[max_entry_of_characteristics] += (it->second);
           }
           num_multiple_b_candidates += (it->second) * max_entry_of_characteristics;
           num_events_with_multiple_b_candidates += (it->second);
         }
         else{
           map_multiple_b_candidates[1] +=  (it->second);
+          map_events_with_multiple_b_candidates[1] += (it->second);
           num_multiple_b_candidates += (it->second);
         }
 
         // number of PVs
         if (map_multiple_pvs.count((it->first).second.size()) == 0) {
-          map_multiple_pvs[(it->first).second.size()] =  (it->second);
+          map_multiple_pvs[(it->first).second.size()] =  (it->second) * (it->first).second.size();
+          map_events_with_multiple_pvs[(it->first).second.size()] =  (it->second);
         } else {
-          map_multiple_pvs[(it->first).second.size()] += (it->second);
+          map_multiple_pvs[(it->first).second.size()] += (it->second) * (it->first).second.size();
+          map_events_with_multiple_pvs[(it->first).second.size()] += (it->second);
         }
         if ((it->first).second.size() > 1){
+          num_multiple_pvs += (it->second) * (it->first).second.size();
           num_events_with_multiple_pvs += (it->second);
         }
 
@@ -226,28 +244,51 @@ void MultipleCandidateAnalyseReducer::ProcessInputTree() {
         sinfo << endmsg;
       }
       if ((it->first).first > 1) {
-        num_multicands_total += (it->first).first * it->second;
+        num_multicands_total += it->second * (it->first).first;
+        num_events_with_multicands_total += it->second;
       }
       num_singlecands += it->second;
     }
-    sinfo << "Total number of B candidates: " << num_multiple_b_candidates << endmsg;
-    sinfo << std::setw(10) << std::setfill(' ') << "# mc"; 
-    sinfo << std::setw(10) << std::setfill(' ') << "# events" << endmsg;
+    sinfo << "Overall number of multiple candidates: " << num_multicands_total << " (" << static_cast<double>(num_multicands_total)/num_entries*100 << "%)" << endmsg;
+    sinfo << "Overall number of events with multiple candidates: " << num_events_with_multicands_total << " (" << static_cast<double>(num_events_with_multicands_total)/num_entries*100 << "%)" << endmsg;
+    sinfo << "Overall number of multiple candidates to discard: " << num_multicands_total - num_events_with_multicands_total << " (" << static_cast<double>(num_multicands_total - num_events_with_multicands_total)/num_entries*100 << "%)" << endmsg;
+    sinfo << endmsg;
+    sinfo << "Number of multiple B candidates per event (# mBc) vs. number of B candidates matching this criteria (# Bc)" << endmsg;
+    sinfo << std::setw(10) << std::setfill(' ') << "# mBc"; 
+    sinfo << std::setw(10) << std::setfill(' ') << "# Bc" << endmsg;
     for (auto entry: map_multiple_b_candidates){
       sinfo << std::setw(10) << std::setfill(' ') << entry.first;
       sinfo << std::setw(10) << std::setfill(' ') << entry.second << endmsg;
     }
-    sinfo << "Total number of events with multiple B candidates: " << num_events_with_multiple_b_candidates << " (" << static_cast<double>(num_events_with_multiple_b_candidates)/num_singlecands*100 << "%)" << endmsg;
-    sinfo << "Total number of events with multiple occurences of additional characteristics (#nc): " << num_events_with_multiple_pvs << " (" << static_cast<double>(num_events_with_multiple_pvs)/num_singlecands*100 << "%)" << endmsg;
-    sinfo << std::setw(10) << std::setfill(' ') << "# nc"; 
-    sinfo << std::setw(10) << std::setfill(' ') << "# events" << endmsg;
+    sinfo << "Total number of B candidates: " << num_multiple_b_candidates << endmsg;
+    sinfo << endmsg;
+    sinfo << "Number of multiple B candidates per event (# mBc) vs. number of occurrences (# evts): " << num_events_with_multiple_b_candidates << " (" << static_cast<double>(num_events_with_multiple_b_candidates)/num_entries*100 << "%)" << endmsg;
+    sinfo << std::setw(10) << std::setfill(' ') << "# mBc";
+    sinfo << std::setw(10) << std::setfill(' ') << "# evts" << endmsg;
+    for (auto entry: map_events_with_multiple_b_candidates){
+      sinfo << std::setw(10) << std::setfill(' ') << entry.first;
+      sinfo << std::setw(10) << std::setfill(' ') << entry.second << endmsg;
+    }
+    sinfo << endmsg;
+    sinfo << "Number of multiple occurences of additional characteristics (# moac) vs. number of occurences of additional characteristics matching this criteria (# oac)" << endmsg;
+    sinfo << std::setw(10) << std::setfill(' ') << "# moac"; 
+    sinfo << std::setw(10) << std::setfill(' ') << "# oac" << endmsg;
     for (auto entry: map_multiple_pvs){
       sinfo << std::setw(10) << std::setfill(' ') << entry.first;
       sinfo << std::setw(10) << std::setfill(' ') << entry.second << endmsg;
     }
-    sinfo << "Total number of multiple candidates (incl B and additional characteristics): " << num_multicands_total << " (" << static_cast<double>(num_multicands_total)/num_entries*100 << "%)" << endmsg;
-    sinfo << "Total number of candidates after single candidate selection: " << num_singlecands << endmsg;
-    sinfo << "Total number of entries in tree: " << input_tree_->GetEntries() << endmsg;
+    sinfo << "Total number of multiple occurences (>1) of additional characteristics: " << num_multiple_pvs << endmsg;
+    sinfo << endmsg;
+    sinfo << "Number of multiple occurences of additional characteristics (# moac) vs. number of occurrences (# evts): " << num_events_with_multiple_pvs << " (" << static_cast<double>(num_events_with_multiple_pvs)/num_entries*100 << "%)" << endmsg;
+    sinfo << std::setw(10) << std::setfill(' ') << "# moac"; 
+    sinfo << std::setw(10) << std::setfill(' ') << "# evts" << endmsg;
+    for (auto entry: map_events_with_multiple_pvs){
+      sinfo << std::setw(10) << std::setfill(' ') << entry.first;
+      sinfo << std::setw(10) << std::setfill(' ') << entry.second << endmsg;
+    }
+    sinfo << endmsg;
+    sinfo << "Number of candidates after single candidate selection: " << num_singlecands << endmsg;
+    sinfo << "Number of entries in tree: " << num_entries << endmsg;
     sinfo.Ruler();
   }
   
