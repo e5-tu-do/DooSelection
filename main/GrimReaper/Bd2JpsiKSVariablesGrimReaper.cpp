@@ -672,10 +672,12 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   ReducerLeaf<Double_t>& var_tag_b0_momentum_y_leaf = _rdcr->CreateDoubleCopyLeaf("obsMomentumY", _rdcr->GetInterimLeafByName("B0_PY"));
   ReducerLeaf<Double_t>& var_tag_b0_momentum_z_leaf = _rdcr->CreateDoubleCopyLeaf("obsMomentumZ", _rdcr->GetInterimLeafByName("B0_PZ"));
   // DTF leaves
-  ReducerLeaf<Float_t>& var_tag_b0_dtf_momentum_p_leaf =      _rdcr->CreateFloatCopyLeaf("obsDTFMomentum", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_P"+flat_suffix));
-  ReducerLeaf<Float_t>& var_tag_b0_dtf_momentum_p_err_leaf =  _rdcr->CreateFloatCopyLeaf("obsDTFMomentumError", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_PERR"+flat_suffix));
-  ReducerLeaf<Float_t>& var_tag_b0_dtf_momentum_pt_leaf =     _rdcr->CreateFloatCopyLeaf("obsDTFTransverseMomentum", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_PT"+flat_suffix));
-  ReducerLeaf<Float_t>& var_tag_b0_dtf_momentum_pt_err_leaf = _rdcr->CreateFloatCopyLeaf("obsDTFTransverseMomentumError", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_PTERR"+flat_suffix));
+  if (_rdcr->LeafExists("B0_FitDaughtersPVConst_P"+flat_suffix)){
+    ReducerLeaf<Float_t>& var_tag_b0_dtf_momentum_p_leaf =      _rdcr->CreateFloatCopyLeaf("obsDTFMomentum", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_P"+flat_suffix));
+    ReducerLeaf<Float_t>& var_tag_b0_dtf_momentum_p_err_leaf =  _rdcr->CreateFloatCopyLeaf("obsDTFMomentumError", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_PERR"+flat_suffix));
+    ReducerLeaf<Float_t>& var_tag_b0_dtf_momentum_pt_leaf =     _rdcr->CreateFloatCopyLeaf("obsDTFTransverseMomentum", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_PT"+flat_suffix));
+    ReducerLeaf<Float_t>& var_tag_b0_dtf_momentum_pt_err_leaf = _rdcr->CreateFloatCopyLeaf("obsDTFTransverseMomentumError", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_PTERR"+flat_suffix));
+  }
 
   // alternative daughter masses with different constraints
   if (_rdcr->LeafExists("B0_FitPVConst_KS0_M"+flat_suffix)) ReducerLeaf<Double_t>& dtf_kaon_mass_pv_constraint = _rdcr->CreateDoubleCopyLeaf("varDTFKS0MassPVConst", _rdcr->GetInterimLeafByName("B0_FitPVConst_KS0_M"+flat_suffix));
