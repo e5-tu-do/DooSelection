@@ -215,19 +215,20 @@ void TriggerLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   ReducerLeaf<Int_t>& trigger_l0_global_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerL0GlobalTOS", _rdcr->GetInterimLeafByName("psi_2S_L0Global_TOS"));
   ReducerLeaf<Int_t>& trigger_hlt1_global_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt1GlobalTOS", _rdcr->GetInterimLeafByName("psi_2S_Hlt1Global_TOS"));
   ReducerLeaf<Int_t>& trigger_hlt2_global_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt2GlobalTOS", _rdcr->GetInterimLeafByName("psi_2S_Hlt2Global_TOS"));
+
+  ReducerLeaf<Int_t>& trigger_hlt1_highmass_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt1DiMuonHighMassTOS", _rdcr->GetInterimLeafByName("psi_2S_Hlt1DiMuonHighMassDecision_TOS"));
   ReducerLeaf<Int_t>& trigger_hlt1_trackmuon_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt1TrackMuonTOS", _rdcr->GetInterimLeafByName("psi_2S_Hlt1TrackMuonDecision_TOS"));
-  ReducerLeaf<Int_t>& trigger_hlt1_highmass_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt1HighMassTOS", _rdcr->GetInterimLeafByName("psi_2S_Hlt1DiMuonHighMassDecision_TOS"));
-  ReducerLeaf<Int_t>& trigger_hlt1_no_ip_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt1NoIPTOS", _rdcr->GetInterimLeafByName("psi_2S_Hlt1SingleMuonNoIPDecision_TOS"));
-  ReducerLeaf<Int_t>& trigger_hlt2_detachedjpsi_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt2DetachedJpsiTOS", _rdcr->GetInterimLeafByName("psi_2S_Hlt2DiMuonDetachedJPsiDecision_TOS"));
-  ReducerLeaf<Int_t>& trigger_hlt2_jpsi_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt2JpsiTOS", _rdcr->GetInterimLeafByName("psi_2S_Hlt2DiMuonJPsiDecision_TOS"));
+  ReducerLeaf<Int_t>& trigger_hlt1_no_ip_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt1SingleMuonNoIPTOS", _rdcr->GetInterimLeafByName("psi_2S_Hlt1SingleMuonNoIPDecision_TOS"));
+
+  ReducerLeaf<Int_t>& trigger_hlt2_detached_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt2DiMuonDetachedHeavyTOS", _rdcr->GetInterimLeafByName("psi_2S_Hlt2DiMuonDetachedHeavyDecision_TOS"));
 
   ReducerLeaf<Int_t>& catTriggerSetNoIP = _rdcr->CreateIntLeaf("catTriggerSetNoIP", -10);
-      TCut trigger_set_no_ip = "((psi_2S_Hlt1DiMuonHighMassDecision_TOS==1)||(psi_2S_Hlt1TrackMuonDecision_TOS==1)||(psi_2S_Hlt1SingleMuonNoIPDecision_TOS==1))&&((psi_2S_Hlt2DiMuonDetachedJPsiDecision_TOS==1)||(psi_2S_Hlt2DiMuonJPsiDecision_TOS==1))";
+      TCut trigger_set_no_ip = "((psi_2S_L0Global_TOS==1)&&((psi_2S_Hlt1DiMuonHighMassDecision_TOS==1)||(psi_2S_Hlt1TrackMuonDecision_TOS==1))&&(psi_2S_Hlt2DiMuonDetachedHeavyDecision_TOS==1))";
       catTriggerSetNoIP.AddCondition("triggered", trigger_set_no_ip.GetTitle(), 1);
       catTriggerSetNoIP.AddCondition("not_triggered", (!trigger_set_no_ip).GetTitle(), 0);
 
   ReducerLeaf<Int_t>& catTriggerSet = _rdcr->CreateIntLeaf("catTriggerSet", -10);
-      TCut trigger_set = "((psi_2S_Hlt1DiMuonHighMassDecision_TOS==1)||(psi_2S_Hlt1TrackMuonDecision_TOS==1))&&((psi_2S_Hlt2DiMuonDetachedJPsiDecision_TOS==1)||(psi_2S_Hlt2DiMuonJPsiDecision_TOS==1))";
+      TCut trigger_set = "((psi_2S_L0Global_TOS==1)&&((psi_2S_Hlt1DiMuonHighMassDecision_TOS==1)||(psi_2S_Hlt1TrackMuonDecision_TOS==1)||(psi_2S_Hlt1SingleMuonNoIPDecision_TOS==1))&&(psi_2S_Hlt2DiMuonDetachedHeavyDecision_TOS==1))";
       catTriggerSet.AddCondition("triggered", trigger_set.GetTitle(), 1);
       catTriggerSet.AddCondition("not_triggered", (!trigger_set).GetTitle(), 0);
 }
