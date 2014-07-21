@@ -295,7 +295,7 @@ void TaggingRdcr::CreateSpecialBranches(){
   var_tag_exclusive_os_std_comb_ss_pion_nozero_leaf_  = &CreateIntLeaf("obsTagExclOSSSPion_StdComb_NoZero");  // see above, no zero tag but 1 for untagged
   var_tag_os_comb_with_nnet_kaon_leaf_                = &CreateIntLeaf("obsTagOSwNNKaon");
   var_tag_os_comb_with_nnet_kaon_babar_leaf_          = &CreateIntLeaf("obsTagOSwNNKaon_BaBar");
-  var_tag_ss_pion_calibrated_leaf_                    = &CreateIntLeaf("obsTagSSPion_TupleCalib");    // tag after foreseen calibration on tuple level
+  var_tag_ss_pion_calibrated_leaf_                    = &CreateIntLeaf("obsTagSSPion_TupleCalib_NoZero");    // tag after foreseen calibration on tuple level
   // eta      
   var_tag_eta_os_std_comb_leaf_                       = &CreateDoubleLeaf("obsEtaOS_StdComb");
   var_tag_eta_os_ss_pion_leaf_                        = &CreateDoubleLeaf("obsEtaOSSSPion");          //
