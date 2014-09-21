@@ -141,6 +141,15 @@
  * Parameters needed: name of input file, name of input tree, name of output file,
  * name of output tree (no backslashes!), name of discriminating leaf.
  * 
+ * @section exec_FlavourTaggingCalibrationGrimReaper FlavourTaggingCalibrationGrimReaper
+ * The FlavourTaggingCalibrationGrimReaper performs a linear FT calibration for a
+ * given tagging observable
+ * 
+ * Parameters needed: name of input file, name of input tree, name of output file,
+ * name of output tree (no backslashes!), name of input tag observables,
+ * name of input eta observable, name of input tagging category, p0 calibration parameters,
+ * p1 calibration parameters, average eta calibration paramter, new observable name appendix.
+ * 
  * @section exec_FitTupleGrimReaper FitTupleGrimReaper
  * The FitTupleGrimReaper removes all leaves not matching the following regular
  * expressions: "obs.*", "var.*", "cat.*", "par.*", "idx.*", and ".*_sw"
