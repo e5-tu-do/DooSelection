@@ -50,6 +50,7 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
     var_tag_os_with_nnet_kaon_sspion_nozero_leaf_(NULL),
     var_tag_os_comb_with_nnet_kaon_leaf_(NULL),
     var_tag_os_comb_with_nnet_kaon_babar_leaf_(NULL),
+    var_tag_ss_pion_calibrated_leaf_(NULL),
     // eta leaves
     var_tag_eta_os_std_comb_leaf_(NULL),
     var_tag_eta_os_ss_pion_leaf_(NULL),
@@ -58,6 +59,7 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
     var_tag_eta_exclusive_os_std_comb_ss_pion_leaf_(NULL),
     var_tag_eta_os_comb_with_nnet_kaon_leaf_(NULL),
     var_tag_eta_os_with_nnet_kaon_sspion_leaf_(NULL),
+    var_tag_eta_ss_pion_calibrated_leaf_(NULL),
     // cat tagged leaves
     cat_tagged_os_std_comb_leaf_(NULL),
     cat_tagged_os_comb_with_nnet_kaon_leaf_(NULL),
@@ -69,6 +71,7 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
     cat_tagged_exclusive_os_std_comb_ss_pion_leaf_(NULL),
     cat_tagged_os_with_nnet_kaon_or_sspion_leaf_(NULL),
     cat_tagged_os_with_nnet_kaon_xor_ss_pion_leaf_(NULL),
+    cat_tagged_ss_pion_calibrated_leaf_(NULL),
     // ______________________________________________________________________________________
     // leaves to read
     // tag leaves
@@ -115,6 +118,7 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
     var_tag_os_with_nnet_kaon_sspion_nozero_value_(NULL),
     var_tag_os_comb_with_nnet_kaon_value_(NULL),
     var_tag_os_comb_with_nnet_kaon_babar_value_(NULL),
+    var_tag_ss_pion_calibrated_value_(NULL),
     // eta leaves
     var_tag_eta_os_std_comb_value_(NULL),
     var_tag_eta_os_ss_pion_value_(NULL),
@@ -123,6 +127,7 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
     var_tag_eta_exclusive_os_std_comb_ss_pion_value_(NULL),
     var_tag_eta_os_with_nnet_kaon_sspion_value_(NULL),
     var_tag_eta_os_comb_with_nnet_kaon_value_(NULL),
+    var_tag_eta_ss_pion_calibrated_value_(NULL),
     // cat tagged leaves
     cat_tagged_os_std_comb_value_(NULL),
     cat_tagged_os_or_ss_pion_value_(NULL),
@@ -134,6 +139,7 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
     cat_tagged_os_comb_with_nnet_kaon_value_(NULL),
     cat_tagged_os_with_nnet_kaon_or_sspion_value_(NULL),
     cat_tagged_os_with_nnet_kaon_xor_ss_pion_value_(NULL),
+    cat_tagged_ss_pion_calibrated_value_(NULL),
     head_("")
   {}
   virtual ~TaggingRdcr(){}
@@ -168,6 +174,7 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
   dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_os_with_nnet_kaon_sspion_nozero_leaf_;
   dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_os_comb_with_nnet_kaon_leaf_;
   dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_os_comb_with_nnet_kaon_babar_leaf_; 
+  dooselection::reducer::ReducerLeaf<Int_t>*    var_tag_ss_pion_calibrated_leaf_;
   // eta leaves
   dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_os_std_comb_leaf_;
   dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_os_ss_pion_leaf_;
@@ -176,6 +183,7 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
   dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_exclusive_os_std_comb_ss_pion_leaf_;
   dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_os_comb_with_nnet_kaon_leaf_;
   dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_os_with_nnet_kaon_sspion_leaf_;
+  dooselection::reducer::ReducerLeaf<Double_t>* var_tag_eta_ss_pion_calibrated_leaf_;
   // cat tagged leaves
   dooselection::reducer::ReducerLeaf<Int_t>*    cat_tagged_os_std_comb_leaf_;
   dooselection::reducer::ReducerLeaf<Int_t>*    cat_tagged_os_comb_with_nnet_kaon_leaf_;
@@ -187,6 +195,7 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
   dooselection::reducer::ReducerLeaf<Int_t>*    cat_tagged_exclusive_os_std_comb_ss_pion_leaf_;
   dooselection::reducer::ReducerLeaf<Int_t>*    cat_tagged_os_with_nnet_kaon_or_sspion_leaf_;
   dooselection::reducer::ReducerLeaf<Int_t>*    cat_tagged_os_with_nnet_kaon_xor_ss_pion_leaf_;
+  dooselection::reducer::ReducerLeaf<Int_t>*    cat_tagged_ss_pion_calibrated_leaf_;
 
 
   // ______________________________________________________________________________________
@@ -234,8 +243,9 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
   Int_t* var_tag_os_with_nnet_kaon_sspion_value_;
   Int_t* var_tag_os_with_nnet_kaon_sspion_babar_value_;
   Int_t* var_tag_os_with_nnet_kaon_sspion_nozero_value_;
-  Int_t* var_tag_os_comb_with_nnet_kaon_value_;         
-  Int_t* var_tag_os_comb_with_nnet_kaon_babar_value_;   
+  Int_t* var_tag_os_comb_with_nnet_kaon_value_;
+  Int_t* var_tag_os_comb_with_nnet_kaon_babar_value_;
+  Int_t* var_tag_ss_pion_calibrated_value_;
   // eta leaves
   Double_t* var_tag_eta_os_std_comb_value_;
   Double_t* var_tag_eta_os_ss_pion_value_;
@@ -244,6 +254,7 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
   Double_t* var_tag_eta_exclusive_os_std_comb_ss_pion_value_;
   Double_t* var_tag_eta_os_with_nnet_kaon_sspion_value_;
   Double_t* var_tag_eta_os_comb_with_nnet_kaon_value_; 
+  Double_t* var_tag_eta_ss_pion_calibrated_value_;
   // cat tagged leaves
   Int_t* cat_tagged_os_std_comb_value_;
   Int_t* cat_tagged_os_or_ss_pion_value_;  
@@ -255,6 +266,7 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
   Int_t* cat_tagged_os_comb_with_nnet_kaon_value_;
   Int_t* cat_tagged_os_with_nnet_kaon_or_sspion_value_;
   Int_t* cat_tagged_os_with_nnet_kaon_xor_ss_pion_value_;
+  Int_t* cat_tagged_ss_pion_calibrated_value_;
 
   // head name
   std::string head_;
@@ -282,7 +294,8 @@ void TaggingRdcr::CreateSpecialBranches(){
   var_tag_exclusive_os_std_comb_ss_pion_babar_leaf_   = &CreateIntLeaf("obsTagExclOSSSPion_StdComb_BaBar");   // see above, tag flipped
   var_tag_exclusive_os_std_comb_ss_pion_nozero_leaf_  = &CreateIntLeaf("obsTagExclOSSSPion_StdComb_NoZero");  // see above, no zero tag but 1 for untagged
   var_tag_os_comb_with_nnet_kaon_leaf_                = &CreateIntLeaf("obsTagOSwNNKaon");
-  var_tag_os_comb_with_nnet_kaon_babar_leaf_          = &CreateIntLeaf("obsTagOSwNNKaon_BaBar");  
+  var_tag_os_comb_with_nnet_kaon_babar_leaf_          = &CreateIntLeaf("obsTagOSwNNKaon_BaBar");
+  var_tag_ss_pion_calibrated_leaf_                    = &CreateIntLeaf("obsTagSSPion_TupleCalib_NoZero");    // tag after foreseen calibration on tuple level
   // eta      
   var_tag_eta_os_std_comb_leaf_                       = &CreateDoubleLeaf("obsEtaOS_StdComb");
   var_tag_eta_os_ss_pion_leaf_                        = &CreateDoubleLeaf("obsEtaOSSSPion");          //
@@ -290,6 +303,7 @@ void TaggingRdcr::CreateSpecialBranches(){
   var_tag_eta_exclusive_os_ss_pion_leaf_              = &CreateDoubleLeaf("obsEtaExclOSSSPion");      //
   var_tag_eta_exclusive_os_std_comb_ss_pion_leaf_     = &CreateDoubleLeaf("obsEtaExclOSSSPion_StdComb");
   var_tag_eta_os_comb_with_nnet_kaon_leaf_            = &CreateDoubleLeaf("obsEtaOSwNNKaon");
+  var_tag_eta_ss_pion_calibrated_leaf_                = &CreateDoubleLeaf("obsEtaSSPion_TupleCalib"); // mistag after foreseen calibration on tuple level
   // cat tagged     
   cat_tagged_os_std_comb_leaf_                        = &CreateIntLeaf("catTaggedOS_StdComb");        // 0 for untagged, 1 for tagged
   cat_tagged_os_or_ss_pion_leaf_                      = &CreateIntLeaf("catTaggedOSorSSPion");        // 0 for untagged, 1 for tagged
@@ -298,7 +312,8 @@ void TaggingRdcr::CreateSpecialBranches(){
   cat_tagged_os_exclusive_ss_pion_leaf_               = &CreateIntLeaf("catTaggedOSExclSSPion");      // 0 for untagged, 1 for (OS&&SSPion)||OS tag, -1 for SSPion excl. 
   cat_tagged_exclusive_os_ss_pion_leaf_               = &CreateIntLeaf("catTaggedExclOSSSPion");      // 0 for untagged, 1 for excl. OS tag, -1 for (OS&&SSPion)||SSPion tag
   cat_tagged_exclusive_os_std_comb_ss_pion_leaf_      = &CreateIntLeaf("catTaggedExclOSSSPion_StdComb");  // 0 for untagged, 1 for excl. OS tag, -1 for (OS&&SSPion)||SSPion tag (for own std combination)
-  cat_tagged_os_comb_with_nnet_kaon_leaf_             = &CreateIntLeaf("catTaggedOSwNNKaon");
+  cat_tagged_os_comb_with_nnet_kaon_leaf_             = &CreateIntLeaf("catTaggedOSwNNKaon");         // 0 for untagged, 1 for tagged
+  cat_tagged_ss_pion_calibrated_leaf_                 = &CreateIntLeaf("catTaggedSSPion_TupleCalib"); // 0 for untagged, 1 for tagged
 
   // OS NNKaon
   if (LeafExists(head_+"_OS_nnetKaon_DEC")){
@@ -336,6 +351,7 @@ void TaggingRdcr::CreateSpecialBranches(){
   var_tag_exclusive_os_std_comb_ss_pion_value_        = (Int_t*)var_tag_exclusive_os_std_comb_ss_pion_leaf_->branch_address();  
   var_tag_exclusive_os_std_comb_ss_pion_babar_value_  = (Int_t*)var_tag_exclusive_os_std_comb_ss_pion_babar_leaf_->branch_address();
   var_tag_exclusive_os_std_comb_ss_pion_nozero_value_ = (Int_t*)var_tag_exclusive_os_std_comb_ss_pion_nozero_leaf_->branch_address();
+  var_tag_ss_pion_calibrated_value_                   = (Int_t*)var_tag_ss_pion_calibrated_leaf_->branch_address();
   // eta    
   var_tag_eta_os_                                   = (Double_t*)GetInterimLeafByName(head_+"_TAGOMEGA_OS").branch_address();
   var_tag_eta_ss_pion_                              = (Float_t*)GetInterimLeafByName(head_+"_SS_Pion_PROB").branch_address();
@@ -348,6 +364,7 @@ void TaggingRdcr::CreateSpecialBranches(){
   var_tag_eta_os_exclusive_ss_pion_value_           = (Double_t*)var_tag_eta_os_exclusive_ss_pion_leaf_->branch_address();
   var_tag_eta_exclusive_os_ss_pion_value_           = (Double_t*)var_tag_eta_exclusive_os_ss_pion_leaf_->branch_address();
   var_tag_eta_exclusive_os_std_comb_ss_pion_value_  = (Double_t*)var_tag_eta_exclusive_os_std_comb_ss_pion_leaf_->branch_address();
+  var_tag_eta_ss_pion_calibrated_value_             = (Double_t*)var_tag_eta_ss_pion_calibrated_leaf_->branch_address();
   // cat tagged   
   cat_tagged_os_                                  = (Int_t*)GetInterimLeafByName(head_+"_TAGDECISION_OS").branch_address();
   cat_tagged_ss_pion_                             = (Int_t*)GetInterimLeafByName(head_+"_SS_Pion_DEC").branch_address();
@@ -359,6 +376,7 @@ void TaggingRdcr::CreateSpecialBranches(){
   cat_tagged_exclusive_os_ss_pion_value_          = (Int_t*)cat_tagged_exclusive_os_ss_pion_leaf_->branch_address();
   cat_tagged_exclusive_os_std_comb_ss_pion_value_ = (Int_t*)cat_tagged_exclusive_os_std_comb_ss_pion_leaf_->branch_address();
   cat_tagged_os_comb_with_nnet_kaon_value_        = (Int_t*)cat_tagged_os_comb_with_nnet_kaon_leaf_->branch_address();
+  cat_tagged_ss_pion_calibrated_value_            = (Int_t*)cat_tagged_ss_pion_calibrated_leaf_->branch_address();
 
   // OS NNKaon
   if (LeafExists(head_+"_OS_nnetKaon_DEC")){
@@ -385,6 +403,45 @@ void TaggingRdcr::UpdateSpecialLeaves(){
   // see page 106 of: https://cds.cern.ch/record/1456804/files/CERN-THESIS-2012-075.pdf
   // as a reference.
   bool debug = false;
+
+  // ______________________________________________________________________________________
+  // SSPion calibration ({obsTag,obsEta,catTagged}SSPion_TupleCalib)
+  // 
+  // since the SSpion is pre-calibrated in new DaVinci tuples this calibration 
+  // has to be done afterwards for older tuples:
+  // p0 = 0.425
+  // p1 = 0.939
+  // <eta> = 0.379
+  // 
+  // Categories:
+  //   0: untagged
+  //  +1: SSPion tagged
+  // ______________________________________________________________________________________
+
+  double m_P0_Cal_SSPion = 0.425;
+  double m_P1_Cal_SSPion = 0.939;
+  double m_Eta_Cal_SSPion = 0.379;
+
+  double ss_pion_decision = *var_tag_ss_pion_;
+  double ss_pion_mistag   = *var_tag_eta_ss_pion_;
+
+  if (ss_pion_mistag >= 0.5){
+    *var_tag_ss_pion_calibrated_value_ = 1; 
+    *var_tag_eta_ss_pion_calibrated_value_ = 0.5;    
+    *cat_tagged_ss_pion_calibrated_value_ = 0;
+  }
+  else{
+    *var_tag_ss_pion_calibrated_value_ = ss_pion_decision; 
+    *var_tag_eta_ss_pion_calibrated_value_ = m_P0_Cal_SSPion + m_P1_Cal_SSPion * ( ss_pion_mistag - m_Eta_Cal_SSPion );    
+    *cat_tagged_ss_pion_calibrated_value_ = 1;
+  }
+
+  if (debug){
+    std::cout << "" << std::endl;
+    std::cout << "SSPion tuple based calibration" << std::endl;
+    std::cout << "SS Pion tag / mistag (with address): \t" << ss_pion_decision << " (" << &ss_pion_decision << ") / " << ss_pion_mistag << " (" << &ss_pion_mistag << ")" << std::endl;
+    std::cout << "Calibrated tag / mistag " << *var_tag_ss_pion_calibrated_value_ << " / " << *var_tag_eta_ss_pion_calibrated_value_ << std::endl;
+  }
 
   // ______________________________________________________________________________________
   // Create new OS and SSPion tag observables that not contain zero tags
