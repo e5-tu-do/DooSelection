@@ -93,7 +93,34 @@ void VariableCategorizerReducer::PrepareSpecialBranches(){
 
     TMath::Quantiles(data_points.size(), variable_binning-1, &data_points[0], &quantiles[1], &probabilities[0]);
 
+    // print out all quantiles
+    doocore::io::sinfo << "-info-  \t" << "VariableCategorizerReducer \t" << "The calculated quantiles are:" << doocore::io::endmsg;
     for(std::vector<double>::const_iterator it = quantiles.begin(); it != quantiles.end(); it++){
+      doocore::io::sinfo << *it << doocore::io::endmsg;
+    }
+
+    // now compute the weighted bin center for each quantile
+    std::vector<double> weighted_bin_centers;
+    std::vector<double>::const_iterator it_quantiles = quantiles.begin();
+    it_quantiles++; // jump over greatest lower bound
+    double count = 0;
+    double sum = 0;
+    for (auto data_point : data_points){
+      if (data_point < *it_quantiles){
+        count++;
+        sum += data_point;
+      }
+      else{
+        weighted_bin_centers.push_back(sum/count);
+        count = 1;
+        sum =  data_point;
+        it_quantiles++;
+      }
+    }
+    weighted_bin_centers.push_back(sum/count);
+
+    doocore::io::sinfo << "-info-  \t" << "VariableCategorizerReducer \t" << "The weighted bin centers are:" << doocore::io::endmsg;
+    for(std::vector<double>::const_iterator it = weighted_bin_centers.begin(); it != weighted_bin_centers.end(); it++){
       doocore::io::sinfo << *it << doocore::io::endmsg;
     }
 
