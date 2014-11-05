@@ -234,7 +234,15 @@ void TimeLeaves(Reducer* _rdcr, cfg_tuple& cfg){
 
   if (_rdcr->LeafExists(std::get<0>(cfg)+"_BKGCAT")){
     tau_true_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("obsTime_True", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_TRUETAU"), 1000.0);
-    tau_true_err_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("obsTimeErr_True", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_TRUETAU"), 1000.0); // ???????
+    
+    // the "true" time error is defined as "reconstructed decay time" - "true decay time"
+    tau_true_err_leaf_ptr = &_rdcr->CreateDoubleLeaf("obsTimeErr_True", 1000.0);
+    if (_rdcr->LeafExists(std::get<0>(cfg)+"_FitPVConst_tau")) {
+      tau_true_err_leaf_ptr->Add(_rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_tau"+flat_suffix), _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_TRUETAU"), 1.0, -1.0);
+    }
+    else if (_rdcr->LeafExists(std::get<0>(cfg)+"_LOKI_DTF_CTAU")){
+      tau_true_err_leaf_ptr->Add(_rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_LOKI_DTF_CTAU"), _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_TRUETAU"), 1.0/0.299792458, -1.0);      
+    }
   }
 
   summary.Add("Time fit constraints", fit_constraints);
