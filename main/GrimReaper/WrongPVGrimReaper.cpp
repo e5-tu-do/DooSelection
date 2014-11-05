@@ -96,16 +96,16 @@ void WrongPVReducer::UpdateSpecialLeaves(){
   }
   // if number of PVs is one, set to default value -1
   else if (nPV == 1){
-    *out_value_ = -1;
+    *out_value_ = 99999;
   }
   else {
-    double min_ip_chi2 = -6;
+    double min_ip_chi2 = 99999;
     if (debug_mode_) sinfo.increment_indent(5);
     for (unsigned int pv = 0; pv < nPV; pv++){
 
       if (pv != idxPV && debug_mode_) sinfo << "IP chi2 for PV No. " << pv << " is: " << in_leaf_->GetValue(pv) << endmsg;
       
-      if (pv != idxPV && in_leaf_->GetValue(pv) > 0 && (min_ip_chi2 < 0 || in_leaf_->GetValue(pv) < min_ip_chi2) ){
+      if (pv != idxPV && in_leaf_->GetValue(pv) > 0 && (min_ip_chi2 <= 0 || in_leaf_->GetValue(pv) < min_ip_chi2) ){
         min_ip_chi2 = in_leaf_->GetValue(pv);
       }
     }
