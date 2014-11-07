@@ -547,26 +547,26 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   // maximal kaon track fit chi2ndof
   _rdcr->CreateDoubleLeaf("varKaonMaxTrackFitChi2ndof", -999999.).Maximum(_rdcr->GetInterimLeafByName("Kplus_TRACK_CHI2NDOF"), _rdcr->GetInterimLeafByName("Kminus_TRACK_CHI2NDOF"));
   // maximal pion track fit chi2ndof
-  ReducerLeaf<Double_t>* piplus_max_trackchi2 = NULL;
-  piplus_max_trackchi2->Maximum(_rdcr->GetInterimLeafByName("piplus_TRACK_CHI2NDOF"), _rdcr->GetInterimLeafByName("piplus0_TRACK_CHI2NDOF"));
-  ReducerLeaf<Double_t>* piminus_max_trackchi2 = NULL;
-  piminus_max_trackchi2->Maximum(_rdcr->GetInterimLeafByName("piminus_TRACK_CHI2NDOF"), _rdcr->GetInterimLeafByName("piminus0_TRACK_CHI2NDOF"));
-  _rdcr->CreateDoubleLeaf("varPionMaxTrackFitChi2ndof", -999999.).Maximum(*piplus_max_trackchi2, *piminus_max_trackchi2);
+  ReducerLeaf<Double_t>& piplus_max_trackchi2 = _rdcr->CreateDoubleLeaf("varPiPlusMaxTrackFitChi2ndof", -999999.);
+  piplus_max_trackchi2.Maximum(_rdcr->GetInterimLeafByName("piplus_TRACK_CHI2NDOF"), _rdcr->GetInterimLeafByName("piplus0_TRACK_CHI2NDOF"));
+  ReducerLeaf<Double_t>& piminus_max_trackchi2 = _rdcr->CreateDoubleLeaf("varPiMinusMaxTrackFitChi2ndof", -999999.);
+  piminus_max_trackchi2.Maximum(_rdcr->GetInterimLeafByName("piminus_TRACK_CHI2NDOF"), _rdcr->GetInterimLeafByName("piminus0_TRACK_CHI2NDOF"));
+  _rdcr->CreateDoubleLeaf("varPionMaxTrackFitChi2ndof", -999999.).Maximum(piplus_max_trackchi2, piminus_max_trackchi2);
   // minimal kaon MinIP chi2
   _rdcr->CreateDoubleLeaf("varKaonMinMinIPChi2", -999999.).Minimum(_rdcr->GetInterimLeafByName("Kplus_MINIPCHI2"), _rdcr->GetInterimLeafByName("Kminus_MINIPCHI2"));
   // minimal pion MinIP chi2
-  ReducerLeaf<Double_t>* piplus_min_minipchi2 = NULL;
-  piplus_min_minipchi2->Minimum(_rdcr->GetInterimLeafByName("piplus_MINIPCHI2"), _rdcr->GetInterimLeafByName("piplus0_MINIPCHI2"));
-  ReducerLeaf<Double_t>* piminus_min_minipchi2 = NULL;
-  piminus_min_minipchi2->Maximum(_rdcr->GetInterimLeafByName("piminus_MINIPCHI2"), _rdcr->GetInterimLeafByName("piminus0_MINIPCHI2"));
-  _rdcr->CreateDoubleLeaf("varPionMinMinIPChi2", -999999.).Minimum(*piplus_min_minipchi2, *piminus_min_minipchi2);
+  ReducerLeaf<Double_t>& piplus_min_minipchi2 = _rdcr->CreateDoubleLeaf("piplus_min_minipchi2", -999999.);
+  piplus_min_minipchi2.Minimum(_rdcr->GetInterimLeafByName("piplus_MINIPCHI2"), _rdcr->GetInterimLeafByName("piplus0_MINIPCHI2"));
+  ReducerLeaf<Double_t>& piminus_min_minipchi2 = _rdcr->CreateDoubleLeaf("piminus_min_minipchi2", -999999.);
+  piminus_min_minipchi2.Minimum(_rdcr->GetInterimLeafByName("piminus_MINIPCHI2"), _rdcr->GetInterimLeafByName("piminus0_MINIPCHI2"));
+  _rdcr->CreateDoubleLeaf("varPionMinMinIPChi2", -999999.).Minimum(piplus_min_minipchi2, piminus_min_minipchi2);
   // sum of D daughters transverse momentum
-  ReducerLeaf<Double_t>* dplus_sum_daughters_pt = NULL;
-  dplus_sum_daughters_pt->Add(_rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus_P0_PT"+flat_suffix), _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus_P1_PT"+flat_suffix));
-  _rdcr->CreateDoubleLeaf("varDplusDaughtersSumPT", -999999.).Add(*dplus_sum_daughters_pt, _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus_P2_PT"+flat_suffix));
-  ReducerLeaf<Double_t>* dminus_sum_daughters_pt = NULL;
-  dminus_sum_daughters_pt->Add(_rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus0_P0_PT"+flat_suffix), _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus0_P1_PT"+flat_suffix));
-  _rdcr->CreateDoubleLeaf("varDminusDaughtersSumPT", -999999.).Add(*dminus_sum_daughters_pt, _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus0_P2_PT"+flat_suffix));
+  ReducerLeaf<Double_t>& dplus_sum_daughters_pt = _rdcr->CreateDoubleLeaf("varDplusDaughtersSumPT", -999999.);
+  dplus_sum_daughters_pt.Add(_rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus_P0_PT"+flat_suffix), _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus_P1_PT"+flat_suffix));
+  dplus_sum_daughters_pt.Add(dplus_sum_daughters_pt, _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus_P2_PT"+flat_suffix));
+  ReducerLeaf<Double_t>& dminus_sum_daughters_pt = _rdcr->CreateDoubleLeaf("varDminusDaughtersSumPT", -999999.);
+  dminus_sum_daughters_pt.Add(_rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus0_P0_PT"+flat_suffix), _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus0_P1_PT"+flat_suffix));
+  dminus_sum_daughters_pt.Add(dminus_sum_daughters_pt, _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus0_P2_PT"+flat_suffix));
 
   // data taking period
   ReducerLeaf<Int_t>& cat_year_leaf = _rdcr->CreateIntLeaf("catYear", 0);
@@ -582,8 +582,8 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   ReducerLeaf<Double_t>* dtf_chi2ndof_leaf_ptr = NULL;
   if (_rdcr->LeafExists("B0_FitPVConst_chi2"+flat_suffix)) {
     dtf_chi2ndof_leaf_ptr = &_rdcr->CreateDoubleLeaf("varDTFChi2ndof", -1.0);
-    dtf_chi2ndof_leaf_ptr->Divide(_rdcr->GetInterimLeafByName("B0_FitDPVConst_chi2"+flat_suffix),
-                                  _rdcr->GetInterimLeafByName("B0_FitDPVConst_nDOF"+flat_suffix));
+    dtf_chi2ndof_leaf_ptr->Divide(_rdcr->GetInterimLeafByName("B0_FitPVConst_chi2"+flat_suffix),
+                                  _rdcr->GetInterimLeafByName("B0_FitPVConst_nDOF"+flat_suffix));
   } else if (_rdcr->LeafExists("B0_LOKI_DTF_CHI2NDOF")) {
     dtf_chi2ndof_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDTFChi2ndof", _rdcr->GetInterimLeafByName("B0_LOKI_DTF_CHI2NDOF"));
   }
