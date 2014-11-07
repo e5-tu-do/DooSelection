@@ -1,11 +1,11 @@
 /******************************************/
-// Bd2JpsiKSVariablesGrimReaper.cpp
+// B02DDVariablesGrimReaper.cpp
 //
 // Standalone GrimReaper that adds a lot of
 // common variables to trees.
 //
-// Author: Christophe Cauet
-// Date: 2014-02-04
+// Author: Frank Meier
+// Date: 2014-11-07
 /******************************************/
 
 // from STL
@@ -34,23 +34,23 @@ typedef std::tuple<std::string, std::list<std::string>, std::list<std::string>, 
 cfg_tuple Configure(Reducer* _rdcr, std::string& _channel);
 void MassLeaves(Reducer* _rdcr, cfg_tuple& cfg);
 void TimeLeaves(Reducer* _rdcr, cfg_tuple& cfg);
-void TriggerLeaves(Reducer* _rdcr, cfg_tuple& cfg);
+void TriggerLeaves(Reducer* _rdcr);
 void VetoLeaves(Reducer* _rdcr, cfg_tuple& cfg);
 void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg);
 
 int main(int argc, char * argv[]){
-  sinfo << "-info-  \t" << "Bd2JpsiKSVariablesGrimReaper \t" << "Welcome!" << endmsg;
+  sinfo << "-info-  \t" << "B02DDVariablesGrimReaper \t" << "Welcome!" << endmsg;
   std::string inputfile, inputtree, outputfile, outputtree, decay_channel;
   if (argc == 5){
     inputfile = argv[1];
     inputtree = argv[2];
     outputfile = argv[3];
     outputtree = argv[4];
-    decay_channel = "Bd2JpsiKS";
+    decay_channel = "B02DD";
   }
   else{
-    serr << "-ERROR- \t" << "Bd2JpsiKSVariablesGrimReaper \t" << "Parameters needed:" << endmsg;
-    serr << "-ERROR- \t" << "Bd2JpsiKSVariablesGrimReaper \t"<< "input_file_name input_tree_name output_file_name output_tree_name" << endmsg;
+    serr << "-ERROR- \t" << "B02DDVariablesGrimReaper \t" << "Parameters needed:" << endmsg;
+    serr << "-ERROR- \t" << "B02DDVariablesGrimReaper \t"<< "input_file_name input_tree_name output_file_name output_tree_name" << endmsg;
     return 1;
   }
 
@@ -77,8 +77,8 @@ int main(int argc, char * argv[]){
   summary.AddSection("Added leaves");
   MassLeaves(reducer, cfg);
   TimeLeaves(reducer, cfg);
-  TriggerLeaves(reducer, cfg);
-  VetoLeaves(reducer, cfg);
+  TriggerLeaves(reducer);
+  // VetoLeaves(reducer, cfg);
   AuxiliaryLeaves(reducer, cfg);
 
   reducer->Run();
@@ -94,20 +94,22 @@ cfg_tuple Configure(Reducer* _rdcr, std::string& _channel){
   std::list<std::string> stable_particles;
   bool isMC = false;
   bool isFlat = false;
-  if (_channel == "Bd2JpsiKS"){
+  if (_channel == "B02DD"){
     head = "B0";
-    daughters.push_back("J_psi_1S");
-    daughters.push_back("KS0");
-    stable_particles.push_back("muminus");
-    stable_particles.push_back("muplus");
+    daughters.push_back("Dplus");
+    daughters.push_back("Dminus");
+    stable_particles.push_back("Kminus");
+    stable_particles.push_back("Kplus");
     stable_particles.push_back("piminus");
+    stable_particles.push_back("piminus0");
     stable_particles.push_back("piplus");
+    stable_particles.push_back("piplus0");
     isMC = _rdcr->LeafExists(head+"_BKGCAT");
     isFlat = (_rdcr->LeafExists("flat_array_index") || _rdcr->LeafExists("idxPV"));
   }
   else{
-    serr << "-ERROR- \t" << "Bd2JpsiKSVariablesGrimReaper \t" << "No valid decay channel. Possible decay channels are:" << endmsg;
-    serr << "-ERROR- \t" << "Bd2JpsiKSVariablesGrimReaper \t" << "- Bd2JspiKS" << endmsg;
+    serr << "-ERROR- \t" << "B02DDVariablesGrimReaper \t" << "No valid decay channel. Possible decay channels are:" << endmsg;
+    serr << "-ERROR- \t" << "B02DDVariablesGrimReaper \t" << "- B02DD" << endmsg;
   }
   summary.Add("Name", _channel);
   summary.Add("Head", head);
@@ -136,74 +138,37 @@ void MassLeaves(Reducer* _rdcr, cfg_tuple& cfg){
 
   // create copies of mass observables for different fit constraints
   // plus the 'nominal' mass observable depending on the following hierarchy
-  std::string main_observable_constraint = "";
-  std::string main_observable_constraint_error = "";
-  if (_rdcr->LeafExists(std::get<0>(cfg)+"_FitDaughtersPVConst_M"+flat_suffix)) {
-    if (main_observable_constraint == "") main_observable_constraint = "FitDaughtersPVConst_M";
-    if (main_observable_constraint_error == "") main_observable_constraint_error = "FitDaughtersPVConst_MERR";
-    ReducerLeaf<Double_t>& mass_jpsi_ks_pv_leaf     = _rdcr->CreateDoubleCopyLeaf("obsMassDaughtersPVConst", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitDaughtersPVConst_M"+flat_suffix));
-    ReducerLeaf<Double_t>& mass_err_jpsi_ks_pv_leaf = _rdcr->CreateDoubleCopyLeaf("obsMassErrDaughtersPVConst", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitDaughtersPVConst_MERR"+flat_suffix));
-  }
-  if (_rdcr->LeafExists(std::get<0>(cfg)+"_FitJpsiPVConst_M"+flat_suffix)) {
-    if (main_observable_constraint == "") main_observable_constraint = "FitJpsiPVConst_M";
-    if (main_observable_constraint_error == "") main_observable_constraint_error = "FitJpsiPVConst_MERR";
-    ReducerLeaf<Double_t>& mass_ks_pv_leaf     = _rdcr->CreateDoubleCopyLeaf("obsMassJpsiPVConst", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitJpsiPVConst_M"+flat_suffix));
-    ReducerLeaf<Double_t>& mass_err_ks_pv_leaf = _rdcr->CreateDoubleCopyLeaf("obsMassErrJpsiPVConst", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitJpsiPVConst_MERR"+flat_suffix));
+  std::string main_observable_constraint = "PV";
+  std::string main_observable_constraint_error = "PV";
+  if (_rdcr->LeafExists(std::get<0>(cfg)+"_FitDDPVConst_M"+flat_suffix)) {
+    if (main_observable_constraint == "DDPV") main_observable_constraint = "FitDDPVConst_M";
+    if (main_observable_constraint_error == "DDPV") main_observable_constraint_error = "FitDDPVConst_MERR";
+    _rdcr->CreateDoubleCopyLeaf("obsMassDDPVConst", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitDDPVConst_M"+flat_suffix));
+    _rdcr->CreateDoubleCopyLeaf("obsMassErrDDPVConst", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitDDPVConst_MERR"+flat_suffix));
   } 
   if (_rdcr->LeafExists(std::get<0>(cfg)+"_FitPVConst_M"+flat_suffix)) {
-    if (main_observable_constraint == "") main_observable_constraint = "FitPVConst_M";
-    if (main_observable_constraint_error == "") main_observable_constraint_error = "FitPVConst_MERR";
-    ReducerLeaf<Double_t>& mass_pv_leaf     = _rdcr->CreateDoubleCopyLeaf("obsMassPVConst", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_M"+flat_suffix));
-    ReducerLeaf<Double_t>& mass_err_pv_leaf = _rdcr->CreateDoubleCopyLeaf("obsMassErrPVConst", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_MERR"+flat_suffix));
+    if (main_observable_constraint == "PV") main_observable_constraint = "FitPVConst_M";
+    if (main_observable_constraint_error == "PV") main_observable_constraint_error = "FitPVConst_MERR";
+    _rdcr->CreateDoubleCopyLeaf("obsMassPVConst", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_M"+flat_suffix));
+    _rdcr->CreateDoubleCopyLeaf("obsMassErrPVConst", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_MERR"+flat_suffix));
+    _rdcr->CreateDoubleCopyLeaf("obsMassDauOne", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus_M"+flat_suffix));
+    _rdcr->CreateDoubleCopyLeaf("obsMassErrDauOne", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus_MERR"+flat_suffix));
+    _rdcr->CreateDoubleCopyLeaf("obsMassDauTwo", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_DplusA_M"+flat_suffix));
+    _rdcr->CreateDoubleCopyLeaf("obsMassErrDauTwo", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_DplusA_MERR"+flat_suffix));
   } 
-  if (_rdcr->LeafExists(std::get<0>(cfg)+"_LOKI_MASS_JpsiKSConstr")) {
-    if (main_observable_constraint == "") main_observable_constraint = "LOKI_MASS_JpsiKSConstr";
-    if (main_observable_constraint_error == "") main_observable_constraint_error = "LOKI_MASSERR_JpsiKSConstr";
-    ReducerLeaf<Double_t>& mass_loki_jpsi_ks_pv_leaf     = _rdcr->CreateDoubleCopyLeaf("obsMassLokiDaughtersPVConst", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_LOKI_MASS_JpsiKSConstr"));
-    ReducerLeaf<Double_t>& mass_err_loki_jpsi_ks_pv_leaf = _rdcr->CreateDoubleCopyLeaf("obsMassErrLokiDaughtersPVConst", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_LOKI_MASSERR_JpsiKSConstr"));
+  if (_rdcr->LeafExists(std::get<0>(cfg)+"_LOKI_MASS_DDConstr")) {
+    if (main_observable_constraint == "LOKI") main_observable_constraint = "LOKI_MASS_DDConstr";
+    if (main_observable_constraint_error == "LOKI") main_observable_constraint_error = "LOKI_MASSERR_DDConstr";
+    _rdcr->CreateDoubleCopyLeaf("obsMassLokiDDPVConst", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_LOKI_MASS_DDConstr"));
+    _rdcr->CreateDoubleCopyLeaf("obsMassErrLokiDDPVConst", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_LOKI_MASSERR_DDConstr"));
+    _rdcr->CreateDoubleCopyLeaf("obsMassLokiDauOne", _rdcr->GetInterimLeafByName("Dplus_MM"));
+    _rdcr->CreateDoubleCopyLeaf("obsMassErrLokiDauOne", _rdcr->GetInterimLeafByName("Dplus_MMERR"));
+    _rdcr->CreateDoubleCopyLeaf("obsMassLokiDauTwo", _rdcr->GetInterimLeafByName("Dminus_MM"));
+    _rdcr->CreateDoubleCopyLeaf("obsMassErrLokiDauTwo", _rdcr->GetInterimLeafByName("Dminus_MMERR"));
   } 
-  if (_rdcr->LeafExists(std::get<0>(cfg)+"_LOKI_MASS_JpsiConstr")) {
-    if (main_observable_constraint == "") main_observable_constraint = "LOKI_MASS_JpsiConstr";
-    if (main_observable_constraint_error == "") main_observable_constraint_error = "LOKI_MASSERR_JpsiConstr";
-    ReducerLeaf<Double_t>& mass_loki_jpsi_pv_leaf     = _rdcr->CreateDoubleCopyLeaf("obsMassLokiJpsiPVConst", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_LOKI_MASS_JpsiConstr"));
-    ReducerLeaf<Double_t>& mass_err_loki_jpsi_pv_leaf = _rdcr->CreateDoubleCopyLeaf("obsMassErrLokiJpsiPVConst", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_LOKI_MASSERR_JpsiConstr"));
-  }
-  ReducerLeaf<Double_t>& mass_jpsi_ks_pv_leaf     = _rdcr->CreateDoubleCopyLeaf("obsMass", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_"+main_observable_constraint+flat_suffix));
-  ReducerLeaf<Double_t>& mass_err_jpsi_ks_pv_leaf = _rdcr->CreateDoubleCopyLeaf("obsMassErr", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_"+main_observable_constraint_error+flat_suffix));
+  _rdcr->CreateDoubleCopyLeaf("obsMass", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_"+main_observable_constraint+flat_suffix));
+  _rdcr->CreateDoubleCopyLeaf("obsMassErr", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_"+main_observable_constraint_error+flat_suffix));
   summary.Add("obsMass fit constraints", main_observable_constraint);
-
-  // old
-  std::string fit_constraints;
-  ReducerLeaf<Double_t>* jpsi_mass_leaf_ptr = NULL;
-  ReducerLeaf<Double_t>* ks0_mass_leaf_ptr = NULL;
-  ReducerLeaf<Double_t>* jpsi_mass_err_leaf_ptr = NULL;
-  ReducerLeaf<Double_t>* ks0_mass_err_leaf_ptr = NULL;
-
-  if (_rdcr->LeafExists(std::get<0>(cfg)+"_FitDaughtersPVConst_M")) {
-    fit_constraints = "PVJpsiKSConst";
-    jpsi_mass_leaf_ptr     = &_rdcr->CreateDoubleCopyLeaf("obsMassDauOne", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitDaughtersPVConst_J_psi_1S_M"+flat_suffix));
-    jpsi_mass_err_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("obsMassErrDauOne", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitDaughtersPVConst_J_psi_1S_MERR"+flat_suffix));
-    if (_rdcr->LeafExists(std::get<0>(cfg)+"_FitDaughtersPVConst_KS0_M") && _rdcr->LeafExists(std::get<0>(cfg)+"_FitDaughtersPVConst_KS0_MERR")) {
-      ks0_mass_leaf_ptr     = &_rdcr->CreateDoubleCopyLeaf("obsMassDauTwo", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitDaughtersPVConst_KS0_M"+flat_suffix));
-      ks0_mass_err_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("obsMassErrDauTwo", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitDaughtersPVConst_KS0_MERR"+flat_suffix));
-    }
-  } else if (_rdcr->LeafExists(std::get<0>(cfg)+"_LOKI_MASS_JpsiKSConstr")) {
-    fit_constraints = "JpsiKSConst";
-    jpsi_mass_leaf_ptr     = &_rdcr->CreateDoubleCopyLeaf("obsMassDauOne", _rdcr->GetInterimLeafByName("J_psi_1S_MM"));
-    jpsi_mass_err_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("obsMassErrDauOne", _rdcr->GetInterimLeafByName("J_psi_1S_MMERR"));
-    if (_rdcr->LeafExists("KS0_MM")) {
-      ks0_mass_leaf_ptr      = &_rdcr->CreateDoubleCopyLeaf("obsMassDauTwo", _rdcr->GetInterimLeafByName("KS0_MM"));
-      ks0_mass_err_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("obsMassErrDauTwo", _rdcr->GetInterimLeafByName("KS0_MMERR"));
-    }
-  } else if (_rdcr->LeafExists(std::get<0>(cfg)+"_LOKI_MASS_JpsiConstr")) {
-    fit_constraints = "JpsiConst";
-    jpsi_mass_leaf_ptr     = &_rdcr->CreateDoubleCopyLeaf("obsMassDauOne", _rdcr->GetInterimLeafByName("J_psi_1S_MM"));
-    jpsi_mass_err_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("obsMassErrDauOne", _rdcr->GetInterimLeafByName("J_psi_1S_MMERR"));
-    if (_rdcr->LeafExists("KS0_MM")) {
-      ks0_mass_leaf_ptr      = &_rdcr->CreateDoubleCopyLeaf("obsMassDauTwo", _rdcr->GetInterimLeafByName("KS0_MM"));
-      ks0_mass_err_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("obsMassErrDauTwo", _rdcr->GetInterimLeafByName("KS0_MMERR"));
-    }
-  }
 }
 
 void TimeLeaves(Reducer* _rdcr, cfg_tuple& cfg){
@@ -222,8 +187,11 @@ void TimeLeaves(Reducer* _rdcr, cfg_tuple& cfg){
     fit_constraints = "PVConst";
     tau_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("obsTime", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_tau"+flat_suffix), 1000.0);
     tau_err_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("obsTimeErr", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_tauErr"+flat_suffix), 1000.0);
-    if(_rdcr->LeafExists(std::get<0>(cfg)+"_FitPVConst_KS0_tau")){
-      _rdcr->CreateDoubleLeaf("varKS0TauSignificance", -99999999.).Divide(_rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_KS0_tau"+flat_suffix), _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_KS0_tauErr"+flat_suffix));
+    if(_rdcr->LeafExists(std::get<0>(cfg)+"_FitPVConst_Dplus_tau")){
+      _rdcr->CreateDoubleLeaf("varDplusTauSignificance", -99999999.).Divide(_rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus_tau"+flat_suffix), _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus_tauErr"+flat_suffix));
+    }
+    if(_rdcr->LeafExists(std::get<0>(cfg)+"_FitPVConst_DplusA_tau")){
+      _rdcr->CreateDoubleLeaf("varDminusTauSignificance", -99999999.).Divide(_rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_DplusA_tau"+flat_suffix), _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_DplusA_tauErr"+flat_suffix));
     }
   }
   else if (_rdcr->LeafExists(std::get<0>(cfg)+"_LOKI_DTF_CTAU")){
@@ -248,61 +216,19 @@ void TimeLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   summary.Add("Time fit constraints", fit_constraints);
 }
 
-void TriggerLeaves(Reducer* _rdcr, cfg_tuple& cfg){
-  doocore::config::Summary& summary = doocore::config::Summary::GetInstance();
+void TriggerLeaves(Reducer* _rdcr){
   // trigger categories
-  ReducerLeaf<Int_t>& trigger_l0_global_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerL0GlobalTOS", _rdcr->GetInterimLeafByName("J_psi_1S_L0Global_TOS"));
-  ReducerLeaf<Int_t>& trigger_hlt1_global_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt1GlobalTOS", _rdcr->GetInterimLeafByName("J_psi_1S_Hlt1Global_TOS"));
-  ReducerLeaf<Int_t>& trigger_hlt2_global_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt2GlobalTOS", _rdcr->GetInterimLeafByName("J_psi_1S_Hlt2Global_TOS"));
-  ReducerLeaf<Int_t>& trigger_hlt1_trackmuon_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt1TrackMuonTOS", _rdcr->GetInterimLeafByName("J_psi_1S_Hlt1TrackMuonDecision_TOS"));
-  ReducerLeaf<Int_t>& trigger_hlt1_highmass_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt1HighMassTOS", _rdcr->GetInterimLeafByName("J_psi_1S_Hlt1DiMuonHighMassDecision_TOS"));
-  ReducerLeaf<Int_t>& trigger_hlt2_detachedjpsi_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt2DetachedJpsiTOS", _rdcr->GetInterimLeafByName("J_psi_1S_Hlt2DiMuonDetachedJPsiDecision_TOS"));
-  ReducerLeaf<Int_t>& trigger_hlt2_jpsi_leaf_ptr = _rdcr->CreateIntCopyLeaf("catTriggerHlt2JpsiTOS", _rdcr->GetInterimLeafByName("J_psi_1S_Hlt2DiMuonJPsiDecision_TOS"));
+  _rdcr->CreateIntCopyLeaf("catTriggerL0GlobalTOS", _rdcr->GetInterimLeafByName("B0_L0Global_TOS"));
+  _rdcr->CreateIntCopyLeaf("catTriggerHlt1GlobalTOS", _rdcr->GetInterimLeafByName("B0_Hlt1Global_TOS"));
+  _rdcr->CreateIntCopyLeaf("catTriggerHlt2GlobalTOS", _rdcr->GetInterimLeafByName("B0_Hlt2Global_TOS"));
+  _rdcr->CreateIntCopyLeaf("catTriggerHlt2Topo2BodyBBDTTOS", _rdcr->GetInterimLeafByName("B0_Hlt2Topo2BodyBBDTDecision_TOS"));
+  _rdcr->CreateIntCopyLeaf("catTriggerHlt2Topo3BodyBBDTTOS", _rdcr->GetInterimLeafByName("B0_Hlt2Topo3BodyBBDTDecision_TOS"));
+  _rdcr->CreateIntCopyLeaf("catTriggerHlt2Topo4BodyBBDTTOS", _rdcr->GetInterimLeafByName("B0_Hlt2Topo4BodyBBDTDecision_TOS"));
 
-  ReducerLeaf<Int_t>& catTriggerSetAlmostUnbiased = _rdcr->CreateIntLeaf("catTriggerSetAlmostUnbiased", -10);
-      TCut trigger_set_almost_unbiased = "J_psi_1S_Hlt2DiMuonDetachedJPsiDecision_TOS==1&&J_psi_1S_Hlt1DiMuonHighMassDecision_TOS==1";
-      TCut trigger_set_almost_unbiased_and_jpsi = "J_psi_1S_Hlt2DiMuonDetachedJPsiDecision_TOS==1&&J_psi_1S_Hlt1DiMuonHighMassDecision_TOS==1&&J_psi_1S_Hlt2DiMuonJPsiDecision_TOS==1";
-      catTriggerSetAlmostUnbiased.AddCondition("triggered", trigger_set_almost_unbiased.GetTitle(), 1);
-      catTriggerSetAlmostUnbiased.AddCondition("not_triggered", (!trigger_set_almost_unbiased).GetTitle(), 0);
-
-  ReducerLeaf<Int_t>& catTriggerSetExclBiased = _rdcr->CreateIntLeaf("catTriggerSetExclBiased", -10);
-      TCut trigger_set_excl_biased = "J_psi_1S_Hlt2DiMuonDetachedJPsiDecision_TOS==1&&J_psi_1S_Hlt1TrackMuonDecision_TOS==1&&J_psi_1S_Hlt1DiMuonHighMassDecision_TOS==0";
-      catTriggerSetExclBiased.AddCondition("triggered", trigger_set_excl_biased.GetTitle(), 1);
-      catTriggerSetExclBiased.AddCondition("not_triggered", (!trigger_set_excl_biased).GetTitle(), 0);
-
-  ReducerLeaf<Int_t>& catTriggerHlt1TrackMuonAndHlt2DetachedJpsi = _rdcr->CreateIntLeaf("catTriggerHlt1TrackMuonAndHlt2DetachedJpsi", -10);
-      TCut trigger_hlt1trackmuon_hlt2detached = "J_psi_1S_Hlt2DiMuonDetachedJPsiDecision_TOS==1&&J_psi_1S_Hlt1TrackMuonDecision_TOS==1";
-      catTriggerHlt1TrackMuonAndHlt2DetachedJpsi.AddCondition("triggered", trigger_hlt1trackmuon_hlt2detached.GetTitle(), 1);
-      catTriggerHlt1TrackMuonAndHlt2DetachedJpsi.AddCondition("not_triggered", (!trigger_hlt1trackmuon_hlt2detached).GetTitle(), 0);
-
-  ReducerLeaf<Int_t>& catTriggerHlt1HighMassAndHlt2Jpsi = _rdcr->CreateIntLeaf("catTriggerHlt1HighMassAndHlt2Jpsi", -10);
-      TCut trigger_hlt1highmass_hlt2jpsi = "J_psi_1S_Hlt1DiMuonHighMassDecision_TOS==1&&J_psi_1S_Hlt2DiMuonJPsiDecision_TOS==1";
-      catTriggerHlt1HighMassAndHlt2Jpsi.AddCondition("triggered", trigger_hlt1highmass_hlt2jpsi.GetTitle(), 1);
-      catTriggerHlt1HighMassAndHlt2Jpsi.AddCondition("not_triggered", (!trigger_hlt1highmass_hlt2jpsi).GetTitle(), 0);
-
-  ReducerLeaf<Int_t>& catTriggerEfficiencySet = _rdcr->CreateIntLeaf("catTriggerEfficiencySet", -10);
-      TCut trigger_efficiency_set = "(J_psi_1S_Hlt1DiMuonHighMassDecision_TOS==1)||(J_psi_1S_Hlt1TrackMuonDecision_TOS==1)||(J_psi_1S_Hlt2DiMuonDetachedJPsiDecision_TOS==1)||(J_psi_1S_Hlt2DiMuonJPsiDecision_TOS==1)";
-      catTriggerEfficiencySet.AddCondition("triggered", trigger_efficiency_set.GetTitle(), 1);
-      catTriggerEfficiencySet.AddCondition("not_triggered", (!trigger_efficiency_set).GetTitle(), 0);
-
-  ReducerLeaf<Int_t>& catTriggerSet = _rdcr->CreateIntLeaf("catTriggerSet", -10);
-      TCut trigger_set = "((J_psi_1S_Hlt1DiMuonHighMassDecision_TOS==1)||(J_psi_1S_Hlt1TrackMuonDecision_TOS==1))&&(J_psi_1S_Hlt2DiMuonDetachedJPsiDecision_TOS==1)";
-      catTriggerSet.AddCondition("triggered", trigger_set.GetTitle(), 1);
-      catTriggerSet.AddCondition("not_triggered", (!trigger_set).GetTitle(), 0);
-
-  ReducerLeaf<Int_t>& catTriggerEfficiency = _rdcr->CreateIntLeaf("catTriggerEfficiency", -10);
-      catTriggerEfficiency.AddCondition("almost_unbiased", trigger_set_almost_unbiased_and_jpsi.GetTitle(), 0);
-      catTriggerEfficiency.AddCondition("excl_biased", trigger_set_excl_biased.GetTitle(), 1);
-
-  ReducerLeaf<Int_t>& catTrigger = _rdcr->CreateIntLeaf("catTrigger", -10);
-      catTrigger.AddCondition("almost_unbiased", trigger_set_almost_unbiased.GetTitle(), 0);
-      catTrigger.AddCondition("excl_biased", trigger_set_excl_biased.GetTitle(), 1);
-  
-  // Hlt2DiMuonJpsi prescale categories
-  TCut hlt2_jpsi_prescale_tcks = "HLTTCK==7667767 || HLTTCK==7929912 || HLTTCK==7733303 || HLTTCK==7798839 || HLTTCK==10027074 || HLTTCK==10027075 || HLTTCK==10682436 || HLTTCK==10420293 || HLTTCK==11075654 || HLTTCK==10092610 || HLTTCK==10092611 || HLTTCK==10027076 || HLTTCK==10551365 || HLTTCK==11272262 || HLTTCK==11206726";
-  ReducerLeaf<Int_t>& catTriggerJpsiPrescale = _rdcr->CreateIntLeaf("catTriggerJpsiPrescale", -1);
-    catTriggerJpsiPrescale.AddCondition("prescale", hlt2_jpsi_prescale_tcks.GetTitle(), 1);
-    catTriggerJpsiPrescale.AddCondition("no-prescale", (!hlt2_jpsi_prescale_tcks).GetTitle(), 0);
+  ReducerLeaf<Int_t>& catTriggerSetTopo234bodybbdt = _rdcr->CreateIntLeaf("catTriggerSetTopo234BodyBBDT", -10);
+      TCut trigger_set_topo234bodybbdt = "B0_Hlt2Topo2BodyBBDTDecision_TOS==1||B0_Hlt2Topo3BodyBBDTDecision_TOS==1||B0_Hlt2Topo4BodyBBDTDecision_TOS==1";
+      catTriggerSetTopo234bodybbdt.AddCondition("triggered", trigger_set_topo234bodybbdt.GetTitle(), 1);
+      catTriggerSetTopo234bodybbdt.AddCondition("not_triggered", (!trigger_set_topo234bodybbdt).GetTitle(), 0);
 }
 
 void VetoLeaves(Reducer* _rdcr, cfg_tuple& cfg){
@@ -593,59 +519,55 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
 
   // background category
   if (std::get<3>(cfg)){
-    ReducerLeaf<Int_t>& bkgcat_leaf = _rdcr->CreateIntCopyLeaf("catBkg", _rdcr->GetInterimLeafByName("B0_BKGCAT"));
+    _rdcr->CreateIntCopyLeaf("catBkg", _rdcr->GetInterimLeafByName("B0_BKGCAT"));
   }
   // event and run number
-  ReducerLeaf<Int_t>& event_number_leaf_ptr = _rdcr->CreateIntCopyLeaf("idxEventNumber", _rdcr->GetInterimLeafByName("eventNumber"));
-  ReducerLeaf<Int_t>& run_number_leaf_ptr = _rdcr->CreateIntCopyLeaf("idxRunNumber", _rdcr->GetInterimLeafByName("runNumber"));
+  _rdcr->CreateIntCopyLeaf("idxEventNumber", _rdcr->GetInterimLeafByName("eventNumber"));
+  _rdcr->CreateIntCopyLeaf("idxRunNumber", _rdcr->GetInterimLeafByName("runNumber"));
   // number of PVs
-  ReducerLeaf<Int_t>& var_npv_leaf = _rdcr->CreateIntCopyLeaf("catNPV", _rdcr->GetInterimLeafByName("nPV"));
+  _rdcr->CreateIntCopyLeaf("catNPV", _rdcr->GetInterimLeafByName("nPV"));
   // magnet direction
-  ReducerLeaf<Int_t>& var_mag_leaf = _rdcr->CreateIntCopyLeaf("catMag", _rdcr->GetInterimLeafByName("Polarity"));
+  _rdcr->CreateIntCopyLeaf("catMag", _rdcr->GetInterimLeafByName("Polarity"));
   // number of tracks
-  ReducerLeaf<Int_t>& var_ntrack_leaf = _rdcr->CreateIntCopyLeaf("catNTrack", _rdcr->GetInterimLeafByName("nTracks"));
-  // flat array index
-  // if (std::get<4>(cfg)){    should be set allready by previous tool
-  //   ReducerLeaf<Int_t>& flat_index_leaf_ptr = _rdcr->CreateIntCopyLeaf("idxPV", _rdcr->GetInterimLeafByName("flat_array_index"));
-  // }
-  // track ghost probability (only if pions or muons are available)
-  if (_rdcr->LeafExists("piplus_TRACK_GhostProb")){
-    ReducerLeaf<Double_t>* pip_track_ghost_prob_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varPiPTrackGhostProb", _rdcr->GetInterimLeafByName("piplus_TRACK_GhostProb"));
-    ReducerLeaf<Double_t>* pim_track_ghost_prob_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varPiMTrackGhostProb", _rdcr->GetInterimLeafByName("piminus_TRACK_GhostProb"));
-  }
-  if (_rdcr->LeafExists("muplus_TRACK_GhostProb")){
-    ReducerLeaf<Double_t>* mup_track_ghost_prob_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varMuPTrackGhostProb", _rdcr->GetInterimLeafByName("muplus_TRACK_GhostProb"));
-    ReducerLeaf<Double_t>* mum_track_ghost_prob_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varMuMTrackGhostProb", _rdcr->GetInterimLeafByName("muminus_TRACK_GhostProb"));
-  }
-
-  // maximal muon track fit chi2ndof
-  _rdcr->CreateDoubleLeaf("varMuonMaxTrackFitChi2ndof", -999999.).Maximum(_rdcr->GetInterimLeafByName("muplus_TRACK_CHI2NDOF"), _rdcr->GetInterimLeafByName("muminus_TRACK_CHI2NDOF"));
-  // maximal pion track fit chi2ndof
-  _rdcr->CreateDoubleLeaf("varPionMaxTrackFitChi2ndof", -999999.).Maximum(_rdcr->GetInterimLeafByName("piplus_TRACK_CHI2NDOF"), _rdcr->GetInterimLeafByName("piminus_TRACK_CHI2NDOF"));
-  // minimal muon PID
-  _rdcr->CreateDoubleLeaf("varMuonMinPIDmu", -999999.).Minimum(_rdcr->GetInterimLeafByName("muplus_PIDmu"), _rdcr->GetInterimLeafByName("muminus_PIDmu"));
-  // minimal pion MinIP chi2
-  _rdcr->CreateDoubleLeaf("varPionMinMinIPChi2", -999999.).Minimum(_rdcr->GetInterimLeafByName("piplus_MINIPCHI2"), _rdcr->GetInterimLeafByName("piminus_MINIPCHI2"));
+  _rdcr->CreateIntCopyLeaf("catNTrack", _rdcr->GetInterimLeafByName("nTracks"));
+  // track ghost probability
+  _rdcr->CreateDoubleCopyLeaf("varKplusTrackGhostProb", _rdcr->GetInterimLeafByName("Kplus_TRACK_GhostProb"));
+  _rdcr->CreateDoubleCopyLeaf("varKminusTrackGhostProb", _rdcr->GetInterimLeafByName("Kminus_TRACK_GhostProb"));
+  _rdcr->CreateDoubleCopyLeaf("varPiplusOneTrackGhostProb", _rdcr->GetInterimLeafByName("piplus_TRACK_GhostProb"));
+  _rdcr->CreateDoubleCopyLeaf("varPiplusTwoTrackGhostProb", _rdcr->GetInterimLeafByName("piplus0_TRACK_GhostProb"));
+  _rdcr->CreateDoubleCopyLeaf("varPiminusOneTrackGhostProb", _rdcr->GetInterimLeafByName("piminus_TRACK_GhostProb"));
+  _rdcr->CreateDoubleCopyLeaf("varPiminusTwoTrackGhostProb", _rdcr->GetInterimLeafByName("piminus0_TRACK_GhostProb"));
+  
   // End vertex chi2/ndof
   _rdcr->CreateDoubleLeaf("varBEndVtxChi2ndof", -99999999.).Divide(_rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_ENDVERTEX_CHI2"), _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_ENDVERTEX_NDOF"));
-  _rdcr->CreateDoubleLeaf("varJPsiEndVtxChi2ndof", -99999999.).Divide(_rdcr->GetInterimLeafByName("J_psi_1S_ENDVERTEX_CHI2"), _rdcr->GetInterimLeafByName("J_psi_1S_ENDVERTEX_NDOF"));
-  _rdcr->CreateDoubleLeaf("varKSEndVtxChi2ndof", -99999999.).Divide(_rdcr->GetInterimLeafByName("KS0_ENDVERTEX_CHI2"), _rdcr->GetInterimLeafByName("KS0_ENDVERTEX_NDOF"));
-  // minimal muon transverse momentum
-  if (_rdcr->LeafExists(std::get<0>(cfg)+"_FitPVConst_J_psi_1S_P0_PT"+flat_suffix) && _rdcr->LeafExists(std::get<0>(cfg)+"_FitPVConst_J_psi_1S_P1_PT"+flat_suffix)){
-    _rdcr->CreateDoubleLeaf("varMuonDTFMinPT", -999999.).Minimum(_rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_J_psi_1S_P0_PT"+flat_suffix), _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_J_psi_1S_P1_PT"+flat_suffix));
-  }
-  // minimal pion momentum
-  if (_rdcr->LeafExists(std::get<0>(cfg)+"_FitPVConst_KS0_P0_P"+flat_suffix) && _rdcr->LeafExists(std::get<0>(cfg)+"_FitPVConst_KS0_P1_P"+flat_suffix)){
-    _rdcr->CreateDoubleLeaf("varPionDTFMinP", -999999.).Minimum(_rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_KS0_P0_P"+flat_suffix), _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_KS0_P1_P"+flat_suffix));
-  }
-  // track type
-  ReducerLeaf<Int_t>& catTrackType = _rdcr->CreateIntLeaf("catTrackType", 0);
-  if(_rdcr->LeafExists("piplus_TRACK_Type")){
-    catTrackType.AddCondition("longtrack", "(piplus_TRACK_Type==3)&&(piminus_TRACK_Type==3)", 33);
-    catTrackType.AddCondition("downstream", "(piplus_TRACK_Type==5)&&(piminus_TRACK_Type==5)", 55);
-    catTrackType.AddCondition("longdown", "(piplus_TRACK_Type==3)&&(piminus_TRACK_Type==5)", 35);
-    catTrackType.AddCondition("downlong", "(piplus_TRACK_Type==5)&&(piminus_TRACK_Type==3)", 53);
-  }
+  _rdcr->CreateDoubleLeaf("varDplusEndVtxChi2ndof", -99999999.).Divide(_rdcr->GetInterimLeafByName("Dplus_ENDVERTEX_CHI2"), _rdcr->GetInterimLeafByName("Dplus_ENDVERTEX_NDOF"));
+  _rdcr->CreateDoubleLeaf("varDminusEndVtxChi2ndof", -99999999.).Divide(_rdcr->GetInterimLeafByName("Dminus_ENDVERTEX_CHI2"), _rdcr->GetInterimLeafByName("Dminus_ENDVERTEX_NDOF"));
+  // sum of D transverse momenta
+  _rdcr->CreateDoubleLeaf("varDDDTFSumPT", -99999999.).Add(_rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus_PT"+flat_suffix), _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_DplusA_PT"+flat_suffix));
+  // maximal kaon track fit chi2ndof
+  _rdcr->CreateDoubleLeaf("varKaonMaxTrackFitChi2ndof", -999999.).Maximum(_rdcr->GetInterimLeafByName("Kplus_TRACK_CHI2NDOF"), _rdcr->GetInterimLeafByName("Kminus_TRACK_CHI2NDOF"));
+  // maximal pion track fit chi2ndof
+  ReducerLeaf<Double_t>* piplus_max_trackchi2 = NULL;
+  piplus_max_trackchi2->Maximum(_rdcr->GetInterimLeafByName("piplus_TRACK_CHI2NDOF"), _rdcr->GetInterimLeafByName("piplus0_TRACK_CHI2NDOF"));
+  ReducerLeaf<Double_t>* piminus_max_trackchi2 = NULL;
+  piminus_max_trackchi2->Maximum(_rdcr->GetInterimLeafByName("piminus_TRACK_CHI2NDOF"), _rdcr->GetInterimLeafByName("piminus0_TRACK_CHI2NDOF"));
+  _rdcr->CreateDoubleLeaf("varPionMaxTrackFitChi2ndof", -999999.).Maximum(*piplus_max_trackchi2, *piminus_max_trackchi2);
+  // minimal kaon MinIP chi2
+  _rdcr->CreateDoubleLeaf("varKaonMinMinIPChi2", -999999.).Minimum(_rdcr->GetInterimLeafByName("Kplus_MINIPCHI2"), _rdcr->GetInterimLeafByName("Kminus_MINIPCHI2"));
+  // minimal pion MinIP chi2
+  ReducerLeaf<Double_t>* piplus_min_minipchi2 = NULL;
+  piplus_min_minipchi2->Minimum(_rdcr->GetInterimLeafByName("piplus_MINIPCHI2"), _rdcr->GetInterimLeafByName("piplus0_MINIPCHI2"));
+  ReducerLeaf<Double_t>* piminus_min_minipchi2 = NULL;
+  piminus_min_minipchi2->Maximum(_rdcr->GetInterimLeafByName("piminus_MINIPCHI2"), _rdcr->GetInterimLeafByName("piminus0_MINIPCHI2"));
+  _rdcr->CreateDoubleLeaf("varPionMinMinIPChi2", -999999.).Minimum(*piplus_min_minipchi2, *piminus_min_minipchi2);
+  // sum of D daughters transverse momentum
+  ReducerLeaf<Double_t>* dplus_sum_daughters_pt = NULL;
+  dplus_sum_daughters_pt->Add(_rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus_P0_PT"+flat_suffix), _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus_P1_PT"+flat_suffix));
+  _rdcr->CreateDoubleLeaf("varDplusDaughtersSumPT", -999999.).Add(*dplus_sum_daughters_pt, _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus_P2_PT"+flat_suffix));
+  ReducerLeaf<Double_t>* dminus_sum_daughters_pt = NULL;
+  dminus_sum_daughters_pt->Add(_rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus0_P0_PT"+flat_suffix), _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus0_P1_PT"+flat_suffix));
+  _rdcr->CreateDoubleLeaf("varDminusDaughtersSumPT", -999999.).Add(*dminus_sum_daughters_pt, _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus0_P2_PT"+flat_suffix));
+
   // data taking period
   ReducerLeaf<Int_t>& cat_year_leaf = _rdcr->CreateIntLeaf("catYear", 0);
     cat_year_leaf.AddCondition("2011", "GpsTime < 1.325376e+15",  2011);
@@ -653,49 +575,77 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
 
   // decay tree fit
   // fit status
-  if (_rdcr->LeafExists("B0_FitPVConst_status"+flat_suffix)) ReducerLeaf<Int_t>& dtf_status_pv_constraint = _rdcr->CreateIntCopyLeaf("varDTFStatusPVConst", _rdcr->GetInterimLeafByName("B0_FitPVConst_status"+flat_suffix));
-  if (_rdcr->LeafExists("B0_FitDaughtersPVConst_status"+flat_suffix)) ReducerLeaf<Int_t>& dtf_status_daughters_pv_constraint = _rdcr->CreateIntCopyLeaf("varDTFStatusDaughtersPVConst", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_status"+flat_suffix));
+  if (_rdcr->LeafExists("B0_FitPVConst_status"+flat_suffix)) _rdcr->CreateIntCopyLeaf("varDTFStatusPVConst", _rdcr->GetInterimLeafByName("B0_FitPVConst_status"+flat_suffix));
+  if (_rdcr->LeafExists("B0_FitDDPVConst_status"+flat_suffix)) _rdcr->CreateIntCopyLeaf("varDTFStatusDDPVConst", _rdcr->GetInterimLeafByName("B0_FitDDPVConst_status"+flat_suffix));
 
   // chi2ndof
   ReducerLeaf<Double_t>* dtf_chi2ndof_leaf_ptr = NULL;
-  if (_rdcr->LeafExists("B0_FitDaughtersPVConst_chi2"+flat_suffix)) {
+  if (_rdcr->LeafExists("B0_FitPVConst_chi2"+flat_suffix)) {
     dtf_chi2ndof_leaf_ptr = &_rdcr->CreateDoubleLeaf("varDTFChi2ndof", -1.0);
-    dtf_chi2ndof_leaf_ptr->Divide(_rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_chi2"+flat_suffix),
-                                  _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_nDOF"+flat_suffix));
+    dtf_chi2ndof_leaf_ptr->Divide(_rdcr->GetInterimLeafByName("B0_FitDPVConst_chi2"+flat_suffix),
+                                  _rdcr->GetInterimLeafByName("B0_FitDPVConst_nDOF"+flat_suffix));
   } else if (_rdcr->LeafExists("B0_LOKI_DTF_CHI2NDOF")) {
     dtf_chi2ndof_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDTFChi2ndof", _rdcr->GetInterimLeafByName("B0_LOKI_DTF_CHI2NDOF"));
   }
 
   // IP chi2
   ReducerLeaf<Double_t>* ip_chi2_leaf_ptr = NULL;
-  if (_rdcr->LeafExists("B0_FitDaughtersPVConst_IPCHI2"+flat_suffix)) {
-    ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDTFIPChi2", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_IPCHI2"+flat_suffix));
+  if (_rdcr->LeafExists("B0_FitPVConst_IPCHI2"+flat_suffix)) {
+    ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDTFIPChi2", _rdcr->GetInterimLeafByName("B0_FitPVConst_IPCHI2"+flat_suffix));
   } else if (_rdcr->LeafExists("B0_IPCHI2_OWNPV")) {
     ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varIPChi2OwnPV", _rdcr->GetInterimLeafByName("B0_IPCHI2_OWNPV"));
   }
 
-  // momentum leaves for CPT violation analysis
-  // standard leaves
-  ReducerLeaf<Double_t>& var_tag_b0_momentum_x_leaf = _rdcr->CreateDoubleCopyLeaf("obsMomentumX", _rdcr->GetInterimLeafByName("B0_PX"));
-  ReducerLeaf<Double_t>& var_tag_b0_momentum_y_leaf = _rdcr->CreateDoubleCopyLeaf("obsMomentumY", _rdcr->GetInterimLeafByName("B0_PY"));
-  ReducerLeaf<Double_t>& var_tag_b0_momentum_z_leaf = _rdcr->CreateDoubleCopyLeaf("obsMomentumZ", _rdcr->GetInterimLeafByName("B0_PZ"));
-  // DTF leaves
-  if (_rdcr->LeafExists("B0_FitDaughtersPVConst_P"+flat_suffix)){
-    ReducerLeaf<Float_t>& var_tag_b0_dtf_momentum_p_leaf =      _rdcr->CreateFloatCopyLeaf("obsDTFMomentum", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_P"+flat_suffix));
-    ReducerLeaf<Float_t>& var_tag_b0_dtf_momentum_p_err_leaf =  _rdcr->CreateFloatCopyLeaf("obsDTFMomentumError", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_PERR"+flat_suffix));
-    ReducerLeaf<Float_t>& var_tag_b0_dtf_momentum_pt_leaf =     _rdcr->CreateFloatCopyLeaf("obsDTFTransverseMomentum", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_PT"+flat_suffix));
-    ReducerLeaf<Float_t>& var_tag_b0_dtf_momentum_pt_err_leaf = _rdcr->CreateFloatCopyLeaf("obsDTFTransverseMomentumError", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_PTERR"+flat_suffix));
+  // Direction angle (DIRA)
+  ReducerLeaf<Double_t>* dira_leaf_ptr = NULL;
+  ReducerLeaf<Double_t>* dplus_dira_leaf_ptr = NULL;
+  ReducerLeaf<Double_t>* dminus_dira_leaf_ptr = NULL;
+  if (_rdcr->LeafExists("B0_FitPVConst_DIRA"+flat_suffix)) {
+    dira_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varBDTFDIRA", _rdcr->GetInterimLeafByName("B0_FitPVConst_DIRA"+flat_suffix));
+    dplus_dira_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDplusDTFDIRA", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_DIRA"+flat_suffix));
+    dminus_dira_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDminusDTFDIRA", _rdcr->GetInterimLeafByName("B0_FitPVConst_DplusA_DIRA"+flat_suffix));
+  } else if (_rdcr->LeafExists("B0_DIRA_OWNPV")) {
+    dira_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDIRAOwnPV", _rdcr->GetInterimLeafByName("B0_DIRA_OWNPV"));
+    dplus_dira_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDplusDIRAOwnPV", _rdcr->GetInterimLeafByName("Dplus_DIRA_OWNPV"));
+    dminus_dira_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDminusDIRAOwnPV", _rdcr->GetInterimLeafByName("Dminus_DIRA_OWNPV"));
   }
 
-  // alternative daughter masses with different constraints
-  if (_rdcr->LeafExists("B0_FitPVConst_KS0_M"+flat_suffix)) ReducerLeaf<Double_t>& dtf_kaon_mass_pv_constraint = _rdcr->CreateDoubleCopyLeaf("varDTFKS0MassPVConst", _rdcr->GetInterimLeafByName("B0_FitPVConst_KS0_M"+flat_suffix));
-  if (_rdcr->LeafExists("B0_FitDaughtersPVConst_KS0_M"+flat_suffix)) ReducerLeaf<Double_t>& dtf_kaon_mass_daughters_pv_constraint = _rdcr->CreateDoubleCopyLeaf("varDTFKS0MassDaughtersPVConst", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_KS0_M"+flat_suffix));
-  if (_rdcr->LeafExists("B0_FitPVConst_J_psi_1S_M"+flat_suffix)) ReducerLeaf<Double_t>& dtf_kaon_mass_pv_constraint = _rdcr->CreateDoubleCopyLeaf("varDTFJpsiMassPVConst", _rdcr->GetInterimLeafByName("B0_FitPVConst_J_psi_1S_M"+flat_suffix));
-  if (_rdcr->LeafExists("B0_FitDaughtersPVConst_J_psi_1S_M"+flat_suffix)) ReducerLeaf<Double_t>& dtf_kaon_mass_daughters_pv_constraint = _rdcr->CreateDoubleCopyLeaf("varDTFJpsiMassDaughtersPVConst", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_J_psi_1S_M"+flat_suffix));
-
   // DTF PV position
-  if (_rdcr->LeafExists("B0_FitDaughtersPVConst_PV_X"+flat_suffix)) ReducerLeaf<Double_t>& dtf_pv_position_x = _rdcr->CreateDoubleCopyLeaf("varDTFPVPosX", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_PV_X"+flat_suffix));
-  if (_rdcr->LeafExists("B0_FitDaughtersPVConst_PV_Y"+flat_suffix)) ReducerLeaf<Double_t>& dtf_pv_position_y = _rdcr->CreateDoubleCopyLeaf("varDTFPVPosY", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_PV_Y"+flat_suffix));
-  if (_rdcr->LeafExists("B0_FitDaughtersPVConst_PV_Z"+flat_suffix)) ReducerLeaf<Double_t>& dtf_pv_position_z = _rdcr->CreateDoubleCopyLeaf("varDTFPVPosZ", _rdcr->GetInterimLeafByName("B0_FitDaughtersPVConst_PV_Z"+flat_suffix));
+  if (_rdcr->LeafExists("B0_FitPVConst_PV_X"+flat_suffix)) _rdcr->CreateDoubleCopyLeaf("varDTFPVPosX", _rdcr->GetInterimLeafByName("B0_FitPVConst_PV_X"+flat_suffix));
+  if (_rdcr->LeafExists("B0_FitPVConst_PV_Y"+flat_suffix)) _rdcr->CreateDoubleCopyLeaf("varDTFPVPosY", _rdcr->GetInterimLeafByName("B0_FitPVConst_PV_Y"+flat_suffix));
+  if (_rdcr->LeafExists("B0_FitPVConst_PV_Z"+flat_suffix)) _rdcr->CreateDoubleCopyLeaf("varDTFPVPosZ", _rdcr->GetInterimLeafByName("B0_FitPVConst_PV_Z"+flat_suffix));
+
+  // momentum leaves
+  // standard leaves
+  _rdcr->CreateDoubleCopyLeaf("obsMomentum", _rdcr->GetInterimLeafByName("B0_P"));
+  _rdcr->CreateDoubleCopyLeaf("obsMomentumX", _rdcr->GetInterimLeafByName("B0_PX"));
+  _rdcr->CreateDoubleCopyLeaf("obsMomentumY", _rdcr->GetInterimLeafByName("B0_PY"));
+  _rdcr->CreateDoubleCopyLeaf("obsMomentumZ", _rdcr->GetInterimLeafByName("B0_PZ"));
+  _rdcr->CreateDoubleCopyLeaf("obsTransverseMomentum", _rdcr->GetInterimLeafByName("B0_PT"));
+  // DTF leaves
+  if (_rdcr->LeafExists("B0_FitPVConst_P"+flat_suffix)){
+    _rdcr->CreateDoubleCopyLeaf("obsDTFMomentum", _rdcr->GetInterimLeafByName("B0_FitPVConst_P"+flat_suffix));
+    _rdcr->CreateDoubleCopyLeaf("obsDTFMomentumError", _rdcr->GetInterimLeafByName("B0_FitPVConst_PERR"+flat_suffix));
+    _rdcr->CreateDoubleCopyLeaf("obsDTFTransverseMomentum", _rdcr->GetInterimLeafByName("B0_FitPVConst_PT"+flat_suffix));
+    _rdcr->CreateDoubleCopyLeaf("obsDTFTransverseMomentumError", _rdcr->GetInterimLeafByName("B0_FitPVConst_PTERR"+flat_suffix));
+  }
+  // daughters
+  _rdcr->CreateDoubleCopyLeaf("varDplusP", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P"+flat_suffix));
+  _rdcr->CreateDoubleCopyLeaf("varDplusPT", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_PT"+flat_suffix));
+  _rdcr->CreateDoubleCopyLeaf("varDminusP", _rdcr->GetInterimLeafByName("B0_FitPVConst_DplusA_P"+flat_suffix));
+  _rdcr->CreateDoubleCopyLeaf("varDminusPT", _rdcr->GetInterimLeafByName("B0_FitPVConst_DplusA_PT"+flat_suffix));
+  // grand-daughters
+  _rdcr->CreateDoubleCopyLeaf("varKplusP", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus0_P0_P"+flat_suffix));
+  _rdcr->CreateDoubleCopyLeaf("varKplusPT", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus0_P0_PT"+flat_suffix));
+  _rdcr->CreateDoubleCopyLeaf("varKminusP", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P0_P"+flat_suffix));
+  _rdcr->CreateDoubleCopyLeaf("varKminusPT", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P0_PT"+flat_suffix));
+  _rdcr->CreateDoubleCopyLeaf("varpiplusOneP", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus0_P1_P"+flat_suffix));
+  _rdcr->CreateDoubleCopyLeaf("varpiplusOnePT", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus0_P1_PT"+flat_suffix));
+  _rdcr->CreateDoubleCopyLeaf("varpiplusTwoP", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus0_P2_P"+flat_suffix));
+  _rdcr->CreateDoubleCopyLeaf("varpiplusTwoPT", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus0_P2_PT"+flat_suffix));
+  _rdcr->CreateDoubleCopyLeaf("varpiminusOneP", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P1_P"+flat_suffix));
+  _rdcr->CreateDoubleCopyLeaf("varpiminusOnePT", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P1_PT"+flat_suffix));
+  _rdcr->CreateDoubleCopyLeaf("varpiminusTwoP", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P2_P"+flat_suffix));
+  _rdcr->CreateDoubleCopyLeaf("varpiminusTwoPT", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P2_PT"+flat_suffix));
 }
 
