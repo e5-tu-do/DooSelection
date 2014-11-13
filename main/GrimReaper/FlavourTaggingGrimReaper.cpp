@@ -66,6 +66,7 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
     cat_tagged_os_or_ss_pion_leaf_(NULL),
     cat_tagged_os_xor_ss_pion_leaf_(NULL),
     cat_tagged_os_ss_pion_leaf_(NULL),
+    cat_tagged_os_std_comb_ss_pion_calibrated_leaf_(NULL),
     cat_tagged_os_exclusive_ss_pion_leaf_(NULL),
     cat_tagged_exclusive_os_ss_pion_leaf_(NULL),
     cat_tagged_exclusive_os_std_comb_ss_pion_leaf_(NULL),
@@ -133,6 +134,7 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
     cat_tagged_os_or_ss_pion_value_(NULL),
     cat_tagged_os_xor_ss_pion_value_(NULL),
     cat_tagged_os_ss_pion_value_(NULL),
+    cat_tagged_os_std_comb_ss_pion_calibrated_value_(NULL),
     cat_tagged_os_exclusive_ss_pion_value_(NULL),
     cat_tagged_exclusive_os_ss_pion_value_(NULL),
     cat_tagged_exclusive_os_std_comb_ss_pion_value_(NULL),
@@ -190,6 +192,7 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
   dooselection::reducer::ReducerLeaf<Int_t>*    cat_tagged_os_or_ss_pion_leaf_; 
   dooselection::reducer::ReducerLeaf<Int_t>*    cat_tagged_os_xor_ss_pion_leaf_;
   dooselection::reducer::ReducerLeaf<Int_t>*    cat_tagged_os_ss_pion_leaf_;
+  dooselection::reducer::ReducerLeaf<Int_t>*    cat_tagged_os_std_comb_ss_pion_calibrated_leaf_;
   dooselection::reducer::ReducerLeaf<Int_t>*    cat_tagged_os_exclusive_ss_pion_leaf_;
   dooselection::reducer::ReducerLeaf<Int_t>*    cat_tagged_exclusive_os_ss_pion_leaf_;
   dooselection::reducer::ReducerLeaf<Int_t>*    cat_tagged_exclusive_os_std_comb_ss_pion_leaf_;
@@ -260,6 +263,7 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
   Int_t* cat_tagged_os_or_ss_pion_value_;  
   Int_t* cat_tagged_os_xor_ss_pion_value_; 
   Int_t* cat_tagged_os_ss_pion_value_;
+  Int_t* cat_tagged_os_std_comb_ss_pion_calibrated_value_;
   Int_t* cat_tagged_os_exclusive_ss_pion_value_; 
   Int_t* cat_tagged_exclusive_os_ss_pion_value_;
   Int_t* cat_tagged_exclusive_os_std_comb_ss_pion_value_;
@@ -309,6 +313,7 @@ void TaggingRdcr::CreateSpecialBranches(){
   cat_tagged_os_or_ss_pion_leaf_                      = &CreateIntLeaf("catTaggedOSorSSPion");        // 0 for untagged, 1 for tagged
   cat_tagged_os_xor_ss_pion_leaf_                     = &CreateIntLeaf("catTaggedOSxorSSPion");       // 0 for untagged, 1 for OS tag, -1 for SSPion tag
   cat_tagged_os_ss_pion_leaf_                         = &CreateIntLeaf("catTaggedOSSSPion");          // 0 for untagged, 1 for excl. OS tag, -1 for excl. SSPion tag, 10 for combination of OS and SSPion
+  cat_tagged_os_std_comb_ss_pion_calibrated_leaf_     = &CreateIntLeaf("catTaggedOSSSPion_StdComb_TupleCalib"); // 0 for untagged, 1 for excl. OS tag, -1 for excl. SSPion tag, 10 for combination of OS and SSPion
   cat_tagged_os_exclusive_ss_pion_leaf_               = &CreateIntLeaf("catTaggedOSExclSSPion");      // 0 for untagged, 1 for (OS&&SSPion)||OS tag, -1 for SSPion excl. 
   cat_tagged_exclusive_os_ss_pion_leaf_               = &CreateIntLeaf("catTaggedExclOSSSPion");      // 0 for untagged, 1 for excl. OS tag, -1 for (OS&&SSPion)||SSPion tag
   cat_tagged_exclusive_os_std_comb_ss_pion_leaf_      = &CreateIntLeaf("catTaggedExclOSSSPion_StdComb");  // 0 for untagged, 1 for excl. OS tag, -1 for (OS&&SSPion)||SSPion tag (for own std combination)
@@ -366,17 +371,18 @@ void TaggingRdcr::CreateSpecialBranches(){
   var_tag_eta_exclusive_os_std_comb_ss_pion_value_  = (Double_t*)var_tag_eta_exclusive_os_std_comb_ss_pion_leaf_->branch_address();
   var_tag_eta_ss_pion_calibrated_value_             = (Double_t*)var_tag_eta_ss_pion_calibrated_leaf_->branch_address();
   // cat tagged   
-  cat_tagged_os_                                  = (Int_t*)GetInterimLeafByName(head_+"_TAGDECISION_OS").branch_address();
-  cat_tagged_ss_pion_                             = (Int_t*)GetInterimLeafByName(head_+"_SS_Pion_DEC").branch_address();
-  cat_tagged_os_std_comb_value_                   = (Int_t*)cat_tagged_os_std_comb_leaf_->branch_address();
-  cat_tagged_os_or_ss_pion_value_                 = (Int_t*)cat_tagged_os_or_ss_pion_leaf_->branch_address();
-  cat_tagged_os_xor_ss_pion_value_                = (Int_t*)cat_tagged_os_xor_ss_pion_leaf_->branch_address();
-  cat_tagged_os_ss_pion_value_                    = (Int_t*)cat_tagged_os_ss_pion_leaf_->branch_address();
-  cat_tagged_os_exclusive_ss_pion_value_          = (Int_t*)cat_tagged_os_exclusive_ss_pion_leaf_->branch_address();
-  cat_tagged_exclusive_os_ss_pion_value_          = (Int_t*)cat_tagged_exclusive_os_ss_pion_leaf_->branch_address();
-  cat_tagged_exclusive_os_std_comb_ss_pion_value_ = (Int_t*)cat_tagged_exclusive_os_std_comb_ss_pion_leaf_->branch_address();
-  cat_tagged_os_comb_with_nnet_kaon_value_        = (Int_t*)cat_tagged_os_comb_with_nnet_kaon_leaf_->branch_address();
-  cat_tagged_ss_pion_calibrated_value_            = (Int_t*)cat_tagged_ss_pion_calibrated_leaf_->branch_address();
+  cat_tagged_os_                                    = (Int_t*)GetInterimLeafByName(head_+"_TAGDECISION_OS").branch_address();
+  cat_tagged_ss_pion_                               = (Int_t*)GetInterimLeafByName(head_+"_SS_Pion_DEC").branch_address();
+  cat_tagged_os_std_comb_value_                     = (Int_t*)cat_tagged_os_std_comb_leaf_->branch_address();
+  cat_tagged_os_or_ss_pion_value_                   = (Int_t*)cat_tagged_os_or_ss_pion_leaf_->branch_address();
+  cat_tagged_os_xor_ss_pion_value_                  = (Int_t*)cat_tagged_os_xor_ss_pion_leaf_->branch_address();
+  cat_tagged_os_ss_pion_value_                      = (Int_t*)cat_tagged_os_ss_pion_leaf_->branch_address();
+  cat_tagged_os_std_comb_ss_pion_calibrated_value_  = (Int_t*)cat_tagged_os_std_comb_ss_pion_calibrated_leaf_->branch_address();
+  cat_tagged_os_exclusive_ss_pion_value_            = (Int_t*)cat_tagged_os_exclusive_ss_pion_leaf_->branch_address();
+  cat_tagged_exclusive_os_ss_pion_value_            = (Int_t*)cat_tagged_exclusive_os_ss_pion_leaf_->branch_address();
+  cat_tagged_exclusive_os_std_comb_ss_pion_value_   = (Int_t*)cat_tagged_exclusive_os_std_comb_ss_pion_leaf_->branch_address();
+  cat_tagged_os_comb_with_nnet_kaon_value_          = (Int_t*)cat_tagged_os_comb_with_nnet_kaon_leaf_->branch_address();
+  cat_tagged_ss_pion_calibrated_value_              = (Int_t*)cat_tagged_ss_pion_calibrated_leaf_->branch_address();
 
   // OS NNKaon
   if (LeafExists(head_+"_OS_nnetKaon_DEC")){
@@ -761,13 +767,16 @@ void TaggingRdcr::UpdateSpecialLeaves(){
   //  +1: OS excl tagged
   //  -1: SSPion tagged
   // ______________________________________________________________________________________
+  // SPECIAL CAT: additionaly fill catTaggedOSSSPion_StdComb_TupleCalib
+  // ______________________________________________________________________________________
 
   if ((*var_tag_os_std_comb_value_==0) && (*var_tag_ss_pion_==0)){           // if OS and SSPion tags are 0, set everything to untagged
     *var_tag_exclusive_os_std_comb_ss_pion_value_        = 0;
     *var_tag_exclusive_os_std_comb_ss_pion_babar_value_  = 0;
     *var_tag_exclusive_os_std_comb_ss_pion_nozero_value_ = 1;
     *var_tag_eta_exclusive_os_std_comb_ss_pion_value_    = 0.5;
-    *cat_tagged_exclusive_os_std_comb_ss_pion_value_     = 0;
+    *cat_tagged_exclusive_os_std_comb_ss_pion_value_     = 0; 
+    *cat_tagged_os_std_comb_ss_pion_calibrated_value_    = 0; // (SPECIAL CAT)
   }
   else if ((*var_tag_os_std_comb_value_!=0) && (*var_tag_ss_pion_==0)){      // if OS tagger exclusively has tag, write OS tag to combination
     *var_tag_exclusive_os_std_comb_ss_pion_value_        = *var_tag_os_std_comb_value_;
@@ -775,8 +784,17 @@ void TaggingRdcr::UpdateSpecialLeaves(){
     *var_tag_exclusive_os_std_comb_ss_pion_nozero_value_ = *var_tag_os_std_comb_value_;
     *var_tag_eta_exclusive_os_std_comb_ss_pion_value_    = *var_tag_eta_os_std_comb_value_;
     *cat_tagged_exclusive_os_std_comb_ss_pion_value_     = 1;
+    *cat_tagged_os_std_comb_ss_pion_calibrated_value_ =  1; // (SPECIAL CAT)
   }
   else{                                                       // else, combine OS and SSPion tag decision and eta
+
+    if ((*var_tag_os_std_comb_value_==0) && (*var_tag_ss_pion_!=0)){ // (SPECIAL CAT)
+      *cat_tagged_os_std_comb_ss_pion_calibrated_value_ = -1;
+    }
+    else{
+      *cat_tagged_os_std_comb_ss_pion_calibrated_value_ = 10;
+    }
+
     int os_dec = *var_tag_os_std_comb_value_;
     int ss_dec = *var_tag_ss_pion_;
     double os_mistag = *var_tag_eta_os_std_comb_value_;
@@ -806,7 +824,7 @@ void TaggingRdcr::UpdateSpecialLeaves(){
     *var_tag_eta_exclusive_os_std_comb_ss_pion_value_ = 1. - comb_prob;
 
     // tag category
-    *cat_tagged_exclusive_os_std_comb_ss_pion_value_ = -1;
+    *cat_tagged_exclusive_os_std_comb_ss_pion_value_  = -1;
 
     if (debug){
       std::cout << "" << std::endl;
