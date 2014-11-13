@@ -28,120 +28,120 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
     // ______________________________________________________________________________________
     // create leaves
     // tag leaves
-    var_tag_os_std_comb_leaf_(NULL),
-    var_tag_os_std_comb_nozero_leaf_(NULL),
-    var_tag_os_std_comb_babar_leaf_(NULL),
-    var_tag_os_nozero_leaf_(NULL),
-    var_tag_ss_pion_nozero_leaf_(NULL),
-    var_tag_os_ss_pion_leaf_(NULL),
-    var_tag_os_ss_pion_babar_leaf_(NULL),
-    var_tag_os_ss_pion_nozero_leaf_(NULL),
-    var_tag_os_exclusive_ss_pion_leaf_(NULL),
-    var_tag_os_exclusive_ss_pion_babar_leaf_(NULL),
-    var_tag_os_exclusive_ss_pion_nozero_leaf_(NULL),
-    var_tag_exclusive_os_ss_pion_leaf_(NULL),
-    var_tag_exclusive_os_ss_pion_babar_leaf_(NULL),
-    var_tag_exclusive_os_ss_pion_nozero_leaf_(NULL),
-    var_tag_exclusive_os_std_comb_ss_pion_leaf_(NULL),
-    var_tag_exclusive_os_std_comb_ss_pion_babar_leaf_(NULL),
-    var_tag_exclusive_os_std_comb_ss_pion_nozero_leaf_(NULL),
-    var_tag_os_with_nnet_kaon_sspion_leaf_(NULL),
-    var_tag_os_with_nnet_kaon_sspion_babar_leaf_(NULL),
-    var_tag_os_with_nnet_kaon_sspion_nozero_leaf_(NULL),
-    var_tag_os_comb_with_nnet_kaon_leaf_(NULL),
-    var_tag_os_comb_with_nnet_kaon_babar_leaf_(NULL),
-    var_tag_ss_pion_calibrated_leaf_(NULL),
+    var_tag_os_std_comb_leaf_(nullptr),
+    var_tag_os_std_comb_nozero_leaf_(nullptr),
+    var_tag_os_std_comb_babar_leaf_(nullptr),
+    var_tag_os_nozero_leaf_(nullptr),
+    var_tag_ss_pion_nozero_leaf_(nullptr),
+    var_tag_os_ss_pion_leaf_(nullptr),
+    var_tag_os_ss_pion_babar_leaf_(nullptr),
+    var_tag_os_ss_pion_nozero_leaf_(nullptr),
+    var_tag_os_exclusive_ss_pion_leaf_(nullptr),
+    var_tag_os_exclusive_ss_pion_babar_leaf_(nullptr),
+    var_tag_os_exclusive_ss_pion_nozero_leaf_(nullptr),
+    var_tag_exclusive_os_ss_pion_leaf_(nullptr),
+    var_tag_exclusive_os_ss_pion_babar_leaf_(nullptr),
+    var_tag_exclusive_os_ss_pion_nozero_leaf_(nullptr),
+    var_tag_exclusive_os_std_comb_ss_pion_leaf_(nullptr),
+    var_tag_exclusive_os_std_comb_ss_pion_babar_leaf_(nullptr),
+    var_tag_exclusive_os_std_comb_ss_pion_nozero_leaf_(nullptr),
+    var_tag_os_with_nnet_kaon_sspion_leaf_(nullptr),
+    var_tag_os_with_nnet_kaon_sspion_babar_leaf_(nullptr),
+    var_tag_os_with_nnet_kaon_sspion_nozero_leaf_(nullptr),
+    var_tag_os_comb_with_nnet_kaon_leaf_(nullptr),
+    var_tag_os_comb_with_nnet_kaon_babar_leaf_(nullptr),
+    var_tag_ss_pion_calibrated_leaf_(nullptr),
     // eta leaves
-    var_tag_eta_os_std_comb_leaf_(NULL),
-    var_tag_eta_os_ss_pion_leaf_(NULL),
-    var_tag_eta_os_exclusive_ss_pion_leaf_(NULL),
-    var_tag_eta_exclusive_os_ss_pion_leaf_(NULL),
-    var_tag_eta_exclusive_os_std_comb_ss_pion_leaf_(NULL),
-    var_tag_eta_os_comb_with_nnet_kaon_leaf_(NULL),
-    var_tag_eta_os_with_nnet_kaon_sspion_leaf_(NULL),
-    var_tag_eta_ss_pion_calibrated_leaf_(NULL),
+    var_tag_eta_os_std_comb_leaf_(nullptr),
+    var_tag_eta_os_ss_pion_leaf_(nullptr),
+    var_tag_eta_os_exclusive_ss_pion_leaf_(nullptr),
+    var_tag_eta_exclusive_os_ss_pion_leaf_(nullptr),
+    var_tag_eta_exclusive_os_std_comb_ss_pion_leaf_(nullptr),
+    var_tag_eta_os_comb_with_nnet_kaon_leaf_(nullptr),
+    var_tag_eta_os_with_nnet_kaon_sspion_leaf_(nullptr),
+    var_tag_eta_ss_pion_calibrated_leaf_(nullptr),
     // cat tagged leaves
-    cat_tagged_os_std_comb_leaf_(NULL),
-    cat_tagged_os_comb_with_nnet_kaon_leaf_(NULL),
-    cat_tagged_os_or_ss_pion_leaf_(NULL),
-    cat_tagged_os_xor_ss_pion_leaf_(NULL),
-    cat_tagged_os_ss_pion_leaf_(NULL),
-    cat_tagged_os_std_comb_ss_pion_calibrated_leaf_(NULL),
-    cat_tagged_os_exclusive_ss_pion_leaf_(NULL),
-    cat_tagged_exclusive_os_ss_pion_leaf_(NULL),
-    cat_tagged_exclusive_os_std_comb_ss_pion_leaf_(NULL),
-    cat_tagged_os_with_nnet_kaon_or_sspion_leaf_(NULL),
-    cat_tagged_os_with_nnet_kaon_xor_ss_pion_leaf_(NULL),
-    cat_tagged_ss_pion_calibrated_leaf_(NULL),
+    cat_tagged_os_std_comb_leaf_(nullptr),
+    cat_tagged_os_comb_with_nnet_kaon_leaf_(nullptr),
+    cat_tagged_os_or_ss_pion_leaf_(nullptr),
+    cat_tagged_os_xor_ss_pion_leaf_(nullptr),
+    cat_tagged_os_ss_pion_leaf_(nullptr),
+    cat_tagged_os_std_comb_ss_pion_calibrated_leaf_(nullptr),
+    cat_tagged_os_exclusive_ss_pion_leaf_(nullptr),
+    cat_tagged_exclusive_os_ss_pion_leaf_(nullptr),
+    cat_tagged_exclusive_os_std_comb_ss_pion_leaf_(nullptr),
+    cat_tagged_os_with_nnet_kaon_or_sspion_leaf_(nullptr),
+    cat_tagged_os_with_nnet_kaon_xor_ss_pion_leaf_(nullptr),
+    cat_tagged_ss_pion_calibrated_leaf_(nullptr),
     // ______________________________________________________________________________________
     // leaves to read
     // tag leaves
-    var_tag_os_(NULL),
-    var_tag_os_muon_(NULL),
-    var_tag_os_electron_(NULL),
-    var_tag_os_kaon_(NULL),
-    var_tag_os_nnet_kaon_(NULL),
-    var_tag_os_vtx_charge_(NULL),
-    var_tag_ss_pion_(NULL),
+    var_tag_os_(nullptr),
+    var_tag_os_muon_(nullptr),
+    var_tag_os_electron_(nullptr),
+    var_tag_os_kaon_(nullptr),
+    var_tag_os_nnet_kaon_(nullptr),
+    var_tag_os_vtx_charge_(nullptr),
+    var_tag_ss_pion_(nullptr),
     // eta leaves
-    var_tag_eta_os_(NULL),
-    var_tag_eta_os_muon_(NULL),
-    var_tag_eta_os_electron_(NULL),
-    var_tag_eta_os_kaon_(NULL),
-    var_tag_eta_os_nnet_kaon_(NULL),
-    var_tag_eta_os_vtx_charge_(NULL),
-    var_tag_eta_ss_pion_(NULL),
+    var_tag_eta_os_(nullptr),
+    var_tag_eta_os_muon_(nullptr),
+    var_tag_eta_os_electron_(nullptr),
+    var_tag_eta_os_kaon_(nullptr),
+    var_tag_eta_os_nnet_kaon_(nullptr),
+    var_tag_eta_os_vtx_charge_(nullptr),
+    var_tag_eta_ss_pion_(nullptr),
     // cat tagged leaves
-    cat_tagged_os_(NULL),
-    cat_tagged_ss_pion_(NULL),
+    cat_tagged_os_(nullptr),
+    cat_tagged_ss_pion_(nullptr),
     // ______________________________________________________________________________________
     // leaves to write
     // tag leaves
-    var_tag_os_std_comb_value_(NULL),
-    var_tag_os_std_comb_nozero_value_(NULL),
-    var_tag_os_std_comb_babar_value_(NULL),
-    var_tag_os_nozero_value_(NULL),
-    var_tag_ss_pion_nozero_value_(NULL),
-    var_tag_os_ss_pion_value_(NULL),
-    var_tag_os_ss_pion_babar_value_(NULL),
-    var_tag_os_ss_pion_nozero_value_(NULL),
-    var_tag_os_exclusive_ss_pion_value_(NULL),
-    var_tag_os_exclusive_ss_pion_babar_value_(NULL),
-    var_tag_os_exclusive_ss_pion_nozero_value_(NULL),
-    var_tag_exclusive_os_ss_pion_value_(NULL),
-    var_tag_exclusive_os_ss_pion_babar_value_(NULL),
-    var_tag_exclusive_os_ss_pion_nozero_value_(NULL),
-    var_tag_exclusive_os_std_comb_ss_pion_value_(NULL),
-    var_tag_exclusive_os_std_comb_ss_pion_babar_value_(NULL),
-    var_tag_exclusive_os_std_comb_ss_pion_nozero_value_(NULL),
-    var_tag_os_with_nnet_kaon_sspion_value_(NULL),
-    var_tag_os_with_nnet_kaon_sspion_babar_value_(NULL),
-    var_tag_os_with_nnet_kaon_sspion_nozero_value_(NULL),
-    var_tag_os_comb_with_nnet_kaon_value_(NULL),
-    var_tag_os_comb_with_nnet_kaon_babar_value_(NULL),
-    var_tag_ss_pion_calibrated_value_(NULL),
+    var_tag_os_std_comb_value_(nullptr),
+    var_tag_os_std_comb_nozero_value_(nullptr),
+    var_tag_os_std_comb_babar_value_(nullptr),
+    var_tag_os_nozero_value_(nullptr),
+    var_tag_ss_pion_nozero_value_(nullptr),
+    var_tag_os_ss_pion_value_(nullptr),
+    var_tag_os_ss_pion_babar_value_(nullptr),
+    var_tag_os_ss_pion_nozero_value_(nullptr),
+    var_tag_os_exclusive_ss_pion_value_(nullptr),
+    var_tag_os_exclusive_ss_pion_babar_value_(nullptr),
+    var_tag_os_exclusive_ss_pion_nozero_value_(nullptr),
+    var_tag_exclusive_os_ss_pion_value_(nullptr),
+    var_tag_exclusive_os_ss_pion_babar_value_(nullptr),
+    var_tag_exclusive_os_ss_pion_nozero_value_(nullptr),
+    var_tag_exclusive_os_std_comb_ss_pion_value_(nullptr),
+    var_tag_exclusive_os_std_comb_ss_pion_babar_value_(nullptr),
+    var_tag_exclusive_os_std_comb_ss_pion_nozero_value_(nullptr),
+    var_tag_os_with_nnet_kaon_sspion_value_(nullptr),
+    var_tag_os_with_nnet_kaon_sspion_babar_value_(nullptr),
+    var_tag_os_with_nnet_kaon_sspion_nozero_value_(nullptr),
+    var_tag_os_comb_with_nnet_kaon_value_(nullptr),
+    var_tag_os_comb_with_nnet_kaon_babar_value_(nullptr),
+    var_tag_ss_pion_calibrated_value_(nullptr),
     // eta leaves
-    var_tag_eta_os_std_comb_value_(NULL),
-    var_tag_eta_os_ss_pion_value_(NULL),
-    var_tag_eta_os_exclusive_ss_pion_value_(NULL),
-    var_tag_eta_exclusive_os_ss_pion_value_(NULL),
-    var_tag_eta_exclusive_os_std_comb_ss_pion_value_(NULL),
-    var_tag_eta_os_with_nnet_kaon_sspion_value_(NULL),
-    var_tag_eta_os_comb_with_nnet_kaon_value_(NULL),
-    var_tag_eta_ss_pion_calibrated_value_(NULL),
+    var_tag_eta_os_std_comb_value_(nullptr),
+    var_tag_eta_os_ss_pion_value_(nullptr),
+    var_tag_eta_os_exclusive_ss_pion_value_(nullptr),
+    var_tag_eta_exclusive_os_ss_pion_value_(nullptr),
+    var_tag_eta_exclusive_os_std_comb_ss_pion_value_(nullptr),
+    var_tag_eta_os_with_nnet_kaon_sspion_value_(nullptr),
+    var_tag_eta_os_comb_with_nnet_kaon_value_(nullptr),
+    var_tag_eta_ss_pion_calibrated_value_(nullptr),
     // cat tagged leaves
-    cat_tagged_os_std_comb_value_(NULL),
-    cat_tagged_os_or_ss_pion_value_(NULL),
-    cat_tagged_os_xor_ss_pion_value_(NULL),
-    cat_tagged_os_ss_pion_value_(NULL),
-    cat_tagged_os_std_comb_ss_pion_calibrated_value_(NULL),
-    cat_tagged_os_exclusive_ss_pion_value_(NULL),
-    cat_tagged_exclusive_os_ss_pion_value_(NULL),
-    cat_tagged_exclusive_os_std_comb_ss_pion_value_(NULL),
-    cat_tagged_os_comb_with_nnet_kaon_value_(NULL),
-    cat_tagged_os_with_nnet_kaon_or_sspion_value_(NULL),
-    cat_tagged_os_with_nnet_kaon_xor_ss_pion_value_(NULL),
-    cat_tagged_ss_pion_calibrated_value_(NULL),
+    cat_tagged_os_std_comb_value_(nullptr),
+    cat_tagged_os_or_ss_pion_value_(nullptr),
+    cat_tagged_os_xor_ss_pion_value_(nullptr),
+    cat_tagged_os_ss_pion_value_(nullptr),
+    cat_tagged_os_std_comb_ss_pion_calibrated_value_(nullptr),
+    cat_tagged_os_exclusive_ss_pion_value_(nullptr),
+    cat_tagged_exclusive_os_ss_pion_value_(nullptr),
+    cat_tagged_exclusive_os_std_comb_ss_pion_value_(nullptr),
+    cat_tagged_os_comb_with_nnet_kaon_value_(nullptr),
+    cat_tagged_os_with_nnet_kaon_or_sspion_value_(nullptr),
+    cat_tagged_os_with_nnet_kaon_xor_ss_pion_value_(nullptr),
+    cat_tagged_ss_pion_calibrated_value_(nullptr),
     head_("")
   {}
   virtual ~TaggingRdcr(){}
@@ -1018,65 +1018,65 @@ int B2JpsiKS(const std::string& inputfile, const std::string& inputtree, const s
   }
 
   // catTagger
-  ReducerLeaf<Int_t>& var_tagger_leaf = reducer.CreateIntCopyLeaf("catTagger", reducer.GetInterimLeafByName(head+"_TAGGER"));
+  reducer.CreateIntCopyLeaf("catTagger", reducer.GetInterimLeafByName(head+"_TAGGER"));
 
   // obsTag
   ReducerLeaf<Int_t>& var_tag_all_leaf = reducer.CreateIntCopyLeaf("obsTagAll", reducer.GetInterimLeafByName(head+"_TAGDECISION"));
-  ReducerLeaf<Int_t>& var_tag_all_babar_leaf = reducer.CreateIntCopyLeaf("obsTagAll_BaBar", reducer.GetInterimLeafByName(head+"_TAGDECISION"), -1.0);
+  reducer.CreateIntCopyLeaf("obsTagAll_BaBar", reducer.GetInterimLeafByName(head+"_TAGDECISION"), -1.0);
   ReducerLeaf<Int_t>& var_tag_os_leaf = reducer.CreateIntCopyLeaf("obsTagOS", reducer.GetInterimLeafByName(head+"_TAGDECISION_OS"));
   ReducerLeaf<Int_t>& var_tag_os_babar_leaf = reducer.CreateIntCopyLeaf("obsTagOS_BaBar", reducer.GetInterimLeafByName(head+"_TAGDECISION_OS"), -1.0);
-  ReducerLeaf<Int_t>& var_tag_os_mu_leaf = reducer.CreateIntCopyLeaf("obsTagOSMuon", reducer.GetInterimLeafByName(head+"_OS_Muon_DEC"));
-  ReducerLeaf<Int_t>& var_tag_os_mu_babar_leaf = reducer.CreateIntCopyLeaf("obsTagOSMuon_BaBar", reducer.GetInterimLeafByName(head+"_OS_Muon_DEC"), -1.0);
-  ReducerLeaf<Int_t>& var_tag_os_electron_leaf = reducer.CreateIntCopyLeaf("obsTagOSElectron", reducer.GetInterimLeafByName(head+"_OS_Electron_DEC"));
-  ReducerLeaf<Int_t>& var_tag_os_electron_babar_leaf = reducer.CreateIntCopyLeaf("obsTagOSElectron_BaBar", reducer.GetInterimLeafByName(head+"_OS_Electron_DEC"), -1.0);
-  ReducerLeaf<Int_t>& var_tag_os_kaon_leaf = reducer.CreateIntCopyLeaf("obsTagOSKaon", reducer.GetInterimLeafByName(head+"_OS_Kaon_DEC"));
+  reducer.CreateIntCopyLeaf("obsTagOSMuon", reducer.GetInterimLeafByName(head+"_OS_Muon_DEC"));
+  reducer.CreateIntCopyLeaf("obsTagOSMuon_BaBar", reducer.GetInterimLeafByName(head+"_OS_Muon_DEC"), -1.0);
+  reducer.CreateIntCopyLeaf("obsTagOSElectron", reducer.GetInterimLeafByName(head+"_OS_Electron_DEC"));
+  reducer.CreateIntCopyLeaf("obsTagOSElectron_BaBar", reducer.GetInterimLeafByName(head+"_OS_Electron_DEC"), -1.0);
+  reducer.CreateIntCopyLeaf("obsTagOSKaon", reducer.GetInterimLeafByName(head+"_OS_Kaon_DEC"));
   if (reducer.LeafExists(head+"_OS_nnetKaon_DEC")){
-    ReducerLeaf<Int_t>& var_tag_os_kaon_babar_leaf = reducer.CreateIntCopyLeaf("obsTagOSKaon_BaBar", reducer.GetInterimLeafByName(head+"_OS_Kaon_DEC"), -1.0);
-    ReducerLeaf<Int_t>& var_tag_os_nnet_kaon_leaf = reducer.CreateIntCopyLeaf("obsTagOSNNKaon", reducer.GetInterimLeafByName(head+"_OS_nnetKaon_DEC"));
-    ReducerLeaf<Int_t>& var_tag_os_nnet_kaon_babar_leaf = reducer.CreateIntCopyLeaf("obsTagOSNNKaon_BaBar", reducer.GetInterimLeafByName(head+"_OS_nnetKaon_DEC"), -1.0);
+    reducer.CreateIntCopyLeaf("obsTagOSKaon_BaBar", reducer.GetInterimLeafByName(head+"_OS_Kaon_DEC"), -1.0);
+    reducer.CreateIntCopyLeaf("obsTagOSNNKaon", reducer.GetInterimLeafByName(head+"_OS_nnetKaon_DEC"));
+    reducer.CreateIntCopyLeaf("obsTagOSNNKaon_BaBar", reducer.GetInterimLeafByName(head+"_OS_nnetKaon_DEC"), -1.0);
   }
-  ReducerLeaf<Int_t>& var_tag_ss_kaon_leaf = reducer.CreateIntCopyLeaf("obsTagSSKaon", reducer.GetInterimLeafByName(head+"_SS_Kaon_DEC"));
-  ReducerLeaf<Int_t>& var_tag_ss_kaon_babar_leaf = reducer.CreateIntCopyLeaf("obsTagSSKaon_BaBar", reducer.GetInterimLeafByName(head+"_SS_Kaon_DEC"), -1.0);
+  reducer.CreateIntCopyLeaf("obsTagSSKaon", reducer.GetInterimLeafByName(head+"_SS_Kaon_DEC"));
+  reducer.CreateIntCopyLeaf("obsTagSSKaon_BaBar", reducer.GetInterimLeafByName(head+"_SS_Kaon_DEC"), -1.0);
   if (reducer.LeafExists(head+"_SS_nnetKaon_DEC")){
-    ReducerLeaf<Int_t>& var_tag_ss_nnet_kaon_leaf = reducer.CreateIntCopyLeaf("obsTagSSNNKaon", reducer.GetInterimLeafByName(head+"_SS_nnetKaon_DEC"));
-    ReducerLeaf<Int_t>& var_tag_ss_nnet_kaon_babar_leaf = reducer.CreateIntCopyLeaf("obsTagSSNNKaon_BaBar", reducer.GetInterimLeafByName(head+"_SS_nnetKaon_DEC"), -1.0);
+    reducer.CreateIntCopyLeaf("obsTagSSNNKaon", reducer.GetInterimLeafByName(head+"_SS_nnetKaon_DEC"));
+    reducer.CreateIntCopyLeaf("obsTagSSNNKaon_BaBar", reducer.GetInterimLeafByName(head+"_SS_nnetKaon_DEC"), -1.0);
   }
   ReducerLeaf<Int_t>& var_tag_ss_pion_leaf = reducer.CreateIntCopyLeaf("obsTagSSPion", reducer.GetInterimLeafByName(head+"_SS_Pion_DEC"));
   ReducerLeaf<Int_t>& var_tag_ss_pion_babar_leaf = reducer.CreateIntCopyLeaf("obsTagSSPion_BaBar", reducer.GetInterimLeafByName(head+"_SS_Pion_DEC"), -1.0);
-  ReducerLeaf<Int_t>& var_tag_vtxq_leaf = reducer.CreateIntCopyLeaf("obsTagVtxQ", reducer.GetInterimLeafByName(head+"_VtxCharge_DEC"));
-  ReducerLeaf<Int_t>& var_tag_vtxq_babar_leaf = reducer.CreateIntCopyLeaf("obsTagVtxQ_BaBar", reducer.GetInterimLeafByName(head+"_VtxCharge_DEC"), -1.0);
+  reducer.CreateIntCopyLeaf("obsTagVtxQ", reducer.GetInterimLeafByName(head+"_VtxCharge_DEC"));
+  reducer.CreateIntCopyLeaf("obsTagVtxQ_BaBar", reducer.GetInterimLeafByName(head+"_VtxCharge_DEC"), -1.0);
   if (reducer.LeafExists(head+"_OS_Charm_DEC")){
-    ReducerLeaf<Int_t>& var_tag_os_charm_leaf = reducer.CreateIntCopyLeaf("obsTagOSCharm", reducer.GetInterimLeafByName(head+"_OS_Charm_DEC"));
-    ReducerLeaf<Int_t>& var_tag_os_charm_babar_leaf = reducer.CreateIntCopyLeaf("obsTagOSCharm_BaBar", reducer.GetInterimLeafByName(head+"_OS_Charm_DEC"), -1.0);  
+    reducer.CreateIntCopyLeaf("obsTagOSCharm", reducer.GetInterimLeafByName(head+"_OS_Charm_DEC"));
+    reducer.CreateIntCopyLeaf("obsTagOSCharm_BaBar", reducer.GetInterimLeafByName(head+"_OS_Charm_DEC"), -1.0);  
   }
   if (reducer.LeafExists(head+"_SS_Proton_DEC")){
-    ReducerLeaf<Int_t>& var_tag_ss_proton_leaf = reducer.CreateIntCopyLeaf("obsTagSSProton", reducer.GetInterimLeafByName(head+"_SS_Proton_DEC"));
-    ReducerLeaf<Int_t>& var_tag_ss_proton_babar_leaf = reducer.CreateIntCopyLeaf("obsTagSSProton_BaBar", reducer.GetInterimLeafByName(head+"_SS_Proton_DEC"), -1.0);    
+    reducer.CreateIntCopyLeaf("obsTagSSProton", reducer.GetInterimLeafByName(head+"_SS_Proton_DEC"));
+    reducer.CreateIntCopyLeaf("obsTagSSProton_BaBar", reducer.GetInterimLeafByName(head+"_SS_Proton_DEC"), -1.0);    
   }
 
   // Tag comparison
-  ReducerLeaf<Int_t>& var_tag_ost_sspi_comp_leaf = reducer.CreateIntLeaf("catTagCompOSvsSSPion");
+  ReducerLeaf<Int_t>&var_tag_ost_sspi_comp_leaf = reducer.CreateIntLeaf("catTagCompOSvsSSPion");
     var_tag_ost_sspi_comp_leaf.Multiply(var_tag_os_leaf, var_tag_ss_pion_leaf);
-  ReducerLeaf<Int_t>& var_tag_ost_sspi_comp_babar_leaf = reducer.CreateIntLeaf("catTagCompOSvsSSPion_BaBar");
+  ReducerLeaf<Int_t>&var_tag_ost_sspi_comp_babar_leaf = reducer.CreateIntLeaf("catTagCompOSvsSSPion_BaBar");
     var_tag_ost_sspi_comp_babar_leaf.Multiply(var_tag_os_babar_leaf, var_tag_ss_pion_babar_leaf);
 
   // obsEta
-  ReducerLeaf<Double_t>& var_tag_eta_leaf = reducer.CreateDoubleCopyLeaf("obsEtaAll", reducer.GetInterimLeafByName(head+"_TAGOMEGA"));
-  ReducerLeaf<Double_t>& var_tag_eta_os_leaf = reducer.CreateDoubleCopyLeaf("obsEtaOS", reducer.GetInterimLeafByName(head+"_TAGOMEGA_OS"));
-  ReducerLeaf<Double_t>& var_tag_eta_os_mu_leaf = reducer.CreateDoubleCopyLeaf("obsEtaOSMuon", reducer.GetInterimLeafByName(head+"_OS_Muon_PROB"));
-  ReducerLeaf<Double_t>& var_tag_eta_os_electron_leaf = reducer.CreateDoubleCopyLeaf("obsEtaOSElectron", reducer.GetInterimLeafByName(head+"_OS_Electron_PROB"));
-  ReducerLeaf<Double_t>& var_tag_eta_os_kaon_leaf = reducer.CreateDoubleCopyLeaf("obsEtaOSKaon", reducer.GetInterimLeafByName(head+"_OS_Kaon_PROB"));
-  if (reducer.LeafExists(head+"_OS_nnetKaon_DEC")) ReducerLeaf<Double_t>& var_tag_eta_os_nnet_kaon_leaf = reducer.CreateDoubleCopyLeaf("obsEtaOSNNKaon", reducer.GetInterimLeafByName(head+"_OS_nnetKaon_PROB"));
-  ReducerLeaf<Double_t>& var_tag_eta_ss_kaon_leaf = reducer.CreateDoubleCopyLeaf("obsEtaSSKaon", reducer.GetInterimLeafByName(head+"_SS_Kaon_PROB"));
-  if (reducer.LeafExists(head+"_SS_nnetKaon_DEC")) ReducerLeaf<Double_t>& var_tag_eta_ss_nnet_kaon_leaf = reducer.CreateDoubleCopyLeaf("obsEtaSSNNKaon", reducer.GetInterimLeafByName(head+"_SS_nnetKaon_PROB"));
-  ReducerLeaf<Double_t>& var_tag_eta_ss_pion_leaf = reducer.CreateDoubleCopyLeaf("obsEtaSSPion", reducer.GetInterimLeafByName(head+"_SS_Pion_PROB"));
-  ReducerLeaf<Double_t>& var_tag_eta_vtxq_leaf = reducer.CreateDoubleCopyLeaf("obsEtaVtxQ", reducer.GetInterimLeafByName(head+"_VtxCharge_PROB"));
-  if (reducer.LeafExists(head+"_OS_Charm_PROB")) ReducerLeaf<Double_t>& var_tag_eta_os_charm_leaf = reducer.CreateDoubleCopyLeaf("obsEtaOSCharm", reducer.GetInterimLeafByName(head+"_OS_Charm_PROB"));
-  if (reducer.LeafExists(head+"_SS_Proton_PROB")) ReducerLeaf<Double_t>& var_tag_eta_ss_proton_leaf = reducer.CreateDoubleCopyLeaf("obsEtaSSProton", reducer.GetInterimLeafByName(head+"_SS_Proton_PROB"));
+  reducer.CreateDoubleCopyLeaf("obsEtaAll", reducer.GetInterimLeafByName(head+"_TAGOMEGA"));
+  reducer.CreateDoubleCopyLeaf("obsEtaOS", reducer.GetInterimLeafByName(head+"_TAGOMEGA_OS"));
+  reducer.CreateDoubleCopyLeaf("obsEtaOSMuon", reducer.GetInterimLeafByName(head+"_OS_Muon_PROB"));
+  reducer.CreateDoubleCopyLeaf("obsEtaOSElectron", reducer.GetInterimLeafByName(head+"_OS_Electron_PROB"));
+  reducer.CreateDoubleCopyLeaf("obsEtaOSKaon", reducer.GetInterimLeafByName(head+"_OS_Kaon_PROB"));
+  if (reducer.LeafExists(head+"_OS_nnetKaon_DEC")) reducer.CreateDoubleCopyLeaf("obsEtaOSNNKaon", reducer.GetInterimLeafByName(head+"_OS_nnetKaon_PROB"));
+  reducer.CreateDoubleCopyLeaf("obsEtaSSKaon", reducer.GetInterimLeafByName(head+"_SS_Kaon_PROB"));
+  if (reducer.LeafExists(head+"_SS_nnetKaon_DEC")) reducer.CreateDoubleCopyLeaf("obsEtaSSNNKaon", reducer.GetInterimLeafByName(head+"_SS_nnetKaon_PROB"));
+  reducer.CreateDoubleCopyLeaf("obsEtaSSPion", reducer.GetInterimLeafByName(head+"_SS_Pion_PROB"));
+  reducer.CreateDoubleCopyLeaf("obsEtaVtxQ", reducer.GetInterimLeafByName(head+"_VtxCharge_PROB"));
+  if (reducer.LeafExists(head+"_OS_Charm_PROB")) reducer.CreateDoubleCopyLeaf("obsEtaOSCharm", reducer.GetInterimLeafByName(head+"_OS_Charm_PROB"));
+  if (reducer.LeafExists(head+"_SS_Proton_PROB")) reducer.CreateDoubleCopyLeaf("obsEtaSSProton", reducer.GetInterimLeafByName(head+"_SS_Proton_PROB"));
 
   // catEta: somehow this variable does not get written into the tuples anymore
-  if (reducer.LeafExists(head+"_TAGCAT")) ReducerLeaf<Int_t>& var_tagcat_leaf = reducer.CreateIntCopyLeaf("catEtaAll", reducer.GetInterimLeafByName(head+"_TAGCAT"));
-  if (reducer.LeafExists(head+"_TAGCAT_OS")) ReducerLeaf<Int_t>& var_tagcat_os_leaf = reducer.CreateIntCopyLeaf("catEtaOS", reducer.GetInterimLeafByName(head+"_TAGCAT_OS"));
+  if (reducer.LeafExists(head+"_TAGCAT")) reducer.CreateIntCopyLeaf("catEtaAll", reducer.GetInterimLeafByName(head+"_TAGCAT"));
+  if (reducer.LeafExists(head+"_TAGCAT_OS")) reducer.CreateIntCopyLeaf("catEtaOS", reducer.GetInterimLeafByName(head+"_TAGCAT_OS"));
 
   // catTagged
   ReducerLeaf<Int_t>& cat_tagged_leaf = reducer.CreateIntLeaf("catTaggedAll", -1);
@@ -1148,5 +1148,7 @@ int B2JpsiKS(const std::string& inputfile, const std::string& inputtree, const s
 
   reducer.Run();
   reducer.Finalize();
+
+  return 0;
 }
 
