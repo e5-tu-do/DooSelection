@@ -30,21 +30,21 @@ class WrongPVReducer : virtual public dooselection::reducer::Reducer {
     in_leaf_name_("B0_FitDaughtersPVConst_J_psi_1S_IPCHI2"),
     in_leaf_idx_pv_name_("idxPV"),
     out_leaf_name_("varJpsiMinIPCHI2anyPV"),
-    vertex_x_(nullptr),
-    vertex_y_(nullptr),
-    vertex_z_(nullptr),
-    vertex_xvar_(nullptr),
-    vertex_yvar_(nullptr),
-    vertex_zvar_(nullptr),
-    vertex_res_x_(nullptr),
-    vertex_res_y_(nullptr),
-    vertex_res_z_(nullptr),
-    vertex_pull_x_(nullptr),
-    vertex_pull_y_(nullptr),
-    vertex_pull_z_(nullptr),
-    vertex_pull_x_val_(nullptr),
-    vertex_pull_y_val_(nullptr),
-    vertex_pull_z_val_(nullptr),
+    pv_x_(nullptr),
+    pv_y_(nullptr),
+    pv_z_(nullptr),
+    pv_x_var_(nullptr),
+    pv_y_var_(nullptr),
+    pv_z_var_(nullptr),
+    pv_res_x_(nullptr),
+    pv_res_y_(nullptr),
+    pv_res_z_(nullptr),
+    pv_pull_x_(nullptr),
+    pv_pull_y_(nullptr),
+    pv_pull_z_(nullptr),
+    pv_pull_x_val_(nullptr),
+    pv_pull_y_val_(nullptr),
+    pv_pull_z_val_(nullptr),
     debug_mode_(false)
   {}
   virtual ~WrongPVReducer(){}
@@ -62,33 +62,34 @@ class WrongPVReducer : virtual public dooselection::reducer::Reducer {
   Float_t*                                            in_value_flat_;
   Int_t*                                              in_value_idx_pv_; 
   
-  const dooselection::reducer::ReducerLeaf<Float_t>*  vertex_x_;
-  const dooselection::reducer::ReducerLeaf<Float_t>*  vertex_y_;
-  const dooselection::reducer::ReducerLeaf<Float_t>*  vertex_z_;
-  const dooselection::reducer::ReducerLeaf<Float_t>*  vertex_xvar_;
-  const dooselection::reducer::ReducerLeaf<Float_t>*  vertex_yvar_;
-  const dooselection::reducer::ReducerLeaf<Float_t>*  vertex_zvar_;
-
-  const dooselection::reducer::ReducerLeaf<Float_t>*  vertex_true_x_;
-  const dooselection::reducer::ReducerLeaf<Float_t>*  vertex_true_y_;
-  const dooselection::reducer::ReducerLeaf<Float_t>*  vertex_true_z_;
+  const dooselection::reducer::ReducerLeaf<Float_t>*  pv_x_;
+  const dooselection::reducer::ReducerLeaf<Float_t>*  pv_y_;
+  const dooselection::reducer::ReducerLeaf<Float_t>*  pv_z_;
+  const dooselection::reducer::ReducerLeaf<Float_t>*  pv_x_var_;
+  const dooselection::reducer::ReducerLeaf<Float_t>*  pv_y_var_;
+  const dooselection::reducer::ReducerLeaf<Float_t>*  pv_z_var_;
+  const dooselection::reducer::ReducerLeaf<Float_t>*  pv_true_x_;
+  const dooselection::reducer::ReducerLeaf<Float_t>*  pv_true_y_;
+  const dooselection::reducer::ReducerLeaf<Float_t>*  pv_true_z_;
 
   // leaves to write
   dooselection::reducer::ReducerLeaf<Double_t>* out_leaf_;
   Double_t*                                     out_value_;
 
-  dooselection::reducer::ReducerLeaf<Double_t>* vertex_res_x_;
-  dooselection::reducer::ReducerLeaf<Double_t>* vertex_res_y_;
-  dooselection::reducer::ReducerLeaf<Double_t>* vertex_res_z_;
+  dooselection::reducer::ReducerLeaf<Double_t>* pv_res_x_;
+  dooselection::reducer::ReducerLeaf<Double_t>* pv_res_y_;
+  dooselection::reducer::ReducerLeaf<Double_t>* pv_res_z_;
+  dooselection::reducer::ReducerLeaf<Double_t>* pv_pull_x_;
+  dooselection::reducer::ReducerLeaf<Double_t>* pv_pull_y_;
+  dooselection::reducer::ReducerLeaf<Double_t>* pv_pull_z_;
+  
+  Double_t* pv_res_x_val_;
+  Double_t* pv_res_y_val_;
+  Double_t* pv_res_z_val_;
+  Double_t* pv_pull_x_val_;
+  Double_t* pv_pull_y_val_;
+  Double_t* pv_pull_z_val_;
 
-  dooselection::reducer::ReducerLeaf<Double_t>* vertex_pull_x_;
-  dooselection::reducer::ReducerLeaf<Double_t>* vertex_pull_y_;
-  dooselection::reducer::ReducerLeaf<Double_t>* vertex_pull_z_;
-  Double_t* vertex_pull_x_val_;
-  Double_t* vertex_pull_y_val_;
-  Double_t* vertex_pull_z_val_;
-
-  // 
   std::string in_leaf_name_;
   std::string in_leaf_idx_pv_name_;
   std::string out_leaf_name_;
@@ -111,33 +112,32 @@ void WrongPVReducer::CreateSpecialBranches(){
   in_value_flat_    = (Float_t*)in_leaf_flat_->branch_address();
   in_value_idx_pv_  = (Int_t*)in_leaf_idx_pv_->branch_address();
 
-  vertex_x_ = &GetInterimLeafByName("B0_FitPVConst_PV_X_flat");
-  vertex_y_ = &GetInterimLeafByName("B0_FitPVConst_PV_Y_flat");
-  vertex_z_ = &GetInterimLeafByName("B0_FitPVConst_PV_Z_flat");
-  vertex_xvar_ = &GetInterimLeafByName("B0_FitPVConst_PV_XVAR_flat");
-  vertex_yvar_ = &GetInterimLeafByName("B0_FitPVConst_PV_YVAR_flat");
-  vertex_zvar_ = &GetInterimLeafByName("B0_FitPVConst_PV_ZVAR_flat");
-  vertex_true_x_ = &GetInterimLeafByName("B0_TRUEORIGINVERTEX_X");
-  vertex_true_y_ = &GetInterimLeafByName("B0_TRUEORIGINVERTEX_Y");
-  vertex_true_z_ = &GetInterimLeafByName("B0_TRUEORIGINVERTEX_Z");
+  pv_x_ = &GetInterimLeafByName("B0_FitPVConst_PV_X_flat");
+  pv_y_ = &GetInterimLeafByName("B0_FitPVConst_PV_Y_flat");
+  pv_z_ = &GetInterimLeafByName("B0_FitPVConst_PV_Z_flat");
+  pv_x_var_ = &GetInterimLeafByName("B0_FitPVConst_PV_XVAR_flat");
+  pv_y_var_ = &GetInterimLeafByName("B0_FitPVConst_PV_YVAR_flat");
+  pv_z_var_ = &GetInterimLeafByName("B0_FitPVConst_PV_ZVAR_flat");
+  pv_true_x_ = &GetInterimLeafByName("B0_TRUEORIGINVERTEX_X");
+  pv_true_y_ = &GetInterimLeafByName("B0_TRUEORIGINVERTEX_Y");
+  pv_true_z_ = &GetInterimLeafByName("B0_TRUEORIGINVERTEX_Z");
 
   if(LeafExists("B0_BKGCAT")) {
     std::cout << "This is an MC Sample " << std::endl;
     if(LeafExists("B0_FitPVConst_PV_ZVAR_flat")){
       sinfo << "B0_FitPVConst_PV_ZVAR_flat" << endmsg;
-      vertex_res_x_ = &CreateDoubleLeaf("vertex_res_x");
-      vertex_res_y_ = &CreateDoubleLeaf("vertex_res_y");
-      vertex_res_z_ = &CreateDoubleLeaf("vertex_res_z");
-      vertex_res_x_->Add(*vertex_x_, *vertex_true_x_, 1., -1.);
-      vertex_res_y_->Add(*vertex_y_, *vertex_true_y_, 1., -1.);
-      vertex_res_z_->Add(*vertex_z_, *vertex_true_z_, 1., -1.);
-
-      vertex_pull_x_ = &CreateDoubleLeaf("vertex_pull_x");
-      vertex_pull_y_ = &CreateDoubleLeaf("vertex_pull_y");
-      vertex_pull_z_ = &CreateDoubleLeaf("vertex_pull_z");
-      vertex_pull_x_val_ = (Double_t*)vertex_pull_x_->branch_address();
-      vertex_pull_y_val_ = (Double_t*)vertex_pull_y_->branch_address();
-      vertex_pull_z_val_ = (Double_t*)vertex_pull_z_->branch_address();
+      pv_res_x_ = &CreateDoubleLeaf("pv_res_x");
+      pv_res_y_ = &CreateDoubleLeaf("pv_res_y");
+      pv_res_z_ = &CreateDoubleLeaf("pv_res_z");
+      pv_pull_x_ = &CreateDoubleLeaf("pv_pull_x");
+      pv_pull_y_ = &CreateDoubleLeaf("pv_pull_y");
+      pv_pull_z_ = &CreateDoubleLeaf("pv_pull_z");
+      pv_res_x_val_ = (Double_t*)pv_res_x_->branch_address();
+      pv_res_y_val_ = (Double_t*)pv_res_y_->branch_address();
+      pv_res_z_val_ = (Double_t*)pv_res_z_->branch_address();
+      pv_pull_x_val_ = (Double_t*)pv_pull_x_->branch_address();
+      pv_pull_y_val_ = (Double_t*)pv_pull_y_->branch_address();
+      pv_pull_z_val_ = (Double_t*)pv_pull_z_->branch_address();
       //Filled in UpdateSpecialBranches
     } else {
       sinfo << "B0_FitPVConst_PV_ZVAR_flat" << endmsg;
@@ -186,13 +186,13 @@ void WrongPVReducer::UpdateSpecialLeaves(){
     *out_value_ = min_ip_chi2;
   }
 
-  if(vertex_pull_z_) {
-    vertex_res_x_->UpdateValue();
-    vertex_res_y_->UpdateValue();
-    vertex_res_z_->UpdateValue();
-    *vertex_pull_x_val_ = vertex_res_x_->GetValue()/sqrt(vertex_xvar_->GetValue()); 
-    *vertex_pull_y_val_ = vertex_res_y_->GetValue()/sqrt(vertex_yvar_->GetValue());
-    *vertex_pull_z_val_ = vertex_res_z_->GetValue()/sqrt(vertex_zvar_->GetValue()); 
+  if(pv_pull_z_) {
+    *pv_res_x_ = pv_x_->GetValue() - pv_true_x_->GetValue();
+    *pv_res_y_ = pv_y_->GetValue() - pv_true_y_->GetValue();
+    *pv_res_z_ = pv_z_->GetValue() - pv_true_z_->GetValue();
+    *pv_pull_x_val_ = pv_res_x_->GetValue()/sqrt(pv_x_var_->GetValue());
+    *pv_pull_y_val_ = pv_res_y_->GetValue()/sqrt(pv_y_var_->GetValue());
+    *pv_pull_z_val_ = pv_res_z_->GetValue()/sqrt(pv_z_var_->GetValue()); 
   }
 
 }
