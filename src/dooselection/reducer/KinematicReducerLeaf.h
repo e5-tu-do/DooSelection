@@ -153,6 +153,40 @@ class KinematicReducerLeaf : public ReducerLeaf<T> {
                                                 const ReducerLeaf<T10>& d3_m);
   
   /**
+   *  @brief Use three fixed mass daughters to generate a mother mass
+   *
+   *  Based on momenta leaves and fixed masses of three daughters, a
+   *  new mass will be calculated for this leaf, representing a three body decay
+   *  into these three particles. This function sets all necessary information.
+   *
+   *  @param d1_px leaf to daughter 1 px
+   *  @param d1_py leaf to daughter 1 py
+   *  @param d1_pz leaf to daughter 1 pz
+   *  @param d1_m daughter 1 fixed mass
+   *  @param d2_px leaf to daughter 2 px
+   *  @param d2_py leaf to daughter 2 py
+   *  @param d2_pz leaf to daughter 2 pz
+   *  @param d2_m daughter 2 fixed mass
+   *  @param d3_px leaf to daughter 3 px
+   *  @param d3_py leaf to daughter 3 py
+   *  @param d3_pz leaf to daughter 3 pz
+   *  @param d3_m daughter 3 fixed mass
+   */
+  template<class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9>
+  void FixedMassDaughtersThreeBodyDecayMotherMass(const ReducerLeaf<T1>& d1_px,
+                                                const ReducerLeaf<T2>& d1_py,
+                                                const ReducerLeaf<T3>& d1_pz,
+                                                double d1_m,
+                                                const ReducerLeaf<T4>& d2_px,
+                                                const ReducerLeaf<T5>& d2_py,
+                                                const ReducerLeaf<T6>& d2_pz,
+                                                double d2_m,
+                                                const ReducerLeaf<T7>& d3_px,
+                                                const ReducerLeaf<T8>& d3_py,
+                                                const ReducerLeaf<T9>& d3_pz,
+                                                double d3_m);
+
+  /**
    *  @brief Use four fixed mass daughters to generate a mother mass
    *
    *  Based on momenta leaves and fixed masses of four daughters, a new mass 
@@ -268,6 +302,31 @@ bool KinematicReducerLeaf<T>::UpdateValue() {
           daughters_variable_mass_[0].leaf_pz_->GetValue(),
           daughters_variable_mass_[0].leaf_m_->GetValue());
     matched = true;
+  } else if (daughters_fixed_mass_.size() == 3 && daughters_variable_mass_.empty()) {
+    daughters_fixed_mass_[0].leaf_px_->UpdateValue();
+    daughters_fixed_mass_[0].leaf_py_->UpdateValue();
+    daughters_fixed_mass_[0].leaf_pz_->UpdateValue();
+    daughters_fixed_mass_[1].leaf_px_->UpdateValue();
+    daughters_fixed_mass_[1].leaf_py_->UpdateValue();
+    daughters_fixed_mass_[1].leaf_pz_->UpdateValue();
+    daughters_fixed_mass_[2].leaf_px_->UpdateValue();
+    daughters_fixed_mass_[2].leaf_py_->UpdateValue();
+    daughters_fixed_mass_[2].leaf_pz_->UpdateValue();
+
+    *(this->branch_address_templ_) = MotherThreeBodyDecayMass(
+          daughters_fixed_mass_[0].leaf_px_->GetValue(),
+          daughters_fixed_mass_[0].leaf_py_->GetValue(),
+          daughters_fixed_mass_[0].leaf_pz_->GetValue(),
+          daughters_fixed_mass_[0].m_,
+          daughters_fixed_mass_[1].leaf_px_->GetValue(),
+          daughters_fixed_mass_[1].leaf_py_->GetValue(),
+          daughters_fixed_mass_[1].leaf_pz_->GetValue(),
+          daughters_fixed_mass_[1].m_,
+          daughters_fixed_mass_[2].leaf_px_->GetValue(),
+          daughters_fixed_mass_[2].leaf_py_->GetValue(),
+          daughters_fixed_mass_[2].leaf_pz_->GetValue(),
+          daughters_fixed_mass_[2].m_);
+    matched = true;
   } else if (daughters_fixed_mass_.size() == 4 && daughters_variable_mass_.size() == 0) {
     daughters_fixed_mass_[0].leaf_px_->UpdateValue();
     daughters_fixed_mass_[0].leaf_py_->UpdateValue();
@@ -333,7 +392,7 @@ void KinematicReducerLeaf<T>::FixedMassDaughtersTwoBodyDecayMotherMass(
   daughters_fixed_mass_[0].leaf_py_->branch_address_ = d1_py.branch_address();
   daughters_fixed_mass_[0].leaf_pz_->branch_address_ = d1_pz.branch_address();
   
-   daughters_fixed_mass_.push_back(KinematicDaughterPropertiesFixedMass<T>(
+  daughters_fixed_mass_.push_back(KinematicDaughterPropertiesFixedMass<T>(
       new ReducerLeaf<T>(d2_px.name(), d2_px.title(), d2_px.type(), d2_px.tree()),
       new ReducerLeaf<T>(d2_py.name(), d2_py.title(), d2_py.type(), d2_py.tree()),
       new ReducerLeaf<T>(d2_pz.name(), d2_pz.title(), d2_pz.type(), d2_pz.tree()),
@@ -397,6 +456,58 @@ void KinematicReducerLeaf<T>::FixedMassDaughtersThreeBodyDecayMotherMass(const R
   daughters_variable_mass_[0].leaf_m_->branch_address_  = d3_m.branch_address();
 }
 
+template <class T> template<class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9>
+void KinematicReducerLeaf<T>::FixedMassDaughtersThreeBodyDecayMotherMass(const ReducerLeaf<T1>& d1_px,
+                                                const ReducerLeaf<T2>& d1_py,
+                                                const ReducerLeaf<T3>& d1_pz,
+                                                double d1_m,
+                                                const ReducerLeaf<T4>& d2_px,
+                                                const ReducerLeaf<T5>& d2_py,
+                                                const ReducerLeaf<T6>& d2_pz,
+                                                double d2_m,
+                                                const ReducerLeaf<T7>& d3_px,
+                                                const ReducerLeaf<T8>& d3_py,
+                                                const ReducerLeaf<T9>& d3_pz,
+                                                double d3_m) {
+  using namespace doocore::io;
+
+  sout  << "Leaf " << this->name() << ": kinematic combination of ("
+        << d1_px.name() << ", " << d1_py.name() << ", " << d1_pz.name() << ", mass: " << d1_m << ") and ("
+        << d2_px.name() << ", " << d2_py.name() << ", " << d2_pz.name() << ", mass: " << d2_m << ") and ("
+        << d3_px.name() << ", " << d3_py.name() << ", " << d3_pz.name() << ", mass: " << d3_m << ")." << endmsg;
+
+  EmptyDependantVectors();
+  daughters_fixed_mass_.push_back(KinematicDaughterPropertiesFixedMass<T>(
+      new ReducerLeaf<T>(d1_px.name(), d1_px.title(), d1_px.type(), d1_px.tree()),
+      new ReducerLeaf<T>(d1_py.name(), d1_py.title(), d1_py.type(), d1_py.tree()),
+      new ReducerLeaf<T>(d1_pz.name(), d1_pz.title(), d1_pz.type(), d1_pz.tree()),
+      d1_m));
+
+  daughters_fixed_mass_[0].leaf_px_->branch_address_ = d1_px.branch_address();
+  daughters_fixed_mass_[0].leaf_py_->branch_address_ = d1_py.branch_address();
+  daughters_fixed_mass_[0].leaf_pz_->branch_address_ = d1_pz.branch_address();
+
+  daughters_fixed_mass_.push_back(KinematicDaughterPropertiesFixedMass<T>(
+      new ReducerLeaf<T>(d2_px.name(), d2_px.title(), d2_px.type(), d2_px.tree()),
+      new ReducerLeaf<T>(d2_py.name(), d2_py.title(), d2_py.type(), d2_py.tree()),
+      new ReducerLeaf<T>(d2_pz.name(), d2_pz.title(), d2_pz.type(), d2_pz.tree()),
+      d2_m));
+
+  daughters_fixed_mass_[1].leaf_px_->branch_address_ = d2_px.branch_address();
+  daughters_fixed_mass_[1].leaf_py_->branch_address_ = d2_py.branch_address();
+  daughters_fixed_mass_[1].leaf_pz_->branch_address_ = d2_pz.branch_address();
+
+  daughters_fixed_mass_.push_back(KinematicDaughterPropertiesFixedMass<T>(
+      new ReducerLeaf<T>(d3_px.name(), d3_px.title(), d3_px.type(), d3_px.tree()),
+      new ReducerLeaf<T>(d3_py.name(), d3_py.title(), d3_py.type(), d3_py.tree()),
+      new ReducerLeaf<T>(d3_pz.name(), d3_pz.title(), d3_pz.type(), d3_pz.tree()),
+      d3_m));
+
+  daughters_fixed_mass_[2].leaf_px_->branch_address_ = d3_px.branch_address();
+  daughters_fixed_mass_[2].leaf_py_->branch_address_ = d3_py.branch_address();
+  daughters_fixed_mass_[2].leaf_pz_->branch_address_ = d3_pz.branch_address();
+}
+
 template <class T> template<class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12>
 void KinematicReducerLeaf<T>::FixedMassDaughtersFourBodyDecayMotherMass(const ReducerLeaf<T1>& d1_px,
                                               const ReducerLeaf<T2>& d1_py,
@@ -433,7 +544,7 @@ void KinematicReducerLeaf<T>::FixedMassDaughtersFourBodyDecayMotherMass(const Re
   daughters_fixed_mass_[0].leaf_py_->branch_address_ = d1_py.branch_address();
   daughters_fixed_mass_[0].leaf_pz_->branch_address_ = d1_pz.branch_address();
   
-   daughters_fixed_mass_.push_back(KinematicDaughterPropertiesFixedMass<T>(
+  daughters_fixed_mass_.push_back(KinematicDaughterPropertiesFixedMass<T>(
       new ReducerLeaf<T>(d2_px.name(), d2_px.title(), d2_px.type(), d2_px.tree()),
       new ReducerLeaf<T>(d2_py.name(), d2_py.title(), d2_py.type(), d2_py.tree()),
       new ReducerLeaf<T>(d2_pz.name(), d2_pz.title(), d2_pz.type(), d2_pz.tree()),
@@ -453,7 +564,7 @@ void KinematicReducerLeaf<T>::FixedMassDaughtersFourBodyDecayMotherMass(const Re
   daughters_fixed_mass_[2].leaf_py_->branch_address_ = d3_py.branch_address();
   daughters_fixed_mass_[2].leaf_pz_->branch_address_ = d3_pz.branch_address();
   
-   daughters_fixed_mass_.push_back(KinematicDaughterPropertiesFixedMass<T>(
+  daughters_fixed_mass_.push_back(KinematicDaughterPropertiesFixedMass<T>(
       new ReducerLeaf<T>(d4_px.name(), d4_px.title(), d4_px.type(), d4_px.tree()),
       new ReducerLeaf<T>(d4_py.name(), d4_py.title(), d4_py.type(), d4_py.tree()),
       new ReducerLeaf<T>(d4_pz.name(), d4_pz.title(), d4_pz.type(), d4_pz.tree()),
