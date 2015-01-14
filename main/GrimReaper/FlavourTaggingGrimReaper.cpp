@@ -155,6 +155,7 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
     cat_tagged_os_with_nnet_kaon_xor_ss_pion_value_(nullptr),
     cat_tagged_ss_pion_calibrated_value_(nullptr),
     cat_tagged_ss_comb_value_(nullptr),
+    os_cutoff_(true),
     head_("")
   {}
   virtual ~TaggingRdcr(){}
@@ -298,17 +299,22 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
   Int_t* cat_tagged_ss_pion_calibrated_value_;
   Int_t* cat_tagged_ss_comb_value_;
 
+  // super-duper ugly fix to test eta_os<0.48 cut-off
+  bool os_cutoff_;
+
   // head name
   std::string head_;
 };
 
 void TaggingRdcr::CreateSpecialBranches(){
+  std::string cutoff_appendix = "";
+  if (os_cutoff_) cutoff_appendix = "_CutOff";
   // ______________________________________________________________________________________
   // Create new leaves
   // tag
-  var_tag_os_std_comb_leaf_                           = &CreateIntLeaf("obsTagOS_StdComb");            // 1,-1,0 for std combination
-  var_tag_os_std_comb_nozero_leaf_                    = &CreateIntLeaf("obsTagOS_StdComb_NoZero");     // no zero tag but 1 for untagged
-  var_tag_os_std_comb_babar_leaf_                     = &CreateIntLeaf("obsTagOS_StdComb_BaBar");      // see two above, tag flipped
+  var_tag_os_std_comb_leaf_                           = &CreateIntLeaf("obsTagOS_StdComb"+cutoff_appendix);           // 1,-1,0 for std combination
+  var_tag_os_std_comb_nozero_leaf_                    = &CreateIntLeaf("obsTagOS_StdComb"+cutoff_appendix+"_NoZero"); // no zero tag but 1 for untagged
+  var_tag_os_std_comb_babar_leaf_                     = &CreateIntLeaf("obsTagOS_StdComb"+cutoff_appendix+"_BaBar");  // see two above, tag flipped
   var_tag_os_nozero_leaf_                             = &CreateIntLeaf("obsTagOS_NoZero");            // no zero tag but 1 for untagged
   var_tag_ss_pion_nozero_leaf_                        = &CreateIntLeaf("obsTagSSPion_NoZero");        // no zero tag but 1 for untagged
   var_tag_os_ss_pion_leaf_                            = &CreateIntLeaf("obsTagOSSSPion");             // OS if excl OS, SSPion if excl SSPion, OS+SSPion combination if both, 0 otherwise
@@ -320,9 +326,9 @@ void TaggingRdcr::CreateSpecialBranches(){
   var_tag_exclusive_os_ss_pion_leaf_                  = &CreateIntLeaf("obsTagExclOSSSPion");         // OS if excl OS, OS+SSPion combination if SSPion tag available, 0 otherwise
   var_tag_exclusive_os_ss_pion_babar_leaf_            = &CreateIntLeaf("obsTagExclOSSSPion_BaBar");   // see above, tag flipped
   var_tag_exclusive_os_ss_pion_nozero_leaf_           = &CreateIntLeaf("obsTagExclOSSSPion_NoZero");  // see above, no zero tag but 1 for untagged
-  var_tag_exclusive_os_std_comb_ss_pion_leaf_         = &CreateIntLeaf("obsTagExclOSSSPion_StdComb");         // OS if excl OS, OS+SSPion combination if SSPion tag available, 0 otherwise
-  var_tag_exclusive_os_std_comb_ss_pion_babar_leaf_   = &CreateIntLeaf("obsTagExclOSSSPion_StdComb_BaBar");   // see above, tag flipped
-  var_tag_exclusive_os_std_comb_ss_pion_nozero_leaf_  = &CreateIntLeaf("obsTagExclOSSSPion_StdComb_NoZero");  // see above, no zero tag but 1 for untagged
+  var_tag_exclusive_os_std_comb_ss_pion_leaf_         = &CreateIntLeaf("obsTagExclOSSSPion_StdComb"+cutoff_appendix);            // OS if excl OS, OS+SSPion combination if SSPion tag available, 0 otherwise
+  var_tag_exclusive_os_std_comb_ss_pion_babar_leaf_   = &CreateIntLeaf("obsTagExclOSSSPion_StdComb"+cutoff_appendix+"_BaBar");   // see above, tag flipped
+  var_tag_exclusive_os_std_comb_ss_pion_nozero_leaf_  = &CreateIntLeaf("obsTagExclOSSSPion_StdComb"+cutoff_appendix+"_NoZero");  // see above, no zero tag but 1 for untagged
   var_tag_os_comb_with_nnet_kaon_leaf_                = &CreateIntLeaf("obsTagOSwNNKaon");
   var_tag_os_comb_with_nnet_kaon_babar_leaf_          = &CreateIntLeaf("obsTagOSwNNKaon_BaBar");
   var_tag_ss_pion_calibrated_leaf_                    = &CreateIntLeaf("obsTagSSPion_TupleCalib_NoZero");    // tag after foreseen calibration on tuple level
@@ -330,23 +336,23 @@ void TaggingRdcr::CreateSpecialBranches(){
   var_tag_ss_comb_nozero_leaf_                        = &CreateIntLeaf("obsTagSS_NoZero");            // SS combination of pion and proton tagger
   var_tag_ss_comb_babar_leaf_                         = &CreateIntLeaf("obsTagSS_BaBar");             // 
   // eta      
-  var_tag_eta_os_std_comb_leaf_                       = &CreateDoubleLeaf("obsEtaOS_StdComb");
+  var_tag_eta_os_std_comb_leaf_                       = &CreateDoubleLeaf("obsEtaOS_StdComb"+cutoff_appendix);
   var_tag_eta_os_ss_pion_leaf_                        = &CreateDoubleLeaf("obsEtaOSSSPion");          //
   var_tag_eta_os_exclusive_ss_pion_leaf_              = &CreateDoubleLeaf("obsEtaOSExclSSPion");      //  same as corresponding tag decision
   var_tag_eta_exclusive_os_ss_pion_leaf_              = &CreateDoubleLeaf("obsEtaExclOSSSPion");      //
-  var_tag_eta_exclusive_os_std_comb_ss_pion_leaf_     = &CreateDoubleLeaf("obsEtaExclOSSSPion_StdComb");
+  var_tag_eta_exclusive_os_std_comb_ss_pion_leaf_     = &CreateDoubleLeaf("obsEtaExclOSSSPion_StdComb"+cutoff_appendix);
   var_tag_eta_os_comb_with_nnet_kaon_leaf_            = &CreateDoubleLeaf("obsEtaOSwNNKaon");
   var_tag_eta_ss_pion_calibrated_leaf_                = &CreateDoubleLeaf("obsEtaSSPion_TupleCalib"); // mistag after foreseen calibration on tuple level
   var_tag_eta_ss_comb_leaf_                           = &CreateDoubleLeaf("obsEtaSS");
   // cat tagged     
-  cat_tagged_os_std_comb_leaf_                        = &CreateIntLeaf("catTaggedOS_StdComb");        // 0 for untagged, 1 for tagged
+  cat_tagged_os_std_comb_leaf_                        = &CreateIntLeaf("catTaggedOS_StdComb"+cutoff_appendix);        // 0 for untagged, 1 for tagged
   cat_tagged_os_or_ss_pion_leaf_                      = &CreateIntLeaf("catTaggedOSorSSPion");        // 0 for untagged, 1 for tagged
   cat_tagged_os_xor_ss_pion_leaf_                     = &CreateIntLeaf("catTaggedOSxorSSPion");       // 0 for untagged, 1 for OS tag, -1 for SSPion tag
   cat_tagged_os_ss_pion_leaf_                         = &CreateIntLeaf("catTaggedOSSSPion");          // 0 for untagged, 1 for excl. OS tag, -1 for excl. SSPion tag, 10 for combination of OS and SSPion
-  cat_tagged_os_std_comb_ss_pion_calibrated_leaf_     = &CreateIntLeaf("catTaggedOSSSPion_StdComb_TupleCalib"); // 0 for untagged, 1 for excl. OS tag, -1 for excl. SSPion tag, 10 for combination of OS and SSPion
+  cat_tagged_os_std_comb_ss_pion_calibrated_leaf_     = &CreateIntLeaf("catTaggedOSSSPion_StdComb"+cutoff_appendix+"_TupleCalib"); // 0 for untagged, 1 for excl. OS tag, -1 for excl. SSPion tag, 10 for combination of OS and SSPion
   cat_tagged_os_exclusive_ss_pion_leaf_               = &CreateIntLeaf("catTaggedOSExclSSPion");      // 0 for untagged, 1 for (OS&&SSPion)||OS tag, -1 for SSPion excl. 
   cat_tagged_exclusive_os_ss_pion_leaf_               = &CreateIntLeaf("catTaggedExclOSSSPion");      // 0 for untagged, 1 for excl. OS tag, -1 for (OS&&SSPion)||SSPion tag
-  cat_tagged_exclusive_os_std_comb_ss_pion_leaf_      = &CreateIntLeaf("catTaggedExclOSSSPion_StdComb");  // 0 for untagged, 1 for excl. OS tag, -1 for (OS&&SSPion)||SSPion tag (for own std combination)
+  cat_tagged_exclusive_os_std_comb_ss_pion_leaf_      = &CreateIntLeaf("catTaggedExclOSSSPion_StdComb"+cutoff_appendix);  // 0 for untagged, 1 for excl. OS tag, -1 for (OS&&SSPion)||SSPion tag (for own std combination)
   cat_tagged_os_comb_with_nnet_kaon_leaf_             = &CreateIntLeaf("catTaggedOSwNNKaon");         // 0 for untagged, 1 for tagged
   cat_tagged_ss_pion_calibrated_leaf_                 = &CreateIntLeaf("catTaggedSSPion_TupleCalib"); // 0 for untagged, 1 for tagged
   cat_tagged_ss_comb_leaf_                            = &CreateIntLeaf("catTaggedSS");
@@ -607,6 +613,9 @@ void TaggingRdcr::UpdateSpecialLeaves(){
   // calibration for Reco14 (2011 and 2012)
   // see Stefanias email 20140523
   double m_ProbMin_OS = 0.5;
+  if (os_cutoff_){
+    m_ProbMin_OS = 0.48;
+  }
   double m_P0_Cal_OS = 0.390;
   double m_P1_Cal_OS = 0.899;
   double m_Eta_Cal_OS = 0.365;
