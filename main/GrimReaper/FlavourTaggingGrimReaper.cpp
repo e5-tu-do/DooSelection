@@ -157,7 +157,9 @@ class TaggingRdcr : virtual public dooselection::reducer::Reducer {
     cat_tagged_ss_comb_value_(nullptr),
     os_cutoff_(true),
     head_("")
-  {}
+  {
+    if (os_cutoff_) doocore::io::swarn << "-warning- \t" << "FlavourTaggingGrimReaper \t" << "Applied OS mistag cut-off!" << doocore::io::endmsg;
+  }
   virtual ~TaggingRdcr(){}
   void set_head(const std::string& head){head_ = head;}
  protected:
@@ -614,7 +616,7 @@ void TaggingRdcr::UpdateSpecialLeaves(){
   // see Stefanias email 20140523
   double m_ProbMin_OS = 0.5;
   if (os_cutoff_){
-    m_ProbMin_OS = 0.48;
+    m_ProbMin_OS = 0.52; // this is 1 - eta
   }
   double m_P0_Cal_OS = 0.390;
   double m_P1_Cal_OS = 0.899;
