@@ -30,6 +30,21 @@ class WrongPVReducer : virtual public dooselection::reducer::Reducer {
     in_leaf_name_("B0_FitDaughtersPVConst_J_psi_1S_IPCHI2"),
     in_leaf_idx_pv_name_("idxPV"),
     out_leaf_name_("varJpsiMinIPCHI2anyPV"),
+    pv_x_(nullptr),
+    pv_y_(nullptr),
+    pv_z_(nullptr),
+    pv_x_var_(nullptr),
+    pv_y_var_(nullptr),
+    pv_z_var_(nullptr),
+    pv_res_x_(nullptr),
+    pv_res_y_(nullptr),
+    pv_res_z_(nullptr),
+    pv_pull_x_(nullptr),
+    pv_pull_y_(nullptr),
+    pv_pull_z_(nullptr),
+    pv_pull_x_val_(nullptr),
+    pv_pull_y_val_(nullptr),
+    pv_pull_z_val_(nullptr),
     debug_mode_(false)
   {}
   virtual ~WrongPVReducer(){}
@@ -47,11 +62,34 @@ class WrongPVReducer : virtual public dooselection::reducer::Reducer {
   Float_t*                                            in_value_flat_;
   Int_t*                                              in_value_idx_pv_; 
   
+  const dooselection::reducer::ReducerLeaf<Float_t>*  pv_x_;
+  const dooselection::reducer::ReducerLeaf<Float_t>*  pv_y_;
+  const dooselection::reducer::ReducerLeaf<Float_t>*  pv_z_;
+  const dooselection::reducer::ReducerLeaf<Float_t>*  pv_x_var_;
+  const dooselection::reducer::ReducerLeaf<Float_t>*  pv_y_var_;
+  const dooselection::reducer::ReducerLeaf<Float_t>*  pv_z_var_;
+  const dooselection::reducer::ReducerLeaf<Float_t>*  pv_true_x_;
+  const dooselection::reducer::ReducerLeaf<Float_t>*  pv_true_y_;
+  const dooselection::reducer::ReducerLeaf<Float_t>*  pv_true_z_;
+
   // leaves to write
   dooselection::reducer::ReducerLeaf<Double_t>* out_leaf_;
   Double_t*                                     out_value_;
 
-  // 
+  dooselection::reducer::ReducerLeaf<Double_t>* pv_res_x_;
+  dooselection::reducer::ReducerLeaf<Double_t>* pv_res_y_;
+  dooselection::reducer::ReducerLeaf<Double_t>* pv_res_z_;
+  dooselection::reducer::ReducerLeaf<Double_t>* pv_pull_x_;
+  dooselection::reducer::ReducerLeaf<Double_t>* pv_pull_y_;
+  dooselection::reducer::ReducerLeaf<Double_t>* pv_pull_z_;
+  
+  Double_t* pv_res_x_val_;
+  Double_t* pv_res_y_val_;
+  Double_t* pv_res_z_val_;
+  Double_t* pv_pull_x_val_;
+  Double_t* pv_pull_y_val_;
+  Double_t* pv_pull_z_val_;
+
   std::string in_leaf_name_;
   std::string in_leaf_idx_pv_name_;
   std::string out_leaf_name_;
@@ -73,6 +111,40 @@ void WrongPVReducer::CreateSpecialBranches(){
   in_value_         = (Float_t*)in_leaf_->branch_address();
   in_value_flat_    = (Float_t*)in_leaf_flat_->branch_address();
   in_value_idx_pv_  = (Int_t*)in_leaf_idx_pv_->branch_address();
+
+  pv_x_ = &GetInterimLeafByName("B0_FitPVConst_PV_X_flat");
+  pv_y_ = &GetInterimLeafByName("B0_FitPVConst_PV_Y_flat");
+  pv_z_ = &GetInterimLeafByName("B0_FitPVConst_PV_Z_flat");
+  pv_x_var_ = &GetInterimLeafByName("B0_FitPVConst_PV_XVAR_flat");
+  pv_y_var_ = &GetInterimLeafByName("B0_FitPVConst_PV_YVAR_flat");
+  pv_z_var_ = &GetInterimLeafByName("B0_FitPVConst_PV_ZVAR_flat");
+  pv_true_x_ = &GetInterimLeafByName("B0_TRUEORIGINVERTEX_X");
+  pv_true_y_ = &GetInterimLeafByName("B0_TRUEORIGINVERTEX_Y");
+  pv_true_z_ = &GetInterimLeafByName("B0_TRUEORIGINVERTEX_Z");
+
+  if(LeafExists("B0_BKGCAT")) {
+    std::cout << "This is an MC Sample " << std::endl;
+    if(LeafExists("B0_FitPVConst_PV_ZVAR_flat")){
+      sinfo << "B0_FitPVConst_PV_ZVAR_flat" << endmsg;
+      pv_res_x_ = &CreateDoubleLeaf("pv_res_x");
+      pv_res_y_ = &CreateDoubleLeaf("pv_res_y");
+      pv_res_z_ = &CreateDoubleLeaf("pv_res_z");
+      pv_pull_x_ = &CreateDoubleLeaf("pv_pull_x");
+      pv_pull_y_ = &CreateDoubleLeaf("pv_pull_y");
+      pv_pull_z_ = &CreateDoubleLeaf("pv_pull_z");
+      pv_res_x_val_ = (Double_t*)pv_res_x_->branch_address();
+      pv_res_y_val_ = (Double_t*)pv_res_y_->branch_address();
+      pv_res_z_val_ = (Double_t*)pv_res_z_->branch_address();
+      pv_pull_x_val_ = (Double_t*)pv_pull_x_->branch_address();
+      pv_pull_y_val_ = (Double_t*)pv_pull_y_->branch_address();
+      pv_pull_z_val_ = (Double_t*)pv_pull_z_->branch_address();
+      //Filled in UpdateSpecialBranches
+    } else {
+      sinfo << "B0_FitPVConst_PV_ZVAR_flat" << endmsg;
+    }
+  } else {
+    sinfo << "This is a Data Sample" << endmsg;
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -113,6 +185,16 @@ void WrongPVReducer::UpdateSpecialLeaves(){
     if (debug_mode_) sinfo << "Saved min IP chi2: " << min_ip_chi2 << endmsg;
     *out_value_ = min_ip_chi2;
   }
+
+  if(pv_pull_z_) {
+    *pv_res_x_ = pv_x_->GetValue() - pv_true_x_->GetValue();
+    *pv_res_y_ = pv_y_->GetValue() - pv_true_y_->GetValue();
+    *pv_res_z_ = pv_z_->GetValue() - pv_true_z_->GetValue();
+    *pv_pull_x_val_ = pv_res_x_->GetValue()/sqrt(pv_x_var_->GetValue());
+    *pv_pull_y_val_ = pv_res_y_->GetValue()/sqrt(pv_y_var_->GetValue());
+    *pv_pull_z_val_ = pv_res_z_->GetValue()/sqrt(pv_z_var_->GetValue()); 
+  }
+
 }
 
 //==============================================================================
