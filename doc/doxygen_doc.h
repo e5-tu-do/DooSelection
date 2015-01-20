@@ -141,6 +141,15 @@
  * Parameters needed: name of input file, name of input tree, name of output file,
  * name of output tree (no backslashes!), name of discriminating leaf.
  * 
+ * @section exec_FlavourTaggingCalibrationGrimReaper FlavourTaggingCalibrationGrimReaper
+ * The FlavourTaggingCalibrationGrimReaper performs a linear FT calibration for a
+ * given tagging observable
+ * 
+ * Parameters needed: name of input file, name of input tree, name of output file,
+ * name of output tree (no backslashes!), name of input tag observables,
+ * name of input eta observable, name of input tagging category, p0 calibration parameters,
+ * p1 calibration parameters, average eta calibration paramter, new observable name appendix.
+ * 
  * @section exec_FitTupleGrimReaper FitTupleGrimReaper
  * The FitTupleGrimReaper removes all leaves not matching the following regular
  * expressions: "obs.*", "var.*", "cat.*", "par.*", "idx.*", and ".*_sw"
@@ -164,6 +173,12 @@
  * 
  * Parameters needed: name of input file, name of input tree, name of output file, 
  * name of output tree (no backslashes!)
+ *
+ * @section exec_RemoveSingleBranchGrimReaper RemoveSingleBranchGrimReaper
+ * The RemoveSingleBranchGrimReaper removes a single branch.
+ *
+ * Parameters needed: name of input file, name of input tree, name of output file,
+ * name of output tree, name of the branch to remove
  *
  * @section exec_SingleCutGrimReaper SingleCutGrimReaper
  * The SingleCutGrimReaper performs a single cut.

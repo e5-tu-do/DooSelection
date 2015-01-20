@@ -53,11 +53,11 @@ void dooselection::reducer::MergeTupleReducer::ProcessInputTree() {
 
   sinfo << "MergeTupleReducer::ProcessInputTree(): Analysing events according to event identifiers." << endmsg;
 
-  long long index_tree = 0;
+  ULong64_t index_tree = 0;
   input_tree_->GetEvent(index_tree);
-  long long index_friend=0;
+  ULong64_t index_friend=0;
   doocore::io::Progress p("Event matching",num_entries);
-  for (index_friend=0; index_friend<(*it_friend)->GetEntries(); ++index_friend) {
+  for (index_friend=0; index_friend<static_cast<ULong64_t>((*it_friend)->GetEntries()); ++index_friend) {
     (*it_friend)->GetEvent(index_friend);
     
     bool entries_match = false;
@@ -66,17 +66,26 @@ void dooselection::reducer::MergeTupleReducer::ProcessInputTree() {
       entries_match = true;
       for (const std::pair<ReducerLeaf<ULong64_t>,ReducerLeaf<ULong64_t>>& identifier : event_identifiers) {
         
+        // sdebug << identifier.first.name() << ": " << identifier.first.GetValue() << " vs. " << identifier.second.GetValue() << endmsg;
+
         if (identifier.first.GetValue() != identifier.second.GetValue()) {
           entries_match = false;
         }
       }
+      // if (entries_match) {
+      //   sdebug << "  MATCH!  " << endmsg;
+      // }
       if (!entries_match) {
+        // for (const std::pair<ReducerLeaf<ULong64_t>,ReducerLeaf<ULong64_t>>& identifier : event_identifiers) {      
+        //   sdebug << "NOMATCH: " << identifier.first.name() << ": " << identifier.first.GetValue() << " vs. " << identifier.second.GetValue() << endmsg;
+        // }
+
         ++index_tree;
         if (index_tree >= num_entries_tree) break;
         input_tree_->GetEvent(index_tree);
       }
     }
-    if (index_tree >= input_tree_->GetEntries()) break;
+    if (index_tree >= static_cast<ULong64_t>(input_tree_->GetEntries())) break;
     
     if (entries_match) {
       event_mapping_.push_back(std::make_pair(index_tree, index_friend));
@@ -99,38 +108,42 @@ void dooselection::reducer::MergeTupleReducer::CreateSpecialBranches() {
   leaf_entries_matched_->SetOperation(*leaf_entries_matched_, *leaf_entries_matched_, kDoNotUpdate);
   
   for (auto pair : names_friend_leaves_equalise_) {
-    const ReducerLeaf<Float_t>& leaf_tree   = GetInterimLeafByName(pair.first.c_str());
-    const ReducerLeaf<Float_t>& leaf_friend = GetInterimLeafByName(pair.second.c_str());
-    
-    if (leaf_tree.type() != leaf_friend.type()) {
-      serr << "Error in MergeTupleReducer::CreateSpecialBranches(): Leaves to be equalised " << leaf_tree.name() << "(" << leaf_tree.type() << ") -> " << leaf_friend.name() << "(" << leaf_friend.type() << ") to not have equal types. This will most certainly go wrong" << endmsg;
-    }
-    
-    sinfo << "MergeTupleReducer::CreateSpecialBranches(): Will equalise " << leaf_tree.name() << "(" << leaf_tree.type() << ") -> " << leaf_friend.name() << "(" << leaf_friend.type() << ") for all events of the input tree." << endmsg;
-    if (leaf_tree.type() == "Int_t") {
-      branch_addresses_equalise_int_.push_back(std::make_pair((Int_t*)leaf_tree.branch_address(), (Int_t*)leaf_friend.branch_address()));
-    } else if (leaf_tree.type() == "Float_t") {
-      branch_addresses_equalise_float_.push_back(std::make_pair((Float_t*)leaf_tree.branch_address(), (Float_t*)leaf_friend.branch_address()));
-    } else if (leaf_tree.type() == "Double_t") {
-      branch_addresses_equalise_double_.push_back(std::make_pair((Double_t*)leaf_tree.branch_address(), (Double_t*)leaf_friend.branch_address()));
-    } else if (leaf_tree.type() == "UInt_t") {
-      branch_addresses_equalise_uint_.push_back(std::make_pair((UInt_t*)leaf_tree.branch_address(), (UInt_t*)leaf_friend.branch_address()));
-    } else if (leaf_tree.type() == "Bool_t") {
-      branch_addresses_equalise_bool_.push_back(std::make_pair((Bool_t*)leaf_tree.branch_address(), (Bool_t*)leaf_friend.branch_address()));
-    } else if (leaf_tree.type() == "Long64_t") {
-      branch_addresses_equalise_long_.push_back(std::make_pair((Long64_t*)leaf_tree.branch_address(), (Long64_t*)leaf_friend.branch_address()));
-    } else if (leaf_tree.type() == "Long64_t") {
-      branch_addresses_equalise_long_.push_back(std::make_pair((Long64_t*)leaf_tree.branch_address(), (Long64_t*)leaf_friend.branch_address()));
-    } else if (leaf_tree.type() == "ULong64_t") {
-      branch_addresses_equalise_ulong_.push_back(std::make_pair((ULong64_t*)leaf_tree.branch_address(), (ULong64_t*)leaf_friend.branch_address()));
-    } else if (leaf_tree.type() == "Short_t") {
-      branch_addresses_equalise_short_.push_back(std::make_pair((Short_t*)leaf_tree.branch_address(), (Short_t*)leaf_friend.branch_address()));
-    } else if (leaf_tree.type() == "UShort_t") {
-      branch_addresses_equalise_ushort_.push_back(std::make_pair((UShort_t*)leaf_tree.branch_address(), (UShort_t*)leaf_friend.branch_address()));
-    } else if (leaf_tree.type() == "Char_t") {
-      branch_addresses_equalise_char_.push_back(std::make_pair((Char_t*)leaf_tree.branch_address(), (Char_t*)leaf_friend.branch_address()));
-    } else if (leaf_tree.type() == "UChar_t") {
-      branch_addresses_equalise_uchar_.push_back(std::make_pair((UChar_t*)leaf_tree.branch_address(), (UChar_t*)leaf_friend.branch_address()));
+    if (LeafExists(pair.first) && LeafExists(pair.second)) {
+      const ReducerLeaf<Float_t>& leaf_tree   = GetInterimLeafByName(pair.first.c_str());
+      const ReducerLeaf<Float_t>& leaf_friend = GetInterimLeafByName(pair.second.c_str());
+      
+      if (leaf_tree.type() != leaf_friend.type()) {
+        serr << "Error in MergeTupleReducer::CreateSpecialBranches(): Leaves to be equalised " << leaf_tree.name() << "(" << leaf_tree.type() << ") -> " << leaf_friend.name() << "(" << leaf_friend.type() << ") to not have equal types. This will most certainly go wrong" << endmsg;
+      }
+      
+      sinfo << "MergeTupleReducer::CreateSpecialBranches(): Will equalise " << leaf_tree.name() << "(" << leaf_tree.type() << ") -> " << leaf_friend.name() << "(" << leaf_friend.type() << ") for all events of the input tree." << endmsg;
+      if (leaf_tree.type() == "Int_t") {
+        branch_addresses_equalise_int_.push_back(std::make_pair((Int_t*)leaf_tree.branch_address(), (Int_t*)leaf_friend.branch_address()));
+      } else if (leaf_tree.type() == "Float_t") {
+        branch_addresses_equalise_float_.push_back(std::make_pair((Float_t*)leaf_tree.branch_address(), (Float_t*)leaf_friend.branch_address()));
+      } else if (leaf_tree.type() == "Double_t") {
+        branch_addresses_equalise_double_.push_back(std::make_pair((Double_t*)leaf_tree.branch_address(), (Double_t*)leaf_friend.branch_address()));
+      } else if (leaf_tree.type() == "UInt_t") {
+        branch_addresses_equalise_uint_.push_back(std::make_pair((UInt_t*)leaf_tree.branch_address(), (UInt_t*)leaf_friend.branch_address()));
+      } else if (leaf_tree.type() == "Bool_t") {
+        branch_addresses_equalise_bool_.push_back(std::make_pair((Bool_t*)leaf_tree.branch_address(), (Bool_t*)leaf_friend.branch_address()));
+      } else if (leaf_tree.type() == "Long64_t") {
+        branch_addresses_equalise_long_.push_back(std::make_pair((Long64_t*)leaf_tree.branch_address(), (Long64_t*)leaf_friend.branch_address()));
+      } else if (leaf_tree.type() == "Long64_t") {
+        branch_addresses_equalise_long_.push_back(std::make_pair((Long64_t*)leaf_tree.branch_address(), (Long64_t*)leaf_friend.branch_address()));
+      } else if (leaf_tree.type() == "ULong64_t") {
+        branch_addresses_equalise_ulong_.push_back(std::make_pair((ULong64_t*)leaf_tree.branch_address(), (ULong64_t*)leaf_friend.branch_address()));
+      } else if (leaf_tree.type() == "Short_t") {
+        branch_addresses_equalise_short_.push_back(std::make_pair((Short_t*)leaf_tree.branch_address(), (Short_t*)leaf_friend.branch_address()));
+      } else if (leaf_tree.type() == "UShort_t") {
+        branch_addresses_equalise_ushort_.push_back(std::make_pair((UShort_t*)leaf_tree.branch_address(), (UShort_t*)leaf_friend.branch_address()));
+      } else if (leaf_tree.type() == "Char_t") {
+        branch_addresses_equalise_char_.push_back(std::make_pair((Char_t*)leaf_tree.branch_address(), (Char_t*)leaf_friend.branch_address()));
+      } else if (leaf_tree.type() == "UChar_t") {
+        branch_addresses_equalise_uchar_.push_back(std::make_pair((UChar_t*)leaf_tree.branch_address(), (UChar_t*)leaf_friend.branch_address()));
+      }
+    } else {
+      swarn << "MergeTupleReducer::CreateSpecialBranches(): Cannot equalise " << pair.first << " -> " << pair.second << " as at least one does not exist." << endmsg;
     }
   }
 }
