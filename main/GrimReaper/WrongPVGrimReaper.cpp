@@ -27,9 +27,9 @@ class WrongPVReducer : virtual public dooselection::reducer::Reducer {
     in_value_(nullptr),
     out_leaf_(nullptr),
     out_value_(nullptr),
-    in_leaf_name_("B0_FitDaughtersPVConst_J_psi_1S_IPCHI2"),
+    in_leaf_name_(""),
     in_leaf_idx_pv_name_("idxPV"),
-    out_leaf_name_("varJpsiMinIPCHI2anyPV"),
+    out_leaf_name_(""),
     pv_x_(nullptr),
     pv_y_(nullptr),
     pv_z_(nullptr),
@@ -48,6 +48,8 @@ class WrongPVReducer : virtual public dooselection::reducer::Reducer {
     debug_mode_(false)
   {}
   virtual ~WrongPVReducer(){}
+  void set_in_leaf_name(const std::string& in_leaf_name){in_leaf_name_ = in_leaf_name;}
+  void set_out_leaf_name(const std::string& out_leaf_name){out_leaf_name_ = out_leaf_name;}
 
  protected:
   virtual void CreateSpecialBranches();
@@ -61,6 +63,13 @@ class WrongPVReducer : virtual public dooselection::reducer::Reducer {
   Float_t*                                            in_value_;
   Float_t*                                            in_value_flat_;
   Int_t*                                              in_value_idx_pv_; 
+
+  const dooselection::reducer::ReducerLeaf<Float_t>*  in_leaf_psi2s_;
+  const dooselection::reducer::ReducerLeaf<Float_t>*  in_leaf_psi2s_flat_;
+  const dooselection::reducer::ReducerLeaf<Float_t>*  in_leaf_psi2s_idx_pv_;
+  Float_t*                                            in_value_psi2s_;
+  Float_t*                                            in_value_psi2s_flat_;
+  Int_t*                                              in_value_psi2s_idx_pv_; 
   
   const dooselection::reducer::ReducerLeaf<Float_t>*  pv_x_;
   const dooselection::reducer::ReducerLeaf<Float_t>*  pv_y_;
@@ -75,6 +84,9 @@ class WrongPVReducer : virtual public dooselection::reducer::Reducer {
   // leaves to write
   dooselection::reducer::ReducerLeaf<Double_t>* out_leaf_;
   Double_t*                                     out_value_;
+
+  dooselection::reducer::ReducerLeaf<Double_t>* out_leaf_psi2s_;
+  Double_t*                                     out_value_psi2s_;
 
   dooselection::reducer::ReducerLeaf<Double_t>* pv_res_x_;
   dooselection::reducer::ReducerLeaf<Double_t>* pv_res_y_;
@@ -202,24 +214,41 @@ void WrongPVReducer::UpdateSpecialLeaves(){
 //==============================================================================
 int main(int argc, char * argv[]){
   sinfo << "-info-  \t" << "WrongPVGrimReaper \t" << "Welcome!" << endmsg;
-  std::string inputfile, inputtree, outputfile, outputtree;
-  if (argc == 5){
+  std::string inputfile, inputtree, outputfile, outputtree, mode_name;
+  if (argc == 6){
     inputfile = argv[1];
     inputtree = argv[2];
     outputfile = argv[3];
     outputtree = argv[4];
+    mode_name = argv[5];
   }
   else{
     serr << "-ERROR- \t" << "WrongPVGrimReaper \t" << "Parameters needed:" << endmsg;
-    serr << "-ERROR- \t" << "WrongPVGrimReaper \t" << "input_file_name input_tree_name output_file_name output_tree_name" << endmsg;
+    serr << "-ERROR- \t" << "WrongPVGrimReaper \t" << "input_file_name input_tree_name output_file_name output_tree_name mode_name(jpsi,psi2s)" << endmsg;
     return 1;
   }
   WrongPVReducer reducer;
+
+  std::string in_leaf_name = "";
+  std::string out_leaf_name = "";
+  if (mode_name == "jpsi"){
+    in_leaf_name = "B0_FitDaughtersPVConst_J_psi_1S_IPCHI2";
+    out_leaf_name = "varJpsiMinIPCHI2anyPV";
+  }
+  else if (mode_name == "psi2s"){
+    in_leaf_name = "B0_FitDaughtersPVConst_psi_2S_IPCHI2";
+    out_leaf_name = "varpsi2SMinIPCHI2anyPV";
+  }
+
+  sinfo << "in_leaf_name:  " << in_leaf_name << endmsg;
+  sinfo << "out_leaf_name:  " << out_leaf_name << endmsg;
 
   reducer.set_input_file_path(inputfile);
   reducer.set_input_tree_path(inputtree);
   reducer.set_output_file_path(outputfile);
   reducer.set_output_tree_path(outputtree);
+  reducer.set_in_leaf_name(in_leaf_name);
+  reducer.set_out_leaf_name(out_leaf_name);
 
   reducer.Initialize();
   reducer.Run();
