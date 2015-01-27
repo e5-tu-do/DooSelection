@@ -184,7 +184,7 @@ void TimeLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   ReducerLeaf<Double_t>* tau_true_err_leaf_ptr = NULL;
 
   if (_rdcr->LeafExists(std::get<0>(cfg)+"_FitPVConst_tau")) {
-    fit_constraints = "PVConst";
+    fit_constraints = "PV";
     tau_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("obsTime", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_tau"+flat_suffix), 1000.0);
     tau_err_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("obsTimeErr", _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_tauErr"+flat_suffix), 1000.0);
     ReducerLeaf<Double_t>& varDplusTauSignificance = _rdcr->CreateDoubleLeaf("varDplusTauSignificance", -999999.);
@@ -223,6 +223,7 @@ void TriggerLeaves(Reducer* _rdcr){
   _rdcr->CreateIntCopyLeaf("catTriggerHlt2Topo2BodyBBDTTOS", _rdcr->GetInterimLeafByName("B0_Hlt2Topo2BodyBBDTDecision_TOS"));
   _rdcr->CreateIntCopyLeaf("catTriggerHlt2Topo3BodyBBDTTOS", _rdcr->GetInterimLeafByName("B0_Hlt2Topo3BodyBBDTDecision_TOS"));
   _rdcr->CreateIntCopyLeaf("catTriggerHlt2Topo4BodyBBDTTOS", _rdcr->GetInterimLeafByName("B0_Hlt2Topo4BodyBBDTDecision_TOS"));
+  // _rdcr->CreateIntCopyLeaf("catTriggerHlt2IncPhiTOS", _rdcr->GetInterimLeafByName("B0_Hlt2IncPhiDecision_TOS"));
 
   ReducerLeaf<Int_t>& catTriggerSetTopo234bodybbdt = _rdcr->CreateIntLeaf("catTriggerSetTopo234BodyBBDT", -10);
       TCut trigger_set_topo234bodybbdt = "B0_Hlt2Topo2BodyBBDTDecision_TOS==1||B0_Hlt2Topo3BodyBBDTDecision_TOS==1||B0_Hlt2Topo4BodyBBDTDecision_TOS==1";
@@ -247,13 +248,23 @@ void VetoLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   std::string Kminus_px, Kminus_py, Kminus_pz;
 
   std::string mass_hypo_constraints = "";
-  if (_rdcr->LeafExists(std::get<0>(cfg)+"_FitPVConst_Dplus_P0_PX")){
+  if (_rdcr->LeafExists(std::get<0>(cfg)+"_FitPVConst_Dplus_PX")){
     Dplus_px    = std::get<0>(cfg)+"_FitPVConst_Dplus_PX"+flat_suffix;
     Dplus_py    = std::get<0>(cfg)+"_FitPVConst_Dplus_PY"+flat_suffix;
     Dplus_pz    = std::get<0>(cfg)+"_FitPVConst_Dplus_PZ"+flat_suffix;
     Dminus_px   = std::get<0>(cfg)+"_FitPVConst_Dminus_PX"+flat_suffix;
     Dminus_py   = std::get<0>(cfg)+"_FitPVConst_Dminus_PY"+flat_suffix;
     Dminus_pz   = std::get<0>(cfg)+"_FitPVConst_Dminus_PZ"+flat_suffix;
+  }
+  else if (_rdcr->LeafExists("Dplus_PX")){
+    Dplus_px    = "Dplus_PX";
+    Dplus_py    = "Dplus_PY";
+    Dplus_pz    = "Dplus_PZ";
+    Dminus_px   = "Dminus_PX";
+    Dminus_py   = "Dminus_PY";
+    Dminus_pz   = "Dminus_PZ";
+  }
+  if (_rdcr->LeafExists(std::get<0>(cfg)+"_FitPVConst_Dplus_P0_PX")){
     Kplus_px    = std::get<0>(cfg)+"_FitPVConst_Dminus_P2_PX"+flat_suffix;
     Kplus_py    = std::get<0>(cfg)+"_FitPVConst_Dminus_P2_PY"+flat_suffix;
     Kplus_pz    = std::get<0>(cfg)+"_FitPVConst_Dminus_P2_PZ"+flat_suffix;
@@ -275,12 +286,6 @@ void VetoLeaves(Reducer* _rdcr, cfg_tuple& cfg){
     mass_hypo_constraints = "PV";
   }
   else if (_rdcr->LeafExists("Dplus_Kminus_or_piminus_PX")){
-    Dplus_px    = "Dplus_PX";
-    Dplus_py    = "Dplus_PY";
-    Dplus_pz    = "Dplus_PZ";
-    Dminus_px   = "Dminus_PX";
-    Dminus_py   = "Dminus_PY";
-    Dminus_pz   = "Dminus_PZ";
     Kplus_px    = "Dminus_Kplus_or_piplus_PX";
     Kplus_py    = "Dminus_Kplus_or_piplus_PY";
     Kplus_pz    = "Dminus_Kplus_or_piplus_PZ";
@@ -966,25 +971,31 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   }
   // final state
   ReducerLeaf<Int_t>& catDplusFinalState = _rdcr->CreateIntLeaf("catDplusFinalState", -10);
-      catDplusFinalState.AddCondition("Kpipi","Dplus_Kminus_or_piminus_ID==-321&&Dplus_piplus_or_Kplus_One_ID==211&&Dplus_piplus_or_Kplus_Two_ID==211",1);
-      catDplusFinalState.AddCondition("pipipi","Dplus_Kminus_or_piminus_ID==-211&&Dplus_piplus_or_Kplus_One_ID==211&&Dplus_piplus_or_Kplus_Two_ID==211",2);
-      catDplusFinalState.AddCondition("KKpi","Dplus_Kminus_or_piminus_ID==-321&&((Dplus_piplus_or_Kplus_One_ID==321&&Dplus_piplus_or_Kplus_Two_ID==211)||(Dplus_piplus_or_Kplus_One_ID==211&&Dplus_piplus_or_Kplus_Two_ID==321))",3);
+      TCut  Dplus_Kpipi = TCut(TString(std::get<0>(cfg)+"_FitPVConst_Dplus_P2_ID"+flat_suffix+"==-321&&"+std::get<0>(cfg)+"_FitPVConst_Dplus_P0_ID"+flat_suffix+"==211&&"+std::get<0>(cfg)+"_FitPVConst_Dplus_P1_ID"+flat_suffix+"==211"));
+      TCut  Dplus_pipipi = TCut(TString(std::get<0>(cfg)+"_FitPVConst_Dplus_P2_ID"+flat_suffix+"==-211&&"+std::get<0>(cfg)+"_FitPVConst_Dplus_P0_ID"+flat_suffix+"==211&&"+std::get<0>(cfg)+"_FitPVConst_Dplus_P1_ID"+flat_suffix+"==211"));
+      TCut  Dplus_KKpi = TCut(TString(std::get<0>(cfg)+"_FitPVConst_Dplus_P2_ID"+flat_suffix+"==-321&&(("+std::get<0>(cfg)+"_FitPVConst_Dplus_P0_ID"+flat_suffix+"==321&&"+std::get<0>(cfg)+"_FitPVConst_Dplus_P1_ID"+flat_suffix+"==211)||("+std::get<0>(cfg)+"_FitPVConst_Dplus_P0_ID"+flat_suffix+"==211&&"+std::get<0>(cfg)+"_FitPVConst_Dplus_P1_ID"+flat_suffix+"==321))"));
+      catDplusFinalState.AddCondition("Kpipi",Dplus_Kpipi.GetTitle(),1);
+      catDplusFinalState.AddCondition("pipipi",Dplus_pipipi.GetTitle(),2);
+      catDplusFinalState.AddCondition("KKpi",Dplus_KKpi.GetTitle(),3);
 
   ReducerLeaf<Int_t>& catDminusFinalState = _rdcr->CreateIntLeaf("catDminusFinalState", -10);
-      catDminusFinalState.AddCondition("Kpipi","Dminus_Kplus_or_piplus_ID==321&&Dminus_piminus_or_Kminus_One_ID==-211&&Dminus_piminus_or_Kminus_Two_ID==-211",1);
-      catDminusFinalState.AddCondition("pipipi","Dminus_Kplus_or_piplus_ID==211&&Dminus_piminus_or_Kminus_One_ID==-211&&Dminus_piminus_or_Kminus_Two_ID==-211",2);
-      catDminusFinalState.AddCondition("KKpi","Dminus_Kplus_or_piplus_ID==321&&((Dminus_piminus_or_Kminus_One_ID==-321&&Dminus_piminus_or_Kminus_Two_ID==-211)||(Dminus_piminus_or_Kminus_One_ID==-211&&Dminus_piminus_or_Kminus_Two_ID==-321))",3);
+      TCut  Dminus_Kpipi = TCut(TString(std::get<0>(cfg)+"_FitPVConst_Dminus_P2_ID"+flat_suffix+"==321&&"+std::get<0>(cfg)+"_FitPVConst_Dminus_P0_ID"+flat_suffix+"==-211&&"+std::get<0>(cfg)+"_FitPVConst_Dminus_P1_ID"+flat_suffix+"==-211"));
+      TCut  Dminus_pipipi = TCut(TString(std::get<0>(cfg)+"_FitPVConst_Dminus_P2_ID"+flat_suffix+"==211&&"+std::get<0>(cfg)+"_FitPVConst_Dminus_P0_ID"+flat_suffix+"==-211&&"+std::get<0>(cfg)+"_FitPVConst_Dminus_P1_ID"+flat_suffix+"==-211"));
+      TCut  Dminus_KKpi = TCut(TString(std::get<0>(cfg)+"_FitPVConst_Dminus_P2_ID"+flat_suffix+"==321&&(("+std::get<0>(cfg)+"_FitPVConst_Dminus_P0_ID"+flat_suffix+"==-321&&"+std::get<0>(cfg)+"_FitPVConst_Dminus_P1_ID"+flat_suffix+"==-211)||("+std::get<0>(cfg)+"_FitPVConst_Dminus_P0_ID"+flat_suffix+"==-211&&"+std::get<0>(cfg)+"_FitPVConst_Dminus_P1_ID"+flat_suffix+"==-321))"));
+      catDminusFinalState.AddCondition("Kpipi",Dminus_Kpipi.GetTitle(),1);
+      catDminusFinalState.AddCondition("pipipi",Dminus_pipipi.GetTitle(),2);
+      catDminusFinalState.AddCondition("KKpi",Dminus_KKpi.GetTitle(),3);
 
   ReducerLeaf<Int_t>& catDDFinalState = _rdcr->CreateIntLeaf("catDDFinalState", -10);
-      catDDFinalState.AddCondition("KpipiKpipi", "catDplusFinalState==1&&catDminusFinalState==1", 1);
-      catDDFinalState.AddCondition("Kpipipipipi", "catDplusFinalState==1&&catDminusFinalState==2", 2);
-      catDDFinalState.AddCondition("pipipiKpipi", "catDplusFinalState==2&&catDminusFinalState==1", 3);
-      catDDFinalState.AddCondition("KpipiKKpi", "catDplusFinalState==1&&catDminusFinalState==3", 4);
-      catDDFinalState.AddCondition("KKpiKpipi", "catDplusFinalState==3&&catDminusFinalState==1", 5);
-      catDDFinalState.AddCondition("pipipipipipi", "catDplusFinalState==2&&catDminusFinalState==2", 6);
-      catDDFinalState.AddCondition("pipipiKKpi", "catDplusFinalState==2&&catDminusFinalState==3", 7);
-      catDDFinalState.AddCondition("KKpipipipi", "catDplusFinalState==3&&catDminusFinalState==2", 8);
-      catDDFinalState.AddCondition("KKpiKKpi", "catDplusFinalState==3&&catDminusFinalState==3", 9);
+      catDDFinalState.AddCondition("KpipiKpipi", TString(Dplus_Kpipi && Dminus_Kpipi), 1);
+      catDDFinalState.AddCondition("Kpipipipipi", TString(Dplus_Kpipi && Dminus_pipipi), 2);
+      catDDFinalState.AddCondition("pipipiKpipi", TString(Dplus_pipipi && Dminus_Kpipi), 3);
+      catDDFinalState.AddCondition("KpipiKKpi", TString(Dplus_Kpipi && Dminus_KKpi), 4);
+      catDDFinalState.AddCondition("KKpiKpipi", TString(Dplus_KKpi && Dminus_Kpipi), 5);
+      catDDFinalState.AddCondition("pipipipipipi", TString(Dplus_pipipi && Dminus_pipipi), 6);
+      catDDFinalState.AddCondition("pipipiKKpi", TString(Dplus_pipipi && Dminus_KKpi), 7);
+      catDDFinalState.AddCondition("KKpipipipi", TString(Dplus_KKpi && Dminus_pipipi), 8);
+      catDDFinalState.AddCondition("KKpiKKpi", TString(Dplus_KKpi && Dminus_KKpi), 9);
 
   // event and run number
   _rdcr->CreateIntCopyLeaf("idxEventNumber", _rdcr->GetInterimLeafByName("eventNumber"));
@@ -1021,29 +1032,21 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   // maximal kaon track fit chi2ndof
   _rdcr->CreateDoubleLeaf("varKaonMaxTrackFitChi2ndof", -999999.).Maximum(_rdcr->GetInterimLeafByName("Dminus_Kplus_or_piplus_TRACK_CHI2NDOF"), _rdcr->GetInterimLeafByName("Dplus_Kminus_or_piminus_TRACK_CHI2NDOF"));
   // maximal pion track fit chi2ndof
-  ReducerLeaf<Double_t>& piplus_max_trackchi2 = _rdcr->CreateDoubleLeaf("varPiPlusMaxTrackFitChi2ndof", -999999.);
+  ReducerLeaf<Double_t>& piplus_max_trackchi2 = _rdcr->CreateDoubleLeaf("varPiplusMaxTrackFitChi2ndof", -999999.);
   piplus_max_trackchi2.Maximum(_rdcr->GetInterimLeafByName("Dplus_piplus_or_Kplus_One_TRACK_CHI2NDOF"), _rdcr->GetInterimLeafByName("Dplus_piplus_or_Kplus_Two_TRACK_CHI2NDOF"));
-  ReducerLeaf<Double_t>& piminus_max_trackchi2 = _rdcr->CreateDoubleLeaf("varPiMinusMaxTrackFitChi2ndof", -999999.);
+  ReducerLeaf<Double_t>& piminus_max_trackchi2 = _rdcr->CreateDoubleLeaf("varPiminusMaxTrackFitChi2ndof", -999999.);
   piminus_max_trackchi2.Maximum(_rdcr->GetInterimLeafByName("Dminus_piminus_or_Kminus_One_TRACK_CHI2NDOF"), _rdcr->GetInterimLeafByName("Dminus_piminus_or_Kminus_Two_TRACK_CHI2NDOF"));
   _rdcr->CreateDoubleLeaf("varPionMaxTrackFitChi2ndof", -999999.).Maximum(piplus_max_trackchi2, piminus_max_trackchi2);
-  // minimal kaon MinIP chi2
-  _rdcr->CreateDoubleLeaf("varKaonMinMinIPChi2", -999999.).Minimum(_rdcr->GetInterimLeafByName("Dminus_Kplus_or_piplus_MINIPCHI2"), _rdcr->GetInterimLeafByName("Dplus_Kminus_or_piminus_MINIPCHI2"));
-  // minimal pion MinIP chi2
-  ReducerLeaf<Double_t>& piplus_min_minipchi2 = _rdcr->CreateDoubleLeaf("varPiplusMinMinIPChi2", -999999.);
-  piplus_min_minipchi2.Minimum(_rdcr->GetInterimLeafByName("Dplus_piplus_or_Kplus_One_MINIPCHI2"), _rdcr->GetInterimLeafByName("Dplus_piplus_or_Kplus_Two_MINIPCHI2"));
-  ReducerLeaf<Double_t>& piminus_min_minipchi2 = _rdcr->CreateDoubleLeaf("varPiminusMinMinIPChi2", -999999.);
-  piminus_min_minipchi2.Minimum(_rdcr->GetInterimLeafByName("Dminus_piminus_or_Kminus_One_MINIPCHI2"), _rdcr->GetInterimLeafByName("Dminus_piminus_or_Kminus_Two_MINIPCHI2"));
-  _rdcr->CreateDoubleLeaf("varPionMinMinIPChi2", -999999.).Minimum(piplus_min_minipchi2, piminus_min_minipchi2);
   // sum of D daughters transverse momentum
+  ReducerLeaf<Double_t>& dplus_sum_pions_pt = _rdcr->CreateDoubleLeaf("varDplusPionsSumPT", -999999.);
+  dplus_sum_pions_pt.Add(_rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus_P0_PT"+flat_suffix), _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus_P1_PT"+flat_suffix));
   ReducerLeaf<Double_t>& dplus_sum_daughters_pt = _rdcr->CreateDoubleLeaf("varDplusDaughtersSumPT", -999999.);
-  dplus_sum_daughters_pt.Add(_rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus_P0_PT"+flat_suffix), _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus_P1_PT"+flat_suffix));
-  dplus_sum_daughters_pt.Add(dplus_sum_daughters_pt, _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus_P2_PT"+flat_suffix));
+  dplus_sum_daughters_pt.Add(dplus_sum_pions_pt, _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dplus_P2_PT"+flat_suffix));
+  ReducerLeaf<Double_t>& dminus_sum_pions_pt = _rdcr->CreateDoubleLeaf("varDminusPionsSumPT", -999999.);
+  dminus_sum_pions_pt.Add(_rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dminus_P0_PT"+flat_suffix), _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dminus_P1_PT"+flat_suffix));
   ReducerLeaf<Double_t>& dminus_sum_daughters_pt = _rdcr->CreateDoubleLeaf("varDminusDaughtersSumPT", -999999.);
-  dminus_sum_daughters_pt.Add(_rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dminus_P0_PT"+flat_suffix), _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dminus_P1_PT"+flat_suffix));
-  dminus_sum_daughters_pt.Add(dminus_sum_daughters_pt, _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dminus_P2_PT"+flat_suffix));
-  _rdcr->CreateDoubleLeaf("varDDaughtersMinSumPT", -999999.).Minimum(dminus_sum_daughters_pt, dplus_sum_daughters_pt);
-  _rdcr->CreateDoubleLeaf("varDDaughtersMaxSumPT", -999999.).Maximum(dminus_sum_daughters_pt, dplus_sum_daughters_pt);
-
+  dminus_sum_daughters_pt.Add(dminus_sum_pions_pt, _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dminus_P2_PT"+flat_suffix));
+  
   // data taking period
   ReducerLeaf<Int_t>& cat_year_leaf = _rdcr->CreateIntLeaf("catYear", 0);
     cat_year_leaf.AddCondition("2011", "GpsTime < 1.325376e+15",  2011);
@@ -1081,6 +1084,30 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
     dminus_ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDminusIPChi2", _rdcr->GetInterimLeafByName("Dminus_IPCHI2_OWNPV"));
   }
   _rdcr->CreateDoubleLeaf("varDIPChi2Minimum", -999999.).Minimum(*dplus_ip_chi2_leaf_ptr, *dminus_ip_chi2_leaf_ptr);
+  ReducerLeaf<Double_t>* Kplus_ip_chi2_leaf_ptr = NULL;
+  ReducerLeaf<Double_t>* piminus_ip_chi2_leaf_ptr = NULL;
+  ReducerLeaf<Double_t>* piminus0_ip_chi2_leaf_ptr = NULL;
+  ReducerLeaf<Double_t>* Kminus_ip_chi2_leaf_ptr = NULL;
+  ReducerLeaf<Double_t>* piplus_ip_chi2_leaf_ptr = NULL;
+  ReducerLeaf<Double_t>* piplus0_ip_chi2_leaf_ptr = NULL;
+  if (_rdcr->LeafExists("B0_FitPVConst_Dminus_P0_IPCHI2"+flat_suffix)) {
+    piminus_ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varPiminusOneIPChi2", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P0_IPCHI2"+flat_suffix));
+    piminus0_ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varPiminusTwoIPChi2", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P1_IPCHI2"+flat_suffix));
+    Kplus_ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varKplusIPChi2", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P2_IPCHI2"+flat_suffix));
+    piplus_ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varPiplusOneIPChi2", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P0_IPCHI2"+flat_suffix));
+    piplus0_ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varPiplusTwoIPChi2", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P1_IPCHI2"+flat_suffix));
+    Kminus_ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varKminusIPChi2", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P2_IPCHI2"+flat_suffix));
+  } else if (_rdcr->LeafExists("Dplus_IPCHI2_OWNPV")) {
+    piminus_ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varPiminusOneIPChi2", _rdcr->GetInterimLeafByName("Dminus_piminus_or_Kminus_One_IPCHI2_OWNPV"));
+    piminus0_ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varPiminusTwoIPChi2", _rdcr->GetInterimLeafByName("Dminus_piminus_or_Kminus_Two_IPCHI2_OWNPV"));
+    Kplus_ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varKplusIPChi2", _rdcr->GetInterimLeafByName("Dminus_Kplus_or_piplus_IPCHI2_OWNPV"));
+    piplus_ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varPiplusOneIPChi2", _rdcr->GetInterimLeafByName("Dplus_piplus_or_Kplus_One_IPCHI2_OWNPV"));
+    piplus0_ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varPiplusTwoIPChi2", _rdcr->GetInterimLeafByName("Dplus_piplus_or_Kplus_Two_IPCHI2_OWNPV"));
+    Kminus_ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varKminusIPChi2", _rdcr->GetInterimLeafByName("Dplus_Kminus_or_piminus_IPCHI2_OWNPV"));
+  }
+  _rdcr->CreateDoubleLeaf("varKaonIPChi2Minimum", -999999.).Minimum(*Kplus_ip_chi2_leaf_ptr, *Kminus_ip_chi2_leaf_ptr);
+  _rdcr->CreateDoubleLeaf("varPionOneIPChi2Minimum", -999999.).Minimum(*piplus_ip_chi2_leaf_ptr, *piminus_ip_chi2_leaf_ptr);
+  _rdcr->CreateDoubleLeaf("varPionTwoIPChi2Minimum", -999999.).Minimum(*piplus0_ip_chi2_leaf_ptr, *piminus0_ip_chi2_leaf_ptr);
 
   // Direction angle (DIRA)
   ReducerLeaf<Double_t>* dira_leaf_ptr = NULL;
@@ -1091,11 +1118,11 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
     dplus_dira_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDplusDTFDIRA", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_DIRA"+flat_suffix));
     dminus_dira_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDminusDTFDIRA", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_DIRA"+flat_suffix));
   } else if (_rdcr->LeafExists("B0_DIRA_OWNPV")) {
-    dira_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDIRAOwnPV", _rdcr->GetInterimLeafByName("B0_DIRA_OWNPV"));
+    dira_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varBDIRAOwnPV", _rdcr->GetInterimLeafByName("B0_DIRA_OWNPV"));
     dplus_dira_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDplusDIRAOwnPV", _rdcr->GetInterimLeafByName("Dplus_DIRA_OWNPV"));
     dminus_dira_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDminusDIRAOwnPV", _rdcr->GetInterimLeafByName("Dminus_DIRA_OWNPV"));
   }
-  _rdcr->CreateDoubleLeaf("varDMinDira", -999999.).Minimum(*dplus_dira_leaf_ptr, *dminus_dira_leaf_ptr);
+  _rdcr->CreateDoubleLeaf("varDMinDIRA", -999999.).Minimum(*dplus_dira_leaf_ptr, *dminus_dira_leaf_ptr);
 
   // DTF PV position
   if (_rdcr->LeafExists("B0_FitPVConst_PV_X"+flat_suffix)) _rdcr->CreateDoubleCopyLeaf("varDTFPVPosX", _rdcr->GetInterimLeafByName("B0_FitPVConst_PV_X"+flat_suffix));
@@ -1123,14 +1150,14 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   _rdcr->CreateDoubleCopyLeaf("varDminusPT", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_PT"+flat_suffix));
   _rdcr->CreateDoubleLeaf("varDMinPT", -999999.).Minimum(_rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_PT"+flat_suffix), _rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_PT"+flat_suffix));
   // grand-daughters
-  _rdcr->CreateDoubleCopyLeaf("varpiplusOneP", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P0_P"+flat_suffix));
-  _rdcr->CreateDoubleCopyLeaf("varpiplusOnePT", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P0_PT"+flat_suffix));
-  _rdcr->CreateDoubleCopyLeaf("varpiplusTwoP", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P1_P"+flat_suffix));
-  _rdcr->CreateDoubleCopyLeaf("varpiplusTwoPT", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P1_PT"+flat_suffix));
-  _rdcr->CreateDoubleCopyLeaf("varpiminusOneP", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P0_P"+flat_suffix));
-  _rdcr->CreateDoubleCopyLeaf("varpiminusOnePT", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P0_PT"+flat_suffix));
-  _rdcr->CreateDoubleCopyLeaf("varpiminusTwoP", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P1_P"+flat_suffix));
-  _rdcr->CreateDoubleCopyLeaf("varpiminusTwoPT", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P1_PT"+flat_suffix));
+  _rdcr->CreateDoubleCopyLeaf("varPiplusOneP", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P0_P"+flat_suffix));
+  _rdcr->CreateDoubleCopyLeaf("varPiplusOnePT", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P0_PT"+flat_suffix));
+  _rdcr->CreateDoubleCopyLeaf("varPiplusTwoP", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P1_P"+flat_suffix));
+  _rdcr->CreateDoubleCopyLeaf("varPiplusTwoPT", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P1_PT"+flat_suffix));
+  _rdcr->CreateDoubleCopyLeaf("varPiminusOneP", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P0_P"+flat_suffix));
+  _rdcr->CreateDoubleCopyLeaf("varPiminusOnePT", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P0_PT"+flat_suffix));
+  _rdcr->CreateDoubleCopyLeaf("varPiminusTwoP", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P1_P"+flat_suffix));
+  _rdcr->CreateDoubleCopyLeaf("varPiminusTwoPT", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P1_PT"+flat_suffix));
   _rdcr->CreateDoubleCopyLeaf("varKplusP", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P2_P"+flat_suffix));
   _rdcr->CreateDoubleCopyLeaf("varKplusPT", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P2_PT"+flat_suffix));
   _rdcr->CreateDoubleCopyLeaf("varKminusP", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P2_P"+flat_suffix));
@@ -1168,16 +1195,16 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   _rdcr->CreateDoubleLeaf("varPionMinTChi2ndof", -999999.).Minimum(varPiplusMinTChi2ndof, varPiminusMinTChi2ndof);
 
   // track match quality
-  _rdcr->CreateDoubleCopyLeaf("varKminusMatchChi2ndof", _rdcr->GetInterimLeafByName("Dplus_Kminus_or_piminus_TRACK_MatchCHI2NDOF"));
-  _rdcr->CreateDoubleCopyLeaf("varKplusMatchChi2ndof", _rdcr->GetInterimLeafByName("Dminus_Kplus_or_piplus_TRACK_MatchCHI2NDOF"));
-  _rdcr->CreateDoubleLeaf("varKaonMinMatchChi2ndof", -999999.).Minimum(_rdcr->GetInterimLeafByName("Dplus_Kminus_or_piminus_TRACK_MatchCHI2NDOF"), _rdcr->GetInterimLeafByName("Dminus_Kplus_or_piplus_TRACK_MatchCHI2NDOF"));
-  ReducerLeaf<Double_t>& varPiplusOneMatchChi2ndof = _rdcr->CreateDoubleCopyLeaf("varPiplusOneMatchChi2ndof", _rdcr->GetInterimLeafByName("Dplus_piplus_or_Kplus_One_TRACK_MatchCHI2NDOF"));
-  ReducerLeaf<Double_t>& varPiplusTwoMatchChi2ndof = _rdcr->CreateDoubleCopyLeaf("varPiplusTwoMatchChi2ndof", _rdcr->GetInterimLeafByName("Dplus_piplus_or_Kplus_Two_TRACK_MatchCHI2NDOF"));
-  ReducerLeaf<Double_t>& varPiplusMinMatchChi2ndof = _rdcr->CreateDoubleLeaf("varPiplusMinMatchChi2ndof", -999999.);
-  varPiplusMinMatchChi2ndof.Minimum(varPiplusOneMatchChi2ndof, varPiplusTwoMatchChi2ndof);
-  ReducerLeaf<Double_t>& varPiminusOneMatchChi2ndof = _rdcr->CreateDoubleCopyLeaf("varPiminusOneMatchChi2ndof", _rdcr->GetInterimLeafByName("Dminus_piminus_or_Kminus_One_TRACK_MatchCHI2NDOF"));
-  ReducerLeaf<Double_t>& varPiminusTwoMatchChi2ndof = _rdcr->CreateDoubleCopyLeaf("varPiminusTwoMatchChi2ndof", _rdcr->GetInterimLeafByName("Dminus_piminus_or_Kminus_Two_TRACK_MatchCHI2NDOF"));
-  ReducerLeaf<Double_t>& varPiminusMinMatchChi2ndof = _rdcr->CreateDoubleLeaf("varPiminusMinMatchChi2ndof", -999999.);
-  varPiminusMinMatchChi2ndof.Minimum(varPiminusOneMatchChi2ndof, varPiminusTwoMatchChi2ndof);
-  _rdcr->CreateDoubleLeaf("varPionMinMatchChi2ndof", -999999.).Minimum(varPiplusMinMatchChi2ndof, varPiminusMinMatchChi2ndof);
+  _rdcr->CreateDoubleCopyLeaf("varKminusMatchChi2", _rdcr->GetInterimLeafByName("Dplus_Kminus_or_piminus_TRACK_MatchCHI2"));
+  _rdcr->CreateDoubleCopyLeaf("varKplusMatchChi2", _rdcr->GetInterimLeafByName("Dminus_Kplus_or_piplus_TRACK_MatchCHI2"));
+  _rdcr->CreateDoubleLeaf("varKaonMinMatchChi2", -999999.).Minimum(_rdcr->GetInterimLeafByName("Dplus_Kminus_or_piminus_TRACK_MatchCHI2"), _rdcr->GetInterimLeafByName("Dminus_Kplus_or_piplus_TRACK_MatchCHI2"));
+  ReducerLeaf<Double_t>& varPiplusOneMatchChi2 = _rdcr->CreateDoubleCopyLeaf("varPiplusOneMatchChi2", _rdcr->GetInterimLeafByName("Dplus_piplus_or_Kplus_One_TRACK_MatchCHI2"));
+  ReducerLeaf<Double_t>& varPiplusTwoMatchChi2 = _rdcr->CreateDoubleCopyLeaf("varPiplusTwoMatchChi2", _rdcr->GetInterimLeafByName("Dplus_piplus_or_Kplus_Two_TRACK_MatchCHI2"));
+  ReducerLeaf<Double_t>& varPiplusMinMatchChi2 = _rdcr->CreateDoubleLeaf("varPiplusMinMatchChi2", -999999.);
+  varPiplusMinMatchChi2.Minimum(varPiplusOneMatchChi2, varPiplusTwoMatchChi2);
+  ReducerLeaf<Double_t>& varPiminusOneMatchChi2 = _rdcr->CreateDoubleCopyLeaf("varPiminusOneMatchChi2", _rdcr->GetInterimLeafByName("Dminus_piminus_or_Kminus_One_TRACK_MatchCHI2"));
+  ReducerLeaf<Double_t>& varPiminusTwoMatchChi2 = _rdcr->CreateDoubleCopyLeaf("varPiminusTwoMatchChi2", _rdcr->GetInterimLeafByName("Dminus_piminus_or_Kminus_Two_TRACK_MatchCHI2"));
+  ReducerLeaf<Double_t>& varPiminusMinMatchChi2 = _rdcr->CreateDoubleLeaf("varPiminusMinMatchChi2", -999999.);
+  varPiminusMinMatchChi2.Minimum(varPiminusOneMatchChi2, varPiminusTwoMatchChi2);
+  _rdcr->CreateDoubleLeaf("varPionMinMatchChi2", -999999.).Minimum(varPiplusMinMatchChi2, varPiminusMinMatchChi2);
 }
