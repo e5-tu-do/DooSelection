@@ -16,6 +16,7 @@ add_executable(FlavourTaggingCalibrationGrimReaper FlavourTaggingCalibrationGrim
 add_executable(FlavourTaggingGrimReaper FlavourTaggingGrimReaper.cpp)
 add_executable(TMVAGrimReaper TMVAGrimReaper.cpp)
 add_executable(WrongPVGrimReaper WrongPVGrimReaper.cpp)
+add_executable(B02DDVariablesGrimReaper B02DDVariablesGrimReaper.cpp)
 
 target_link_libraries(AddCategoryGrimReaper dsReducer ${ALL_LIBRARIES})
 target_link_libraries(SingleCutGrimReaper dsReducer ${ALL_LIBRARIES})
@@ -35,6 +36,7 @@ target_link_libraries(FlavourTaggingCalibrationGrimReaper dsReducer ${ALL_LIBRAR
 target_link_libraries(FlavourTaggingGrimReaper dsReducer ${ALL_LIBRARIES})
 target_link_libraries(TMVAGrimReaper dsReducer ${DooCore_LIBRARIES} ${ROOFIT_LIBRARIES} ${ROOT_LIBRARIES} ${Boost_LIBRARIES})
 target_link_libraries(WrongPVGrimReaper dsReducer ${DooCore_LIBRARIES} ${ROOFIT_LIBRARIES} ${ROOT_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(B02DDVariablesGrimReaper dsReducer ${ALL_LIBRARIES})
 
 install(TARGETS AddCategoryGrimReaper DESTINATION bin)
 install(TARGETS SingleCutGrimReaper DESTINATION bin)
@@ -54,3 +56,4 @@ install(TARGETS FlavourTaggingCalibrationGrimReaper DESTINATION bin)
 install(TARGETS FlavourTaggingGrimReaper DESTINATION bin)
 install(TARGETS TMVAGrimReaper DESTINATION bin)
 install(TARGETS WrongPVGrimReaper DESTINATION bin)
+install(TARGETS B02DDVariablesGrimReaper DESTINATION bin)
