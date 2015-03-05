@@ -162,16 +162,17 @@ void WrongPVReducer::UpdateSpecialLeaves(){
 
   if (debug_mode_) sinfo << "Number of PVs in event: " << nPV << ", PV index of this (B, PV)-pair: " << idxPV << " with an IP chi2: " << ip_chi2 << endmsg;
 
-  // sanity check if IP chi2 is smaller 0, set to -999
+  // sanity check if IP chi2 is smaller 0, set to -1
   if (ip_chi2 < 0){
-    *out_value_ = -999;
+    *out_value_ = -1;
   }
-  // if number of PVs is one, set to default value -1
+  // if number of PVs is one, set to default value 1e+6
   else if (nPV == 1){
-    *out_value_ = 99999;
+    *out_value_ = 1e+6;
   }
   else {
-    double min_ip_chi2 = 99999;
+    // start with a reference IP of 1e+6, this also defines the larges possible value the variable can take!
+    double min_ip_chi2 = 1e+6;
     if (debug_mode_) sinfo.increment_indent(5);
     for (unsigned int pv = 0; pv < nPV; pv++){
 
