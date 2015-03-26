@@ -16,7 +16,7 @@ add_executable(FlavourTaggingCalibrationGrimReaper FlavourTaggingCalibrationGrim
 add_executable(FlavourTaggingGrimReaper FlavourTaggingGrimReaper.cpp)
 add_executable(TMVAGrimReaper TMVAGrimReaper.cpp)
 add_executable(WrongPVGrimReaper WrongPVGrimReaper.cpp)
-add_executable(B02DDVariablesGrimReaper B02DDVariablesGrimReaper_future.cpp)
+add_executable(B02DDVariablesGrimReaper B02DDVariablesGrimReaper.cpp)
 add_executable(FlavourTaggingCombinationGrimReaper FlavourTaggingCombinationGrimReaper.cpp)
 
 target_link_libraries(AddCategoryGrimReaper dsReducer ${ALL_LIBRARIES})
