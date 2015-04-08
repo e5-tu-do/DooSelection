@@ -50,6 +50,8 @@ class TMVAClassificationReducer : virtual public Reducer {
     if (tmva_xml_file_.Length() > 0) {
       if (leaf.type() == "Float_t") {
         tmva_reader_->AddVariable(var_name, (Float_t*)leaf.branch_address());
+      } else if (LeafExists(std::string(leaf.name()+"_tmvafloatcopy"))){
+        tmva_reader_->AddVariable(var_name, (Float_t*)(GetInterimLeafByName(leaf.name()+"_tmvafloatcopy").branch_address()));
       } else {
         ReducerLeaf<Float_t>& tmva_float_copy_leaf = CreateFloatCopyLeaf(leaf.name()+"_tmvafloatcopy", leaf);
         tmva_reader_->AddVariable(var_name, (Float_t*)tmva_float_copy_leaf.branch_address());
@@ -62,6 +64,8 @@ class TMVAClassificationReducer : virtual public Reducer {
     if (tmva_xml_file_.Length() > 0) {
       if (leaf.type() == "Float_t") {
         tmva_reader_->AddSpectator(var_name, (Float_t*)leaf.branch_address());
+      } else if (LeafExists(std::string(leaf.name()+"_tmvafloatcopy"))){
+        tmva_reader_->AddSpectator(var_name, (Float_t*)(GetInterimLeafByName(leaf.name()+"_tmvafloatcopy").branch_address()));
       } else {
         ReducerLeaf<Float_t>& tmva_float_copy_leaf = CreateFloatCopyLeaf(leaf.name()+"_tmvafloatcopy", leaf);
         tmva_reader_->AddSpectator(var_name, (Float_t*)tmva_float_copy_leaf.branch_address());
