@@ -253,6 +253,13 @@ void TMVAGui( const char* fName = "TMVA.root" )
                  "Plots to monitor boosting of general classifiers (macro BoostControlPlots.C)",
                  buttonType, "Boost" );
 
+   title =Form( "(%i) FOM", ++ic );
+   ActionButton( cbar,
+                 title,
+                 Form( ".x mvaeffs.C+(\"%s\", kTRUE, \"S*S/sqrt(S+B)\")", fName ),
+                 "Plots signal and background efficiencies versus cut on classifier output (macro mvaeffs.C)",
+                 buttonType, defaultRequiredClassifier );
+
    cbar->AddSeparator();
 
    cbar->AddButton( Form( "(%i) Quit", ++ic ),   ".q", "Quit", buttonType );
