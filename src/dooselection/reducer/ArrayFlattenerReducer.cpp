@@ -100,6 +100,10 @@ void ArrayFlattenerReducer::PrepareSpecialBranches() {
   }
 }
   
+bool ArrayFlattenerReducer::FlatLeavesPassSpecialCuts() {
+  return true;
+}
+
 void ArrayFlattenerReducer::FillOutputTree() {
   if (leaves_array_length_.size() == 0) {
     FlushEvent();
@@ -124,7 +128,11 @@ void ArrayFlattenerReducer::FillOutputTree() {
         //sdebug << " " << it->first->name() << " = " << it->first->GetValue() << endmsg;
       }
       
-      FlushEvent();
+      if(FlatLeavesPassSpecialCuts()) {
+        FlushEvent();
+      } else {
+        //skip this index
+      }
     }
   }
 }
