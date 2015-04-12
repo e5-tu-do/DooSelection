@@ -192,6 +192,7 @@ void TimeLeaves(Reducer* _rdcr, cfg_tuple& cfg){
     ReducerLeaf<Double_t>& varDminusTauSignificance = _rdcr->CreateDoubleLeaf("varDminusTauSignificance", -999999.);
     varDminusTauSignificance.Divide(_rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dminus_tau"+flat_suffix), _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_FitPVConst_Dminus_tauErr"+flat_suffix));
     _rdcr->CreateDoubleLeaf("varDMinTauSignificance", -999999.).Minimum(varDplusTauSignificance, varDminusTauSignificance);
+    _rdcr->CreateDoubleLeaf("varDMaxTauSignificance", -999999.).Maximum(varDplusTauSignificance, varDminusTauSignificance);
   }
   else if (_rdcr->LeafExists(std::get<0>(cfg)+"_LOKI_DTF_CTAU")){
     fit_constraints = "LOKI";
@@ -1069,11 +1070,16 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   _rdcr->CreateDoubleLeaf("varPionMaxTrackGhostProb", -999999.).Maximum(varPiplusMaxTrackGhostProb, varPiminusMaxTrackGhostProb);
 
   // Primary vertex chi2/ndof
-  _rdcr->CreateDoubleLeaf("varPVVtxChi2ndof", -99999999.).Divide(_rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_OWNPV_CHI2"), _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_OWNPV_NDOF"));
+  ReducerLeaf<Double_t>& varPVVtxChi2ndof = _rdcr->CreateDoubleLeaf("varPVVtxChi2ndof", -99999999.);
+  varPVVtxChi2ndof.Divide(_rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_OWNPV_CHI2"), _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_OWNPV_NDOF"));
+  _rdcr->CreateDoubleLeaf("varPVVtxChi2ndof_log", -999999.).Log(varPVVtxChi2ndof);
   // Separation from PV
   _rdcr->CreateDoubleLeaf("varDMinVtxSepChi2", -99999999.).Minimum(_rdcr->GetInterimLeafByName("Dplus_LOKI_VertexSeparation_CHI2"), _rdcr->GetInterimLeafByName("Dminus_LOKI_VertexSeparation_CHI2"));
+  _rdcr->CreateDoubleLeaf("varDMaxVtxSepChi2", -99999999.).Maximum(_rdcr->GetInterimLeafByName("Dplus_LOKI_VertexSeparation_CHI2"), _rdcr->GetInterimLeafByName("Dminus_LOKI_VertexSeparation_CHI2"));
   // End vertex chi2/ndof
-  _rdcr->CreateDoubleLeaf("varBEndVtxChi2ndof", -99999999.).Divide(_rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_ENDVERTEX_CHI2"), _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_ENDVERTEX_NDOF"));
+  ReducerLeaf<Double_t>& varBEndVtxChi2ndof = _rdcr->CreateDoubleLeaf("varBEndVtxChi2ndof", -99999999.);
+  varBEndVtxChi2ndof.Divide(_rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_ENDVERTEX_CHI2"), _rdcr->GetInterimLeafByName(std::get<0>(cfg)+"_ENDVERTEX_NDOF"));
+  _rdcr->CreateDoubleLeaf("varBEndVtxChi2ndof_log", -999999.).Log(varBEndVtxChi2ndof);
   ReducerLeaf<Double_t>& varDplusEndVtxChi2ndof = _rdcr->CreateDoubleLeaf("varDplusEndVtxChi2ndof", -99999999.);
   varDplusEndVtxChi2ndof.Divide(_rdcr->GetInterimLeafByName("Dplus_ENDVERTEX_CHI2"), _rdcr->GetInterimLeafByName("Dplus_ENDVERTEX_NDOF"));
   ReducerLeaf<Double_t>& varDminusEndVtxChi2ndof = _rdcr->CreateDoubleLeaf("varDminusEndVtxChi2ndof", -99999999.);
@@ -1118,14 +1124,16 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   } else if (_rdcr->LeafExists("B0_LOKI_DTF_CHI2NDOF")) {
     dtf_chi2ndof_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDTFChi2ndof", _rdcr->GetInterimLeafByName("B0_LOKI_DTF_CHI2NDOF"));
   }
+  _rdcr->CreateDoubleLeaf("varDTFChi2ndof_log", -999999.).Log(*dtf_chi2ndof_leaf_ptr);
 
   // IP chi2
   ReducerLeaf<Double_t>* ip_chi2_leaf_ptr = NULL;
   if (_rdcr->LeafExists("B0_FitPVConst_IPCHI2"+flat_suffix)) {
-    ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDTFIPChi2", _rdcr->GetInterimLeafByName("B0_FitPVConst_IPCHI2"+flat_suffix));
+    ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varIPChi2", _rdcr->GetInterimLeafByName("B0_FitPVConst_IPCHI2"+flat_suffix));
   } else if (_rdcr->LeafExists("B0_IPCHI2_OWNPV")) {
-    ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varIPChi2OwnPV", _rdcr->GetInterimLeafByName("B0_IPCHI2_OWNPV"));
+    ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varIPChi2", _rdcr->GetInterimLeafByName("B0_IPCHI2_OWNPV"));
   }
+  _rdcr->CreateDoubleLeaf("varIPChi2_log", -999999.).Log(*ip_chi2_leaf_ptr);
   ReducerLeaf<Double_t>* dplus_ip_chi2_leaf_ptr = NULL;
   ReducerLeaf<Double_t>* dminus_ip_chi2_leaf_ptr = NULL;
   if (_rdcr->LeafExists("B0_FitPVConst_Dplus_IPCHI2"+flat_suffix)) {
@@ -1136,6 +1144,7 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
     dminus_ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDminusIPChi2", _rdcr->GetInterimLeafByName("Dminus_IPCHI2_OWNPV"));
   }
   _rdcr->CreateDoubleLeaf("varDIPChi2Minimum", -999999.).Minimum(*dplus_ip_chi2_leaf_ptr, *dminus_ip_chi2_leaf_ptr);
+  _rdcr->CreateDoubleLeaf("varDIPChi2Maximum", -999999.).Maximum(*dplus_ip_chi2_leaf_ptr, *dminus_ip_chi2_leaf_ptr);
   ReducerLeaf<Double_t>* Kplus_ip_chi2_leaf_ptr = NULL;
   ReducerLeaf<Double_t>* piminus_ip_chi2_leaf_ptr = NULL;
   ReducerLeaf<Double_t>* piminus0_ip_chi2_leaf_ptr = NULL;
@@ -1160,6 +1169,9 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   _rdcr->CreateDoubleLeaf("varKaonIPChi2Minimum", -999999.).Minimum(*Kplus_ip_chi2_leaf_ptr, *Kminus_ip_chi2_leaf_ptr);
   _rdcr->CreateDoubleLeaf("varPionOneIPChi2Minimum", -999999.).Minimum(*piplus_ip_chi2_leaf_ptr, *piminus_ip_chi2_leaf_ptr);
   _rdcr->CreateDoubleLeaf("varPionTwoIPChi2Minimum", -999999.).Minimum(*piplus0_ip_chi2_leaf_ptr, *piminus0_ip_chi2_leaf_ptr);
+  _rdcr->CreateDoubleLeaf("varKaonIPChi2Maximum", -999999.).Maximum(*Kplus_ip_chi2_leaf_ptr, *Kminus_ip_chi2_leaf_ptr);
+  _rdcr->CreateDoubleLeaf("varPionOneIPChi2Maximum", -999999.).Maximum(*piplus_ip_chi2_leaf_ptr, *piminus_ip_chi2_leaf_ptr);
+  _rdcr->CreateDoubleLeaf("varPionTwoIPChi2Maximum", -999999.).Maximum(*piplus0_ip_chi2_leaf_ptr, *piminus0_ip_chi2_leaf_ptr);
 
   // Direction angle (DIRA)
   ReducerLeaf<Double_t>* dira_leaf_ptr = NULL;
@@ -1175,6 +1187,7 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
     dminus_dira_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varDminusDIRAOwnPV", _rdcr->GetInterimLeafByName("Dminus_DIRA_OWNPV"));
   }
   _rdcr->CreateDoubleLeaf("varDMinDIRA", -999999.).Minimum(*dplus_dira_leaf_ptr, *dminus_dira_leaf_ptr);
+  _rdcr->CreateDoubleLeaf("varDMaxDIRA", -999999.).Maximum(*dplus_dira_leaf_ptr, *dminus_dira_leaf_ptr);
 
   // DTF PV position
   if (_rdcr->LeafExists("B0_FitPVConst_PV_X"+flat_suffix)) _rdcr->CreateDoubleCopyLeaf("varDTFPVPosX", _rdcr->GetInterimLeafByName("B0_FitPVConst_PV_X"+flat_suffix));
@@ -1202,6 +1215,8 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   _rdcr->CreateDoubleCopyLeaf("varDminusPT", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_PT"+flat_suffix));
   _rdcr->CreateDoubleLeaf("varDMinP", -999999.).Minimum(_rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P"+flat_suffix), _rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P"+flat_suffix));
   _rdcr->CreateDoubleLeaf("varDMinPT", -999999.).Minimum(_rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_PT"+flat_suffix), _rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_PT"+flat_suffix));
+  _rdcr->CreateDoubleLeaf("varDMaxP", -999999.).Maximum(_rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P"+flat_suffix), _rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P"+flat_suffix));
+  _rdcr->CreateDoubleLeaf("varDMaxPT", -999999.).Maximum(_rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_PT"+flat_suffix), _rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_PT"+flat_suffix));
   // grand-daughters
   _rdcr->CreateDoubleCopyLeaf("varPiplusOneP", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P0_P"+flat_suffix));
   _rdcr->CreateDoubleCopyLeaf("varPiplusOnePT", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P0_PT"+flat_suffix));
@@ -1218,49 +1233,127 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   _rdcr->CreateDoubleLeaf("varPionOneMinP", -999999.).Minimum(_rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P0_P"+flat_suffix), _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P0_P"+flat_suffix));
   _rdcr->CreateDoubleLeaf("varPionTwoMinP", -999999.).Minimum(_rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P1_P"+flat_suffix), _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P1_P"+flat_suffix));
   _rdcr->CreateDoubleLeaf("varKaonMinP", -999999.).Minimum(_rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P2_P"+flat_suffix), _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P2_P"+flat_suffix));
-  _rdcr->CreateDoubleLeaf("varPionOneMinPT", -999999.).Minimum(_rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P0_PT"+flat_suffix), _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P0_PT"+flat_suffix));
-  _rdcr->CreateDoubleLeaf("varPionTwoMinPT", -999999.).Minimum(_rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P1_PT"+flat_suffix), _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P1_PT"+flat_suffix));
-  _rdcr->CreateDoubleLeaf("varKaonMinPT", -999999.).Minimum(_rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P2_PT"+flat_suffix), _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P2_PT"+flat_suffix));
+  ReducerLeaf<Double_t>& varPionOneMinPT = _rdcr->CreateDoubleLeaf("varPionOneMinPT", -999999.);
+  varPionOneMinPT.Minimum(_rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P0_PT"+flat_suffix), _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P0_PT"+flat_suffix));
+  ReducerLeaf<Double_t>& varPionTwoMinPT = _rdcr->CreateDoubleLeaf("varPionTwoMinPT", -999999.);
+  varPionTwoMinPT.Minimum(_rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P1_PT"+flat_suffix), _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P1_PT"+flat_suffix));
+  ReducerLeaf<Double_t>& varPionMinPT = _rdcr->CreateDoubleLeaf("varPionMinPT", -999999.);
+  varPionMinPT.Minimum(varPionOneMinPT, varPionTwoMinPT);
+  ReducerLeaf<Double_t>& varKaonMinPT = _rdcr->CreateDoubleLeaf("varKaonMinPT", -999999.);
+  varKaonMinPT.Minimum(_rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P2_PT"+flat_suffix), _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P2_PT"+flat_suffix));
+  _rdcr->CreateDoubleLeaf("varHadronMinPT", -999999.).Minimum(varPionMinPT, varKaonMinPT);
+  _rdcr->CreateDoubleLeaf("varPionOneMaxP", -999999.).Maximum(_rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P0_P"+flat_suffix), _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P0_P"+flat_suffix));
+  _rdcr->CreateDoubleLeaf("varPionTwoMaxP", -999999.).Maximum(_rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P1_P"+flat_suffix), _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P1_P"+flat_suffix));
+  _rdcr->CreateDoubleLeaf("varKaonMaxP", -999999.).Maximum(_rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P2_P"+flat_suffix), _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P2_P"+flat_suffix));
+  ReducerLeaf<Double_t>& varPionOneMaxPT = _rdcr->CreateDoubleLeaf("varPionOneMaxPT", -999999.);
+  varPionOneMaxPT.Maximum(_rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P0_PT"+flat_suffix), _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P0_PT"+flat_suffix));
+  ReducerLeaf<Double_t>& varPionTwoMaxPT = _rdcr->CreateDoubleLeaf("varPionTwoMaxPT", -999999.);
+  varPionTwoMaxPT.Maximum(_rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P1_PT"+flat_suffix), _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P1_PT"+flat_suffix));
+  ReducerLeaf<Double_t>& varPionMaxPT = _rdcr->CreateDoubleLeaf("varPionMaxPT", -999999.);
+  varPionMaxPT.Maximum(varPionOneMaxPT, varPionTwoMaxPT);
+  ReducerLeaf<Double_t>& varKaonMaxPT = _rdcr->CreateDoubleLeaf("varKaonMaxPT", -999999.);
+  varKaonMaxPT.Maximum(_rdcr->GetInterimLeafByName("B0_FitPVConst_Dminus_P2_PT"+flat_suffix), _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P2_PT"+flat_suffix));
+  _rdcr->CreateDoubleLeaf("varHadronMaxPT", -999999.).Maximum(varPionMaxPT, varKaonMaxPT);
 
   // Velo track quality
   _rdcr->CreateDoubleCopyLeaf("varKminusVELOChi2ndof", _rdcr->GetInterimLeafByName("Dplus_Kminus_or_piminus_TRACK_VeloCHI2NDOF"));
   _rdcr->CreateDoubleCopyLeaf("varKplusVELOChi2ndof", _rdcr->GetInterimLeafByName("Dminus_Kplus_or_piplus_TRACK_VeloCHI2NDOF"));
-  _rdcr->CreateDoubleLeaf("varKaonMinVELOChi2ndof", -999999.).Minimum(_rdcr->GetInterimLeafByName("Dplus_Kminus_or_piminus_TRACK_VeloCHI2NDOF"), _rdcr->GetInterimLeafByName("Dminus_Kplus_or_piplus_TRACK_VeloCHI2NDOF"));
+  ReducerLeaf<Double_t>& varKaonMinVELOChi2ndof = _rdcr->CreateDoubleLeaf("varKaonMinVELOChi2ndof", -999999.);
+  varKaonMinVELOChi2ndof.Minimum(_rdcr->GetInterimLeafByName("Dplus_Kminus_or_piminus_TRACK_VeloCHI2NDOF"), _rdcr->GetInterimLeafByName("Dminus_Kplus_or_piplus_TRACK_VeloCHI2NDOF"));
+  _rdcr->CreateDoubleLeaf("varKaonMinVELOChi2ndof_log", -999999.).Log(varKaonMinVELOChi2ndof);
+  ReducerLeaf<Double_t>& varKaonMaxVELOChi2ndof = _rdcr->CreateDoubleLeaf("varKaonMaxVELOChi2ndof", -999999.);
+  varKaonMaxVELOChi2ndof.Maximum(_rdcr->GetInterimLeafByName("Dplus_Kminus_or_piminus_TRACK_VeloCHI2NDOF"), _rdcr->GetInterimLeafByName("Dminus_Kplus_or_piplus_TRACK_VeloCHI2NDOF"));
+  _rdcr->CreateDoubleLeaf("varKaonMaxVELOChi2ndof_log", -999999.).Log(varKaonMaxVELOChi2ndof);
   ReducerLeaf<Double_t>& varPiplusOneVELOChi2ndof = _rdcr->CreateDoubleCopyLeaf("varPiplusOneVELOChi2ndof", _rdcr->GetInterimLeafByName("Dplus_piplus_or_Kplus_One_TRACK_VeloCHI2NDOF"));
   ReducerLeaf<Double_t>& varPiplusTwoVELOChi2ndof = _rdcr->CreateDoubleCopyLeaf("varPiplusTwoVELOChi2ndof", _rdcr->GetInterimLeafByName("Dplus_piplus_or_Kplus_Two_TRACK_VeloCHI2NDOF"));
   ReducerLeaf<Double_t>& varPiplusMinVELOChi2ndof = _rdcr->CreateDoubleLeaf("varPiplusMinVELOChi2ndof", -999999.);
   varPiplusMinVELOChi2ndof.Minimum(varPiplusOneVELOChi2ndof, varPiplusTwoVELOChi2ndof);
+  ReducerLeaf<Double_t>& varPiplusMaxVELOChi2ndof = _rdcr->CreateDoubleLeaf("varPiplusMaxVELOChi2ndof", -999999.);
+  varPiplusMaxVELOChi2ndof.Maximum(varPiplusOneVELOChi2ndof, varPiplusTwoVELOChi2ndof);
   ReducerLeaf<Double_t>& varPiminusOneVELOChi2ndof = _rdcr->CreateDoubleCopyLeaf("varPiminusOneVELOChi2ndof", _rdcr->GetInterimLeafByName("Dminus_piminus_or_Kminus_One_TRACK_VeloCHI2NDOF"));
   ReducerLeaf<Double_t>& varPiminusTwoVELOChi2ndof = _rdcr->CreateDoubleCopyLeaf("varPiminusTwoVELOChi2ndof", _rdcr->GetInterimLeafByName("Dminus_piminus_or_Kminus_Two_TRACK_VeloCHI2NDOF"));
   ReducerLeaf<Double_t>& varPiminusMinVELOChi2ndof = _rdcr->CreateDoubleLeaf("varPiminusMinVELOChi2ndof", -999999.);
   varPiminusMinVELOChi2ndof.Minimum(varPiminusOneVELOChi2ndof, varPiminusTwoVELOChi2ndof);
-  _rdcr->CreateDoubleLeaf("varPionMinVELOChi2ndof", -999999.).Minimum(varPiplusMinVELOChi2ndof, varPiminusMinVELOChi2ndof);
+  ReducerLeaf<Double_t>& varPionMinVELOChi2ndof = _rdcr->CreateDoubleLeaf("varPionMinVELOChi2ndof", -999999.);
+  varPionMinVELOChi2ndof.Minimum(varPiplusMinVELOChi2ndof, varPiminusMinVELOChi2ndof);
+  _rdcr->CreateDoubleLeaf("varPionMinVELOChi2ndof_log", -999999.).Log(varPionMinVELOChi2ndof);
+  ReducerLeaf<Double_t>& varPiminusMaxVELOChi2ndof = _rdcr->CreateDoubleLeaf("varPiminusMaxVELOChi2ndof", -999999.);
+  varPiminusMaxVELOChi2ndof.Maximum(varPiminusOneVELOChi2ndof, varPiminusTwoVELOChi2ndof);
+  ReducerLeaf<Double_t>& varPionMaxVELOChi2ndof = _rdcr->CreateDoubleLeaf("varPionMaxVELOChi2ndof", -999999.);
+  varPionMaxVELOChi2ndof.Maximum(varPiplusMaxVELOChi2ndof, varPiminusMaxVELOChi2ndof);
+  _rdcr->CreateDoubleLeaf("varPionMaxVELOChi2ndof_log", -999999.).Log(varPionMaxVELOChi2ndof);
+  ReducerLeaf<Double_t>& varHadronMinVELOChi2ndof = _rdcr->CreateDoubleLeaf("varHadronMinVELOChi2ndof", -999999.);
+  varHadronMinVELOChi2ndof.Minimum(varKaonMinVELOChi2ndof, varPionMinVELOChi2ndof);
+  _rdcr->CreateDoubleLeaf("varHadronMinVELOChi2ndof_log").Log(varHadronMinVELOChi2ndof);
+  ReducerLeaf<Double_t>& varHadronMaxVELOChi2ndof = _rdcr->CreateDoubleLeaf("varHadronMaxVELOChi2ndof", -999999.);
+  varHadronMaxVELOChi2ndof.Minimum(varKaonMaxVELOChi2ndof, varPionMaxVELOChi2ndof);
+  _rdcr->CreateDoubleLeaf("varHadronMaxVELOChi2ndof_log").Log(varHadronMaxVELOChi2ndof);
 
   // T-stations track quality
   _rdcr->CreateDoubleCopyLeaf("varKminusTChi2ndof", _rdcr->GetInterimLeafByName("Dplus_Kminus_or_piminus_TRACK_TCHI2NDOF"));
   _rdcr->CreateDoubleCopyLeaf("varKplusTChi2ndof", _rdcr->GetInterimLeafByName("Dminus_Kplus_or_piplus_TRACK_TCHI2NDOF"));
-  _rdcr->CreateDoubleLeaf("varKaonMinTChi2ndof", -999999.).Minimum(_rdcr->GetInterimLeafByName("Dplus_Kminus_or_piminus_TRACK_TCHI2NDOF"), _rdcr->GetInterimLeafByName("Dminus_Kplus_or_piplus_TRACK_TCHI2NDOF"));
+  ReducerLeaf<Double_t>& varKaonMinTChi2ndof = _rdcr->CreateDoubleLeaf("varKaonMinTChi2ndof", -999999.);
+  varKaonMinTChi2ndof.Minimum(_rdcr->GetInterimLeafByName("Dplus_Kminus_or_piminus_TRACK_TCHI2NDOF"), _rdcr->GetInterimLeafByName("Dminus_Kplus_or_piplus_TRACK_TCHI2NDOF"));
+  _rdcr->CreateDoubleLeaf("varKaonMinTChi2ndof_log", -999999.).Log(varKaonMinTChi2ndof);
+  ReducerLeaf<Double_t>& varKaonMaxTChi2ndof = _rdcr->CreateDoubleLeaf("varKaonMaxTChi2ndof", -999999.);
+  varKaonMaxTChi2ndof.Maximum(_rdcr->GetInterimLeafByName("Dplus_Kminus_or_piminus_TRACK_TCHI2NDOF"), _rdcr->GetInterimLeafByName("Dminus_Kplus_or_piplus_TRACK_TCHI2NDOF"));
+  _rdcr->CreateDoubleLeaf("varKaonMaxTChi2ndof_log", -999999.).Log(varKaonMaxTChi2ndof);
   ReducerLeaf<Double_t>& varPiplusOneTChi2ndof = _rdcr->CreateDoubleCopyLeaf("varPiplusOneTChi2ndof", _rdcr->GetInterimLeafByName("Dplus_piplus_or_Kplus_One_TRACK_TCHI2NDOF"));
   ReducerLeaf<Double_t>& varPiplusTwoTChi2ndof = _rdcr->CreateDoubleCopyLeaf("varPiplusTwoTChi2ndof", _rdcr->GetInterimLeafByName("Dplus_piplus_or_Kplus_Two_TRACK_TCHI2NDOF"));
   ReducerLeaf<Double_t>& varPiplusMinTChi2ndof = _rdcr->CreateDoubleLeaf("varPiplusMinTChi2ndof", -999999.);
   varPiplusMinTChi2ndof.Minimum(varPiplusOneTChi2ndof, varPiplusTwoTChi2ndof);
+  ReducerLeaf<Double_t>& varPiplusMaxTChi2ndof = _rdcr->CreateDoubleLeaf("varPiplusMaxTChi2ndof", -999999.);
+  varPiplusMaxTChi2ndof.Maximum(varPiplusOneTChi2ndof, varPiplusTwoTChi2ndof);
   ReducerLeaf<Double_t>& varPiminusOneTChi2ndof = _rdcr->CreateDoubleCopyLeaf("varPiminusOneTChi2ndof", _rdcr->GetInterimLeafByName("Dminus_piminus_or_Kminus_One_TRACK_TCHI2NDOF"));
   ReducerLeaf<Double_t>& varPiminusTwoTChi2ndof = _rdcr->CreateDoubleCopyLeaf("varPiminusTwoTChi2ndof", _rdcr->GetInterimLeafByName("Dminus_piminus_or_Kminus_Two_TRACK_TCHI2NDOF"));
   ReducerLeaf<Double_t>& varPiminusMinTChi2ndof = _rdcr->CreateDoubleLeaf("varPiminusMinTChi2ndof", -999999.);
   varPiminusMinTChi2ndof.Minimum(varPiminusOneTChi2ndof, varPiminusTwoTChi2ndof);
-  _rdcr->CreateDoubleLeaf("varPionMinTChi2ndof", -999999.).Minimum(varPiplusMinTChi2ndof, varPiminusMinTChi2ndof);
+  ReducerLeaf<Double_t>& varPionMinTChi2ndof = _rdcr->CreateDoubleLeaf("varPionMinTChi2ndof", -999999.);
+  varPionMinTChi2ndof.Minimum(varPiplusMinTChi2ndof, varPiminusMinTChi2ndof);
+  _rdcr->CreateDoubleLeaf("varPionMinTChi2ndof_log", -999999.).Log(varPionMinTChi2ndof);
+  ReducerLeaf<Double_t>& varPiminusMaxTChi2ndof = _rdcr->CreateDoubleLeaf("varPiminusMaxTChi2ndof", -999999.);
+  varPiminusMaxTChi2ndof.Maximum(varPiminusOneTChi2ndof, varPiminusTwoTChi2ndof);
+  ReducerLeaf<Double_t>& varPionMaxTChi2ndof = _rdcr->CreateDoubleLeaf("varPionMaxTChi2ndof", -999999.);
+  varPionMaxTChi2ndof.Maximum(varPiplusMaxTChi2ndof, varPiminusMaxTChi2ndof);
+  _rdcr->CreateDoubleLeaf("varPionMaxTChi2ndof_log", -999999.).Log(varPionMaxTChi2ndof);
+  ReducerLeaf<Double_t>& varHadronMinTChi2ndof = _rdcr->CreateDoubleLeaf("varHadronMinTChi2ndof", -999999.);
+  varHadronMinTChi2ndof.Minimum(varKaonMinTChi2ndof, varPionMinTChi2ndof);
+  _rdcr->CreateDoubleLeaf("varHadronMinTChi2ndof_log").Log(varHadronMinTChi2ndof);
+  ReducerLeaf<Double_t>& varHadronMaxTChi2ndof = _rdcr->CreateDoubleLeaf("varHadronMaxTChi2ndof", -999999.);
+  varHadronMaxTChi2ndof.Minimum(varKaonMaxTChi2ndof, varPionMaxTChi2ndof);
+  _rdcr->CreateDoubleLeaf("varHadronMaxTChi2ndof_log").Log(varHadronMaxTChi2ndof);
 
   // track match quality
   _rdcr->CreateDoubleCopyLeaf("varKminusMatchChi2", _rdcr->GetInterimLeafByName("Dplus_Kminus_or_piminus_TRACK_MatchCHI2"));
   _rdcr->CreateDoubleCopyLeaf("varKplusMatchChi2", _rdcr->GetInterimLeafByName("Dminus_Kplus_or_piplus_TRACK_MatchCHI2"));
-  _rdcr->CreateDoubleLeaf("varKaonMinMatchChi2", -999999.).Minimum(_rdcr->GetInterimLeafByName("Dplus_Kminus_or_piminus_TRACK_MatchCHI2"), _rdcr->GetInterimLeafByName("Dminus_Kplus_or_piplus_TRACK_MatchCHI2"));
+  ReducerLeaf<Double_t>& varKaonMinMatchChi2 = _rdcr->CreateDoubleLeaf("varKaonMinMatchChi2", -999999.);
+  varKaonMinMatchChi2.Minimum(_rdcr->GetInterimLeafByName("Dplus_Kminus_or_piminus_TRACK_MatchCHI2"), _rdcr->GetInterimLeafByName("Dminus_Kplus_or_piplus_TRACK_MatchCHI2"));
+  _rdcr->CreateDoubleLeaf("varKaonMinMatchChi2_log", -999999.).Log(varKaonMinMatchChi2);
+  ReducerLeaf<Double_t>& varKaonMaxMatchChi2 = _rdcr->CreateDoubleLeaf("varKaonMaxMatchChi2", -999999.);
+  varKaonMaxMatchChi2.Maximum(_rdcr->GetInterimLeafByName("Dplus_Kminus_or_piminus_TRACK_MatchCHI2"), _rdcr->GetInterimLeafByName("Dminus_Kplus_or_piplus_TRACK_MatchCHI2"));
+  _rdcr->CreateDoubleLeaf("varKaonMaxMatchChi2_log", -999999.).Log(varKaonMaxMatchChi2);
   ReducerLeaf<Double_t>& varPiplusOneMatchChi2 = _rdcr->CreateDoubleCopyLeaf("varPiplusOneMatchChi2", _rdcr->GetInterimLeafByName("Dplus_piplus_or_Kplus_One_TRACK_MatchCHI2"));
   ReducerLeaf<Double_t>& varPiplusTwoMatchChi2 = _rdcr->CreateDoubleCopyLeaf("varPiplusTwoMatchChi2", _rdcr->GetInterimLeafByName("Dplus_piplus_or_Kplus_Two_TRACK_MatchCHI2"));
   ReducerLeaf<Double_t>& varPiplusMinMatchChi2 = _rdcr->CreateDoubleLeaf("varPiplusMinMatchChi2", -999999.);
   varPiplusMinMatchChi2.Minimum(varPiplusOneMatchChi2, varPiplusTwoMatchChi2);
+  ReducerLeaf<Double_t>& varPiplusMaxMatchChi2 = _rdcr->CreateDoubleLeaf("varPiplusMaxMatchChi2", -999999.);
+  varPiplusMaxMatchChi2.Maximum(varPiplusOneMatchChi2, varPiplusTwoMatchChi2);
   ReducerLeaf<Double_t>& varPiminusOneMatchChi2 = _rdcr->CreateDoubleCopyLeaf("varPiminusOneMatchChi2", _rdcr->GetInterimLeafByName("Dminus_piminus_or_Kminus_One_TRACK_MatchCHI2"));
   ReducerLeaf<Double_t>& varPiminusTwoMatchChi2 = _rdcr->CreateDoubleCopyLeaf("varPiminusTwoMatchChi2", _rdcr->GetInterimLeafByName("Dminus_piminus_or_Kminus_Two_TRACK_MatchCHI2"));
   ReducerLeaf<Double_t>& varPiminusMinMatchChi2 = _rdcr->CreateDoubleLeaf("varPiminusMinMatchChi2", -999999.);
   varPiminusMinMatchChi2.Minimum(varPiminusOneMatchChi2, varPiminusTwoMatchChi2);
-  _rdcr->CreateDoubleLeaf("varPionMinMatchChi2", -999999.).Minimum(varPiplusMinMatchChi2, varPiminusMinMatchChi2);
+  ReducerLeaf<Double_t>& varPionMinMatchChi2 = _rdcr->CreateDoubleLeaf("varPionMinMatchChi2", -999999.);
+  varPionMinMatchChi2.Minimum(varPiplusMinMatchChi2, varPiminusMinMatchChi2);
+  _rdcr->CreateDoubleLeaf("varPionMinMatchChi2_log", -999999.).Log(varPionMinMatchChi2);
+  ReducerLeaf<Double_t>& varPiminusMaxMatchChi2 = _rdcr->CreateDoubleLeaf("varPiminusMaxMatchChi2", -999999.);
+  varPiminusMaxMatchChi2.Maximum(varPiminusOneMatchChi2, varPiminusTwoMatchChi2);
+  ReducerLeaf<Double_t>& varPionMaxMatchChi2 = _rdcr->CreateDoubleLeaf("varPionMaxMatchChi2", -999999.);
+  varPionMaxMatchChi2.Maximum(varPiplusMaxMatchChi2, varPiminusMaxMatchChi2);
+  _rdcr->CreateDoubleLeaf("varPionMaxMatchChi2_log", -999999.).Log(varPionMaxMatchChi2);
+  ReducerLeaf<Double_t>& varHadronMinMatchChi2 = _rdcr->CreateDoubleLeaf("varHadronMinMatchChi2", -999999.);
+  varHadronMinMatchChi2.Minimum(varKaonMinMatchChi2, varPionMinMatchChi2);
+  _rdcr->CreateDoubleLeaf("varHadronMinMatchChi2_log").Log(varHadronMinMatchChi2);
+  ReducerLeaf<Double_t>& varHadronMaxMatchChi2 = _rdcr->CreateDoubleLeaf("varHadronMaxMatchChi2", -999999.);
+  varHadronMaxMatchChi2.Minimum(varKaonMaxMatchChi2, varPionMaxMatchChi2);
+  _rdcr->CreateDoubleLeaf("varHadronMaxMatchChi2_log").Log(varHadronMaxMatchChi2);
 }
