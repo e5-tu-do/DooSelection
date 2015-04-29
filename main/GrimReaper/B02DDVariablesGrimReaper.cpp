@@ -68,6 +68,9 @@ int main(int argc, char * argv[]){
   reducer->set_output_file_path(outputfile);
   reducer->set_output_tree_path(outputtree);
 
+  // remove useless branches to reduce file size
+  reducer->AddBranchesOmitRegex("B0_Fit.*");
+
   reducer->Initialize();
 
   // config
@@ -290,15 +293,15 @@ void VetoLeaves(Reducer* _rdcr, cfg_tuple& cfg){
     Kplus_px    = "Dminus_Kplus_or_piplus_PX";
     Kplus_py    = "Dminus_Kplus_or_piplus_PY";
     Kplus_pz    = "Dminus_Kplus_or_piplus_PZ";
-    Kminus_px   = "Dplus_Kminus_or_piminus_PX";
-    Kminus_py   = "Dplus_Kminus_or_piminus_PY";
-    Kminus_pz   = "Dplus_Kminus_or_piminus_PZ";
     piminus_px  = "Dminus_piminus_or_Kminus_One_PX";
     piminus_py  = "Dminus_piminus_or_Kminus_One_PY";
     piminus_pz  = "Dminus_piminus_or_Kminus_One_PZ";
     piminus0_px = "Dminus_piminus_or_Kminus_Two_PX";
     piminus0_py = "Dminus_piminus_or_Kminus_Two_PY";
     piminus0_pz = "Dminus_piminus_or_Kminus_Two_PZ";
+    Kminus_px   = "Dplus_Kminus_or_piminus_PX";
+    Kminus_py   = "Dplus_Kminus_or_piminus_PY";
+    Kminus_pz   = "Dplus_Kminus_or_piminus_PZ";
     piplus_px   = "Dplus_piplus_or_Kplus_One_PX";
     piplus_py   = "Dplus_piplus_or_Kplus_One_PY";
     piplus_pz   = "Dplus_piplus_or_Kplus_One_PZ";
@@ -1284,10 +1287,10 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   _rdcr->CreateDoubleLeaf("varPionMaxVELOChi2ndof_log", -999999.).Log(varPionMaxVELOChi2ndof);
   ReducerLeaf<Double_t>& varHadronMinVELOChi2ndof = _rdcr->CreateDoubleLeaf("varHadronMinVELOChi2ndof", -999999.);
   varHadronMinVELOChi2ndof.Minimum(varKaonMinVELOChi2ndof, varPionMinVELOChi2ndof);
-  _rdcr->CreateDoubleLeaf("varHadronMinVELOChi2ndof_log").Log(varHadronMinVELOChi2ndof);
+  _rdcr->CreateDoubleLeaf("varHadronMinVELOChi2ndof_log", -999999.).Log(varHadronMinVELOChi2ndof);
   ReducerLeaf<Double_t>& varHadronMaxVELOChi2ndof = _rdcr->CreateDoubleLeaf("varHadronMaxVELOChi2ndof", -999999.);
   varHadronMaxVELOChi2ndof.Minimum(varKaonMaxVELOChi2ndof, varPionMaxVELOChi2ndof);
-  _rdcr->CreateDoubleLeaf("varHadronMaxVELOChi2ndof_log").Log(varHadronMaxVELOChi2ndof);
+  _rdcr->CreateDoubleLeaf("varHadronMaxVELOChi2ndof_log", -999999.).Log(varHadronMaxVELOChi2ndof);
 
   // T-stations track quality
   _rdcr->CreateDoubleCopyLeaf("varKminusTChi2ndof", _rdcr->GetInterimLeafByName("Dplus_Kminus_or_piminus_TRACK_TCHI2NDOF"));
@@ -1318,10 +1321,10 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   _rdcr->CreateDoubleLeaf("varPionMaxTChi2ndof_log", -999999.).Log(varPionMaxTChi2ndof);
   ReducerLeaf<Double_t>& varHadronMinTChi2ndof = _rdcr->CreateDoubleLeaf("varHadronMinTChi2ndof", -999999.);
   varHadronMinTChi2ndof.Minimum(varKaonMinTChi2ndof, varPionMinTChi2ndof);
-  _rdcr->CreateDoubleLeaf("varHadronMinTChi2ndof_log").Log(varHadronMinTChi2ndof);
+  _rdcr->CreateDoubleLeaf("varHadronMinTChi2ndof_log", -999999.).Log(varHadronMinTChi2ndof);
   ReducerLeaf<Double_t>& varHadronMaxTChi2ndof = _rdcr->CreateDoubleLeaf("varHadronMaxTChi2ndof", -999999.);
   varHadronMaxTChi2ndof.Minimum(varKaonMaxTChi2ndof, varPionMaxTChi2ndof);
-  _rdcr->CreateDoubleLeaf("varHadronMaxTChi2ndof_log").Log(varHadronMaxTChi2ndof);
+  _rdcr->CreateDoubleLeaf("varHadronMaxTChi2ndof_log", -999999.).Log(varHadronMaxTChi2ndof);
 
   // track match quality
   _rdcr->CreateDoubleCopyLeaf("varKminusMatchChi2", _rdcr->GetInterimLeafByName("Dplus_Kminus_or_piminus_TRACK_MatchCHI2"));
@@ -1352,8 +1355,40 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   _rdcr->CreateDoubleLeaf("varPionMaxMatchChi2_log", -999999.).Log(varPionMaxMatchChi2);
   ReducerLeaf<Double_t>& varHadronMinMatchChi2 = _rdcr->CreateDoubleLeaf("varHadronMinMatchChi2", -999999.);
   varHadronMinMatchChi2.Minimum(varKaonMinMatchChi2, varPionMinMatchChi2);
-  _rdcr->CreateDoubleLeaf("varHadronMinMatchChi2_log").Log(varHadronMinMatchChi2);
+  _rdcr->CreateDoubleLeaf("varHadronMinMatchChi2_log", -999999.).Log(varHadronMinMatchChi2);
   ReducerLeaf<Double_t>& varHadronMaxMatchChi2 = _rdcr->CreateDoubleLeaf("varHadronMaxMatchChi2", -999999.);
   varHadronMaxMatchChi2.Minimum(varKaonMaxMatchChi2, varPionMaxMatchChi2);
-  _rdcr->CreateDoubleLeaf("varHadronMaxMatchChi2_log").Log(varHadronMaxMatchChi2);
+  _rdcr->CreateDoubleLeaf("varHadronMaxMatchChi2_log", -999999.).Log(varHadronMaxMatchChi2);
+
+  // PID variables
+  ReducerLeaf<Double_t>& varKminus_ProbNNk = _rdcr->CreateDoubleCopyLeaf("varKminus_ProbNNk", _rdcr->GetInterimLeafByName("Dplus_Kminus_or_piminus_ProbNNk"));
+  ReducerLeaf<Double_t>& varKminus_ProbNNpi = _rdcr->CreateDoubleCopyLeaf("varKminus_ProbNNpi", _rdcr->GetInterimLeafByName("Dplus_Kminus_or_piminus_ProbNNpi"));
+  ReducerLeaf<Double_t>& varKminus_SumProbNNkpi = _rdcr->CreateDoubleLeaf("varKminus_SumProbNNkpi", -999999.);
+  varKminus_SumProbNNkpi.Add(varKminus_ProbNNk, varKminus_ProbNNpi);
+  _rdcr->CreateDoubleLeaf("varKminus_PID", -999999.).Divide(varKminus_ProbNNk, varKminus_SumProbNNkpi);
+  ReducerLeaf<Double_t>& varKplus_ProbNNk = _rdcr->CreateDoubleCopyLeaf("varKplus_ProbNNk", _rdcr->GetInterimLeafByName("Dminus_Kplus_or_piplus_ProbNNk"));
+  ReducerLeaf<Double_t>& varKplus_ProbNNpi = _rdcr->CreateDoubleCopyLeaf("varKplus_ProbNNpi", _rdcr->GetInterimLeafByName("Dminus_Kplus_or_piplus_ProbNNpi"));
+  ReducerLeaf<Double_t>& varKplus_SumProbNNkpi = _rdcr->CreateDoubleLeaf("varKplus_SumProbNNkpi", -999999.);
+  varKplus_SumProbNNkpi.Add(varKplus_ProbNNk, varKplus_ProbNNpi);
+  _rdcr->CreateDoubleLeaf("varKplus_PID", -999999.).Divide(varKplus_ProbNNk, varKplus_SumProbNNkpi);
+  ReducerLeaf<Double_t>& varPiOneminus_ProbNNk = _rdcr->CreateDoubleCopyLeaf("varPiOneminus_ProbNNk", _rdcr->GetInterimLeafByName("Dminus_piminus_or_Kminus_One_ProbNNk"));
+  ReducerLeaf<Double_t>& varPiOneminus_ProbNNpi = _rdcr->CreateDoubleCopyLeaf("varPiOneminus_ProbNNpi", _rdcr->GetInterimLeafByName("Dminus_piminus_or_Kminus_One_ProbNNpi"));
+  ReducerLeaf<Double_t>& varPiOneminus_SumProbNNkpi = _rdcr->CreateDoubleLeaf("varPiOneminus_SumProbNNkpi", -999999.);
+  varPiOneminus_SumProbNNkpi.Add(varPiOneminus_ProbNNk, varPiOneminus_ProbNNpi);
+  _rdcr->CreateDoubleLeaf("varPiOneminus_PID", -999999.).Divide(varPiOneminus_ProbNNk, varPiOneminus_SumProbNNkpi);
+  ReducerLeaf<Double_t>& varPiOneplus_ProbNNk = _rdcr->CreateDoubleCopyLeaf("varPiOneplus_ProbNNk", _rdcr->GetInterimLeafByName("Dplus_piplus_or_Kplus_One_ProbNNk"));
+  ReducerLeaf<Double_t>& varPiOneplus_ProbNNpi = _rdcr->CreateDoubleCopyLeaf("varPiOneplus_ProbNNpi", _rdcr->GetInterimLeafByName("Dplus_piplus_or_Kplus_One_ProbNNpi"));
+  ReducerLeaf<Double_t>& varPiOneplus_SumProbNNkpi = _rdcr->CreateDoubleLeaf("varPiOneplus_SumProbNNkpi", -999999.);
+  varPiOneplus_SumProbNNkpi.Add(varPiOneplus_ProbNNk, varPiOneplus_ProbNNpi);
+  _rdcr->CreateDoubleLeaf("varPiOneplus_PID", -999999.).Divide(varPiOneplus_ProbNNk, varPiOneplus_SumProbNNkpi);
+  ReducerLeaf<Double_t>& varPiTwominus_ProbNNk = _rdcr->CreateDoubleCopyLeaf("varPiTwominus_ProbNNk", _rdcr->GetInterimLeafByName("Dminus_piminus_or_Kminus_Two_ProbNNk"));
+  ReducerLeaf<Double_t>& varPiTwominus_ProbNNpi = _rdcr->CreateDoubleCopyLeaf("varPiTwominus_ProbNNpi", _rdcr->GetInterimLeafByName("Dminus_piminus_or_Kminus_Two_ProbNNpi"));
+  ReducerLeaf<Double_t>& varPiTwominus_SumProbNNkpi = _rdcr->CreateDoubleLeaf("varPiTwominus_SumProbNNkpi", -999999.);
+  varPiTwominus_SumProbNNkpi.Add(varPiTwominus_ProbNNk, varPiTwominus_ProbNNpi);
+  _rdcr->CreateDoubleLeaf("varPiTwominus_PID", -999999.).Divide(varPiTwominus_ProbNNk, varPiTwominus_SumProbNNkpi);
+  ReducerLeaf<Double_t>& varPiTwoplus_ProbNNk = _rdcr->CreateDoubleCopyLeaf("varPiTwoplus_ProbNNk", _rdcr->GetInterimLeafByName("Dplus_piplus_or_Kplus_Two_ProbNNk"));
+  ReducerLeaf<Double_t>& varPiTwoplus_ProbNNpi = _rdcr->CreateDoubleCopyLeaf("varPiTwoplus_ProbNNpi", _rdcr->GetInterimLeafByName("Dplus_piplus_or_Kplus_Two_ProbNNpi"));
+  ReducerLeaf<Double_t>& varPiTwoplus_SumProbNNkpi = _rdcr->CreateDoubleLeaf("varPiTwoplus_SumProbNNkpi", -999999.);
+  varPiTwoplus_SumProbNNkpi.Add(varPiTwoplus_ProbNNk, varPiTwoplus_ProbNNpi);
+  _rdcr->CreateDoubleLeaf("varPiTwoplus_PID", -999999.).Divide(varPiTwoplus_ProbNNk, varPiTwoplus_SumProbNNkpi);
 }
