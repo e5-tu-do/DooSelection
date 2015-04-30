@@ -67,12 +67,7 @@ int main(int argc, char * argv[]){
   reducer->set_input_tree_path(inputtree);
   reducer->set_output_file_path(outputfile);
   reducer->set_output_tree_path(outputtree);
-
-  // remove useless branches to reduce file size
-  reducer->AddBranchesOmitRegex("B0_Fit.*");
-  reducer->AddBranchesOmitRegex("piminus0_.*");
-  reducer->AddBranchesOmitRegex("Kminus0_.*");
-
+  
   reducer->Initialize();
 
   // config
