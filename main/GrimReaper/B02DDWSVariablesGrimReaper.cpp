@@ -257,7 +257,7 @@ void VetoLeaves(Reducer* _rdcr, cfg_tuple& cfg){
     Dplus2_py    = std::get<0>(cfg)+"_FitPVConst_DplusA_PY"+flat_suffix;
     Dplus2_pz    = std::get<0>(cfg)+"_FitPVConst_DplusA_PZ"+flat_suffix;
   }
-  else if (_rdcr->LeafExists("Dplus_PX")){
+  else if (_rdcr->LeafExists("Dplus1_PX")){
     Dplus1_px    = "Dplus1_PX";
     Dplus1_py    = "Dplus1_PY";
     Dplus1_pz    = "Dplus1_PZ";
@@ -1152,9 +1152,9 @@ void AuxiliaryLeaves(Reducer* _rdcr, cfg_tuple& cfg){
   ReducerLeaf<Double_t>* piplus2_ip_chi2_leaf_ptr = NULL;
   ReducerLeaf<Double_t>* piplus20_ip_chi2_leaf_ptr = NULL;
   if (_rdcr->LeafExists("B0_FitPVConst_Dplus_P0_IPCHI2"+flat_suffix)) {
-    piplus1_ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varPiplus1OneIPChi2", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus1_P0_IPCHI2"+flat_suffix));
-    piplus10_ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varPiplus1TwoIPChi2", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus1_P1_IPCHI2"+flat_suffix));
-    Kminus1_ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varKminus1IPChi2", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus1_P2_IPCHI2"+flat_suffix));
+    piplus1_ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varPiplus1OneIPChi2", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P0_IPCHI2"+flat_suffix));
+    piplus10_ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varPiplus1TwoIPChi2", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P1_IPCHI2"+flat_suffix));
+    Kminus1_ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varKminus1IPChi2", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus_P2_IPCHI2"+flat_suffix));
     piplus2_ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varPiplus2OneIPChi2", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus0_P0_IPCHI2"+flat_suffix));
     piplus20_ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varPiplus2TwoIPChi2", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus0_P1_IPCHI2"+flat_suffix));
     Kminus2_ip_chi2_leaf_ptr = &_rdcr->CreateDoubleCopyLeaf("varKminus2IPChi2", _rdcr->GetInterimLeafByName("B0_FitPVConst_Dplus0_P2_IPCHI2"+flat_suffix));
