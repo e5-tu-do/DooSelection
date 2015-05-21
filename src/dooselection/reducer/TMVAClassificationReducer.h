@@ -35,6 +35,8 @@
  *  AReducer.SetTMVAVariable("muminus_PT", (Float_t*)AReducer.GetInterimLeafByName("muminus_PT").branch_address());
  *  AReducer.SetTMVAVariable("muplus_PT", (Float_t*)AReducer.GetInterimLeafByName("muplus_PT").branch_address());
  *  @endcode
+ *
+ *  @author Christophe Cauet
  **/
 namespace dooselection {
 namespace reducer {
