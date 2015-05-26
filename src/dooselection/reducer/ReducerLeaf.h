@@ -13,6 +13,7 @@
 #include "TTree.h"
 #include "TTreeFormula.h"
 #include "TRandom.h"
+#include "TMath.h"
 
 // from DooCore
 #include "doocore/io/MsgStream.h"
@@ -26,6 +27,7 @@ enum ReducerLeafOperations {
   kDivideLeaves,
   kEqualLeaf,
   kRandomizeLeaf,
+  kLogLeaf,
   kMinimum,
   kMaximum,
   kConditionsMap,
@@ -266,6 +268,10 @@ public:
   template<class T1, class T2>
   void Maximum(const ReducerLeaf<T1>& l1, const ReducerLeaf<T2>& l2) {
     SetOperation<T1,T2>(l1,l2,kMaximum,1.0,1.0);
+  }
+  template<class T1>
+  void Log(const ReducerLeaf<T1>& l, double c=1.0) {
+    SetOperation<T1,T1>(l,l,kLogLeaf,c,c);
   }
 
   /**
@@ -617,6 +623,11 @@ bool ReducerLeaf<T>::UpdateValue() {
         *branch_address_templ_ = leaf_factor_one_*leaf_pointer_one_->GetValue();
         matched = true;
         break;
+      case kLogLeaf:
+        leaf_pointer_one_->UpdateValue();
+        *branch_address_templ_ = TMath::Log(leaf_factor_one_*leaf_pointer_one_->GetValue());
+        matched = true;
+        break;
       case kMinimum:
         leaf_pointer_one_->UpdateValue();
         leaf_pointer_two_->UpdateValue();
@@ -666,6 +677,9 @@ void ReducerLeaf<T>::SetOperation(const ReducerLeaf<T1>& l1, const ReducerLeaf<T
       break;
     case kEqualLeaf:
       std::cout << "Leaf " << name() << " = (" << c1 << ")*" << l1.name() << std::endl;
+      break;
+    case kLogLeaf:
+      std::cout << "Leaf " << name() << " = log(" << c1 << "*" << l1.name() << ")" << std::endl;
       break;
     case kMinimum:
       std::cout << "Leaf " << name() << " = min(" << l1.name() << ", " << l2.name() << ")" << std::endl;
