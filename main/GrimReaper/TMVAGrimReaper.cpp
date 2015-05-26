@@ -38,6 +38,7 @@ int main(int argc, char* argv[]){
   using namespace doocore::io;
   
   TString method(config.getString("method"));
+  std::vector<std::string> methods = config.getVoStrings("methods");
   TString track_type(config.getString("track_type"));
 
   fs::path input_file(config.getString("input_file"));
@@ -71,6 +72,7 @@ int main(int argc, char* argv[]){
   }
   
   TString xml_file(config.getString("xml_file"));
+  std::vector<std::string> xml_files = config.getVoStrings("xml_files");
   TString tree(config.getString("data_tree"));
   TString output_tree(config.getString("output_tree"));
   if (output_tree == ""){
@@ -102,7 +104,16 @@ int main(int argc, char* argv[]){
   }
 
   // Register MVA method and XML file
-  reducer.SetTMVAMethodAndXMLFile(method, xml_file);
+  if (config.getBool("use_multiple_bdts")) {
+    if (methods.size() == xml_files.size()) {
+      reducer.SetTMVAMethodsAndXMLFiles(methods, xml_files);
+    }
+    else {
+      std::cout << "The number of methods and xml files differs! Please change!" << std::endl;
+      return 0;
+    }
+  }
+  else reducer.SetTMVAMethodAndXMLFile(method, xml_file);
 
   // Register input file
   reducer.set_input_file_path(input_file.string());

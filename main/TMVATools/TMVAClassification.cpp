@@ -96,7 +96,14 @@ int main(int argc, char * argv[]){
     summary.Add("Signal file name", input_sig_file_name);
     summary.Add("Signal tree name", input_sig_tree_name);
     summary.Add("Background file name", input_bkg_file_name);
-    summary.Add("Background tree name", input_bkg_tree_name);    
+    summary.Add("Background tree name", input_bkg_tree_name);
+
+    if (config.getBool("general.use_cuts")){
+      sig_cut = config.getString("general.input.cuts");
+      bkg_cut = config.getString("general.input.cuts");
+      summary.Add("Cut on signal sample", sig_cut);
+      summary.Add("Cut on background sample", bkg_cut);
+    }
   }
   
   summary.AddSection("Output");
@@ -235,10 +242,31 @@ int main(int argc, char * argv[]){
     // Define signal and background weights
     Double_t kSigWeight = 1.0;
     Double_t kBkgWeight = 1.0;
-    
-    // Set input trees
-    factory->AddSignalTree(sig_tree, kSigWeight);
-    factory->AddBackgroundTree(bkg_tree, kBkgWeight);
+
+    if (!(config.getBool("general.use_cuts"))){
+      // Set input trees
+      factory->AddSignalTree(sig_tree, kSigWeight);
+      factory->AddBackgroundTree(bkg_tree, kBkgWeight);
+    }
+    else {
+      sig_tree->SetBranchStatus("*", false);
+      bkg_tree->SetBranchStatus("*", false);
+
+      for (std::vector<std::string>::const_iterator it = float_variables.begin(), end = float_variables.end(); it != end; ++it) {
+        sig_tree->SetBranchStatus(it->c_str(), true);
+        bkg_tree->SetBranchStatus(it->c_str(), true);
+      }
+      for (std::vector<std::string>::const_iterator it = integer_variables.begin(), end = integer_variables.end(); it != end; ++it) {
+        sig_tree->SetBranchStatus(it->c_str(), true);
+        bkg_tree->SetBranchStatus(it->c_str(), true);
+      }
+
+      TFile *interim_file = new TFile("interim_file", "RECREATE");
+
+      // Set input trees
+      factory->AddTree(sig_tree, "Signal", kSigWeight, TCut(sig_cut));
+      factory->AddTree(bkg_tree, "Background", kBkgWeight, TCut(bkg_cut));
+    }
   }
 
   //===========================================================================
