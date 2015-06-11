@@ -1000,3 +1000,4 @@ const ReducerLeaf<T>& Reducer::GetLeafByName(const TString& name, const std::vec
 } // namespace dooselection
 
 #endif // DOOSELECTION_REDUCER_REDUCER_H
+                                                                                        
