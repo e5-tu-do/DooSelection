@@ -58,21 +58,25 @@ int main(int argc, char* argv[]) {
   PlotConfig pconfig("plot_config");
   pconfig.InitializeOptions(argc, argv);
   
-  if (argc<5) {
-    sinfo << "Usage: " << argv[0] << " mc_tuple_file tree_name data_tuple_file tree_name" << endmsg;
+  if (argc<6) {
+    sinfo << "Usage: " << argv[0] << " mc_tuple_file tree_name data_tuple_file tree_name runname(directory)" << endmsg;
     return 1;
   } else {
     doocore::lutils::setStyle();
   TCanvas c("c","c",800,600);
   
-  std::string path_name = "VarDistributionPlots";
+  std::string prefix(argv[5]);
+  if(prefix == "")
+    prefix = ".";
+  std::string path_name = prefix + "/VarDistributionPlots";
 
   doocore::lutils::printPlotOpenStack(&c, "HighSeparation",   path_name);
   doocore::lutils::printPlotOpenStack(&c, "MediumSeparation", path_name);
   doocore::lutils::printPlotOpenStack(&c, "LowSeparation",    path_name);
   doocore::lutils::printPlotOpenStack(&c, "NoSeparation",     path_name);
   
-  std::string cutstring = "B0_FitPVConst_chi2_flat<500";
+  std::string cutstring = "B0_FitPVConst_chi2_flat<400 && B0_FitPVConst_status_flat==0";
+
   std::vector<std::string> dims = {"B0_TAU",
                                    "B0_TAUERR",
                                    "B0_TAUCHI2",
@@ -95,10 +99,20 @@ int main(int argc, char* argv[]) {
                                    "J_psi_1S_ENDVERTEX_CHI2",
                                    "J_psi_1S_MINIP",
                                    "J_psi_1S_MINIPCHI2",
+                                   "B0_FitPVConst_status_flat",
+                                   "B0_FitPVConst_chi2_flat",
                                    "B0_FitPVConst_M_flat",
                                    "B0_FitPVConst_tau_flat",
                                    "B0_FitPVConst_chi2_flat",
-                                   "B0_FitDaughtersPVConst_M_flat",
+                                   "B0_FitPVConst_KS0_P0_IP_flat",
+                                   "B0_FitPVConst_KS0_P1_IP_flat",
+                                   "B0_FitPVConst_KS0_P0_IPCHI2_flat",
+                                   "B0_FitPVConst_KS0_P1_IPCHI2_flat",
+                                   "B0_FitPVConst_J_psi_1S_P0_IP_flat",
+                                   "B0_FitPVConst_J_psi_1S_P1_IP_flat",
+                                   "B0_FitPVConst_J_psi_1S_P0_IPCHI2_flat",
+                                   "B0_FitPVConst_J_psi_1S_P1_IPCHI2_flat",
+                                   "B0_FitPVConst_M_flat",
                                    "B0_FitDaughtersPVConst_tau_flat",
                                    "B0_FitDaughtersPVConst_chi2_flat",
                                    "B0_IPCHI2_OWNPV",
@@ -163,9 +177,9 @@ int main(int argc, char* argv[]) {
   EasyTuple etuple_bkg(argv[3], argv[4], args);
 
   sinfo << "Converting Tuple 1" << endmsg;
-  RooDataSet *data_sig = &etuple_sig.ConvertToDataSet(/*Cut(cutstring.c_str())*/);
+  RooDataSet *data_sig = &etuple_sig.ConvertToDataSet(Cut(cutstring.c_str()));
   sinfo << "Converting Tuple 2" << endmsg;
-  RooDataSet *data_bkg = &etuple_bkg.ConvertToDataSet(/*Cut(cutstring.c_str())*/);
+  RooDataSet *data_bkg = &etuple_bkg.ConvertToDataSet(Cut(cutstring.c_str()));
 
   for(auto dim_name : dims){
     sinfo << "Processing Observable: " << dim_name << endmsg;
@@ -218,16 +232,16 @@ int main(int argc, char* argv[]) {
     std::string plot_name = dim_name;
 
     if (separation > 0.2) {
-      path_name_specific = "VarDistributionPlots/HighSeparation/";
+      path_name_specific = prefix + path_name + "/HighSeparation/";
       plot_name = "HighSeparation";
     } else if (separation <= 0.2 && separation > 0.1) {
-      path_name_specific = "VarDistributionPlots/MediumSeparation/";
+      path_name_specific = prefix + path_name + "/MediumSeparation/";
       plot_name = "MediumSeparation";
     } else if (separation <= 0.1 && separation > 0.01) {
-      path_name_specific = "VarDistributionPlots/LowSeparation/";
+      path_name_specific = prefix + path_name + "/LowSeparation/";
       plot_name = "LowSeparation";
     } else if (separation <= 0.01) {
-      path_name_specific = "VarDistributionPlots/NoSeparation/";
+      path_name_specific = prefix + path_name + "/NoSeparation/";
       plot_name = "NoSeparation";
     }
 
