@@ -106,7 +106,9 @@ bool ArrayFlattenerReducer::FlatLeavesPassSpecialCuts() {
 
 void ArrayFlattenerReducer::FillOutputTree() {
   if (leaves_array_length_.size() == 0) {
-    FlushEvent();
+    if (FlatLeavesPassSpecialCuts()) {
+      FlushEvent();
+    }
   } else {
     int num_pvs = leaf_array_length_->GetValue();
     for (int i=0; i<num_pvs; ++i) {
