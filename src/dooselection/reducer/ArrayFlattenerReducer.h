@@ -57,6 +57,7 @@ class ArrayFlattenerReducer : virtual public Reducer {
   }
   
  protected:
+  virtual bool FlatLeavesPassSpecialCuts();
   virtual void PrepareSpecialBranches();
   virtual void FillOutputTree();
   

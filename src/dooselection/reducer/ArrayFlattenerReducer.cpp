@@ -100,9 +100,15 @@ void ArrayFlattenerReducer::PrepareSpecialBranches() {
   }
 }
   
+bool ArrayFlattenerReducer::FlatLeavesPassSpecialCuts() {
+  return true;
+}
+
 void ArrayFlattenerReducer::FillOutputTree() {
   if (leaves_array_length_.size() == 0) {
-    FlushEvent();
+    if (FlatLeavesPassSpecialCuts()) {
+      FlushEvent();
+    }
   } else {
     int num_pvs = leaf_array_length_->GetValue();
     for (int i=0; i<num_pvs; ++i) {
@@ -124,7 +130,11 @@ void ArrayFlattenerReducer::FillOutputTree() {
         //sdebug << " " << it->first->name() << " = " << it->first->GetValue() << endmsg;
       }
       
-      FlushEvent();
+      if(FlatLeavesPassSpecialCuts()) {
+        FlushEvent();
+      } else {
+        //skip this index
+      }
     }
   }
 }

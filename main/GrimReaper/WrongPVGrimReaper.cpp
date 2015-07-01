@@ -71,6 +71,9 @@ class WrongPVReducer : virtual public dooselection::reducer::Reducer {
   Float_t*                                            in_value_psi2s_flat_;
   Int_t*                                              in_value_psi2s_idx_pv_; 
   
+  const dooselection::reducer::ReducerLeaf<Float_t>*  comparison_leaf_;
+  Float_t*                                            comparison_value_;
+
   const dooselection::reducer::ReducerLeaf<Float_t>*  pv_x_;
   const dooselection::reducer::ReducerLeaf<Float_t>*  pv_y_;
   const dooselection::reducer::ReducerLeaf<Float_t>*  pv_z_;
@@ -124,15 +127,25 @@ void WrongPVReducer::CreateSpecialBranches(){
   in_value_flat_    = (Float_t*)in_leaf_flat_->branch_address();
   in_value_idx_pv_  = (Int_t*)in_leaf_idx_pv_->branch_address();
 
-  pv_x_ = &GetInterimLeafByName("B0_FitPVConst_PV_X_flat");
-  pv_y_ = &GetInterimLeafByName("B0_FitPVConst_PV_Y_flat");
-  pv_z_ = &GetInterimLeafByName("B0_FitPVConst_PV_Z_flat");
-  pv_x_var_ = &GetInterimLeafByName("B0_FitPVConst_PV_XVAR_flat");
-  pv_y_var_ = &GetInterimLeafByName("B0_FitPVConst_PV_YVAR_flat");
-  pv_z_var_ = &GetInterimLeafByName("B0_FitPVConst_PV_ZVAR_flat");
-  pv_true_x_ = &GetInterimLeafByName("B0_TRUEORIGINVERTEX_X");
-  pv_true_y_ = &GetInterimLeafByName("B0_TRUEORIGINVERTEX_Y");
-  pv_true_z_ = &GetInterimLeafByName("B0_TRUEORIGINVERTEX_Z");
+  if (LeafExists("B0_FitPVConst_PV_X_flat")) {
+    pv_x_ = &GetInterimLeafByName("B0_FitPVConst_PV_X_flat");
+    pv_y_ = &GetInterimLeafByName("B0_FitPVConst_PV_Y_flat");
+    pv_z_ = &GetInterimLeafByName("B0_FitPVConst_PV_Z_flat");
+  }
+  if (LeafExists("B0_FitPVConst_PV_XVAR_flat")) {
+    pv_x_var_ = &GetInterimLeafByName("B0_FitPVConst_PV_XVAR_flat");
+    pv_y_var_ = &GetInterimLeafByName("B0_FitPVConst_PV_YVAR_flat");
+    pv_z_var_ = &GetInterimLeafByName("B0_FitPVConst_PV_ZVAR_flat");
+  }
+  if (LeafExists("B0_TRUEORIGINVERTEX_X")) {
+    pv_true_x_ = &GetInterimLeafByName("B0_TRUEORIGINVERTEX_X");
+    pv_true_y_ = &GetInterimLeafByName("B0_TRUEORIGINVERTEX_Y");
+    pv_true_z_ = &GetInterimLeafByName("B0_TRUEORIGINVERTEX_Z");
+  }
+  if (LeafExists("J_psi_1S_MINIPCHI2_OtherPVs_flat")) {
+    comparison_leaf_ = &GetInterimLeafByName("J_psi_1S_MINIPCHI2_OtherPVs_flat");
+    comparison_value_ = (Float_t*)comparison_leaf_->branch_address();
+  }
 
   if(LeafExists("B0_BKGCAT")) {
     std::cout << "This is an MC Sample " << std::endl;
@@ -162,12 +175,12 @@ void WrongPVReducer::CreateSpecialBranches(){
 //------------------------------------------------------------------------------
 //                   WrongPVReducer::EntryPassesSpecialCuts()
 //------------------------------------------------------------------------------
-bool WrongPVReducer::EntryPassesSpecialCuts(){return true;}
+bool WrongPVReducer::EntryPassesSpecialCuts() { return true; }
 
 //------------------------------------------------------------------------------
 //                   WrongPVReducer::UpdateSpecialLeaves()
 //------------------------------------------------------------------------------
-void WrongPVReducer::UpdateSpecialLeaves(){
+void WrongPVReducer::UpdateSpecialLeaves() {
   unsigned int nPV = in_leaf_->Length();
   unsigned int idxPV = *in_value_idx_pv_;
   double ip_chi2 = *in_value_flat_;
@@ -177,14 +190,15 @@ void WrongPVReducer::UpdateSpecialLeaves(){
   // sanity check if IP chi2 is smaller 0, set to -1
   if (ip_chi2 < 0){
     *out_value_ = -1;
+    swarn << "IP chi2 <0!" << endmsg;
   }
   // if number of PVs is one, set to default value 1e+6
   else if (nPV == 1){
-    *out_value_ = 1e+6;
+    *out_value_ = 1e+12;
   }
   else {
-    // start with a reference IP of 1e+6, this also defines the larges possible value the variable can take!
-    double min_ip_chi2 = 1e+6;
+    // start with a reference IP of 1e+12, this also defines the larges possible value the variable can take!
+    double min_ip_chi2 = 1e+12;
     if (debug_mode_) sinfo.increment_indent(5);
     for (unsigned int pv = 0; pv < nPV; pv++){
 
@@ -199,6 +213,17 @@ void WrongPVReducer::UpdateSpecialLeaves(){
     *out_value_ = min_ip_chi2;
   }
 
+  // if (*out_value_ != *comparison_value_ && nPV > 1 && *comparison_value_ != -6) {
+  //   swarn << "Leaves do not match!" << endmsg;
+  //   swarn << "J_psi_1S_MINIPCHI2_OtherPVs_flat = " << *comparison_value_ << endmsg;
+  //   swarn << "varJpsiMinIPCHI2anyPV            = " << *out_value_ << endmsg;
+  //   swarn << "idxPV                            = " << idxPV << endmsg;
+
+  //   for (unsigned int pv = 0; pv < nPV; pv++) {
+  //     swarn << " pv = " << pv << " - B0_FitDaughtersPVConst_J_psi_1S_IPCHI2_flat = " << in_leaf_->GetValue(pv) << endmsg;
+  //   }
+  // } 
+
   if(pv_pull_z_) {
     *pv_res_x_ = pv_x_->GetValue() - pv_true_x_->GetValue();
     *pv_res_y_ = pv_y_->GetValue() - pv_true_y_->GetValue();
@@ -207,7 +232,6 @@ void WrongPVReducer::UpdateSpecialLeaves(){
     *pv_pull_y_val_ = pv_res_y_->GetValue()/sqrt(pv_y_var_->GetValue());
     *pv_pull_z_val_ = pv_res_z_->GetValue()/sqrt(pv_z_var_->GetValue()); 
   }
-
 }
 
 //==============================================================================
