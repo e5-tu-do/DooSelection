@@ -133,11 +133,11 @@ int main(int argc, char* argv[]){
   summary.AddSection("Variables");
 
   std::vector<std::string> float_variables;
-  if (pt.get_child_optional("variables.float") float_variables = config.getVoStrings("variables.float");
+  if (pt.get_child_optional("variables.float")) float_variables = config.getVoStrings("variables.float");
   std::vector<std::string> integer_variables;
-  if (pt.get_child_optional("variables.integer") integer_variables = config.getVoStrings("variables.integer");
+  if (pt.get_child_optional("variables.integer")) integer_variables = config.getVoStrings("variables.integer");
   std::vector<std::string> spectator_variables;
-  if (pt.get_child_optional("variables.spectator") spectator_variables = config.getVoStrings("variables.spectator");
+  if (pt.get_child_optional("variables.spectator")) spectator_variables = config.getVoStrings("variables.spectator");
 
   summary.AddSection("Float");
   for(std::vector<std::string>::iterator it = float_variables.begin(); it != float_variables.end(); it++){
