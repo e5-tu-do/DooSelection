@@ -38,7 +38,10 @@ int main(int argc, char* argv[]){
   using namespace doocore::io;
   
   TString method(config.getString("method"));
-  std::vector<std::string> methods = config.getVoStrings("methods");
+  std::vector<std::string> methods;
+  boost::property_tree::ptree pt = config.getPTree();
+  if (pt.get_child_optional("methods")) methods = config.getVoStrings("methods");
+
   TString track_type(config.getString("track_type"));
 
   fs::path input_file(config.getString("input_file"));
@@ -72,7 +75,8 @@ int main(int argc, char* argv[]){
   }
   
   TString xml_file(config.getString("xml_file"));
-  std::vector<std::string> xml_files = config.getVoStrings("xml_files");
+  std::vector<std::string> xml_files;
+  if (pt.get_child_optional("xml_files")) xml_files = config.getVoStrings("xml_files");
   TString tree(config.getString("data_tree"));
   TString output_tree(config.getString("output_tree"));
   if (output_tree == ""){
@@ -104,7 +108,7 @@ int main(int argc, char* argv[]){
   }
 
   // Register MVA method and XML file
-  if (config.getBool("use_multiple_bdts")) {
+  if (pt.get_child_optional("methods") && pt.get_child_optional("xml_files")) {
     if (methods.size() == xml_files.size()) {
       reducer.SetTMVAMethodsAndXMLFiles(methods, xml_files);
     }
@@ -128,9 +132,12 @@ int main(int argc, char* argv[]){
   // Register input variables
   summary.AddSection("Variables");
 
-  std::vector<std::string> float_variables = config.getVoStrings("variables.float");
-  std::vector<std::string> integer_variables = config.getVoStrings("variables.integer");
-  std::vector<std::string> spectator_variables = config.getVoStrings("variables.spectator");
+  std::vector<std::string> float_variables;
+  if (pt.get_child_optional("variables.float")) float_variables = config.getVoStrings("variables.float");
+  std::vector<std::string> integer_variables;
+  if (pt.get_child_optional("variables.integer")) integer_variables = config.getVoStrings("variables.integer");
+  std::vector<std::string> spectator_variables;
+  if (pt.get_child_optional("variables.spectator")) spectator_variables = config.getVoStrings("variables.spectator");
 
   summary.AddSection("Float");
   for(std::vector<std::string>::iterator it = float_variables.begin(); it != float_variables.end(); it++){
