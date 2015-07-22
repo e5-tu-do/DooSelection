@@ -576,7 +576,7 @@ unsigned int Reducer::GetBestCandidate(TTree* tree, unsigned int pos_event_start
     ULong64_t run_number_before          = run_number_leaf_ptr_->GetValue();
     ULong64_t event_number_before        = event_number_leaf_ptr_->GetValue();
     //Float_t best_candidate_value_before = *best_candidate_value_ptr_;
-    Double_t best_candidate_value_before = best_candidate_leaf_ptr_->GetValue();
+    // Double_t best_candidate_value_before = best_candidate_leaf_ptr_->GetValue();
     Double_t best_candidate_value_min    = -1.0;
     Int_t best_candidate                 = -1;
     
@@ -584,7 +584,7 @@ unsigned int Reducer::GetBestCandidate(TTree* tree, unsigned int pos_event_start
     while (i<num_entries && run_number_before == run_number_leaf_ptr_->GetValue() && event_number_before == event_number_leaf_ptr_->GetValue()) {
       run_number_before           = run_number_leaf_ptr_->GetValue();
       event_number_before         = event_number_leaf_ptr_->GetValue();
-      best_candidate_value_before = best_candidate_leaf_ptr_->GetValue();
+      // best_candidate_value_before = best_candidate_leaf_ptr_->GetValue();
       // check if event passes special cuts and if event is better than current
       // best candidate or if there is no best candidate in this event yet
       if ((formula_input_tree_ == NULL || formula_input_tree_->EvalInstance() != 0) && EntryPassesSpecialCuts() && (best_candidate_leaf_ptr_->GetValue() < best_candidate_value_min || best_candidate_value_min == -1)) {

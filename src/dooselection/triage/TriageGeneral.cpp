@@ -177,11 +177,11 @@ std::pair<double, double> Triage::NumberOfSigAndBkgEvents(Tuple* tuple, const st
     doofit::plotting::PlotConfig plot_cfg("plot_cfg");
     if (fttuple->sim_pdf()){
       doofit::plotting::PlotSimultaneous plot(plot_cfg, *fttuple->observable(), *data, *dynamic_cast<RooSimultaneous*>(fttuple->spdf()), fttuple->plot_components(), std::string(fttuple->observable()->GetName())+"_"+cut_string);
-      plot.PlotItLogNoLogY();
+      plot.PlotIt();
     }
     else{
       doofit::plotting::Plot plot(plot_cfg, *fttuple->observable(), *data, *dynamic_cast<RooAbsPdf*>(fttuple->pdf()), fttuple->plot_components(), std::string(fttuple->observable()->GetName())+"_"+cut_string);
-      plot.PlotItLogNoLogY();
+      plot.PlotIt();
     }
 
     number_of_events.first = fttuple->signal_yield()->getVal();
