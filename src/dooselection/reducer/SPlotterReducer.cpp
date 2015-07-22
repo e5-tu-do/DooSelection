@@ -70,10 +70,10 @@ void SPlotterReducer::CreateSpecialBranches() {
     if (observable != NULL && splotfit_.pdf().dependsOn(*observable)) {
       if (sim_pdf) {
         PlotSimultaneous myplot(cfg_plot, *observable, data, dynamic_cast<const RooSimultaneous&>(splotfit_.pdf()), components_plot_);
-        myplot.PlotItLogNoLogY();
+        myplot.PlotIt();
       } else {
         Plot myplot(cfg_plot, *observable, data, splotfit_.pdf(), components_plot_);
-        myplot.PlotItLogNoLogY();
+        myplot.PlotIt();
       }
     }
   }
