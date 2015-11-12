@@ -18,18 +18,33 @@
 // from DooCore
 #include "doocore/config/EasyConfig.h"
 #include "doocore/config/Summary.h"
+#include "doocore/io/MsgStream.h"
+
 
 // from DooSelection
 #include "dooselection/reducer/TMVAClassificationReducer.h"
 
-// from here
-
 int main(int argc, char* argv[]){
-  if (argc != 2) {
-    std::cout << "Usage:   " << argv[0] << " 'config_file_name'" << std::endl;
+  doocore::io::sinfo << "-info-  \t" << "TMVAGrimReaper \t" << "Welcome!" << doocore::io::endmsg;
+  std::string inputfile, inputtree, outputfile, outputtree, config_file_name;
+
+  if (argc == 2) {
+    config_file_name = argv[1];
+  }
+  else if (argc == 6) {
+    inputfile = argv[1];
+    inputtree = argv[2];
+    outputfile = argv[3];
+    outputtree = argv[4];
+    config_file_name = argv[5];
+  }
+  else {
+    doocore::io::serr << "-ERROR- \t" << "TMVAGrimReaper \t" << "Parameters needed:" << doocore::io::endmsg;
+    doocore::io::serr << "-ERROR- \t" << "TMVAGrimReaper \t"<< "input_file_name input_tree_name output_file_name output_tree_name config_file_name" << doocore::io::endmsg;
+    doocore::io::serr << "-ERROR- \t" << "TMVAGrimReaper \t"<< "config_file_name" << doocore::io::endmsg;
     return 0;
   }
-  doocore::config::EasyConfig config(argv[1]);
+  doocore::config::EasyConfig config(config_file_name);
 
   doocore::config::Summary& summary = doocore::config::Summary::GetInstance();
   dooselection::reducer::TMVAClassificationReducer reducer;
@@ -46,6 +61,15 @@ int main(int argc, char* argv[]){
 
   fs::path input_file(config.getString("input_file"));
   fs::path output_file(config.getString("output_file"));
+  TString tree(config.getString("data_tree"));
+  TString output_tree(config.getString("output_tree"));
+
+  if (argc == 6) {
+    input_file = fs::path(inputfile);
+    output_file = fs::path(outputfile);
+    tree = inputtree.c_str();
+    output_tree = outputtree.c_str();
+  }
   
   if (fs::exists(input_file)) {
     // new style input output files without enforcing arbitrary file naming
@@ -77,8 +101,7 @@ int main(int argc, char* argv[]){
   TString xml_file(config.getString("xml_file"));
   std::vector<std::string> xml_files;
   if (pt.get_child_optional("xml_files")) xml_files = config.getVoStrings("xml_files");
-  TString tree(config.getString("data_tree"));
-  TString output_tree(config.getString("output_tree"));
+
   if (output_tree == ""){
     output_tree = tree;
   }
