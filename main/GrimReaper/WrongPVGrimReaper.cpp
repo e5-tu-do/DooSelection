@@ -249,7 +249,7 @@ int main(int argc, char * argv[]){
   }
   else{
     serr << "-ERROR- \t" << "WrongPVGrimReaper \t" << "Parameters needed:" << endmsg;
-    serr << "-ERROR- \t" << "WrongPVGrimReaper \t" << "input_file_name input_tree_name output_file_name output_tree_name mode_name(jpsi,psi2s)" << endmsg;
+    serr << "-ERROR- \t" << "WrongPVGrimReaper \t" << "input_file_name input_tree_name output_file_name output_tree_name mode_name(jpsi,psi2s,b0)" << endmsg;
     return 1;
   }
   WrongPVReducer reducer;
@@ -263,6 +263,11 @@ int main(int argc, char * argv[]){
   else if (mode_name == "psi2s"){
     in_leaf_name = "B0_FitDaughtersPVConst_psi_2S_IPCHI2";
     out_leaf_name = "varpsi2SMinIPCHI2anyPV";
+  }
+  else if (mode_name == "b0"){
+    // in_leaf_name = "B0_FitDaughtersPVConst_IPCHI2";
+    in_leaf_name = "B0_FitwithoutConst_IPCHI2";
+    out_leaf_name = "varB0MinIPCHI2anyPV";
   }
 
   sinfo << "in_leaf_name:  " << in_leaf_name << endmsg;
