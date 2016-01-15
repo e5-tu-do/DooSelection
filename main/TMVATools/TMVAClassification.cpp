@@ -98,6 +98,11 @@ int main(int argc, char * argv[]){
     summary.Add("Background file name", input_bkg_file_name);
     summary.Add("Background tree name", input_bkg_tree_name);
 
+    sig_sweight = config.getString("general.input.sig_sweight");
+    bkg_sweight = config.getString("general.input.bkg_sweight");
+    if (sig_sweight != "") summary.Add("Signal sWeight", sig_sweight);
+    if (bkg_sweight != "") summary.Add("Background sWeight", bkg_sweight);
+    
     if (config.getBool("general.use_cuts")){
       sig_cut = config.getString("general.input.cuts");
       bkg_cut = config.getString("general.input.cuts");
