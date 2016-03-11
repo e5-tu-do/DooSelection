@@ -58,7 +58,8 @@ interim_file_(NULL),
 formula_input_tree_(NULL),
 best_candidate_leaf_ptr_(NULL),
 num_events_process_(-1),
-old_style_interim_tree_(false)
+old_style_interim_tree_(false),
+overwrite_existing_leaves_(false)
 {
   GenerateInterimFileName();
 }
@@ -700,16 +701,21 @@ std::vector<ReducerLeaf<T1>*> Reducer::PurgeOutputBranches(const std::vector<Red
   std::vector<ReducerLeaf<T1>* > purged_leaves;
   for (typename std::vector<ReducerLeaf<T1>* >::const_iterator it = leaves.begin(); it != leaves.end(); ++it) {
     bool found = false;
-    for (typename std::vector<ReducerLeaf<T2>* >::const_iterator it_ex = interim_leaves.begin(); it_ex != interim_leaves.end(); ++it_ex) {
-      if ((*it_ex)->name() == (*it)->name()) {
-        found = true;
-        break;
-      }
-    }
-    if (found) {
-      swarn << "New leaf " << (*it)->name() << " already existing. Will ignore." << endmsg;
-    } else {
+    if (overwrite_existing_leaves_) {
       purged_leaves.push_back(*it);
+    }
+    else {
+      for (typename std::vector<ReducerLeaf<T2>* >::const_iterator it_ex = interim_leaves.begin(); it_ex != interim_leaves.end(); ++it_ex) {
+        if ((*it_ex)->name() == (*it)->name()) {
+          found = true;
+          break;
+        }
+      }
+      if (found) {
+        swarn << "New leaf " << (*it)->name() << " already existing. Will ignore." << endmsg;
+      } else {
+        purged_leaves.push_back(*it);
+      }
     }
   }
   return purged_leaves;
