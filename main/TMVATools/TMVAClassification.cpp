@@ -244,6 +244,19 @@ int main(int argc, char * argv[]){
     bkg_file = TFile::Open(input_path+input_bkg_file_name);
     bkg_tree = (TTree*)bkg_file->Get(input_bkg_tree_name);
 
+    std::vector<std::string> cut_variables;
+    if (config.getBool("general.use_cuts")){
+      TTreeFormula form("form_cut", sig_cut, sig_tree);
+      TLeaf* leaf = form.GetLeaf(0);
+      int i = 1;
+      while (leaf != NULL) {
+        cut_variables.push_back(leaf->GetName());
+        leaf = form.GetLeaf(i);
+        ++i;
+      }
+    }
+
+
     // Define signal and background weights
     Double_t kSigWeight = 1.0;
     Double_t kBkgWeight = 1.0;
@@ -257,11 +270,18 @@ int main(int argc, char * argv[]){
       sig_tree->SetBranchStatus("*", false);
       bkg_tree->SetBranchStatus("*", false);
 
+      if (sig_sweight != "") sig_tree->SetBranchStatus(sig_sweight, true);
+      if (bkg_sweight != "") bkg_tree->SetBranchStatus(bkg_sweight, true);
+
       for (std::vector<std::string>::const_iterator it = float_variables.begin(), end = float_variables.end(); it != end; ++it) {
         sig_tree->SetBranchStatus(it->c_str(), true);
         bkg_tree->SetBranchStatus(it->c_str(), true);
       }
       for (std::vector<std::string>::const_iterator it = integer_variables.begin(), end = integer_variables.end(); it != end; ++it) {
+        sig_tree->SetBranchStatus(it->c_str(), true);
+        bkg_tree->SetBranchStatus(it->c_str(), true);
+      }
+      for (std::vector<std::string>::const_iterator it = cut_variables.begin(), end = cut_variables.end(); it != end; ++it) {
         sig_tree->SetBranchStatus(it->c_str(), true);
         bkg_tree->SetBranchStatus(it->c_str(), true);
       }
