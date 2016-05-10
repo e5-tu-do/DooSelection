@@ -3,6 +3,7 @@
 namespace dooselection {
 namespace reducer {
 
+using namespace doocore::io;
 using namespace dooselection::reducer;
 
 //------------------------------------------------------------------------------
@@ -66,7 +67,7 @@ bool WrongPVReducer::EntryPassesSpecialCuts() { return true; }
 void WrongPVReducer::UpdateSpecialLeaves() {
   unsigned int nPV = chi2_any_leaf_->Length();
   unsigned int idxPV = *idx_value_;
-  double ip_chi2 = *chi2_leaf_flat_;
+  double ip_chi2 = *chi2_value_flat_;
 
   if (debug_mode_) sinfo << "Number of PVs in event: " << nPV << ", PV index of this (B, PV)-pair: " << idxPV << " with an IP chi2: " << ip_chi2 << endmsg;
 
@@ -100,9 +101,9 @@ void WrongPVReducer::UpdateSpecialLeaves() {
     *pv_x_res_leaf_ = pv_x_leaf_->GetValue() - pv_x_true_leaf_->GetValue();
     *pv_y_res_leaf_ = pv_y_leaf_->GetValue() - pv_y_true_leaf_->GetValue();
     *pv_z_res_leaf_ = pv_z_leaf_->GetValue() - pv_z_true_leaf_->GetValue();
-    *pv_pull_x_val_ = pv_x_res_leaf_->GetValue()/sqrt(pv_x_var_leaf_->GetValue());
-    *pv_pull_y_val_ = pv_y_res_leaf_->GetValue()/sqrt(pv_y_var_leaf_->GetValue());
-    *pv_pull_z_val_ = pv_z_res_leaf_->GetValue()/sqrt(pv_z_var_leaf_->GetValue()); 
+    *pv_x_pull_value_ = pv_x_res_leaf_->GetValue()/sqrt(pv_x_var_leaf_->GetValue());
+    *pv_y_pull_value_ = pv_y_res_leaf_->GetValue()/sqrt(pv_y_var_leaf_->GetValue());
+    *pv_z_pull_value_ = pv_z_res_leaf_->GetValue()/sqrt(pv_z_var_leaf_->GetValue()); 
   }
 }
 
