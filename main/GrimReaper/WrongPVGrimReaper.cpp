@@ -27,17 +27,13 @@ using namespace dooselection::reducer;
 
 int main(int argc, char * argv[]){
   sinfo << "-info-  \t" << "WrongPVGrimReaper \t" << "Welcome!" << endmsg;
-  std::string inputfile, inputtree, outputfile, outputtree, config_file_name;
-  if (argc == 6){
-    inputfile = argv[1];
-    inputtree = argv[2];
-    outputfile = argv[3];
-    outputtree = argv[4];
-    config_file_name = argv[5];
+  std::string config_file_name;
+  if (argc == 2){
+    config_file_name = argv[1];
   }
   else{
     serr << "-ERROR- \t" << "WrongPVGrimReaper \t" << "Parameters needed:" << endmsg;
-    serr << "-ERROR- \t" << "WrongPVGrimReaper \t" << "input_file_name input_tree_name output_file_name output_tree_name config_file_name" << endmsg;
+    serr << "-ERROR- \t" << "WrongPVGrimReaper \t" << "config_file_name" << endmsg;
     return 1;
   }
 
