@@ -14,12 +14,12 @@ void WrongPVReducer::CreateSpecialBranches(){
   chi2_any_leaf_  = &CreateDoubleLeaf(chi2_any_leaf_name_);
   chi2_leaf_      = &GetInterimLeafByName(chi2_leaf_name_);
   chi2_leaf_flat_ = &GetInterimLeafByName(chi2_leaf_name_+"_flat");
-  idx_leaf_       = &GetInterimLeafByName(idx_leaf_name_);
+  idxPV_leaf_       = &GetInterimLeafByName(idxPV_leaf_name_);
   // Link branch addresses
   chi2_any_value_  = (Double_t*)chi2_any_leaf_->branch_address();
   chi2_value_      = (Float_t*)chi2_leaf_->branch_address();
   chi2_value_flat_ = (Float_t*)chi2_leaf_flat_->branch_address();
-  idx_value_       = (Int_t*)idx_leaf_->branch_address();
+  idxPV_value_       = (Int_t*)idxPV_leaf_->branch_address();
 
   pv_x_leaf_ = &GetInterimLeafByName(pv_x_leaf_name_);
   pv_y_leaf_ = &GetInterimLeafByName(pv_y_leaf_name_);
@@ -32,9 +32,6 @@ void WrongPVReducer::CreateSpecialBranches(){
   pv_x_true_leaf_ = &GetInterimLeafByName(pv_x_true_leaf_name_);
   pv_y_true_leaf_ = &GetInterimLeafByName(pv_y_true_leaf_name_);
   pv_z_true_leaf_ = &GetInterimLeafByName(pv_z_true_leaf_name_);
-
-  comparison_leaf_ = &GetInterimLeafByName(comparison_leaf_name_);
-  comparison_value_ = (Float_t*)comparison_leaf_->branch_address();
 
   if(LeafExists("B0_BKGCAT")) {
     std::cout << "This is an MC Sample " << std::endl;
@@ -66,7 +63,7 @@ bool WrongPVReducer::EntryPassesSpecialCuts() { return true; }
 //------------------------------------------------------------------------------
 void WrongPVReducer::UpdateSpecialLeaves() {
   unsigned int nPV = chi2_any_leaf_->Length();
-  unsigned int idxPV = *idx_value_;
+  unsigned int idxPV = *idxPV_value_;
   double ip_chi2 = *chi2_value_flat_;
 
   if (debug_mode_) sinfo << "Number of PVs in event: " << nPV << ", PV index of this (B, PV)-pair: " << idxPV << " with an IP chi2: " << ip_chi2 << endmsg;

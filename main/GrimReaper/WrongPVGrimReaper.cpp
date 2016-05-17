@@ -27,20 +27,24 @@ using namespace dooselection::reducer;
 
 int main(int argc, char * argv[]){
   sinfo << "-info-  \t" << "WrongPVGrimReaper \t" << "Welcome!" << endmsg;
-  std::string config_file_name;
-  if (argc == 2){
-    config_file_name = argv[1];
+  std::string inputfile, inputtree, outputfile, outputtree, config_file_name;
+  if (argc == 6){
+    inputfile = argv[1];
+    inputtree = argv[2];
+    outputfile = argv[3];
+    outputtree = argv[4];
+    config_file_name = argv[5];
   }
   else{
     serr << "-ERROR- \t" << "WrongPVGrimReaper \t" << "Parameters needed:" << endmsg;
-    serr << "-ERROR- \t" << "WrongPVGrimReaper \t" << "config_file_name" << endmsg;
+    serr << "-ERROR- \t" << "WrongPVGrimReaper \t" << "input_file_name input_tree_name output_file_name output_tree_name config_file_name" << endmsg;
     return 1;
   }
 
   doocore::config::EasyConfig config(config_file_name);
   std::string chi2_leaf_name  = config.getString("branches.chi2_leaf");
   std::string chi2_any_leaf_name = config.getString("branches.chi2_any_leaf");
-  std::string idx_leaf_name = config.getString("branches.idx_leaf");  
+  std::string idxPV_leaf_name = config.getString("branches.idxPV_leaf");  
   std::string pv_x_leaf_name = config.getString("branches.pv_x_leaf");
   std::string pv_x_var_leaf_name = config.getString("branches.pv_x_var_leaf");
   std::string pv_x_true_leaf_name = config.getString("branches.pv_x_true_leaf");
@@ -50,20 +54,20 @@ int main(int argc, char * argv[]){
   std::string pv_z_leaf_name = config.getString("branches.pv_z_leaf");
   std::string pv_z_var_leaf_name = config.getString("branches.pv_z_var_leaf");
   std::string pv_z_true_leaf_name = config.getString("branches.pv_z_true_leaf");
-  std::string comparison_leaf_name = config.getString("branches.comparison_leaf");
+  bool debug_mode = config.getBool("general.debug_mode");
 
   sinfo << "chi2_leaf_name:  " << chi2_leaf_name << endmsg;
   sinfo << "chi2_any_leaf_name:  " << chi2_any_leaf_name << endmsg;
 
   dooselection::reducer::WrongPVReducer reducer;
 
-  reducer.set_input_file_path(config.getString("input.file"));
-  reducer.set_input_tree_path(config.getString("input.tree"));
-  reducer.set_output_file_path(config.getString("output.file"));
-  reducer.set_output_tree_path(config.getString("output.tree"));
+  reducer.set_input_file_path(inputfile);
+  reducer.set_input_tree_path(inputtree);
+  reducer.set_output_file_path(outputfile);
+  reducer.set_output_tree_path(outputtree);
   reducer.set_chi2_leaf_name(chi2_leaf_name);
   reducer.set_chi2_any_leaf_name(chi2_any_leaf_name);
-  reducer.set_idx_leaf_name(idx_leaf_name);
+  reducer.set_idxPV_leaf_name(idxPV_leaf_name);
   reducer.set_pv_x_leaf_name(pv_x_leaf_name);
   reducer.set_pv_x_var_leaf_name(pv_x_var_leaf_name);
   reducer.set_pv_x_true_leaf_name(pv_x_true_leaf_name);
@@ -73,7 +77,7 @@ int main(int argc, char * argv[]){
   reducer.set_pv_z_leaf_name(pv_z_leaf_name);
   reducer.set_pv_z_var_leaf_name(pv_z_var_leaf_name);
   reducer.set_pv_z_true_leaf_name(pv_z_true_leaf_name);
-  reducer.set_comparison_leaf_name(comparison_leaf_name);
+  reducer.set_debug_mode(debug_mode);
 
   reducer.Initialize();
   reducer.Run();

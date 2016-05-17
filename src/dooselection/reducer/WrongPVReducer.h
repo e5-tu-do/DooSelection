@@ -28,7 +28,7 @@ class WrongPVReducer : virtual public Reducer {
   WrongPVReducer():
     chi2_leaf_(nullptr),
     chi2_any_leaf_(nullptr),
-    idx_leaf_(nullptr),
+    idxPV_leaf_(nullptr),
     pv_x_leaf_(nullptr),
     pv_y_leaf_(nullptr),
     pv_z_leaf_(nullptr),
@@ -44,7 +44,6 @@ class WrongPVReducer : virtual public Reducer {
     pv_x_true_leaf_(nullptr),
     pv_y_true_leaf_(nullptr),
     pv_z_true_leaf_(nullptr),
-    comparison_leaf_(nullptr),
     chi2_value_(nullptr),
     chi2_any_value_(nullptr),
     pv_x_value_(nullptr),
@@ -62,10 +61,9 @@ class WrongPVReducer : virtual public Reducer {
     pv_x_true_value_(nullptr),
     pv_y_true_value_(nullptr),
     pv_z_true_value_(nullptr),
-    comparison_value_(nullptr),
     chi2_leaf_name_(""),
     chi2_any_leaf_name_(""),
-    idx_leaf_name_(""),
+    idxPV_leaf_name_(""),
     pv_x_leaf_name_(""),
     pv_y_leaf_name_(""),
     pv_z_leaf_name_(""),
@@ -81,14 +79,13 @@ class WrongPVReducer : virtual public Reducer {
     pv_x_true_leaf_name_(""),
     pv_y_true_leaf_name_(""),
     pv_z_true_leaf_name_(""),
-    comparison_leaf_name_(""),
     debug_mode_(false)
   {}
   
   virtual ~WrongPVReducer(){}
   void set_chi2_leaf_name(const std::string& chi2_leaf_name){chi2_leaf_name_ = chi2_leaf_name;}
   void set_chi2_any_leaf_name(const std::string& chi2_any_leaf_name){chi2_any_leaf_name_ = chi2_any_leaf_name;}
-  void set_idx_leaf_name(const std::string& idx_leaf_name){idx_leaf_name_ = idx_leaf_name;}
+  void set_idxPV_leaf_name(const std::string& idxPV_leaf_name){idxPV_leaf_name_ = idxPV_leaf_name;}
   void set_pv_x_leaf_name(const std::string& pv_x_leaf_name){pv_x_leaf_name_ = pv_x_leaf_name;}
   void set_pv_x_var_leaf_name(const std::string& pv_x_var_leaf_name){pv_x_var_leaf_name_ = pv_x_var_leaf_name;}
   void set_pv_x_true_leaf_name(const std::string& pv_x_true_leaf_name){pv_x_true_leaf_name_ = pv_x_true_leaf_name;}
@@ -98,7 +95,7 @@ class WrongPVReducer : virtual public Reducer {
   void set_pv_z_leaf_name(const std::string& pv_z_leaf_name){pv_z_leaf_name_ = pv_z_leaf_name;}
   void set_pv_z_var_leaf_name(const std::string& pv_z_var_leaf_name){pv_z_var_leaf_name_ = pv_z_var_leaf_name;}
   void set_pv_z_true_leaf_name(const std::string& pv_z_true_leaf_name){pv_z_true_leaf_name_ = pv_z_true_leaf_name;}
-  void set_comparison_leaf_name(const std::string& comparison_leaf_name){comparison_leaf_name_ = comparison_leaf_name;}
+  void set_debug_mode(const bool& debug_mode){debug_mode_ = debug_mode;}
 
  protected:
   virtual void CreateSpecialBranches();
@@ -109,13 +106,11 @@ class WrongPVReducer : virtual public Reducer {
   // leaves to read
   const dooselection::reducer::ReducerLeaf<Float_t>*  chi2_leaf_;
   const dooselection::reducer::ReducerLeaf<Float_t>*  chi2_leaf_flat_;
-  const dooselection::reducer::ReducerLeaf<Float_t>*  idx_leaf_;
+  const dooselection::reducer::ReducerLeaf<Float_t>*  idxPV_leaf_;
   Float_t*                                            chi2_value_;
   Float_t*                                            chi2_value_flat_;
-  Int_t*                                              idx_value_; 
+  Int_t*                                              idxPV_value_; 
 
-  const dooselection::reducer::ReducerLeaf<Float_t>*  comparison_leaf_;
-  Float_t*                                            comparison_value_;
 
   const dooselection::reducer::ReducerLeaf<Float_t>*  pv_x_leaf_;
   const dooselection::reducer::ReducerLeaf<Float_t>*  pv_y_leaf_;
@@ -156,7 +151,7 @@ class WrongPVReducer : virtual public Reducer {
 
   std::string chi2_leaf_name_;
   std::string chi2_any_leaf_name_;
-  std::string idx_leaf_name_;
+  std::string idxPV_leaf_name_;
   std::string pv_x_leaf_name_; 
   std::string pv_x_var_leaf_name_;
   std::string pv_x_true_leaf_name_;
@@ -172,7 +167,6 @@ class WrongPVReducer : virtual public Reducer {
   std::string pv_z_true_leaf_name_;
   std::string pv_z_res_leaf_name_;
   std::string pv_z_pull_leaf_name_;
-  std::string comparison_leaf_name_;
 
   bool debug_mode_;
 };
