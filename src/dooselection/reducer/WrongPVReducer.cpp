@@ -60,12 +60,12 @@ bool WrongPVReducer::EntryPassesSpecialCuts() { return true; }
 //                   WrongPVReducer::UpdateSpecialLeaves()
 //------------------------------------------------------------------------------
 void WrongPVReducer::UpdateSpecialLeaves() {
-  unsigned int nPV = chi2_any_leaf_->Length();
+  unsigned int nPV = chi2_leaf_->Length();
   unsigned int idxPV = *idxPV_value_;
   double ip_chi2 = *chi2_value_flat_;
 
-  // if (debug_mode_) sinfo << "Number of PVs in event: " << nPV << ", PV index of this (B, PV)-pair: " << idxPV << " with an IP chi2: " << ip_chi2 << endmsg;
-
+  if (debug_mode_) sinfo << "Number of PVs in event: " << nPV << ", PV index of this (B, PV)-pair: " << idxPV << " with an IP chi2: " << ip_chi2 << endmsg;
+  
   // sanity check if IP chi2 is smaller 0, set to -1
   if (ip_chi2 < 0){
     *chi2_any_value_ = -1;
@@ -74,7 +74,6 @@ void WrongPVReducer::UpdateSpecialLeaves() {
   // if number of PVs is one, set to default value 1e+6
   else if (nPV == 1){
     *chi2_any_value_ = 1e+12;
-    // if (debug_mode_) sinfo << "Number of PVs in event: " << nPV << ". chi2_any_value is set to 1e+12." << endmsg;
   }
   else {
     // start with a reference IP of 1e+12, this also defines the larges possible value the variable can take!
@@ -82,11 +81,10 @@ void WrongPVReducer::UpdateSpecialLeaves() {
     if (debug_mode_) sinfo.increment_indent(5);
     for (unsigned int pv = 0; pv < nPV; pv++){
 
-      if (pv != idxPV && debug_mode_) sinfo << "IP chi2 for PV No. " << pv << " is: " << chi2_any_leaf_->GetValue(pv) << endmsg;
+      if (pv != idxPV && debug_mode_) sinfo << "IP chi2 for PV No. " << pv << " is: " << chi2_leaf_->GetValue(pv) << endmsg; 
       
-      if (pv != idxPV && chi2_any_leaf_->GetValue(pv) > 0 && (min_ip_chi2 <= 0 || chi2_any_leaf_->GetValue(pv) < min_ip_chi2) ){
-        min_ip_chi2 = chi2_any_leaf_->GetValue(pv);
-        sinfo << "Min IP to any other PV is " << min_ip_chi2 << endmsg;
+      if (pv != idxPV && chi2_leaf_->GetValue(pv) > 0 && (min_ip_chi2 <= 0 || chi2_leaf_->GetValue(pv) < min_ip_chi2) ){
+        min_ip_chi2 = chi2_leaf_->GetValue(pv);
       }
     }
     if (debug_mode_) sinfo.increment_indent(-5);
