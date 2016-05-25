@@ -95,7 +95,6 @@ class WrongPVReducer : virtual public Reducer {
   void set_pv_z_leaf_name(const std::string& pv_z_leaf_name){pv_z_leaf_name_ = pv_z_leaf_name;}
   void set_pv_z_var_leaf_name(const std::string& pv_z_var_leaf_name){pv_z_var_leaf_name_ = pv_z_var_leaf_name;}
   void set_pv_z_true_leaf_name(const std::string& pv_z_true_leaf_name){pv_z_true_leaf_name_ = pv_z_true_leaf_name;}
-  void set_debug_mode(const bool& debug_mode){debug_mode_ = debug_mode;}
 
  protected:
   virtual void CreateSpecialBranches();

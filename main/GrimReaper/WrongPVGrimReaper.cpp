@@ -54,7 +54,6 @@ int main(int argc, char * argv[]){
   std::string pv_z_leaf_name = config.getString("branches.pv_z_leaf");
   std::string pv_z_var_leaf_name = config.getString("branches.pv_z_var_leaf");
   std::string pv_z_true_leaf_name = config.getString("branches.pv_z_true_leaf");
-  bool debug_mode = config.getBool("general.debug_mode");
 
   sinfo << "chi2_leaf_name:  " << chi2_leaf_name << endmsg;
   sinfo << "chi2_any_leaf_name:  " << chi2_any_leaf_name << endmsg;
@@ -77,7 +76,6 @@ int main(int argc, char * argv[]){
   reducer.set_pv_z_leaf_name(pv_z_leaf_name);
   reducer.set_pv_z_var_leaf_name(pv_z_var_leaf_name);
   reducer.set_pv_z_true_leaf_name(pv_z_true_leaf_name);
-  reducer.set_debug_mode(debug_mode);
 
   reducer.Initialize();
   reducer.Run();
