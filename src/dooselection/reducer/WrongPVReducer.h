@@ -79,6 +79,7 @@ class WrongPVReducer : virtual public Reducer {
     pv_x_true_leaf_name_(""),
     pv_y_true_leaf_name_(""),
     pv_z_true_leaf_name_(""),
+    bkg_cat_leaf_name_(""),
     debug_mode_(false)
   {}
   
@@ -95,6 +96,7 @@ class WrongPVReducer : virtual public Reducer {
   void set_pv_z_leaf_name(const std::string& pv_z_leaf_name){pv_z_leaf_name_ = pv_z_leaf_name;}
   void set_pv_z_var_leaf_name(const std::string& pv_z_var_leaf_name){pv_z_var_leaf_name_ = pv_z_var_leaf_name;}
   void set_pv_z_true_leaf_name(const std::string& pv_z_true_leaf_name){pv_z_true_leaf_name_ = pv_z_true_leaf_name;}
+  void set_bkg_cat_leaf_name(const std::string& bkg_cat_leaf_name){bkg_cat_leaf_name_ = bkg_cat_leaf_name;}
 
  protected:
   virtual void CreateSpecialBranches();
@@ -109,7 +111,6 @@ class WrongPVReducer : virtual public Reducer {
   Float_t*                                            chi2_value_;
   Float_t*                                            chi2_value_flat_;
   Int_t*                                              idxPV_value_; 
-
 
   const dooselection::reducer::ReducerLeaf<Float_t>*  pv_x_leaf_;
   const dooselection::reducer::ReducerLeaf<Float_t>*  pv_y_leaf_;
@@ -166,6 +167,7 @@ class WrongPVReducer : virtual public Reducer {
   std::string pv_z_true_leaf_name_;
   std::string pv_z_res_leaf_name_;
   std::string pv_z_pull_leaf_name_;
+  std::string bkg_cat_leaf_name_;
 
   bool debug_mode_;
 };

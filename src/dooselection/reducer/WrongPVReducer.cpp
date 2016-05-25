@@ -29,7 +29,7 @@ void WrongPVReducer::CreateSpecialBranches(){
   pv_y_var_leaf_ = &GetInterimLeafByName(pv_x_var_leaf_name_);
   pv_z_var_leaf_ = &GetInterimLeafByName(pv_x_var_leaf_name_);
 
-  if(LeafExists("B0_BKGCAT")) {
+  if(LeafExists(bkg_cat_leaf_name_)) {
     std::cout << "This is an MC Sample " << std::endl;
     pv_x_true_leaf_ = &GetInterimLeafByName(pv_x_true_leaf_name_);
     pv_y_true_leaf_ = &GetInterimLeafByName(pv_y_true_leaf_name_);

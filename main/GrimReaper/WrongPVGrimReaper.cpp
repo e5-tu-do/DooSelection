@@ -42,18 +42,20 @@ int main(int argc, char * argv[]){
   }
 
   doocore::config::EasyConfig config(config_file_name);
-  std::string chi2_leaf_name  = config.getString("branches.chi2_leaf");
-  std::string chi2_any_leaf_name = config.getString("branches.chi2_any_leaf");
-  std::string idxPV_leaf_name = config.getString("branches.idxPV_leaf");  
-  std::string pv_x_leaf_name = config.getString("branches.pv_x_leaf");
-  std::string pv_x_var_leaf_name = config.getString("branches.pv_x_var_leaf");
-  std::string pv_x_true_leaf_name = config.getString("branches.pv_x_true_leaf");
-  std::string pv_y_leaf_name = config.getString("branches.pv_y_leaf");
-  std::string pv_y_var_leaf_name = config.getString("branches.pv_y_var_leaf");
-  std::string pv_y_true_leaf_name = config.getString("branches.pv_y_true_leaf");
-  std::string pv_z_leaf_name = config.getString("branches.pv_z_leaf");
-  std::string pv_z_var_leaf_name = config.getString("branches.pv_z_var_leaf");
-  std::string pv_z_true_leaf_name = config.getString("branches.pv_z_true_leaf");
+  std::string chi2_any_leaf_name = config.getString("branches_to_write.chi2_any_leaf");
+  std::string chi2_leaf_name  = config.getString("branches_to_read.chi2_leaf");
+  std::string idxPV_leaf_name = config.getString("branches_to_read.idxPV_leaf");  
+  std::string pv_x_leaf_name = config.getString("branches_to_read.pv_x_leaf");
+  std::string pv_x_var_leaf_name = config.getString("branches_to_read.pv_x_var_leaf");
+  std::string pv_x_true_leaf_name = config.getString("branches_to_read.pv_x_true_leaf");
+  std::string pv_y_leaf_name = config.getString("branches_to_read.pv_y_leaf");
+  std::string pv_y_var_leaf_name = config.getString("branches_to_read.pv_y_var_leaf");
+  std::string pv_y_true_leaf_name = config.getString("branches_to_read.pv_y_true_leaf");
+  std::string pv_z_leaf_name = config.getString("branches_to_read.pv_z_leaf");
+  std::string pv_z_var_leaf_name = config.getString("branches_to_read.pv_z_var_leaf");
+  std::string pv_z_true_leaf_name = config.getString("branches_to_read.pv_z_true_leaf");
+  std::string bkg_cat_leaf_name = config.getString("branches_to_read.bkg_cat_leaf");
+
 
   sinfo << "chi2_leaf_name:  " << chi2_leaf_name << endmsg;
   sinfo << "chi2_any_leaf_name:  " << chi2_any_leaf_name << endmsg;
@@ -76,6 +78,7 @@ int main(int argc, char * argv[]){
   reducer.set_pv_z_leaf_name(pv_z_leaf_name);
   reducer.set_pv_z_var_leaf_name(pv_z_var_leaf_name);
   reducer.set_pv_z_true_leaf_name(pv_z_true_leaf_name);
+  reducer.set_bkg_cat_leaf_name(bkg_cat_leaf_name);
 
   reducer.Initialize();
   reducer.Run();
