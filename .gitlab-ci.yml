@@ -1,0 +1,7 @@
+image: bixel/doxygen-uploader
+
+pages:
+    script:
+        - echo "$DOCS_HOSTS" >> /etc/hosts
+        - doxygen doxygen.conf
+        - cd html && find . -type f -exec curl -f -u $DOCS_USER:$DOCS_PASSWORD -k -L -T {} $DOCS_URL{} \;
