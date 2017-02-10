@@ -5,4 +5,7 @@ pages:
         # this line can be delted when the dns entry is available
         - echo "$DOCS_HOSTS" >> /etc/hosts
         - doxygen doxygen.conf
-        - cd html && find . -type f -exec curl -f -u $DOCS_USER:$DOCS_PASSWORD -k -L -T {} $DOCS_URL{} \;
+        # try to upload a single file to make this script fail on misconfigurations
+        - cd html && curl -f -u $DOCS_USER:$DOCS_PASSWORD -k -L -T index.html $DOCS_URL/index.html
+        # upload everything else with `find exec`
+        - find . -type f -exec curl -f -u $DOCS_USER:$DOCS_PASSWORD -k -L -T {} $DOCS_URL{} \;
