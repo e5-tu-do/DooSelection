@@ -2,283 +2,83 @@
 // WrongPVGrimReaper.cpp
 //
 // Standalone GrimReaper adds the minimal 
-// J/psi IP chi2 w.r.t any PV to a tuple.
+// IP chi2 w.r.t any PV to a tuple.
 //
 // Author: Christophe Cauet
-// Date: 2014-10-26
+// Date: 2013-10-14
+//
+//Updated by Vanessa Müller
+//Date: 2016-05-04
 /******************************************/
 
 // from DooCore
 #include "doocore/io/MsgStream.h"
+#include "doocore/config/EasyConfig.h"
 
 // from DooSelection
-#include "dooselection/reducer/Reducer.h"
+#include "dooselection/reducer/WrongPVReducer.h"
+
+// from BOOSGT
+#include "boost/lexical_cast.hpp"
 
 using namespace doocore::io;
 using namespace dooselection::reducer;
 
-//==============================================================================
-//                     WrongPVReducer class definition
-//==============================================================================
-class WrongPVReducer : virtual public dooselection::reducer::Reducer {
- public:
-  WrongPVReducer():
-    in_leaf_(nullptr),
-    in_value_(nullptr),
-    out_leaf_(nullptr),
-    out_value_(nullptr),
-    in_leaf_name_(""),
-    in_leaf_idx_pv_name_("idxPV"),
-    out_leaf_name_(""),
-    pv_x_(nullptr),
-    pv_y_(nullptr),
-    pv_z_(nullptr),
-    pv_x_var_(nullptr),
-    pv_y_var_(nullptr),
-    pv_z_var_(nullptr),
-    pv_res_x_(nullptr),
-    pv_res_y_(nullptr),
-    pv_res_z_(nullptr),
-    pv_pull_x_(nullptr),
-    pv_pull_y_(nullptr),
-    pv_pull_z_(nullptr),
-    pv_pull_x_val_(nullptr),
-    pv_pull_y_val_(nullptr),
-    pv_pull_z_val_(nullptr),
-    debug_mode_(false)
-  {}
-  virtual ~WrongPVReducer(){}
-  void set_in_leaf_name(const std::string& in_leaf_name){in_leaf_name_ = in_leaf_name;}
-  void set_out_leaf_name(const std::string& out_leaf_name){out_leaf_name_ = out_leaf_name;}
 
- protected:
-  virtual void CreateSpecialBranches();
-  virtual bool EntryPassesSpecialCuts();
-  virtual void UpdateSpecialLeaves();
- private:
-  // leaves to read
-  const dooselection::reducer::ReducerLeaf<Float_t>*  in_leaf_;
-  const dooselection::reducer::ReducerLeaf<Float_t>*  in_leaf_flat_;
-  const dooselection::reducer::ReducerLeaf<Float_t>*  in_leaf_idx_pv_;
-  Float_t*                                            in_value_;
-  Float_t*                                            in_value_flat_;
-  Int_t*                                              in_value_idx_pv_; 
-
-  const dooselection::reducer::ReducerLeaf<Float_t>*  in_leaf_psi2s_;
-  const dooselection::reducer::ReducerLeaf<Float_t>*  in_leaf_psi2s_flat_;
-  const dooselection::reducer::ReducerLeaf<Float_t>*  in_leaf_psi2s_idx_pv_;
-  Float_t*                                            in_value_psi2s_;
-  Float_t*                                            in_value_psi2s_flat_;
-  Int_t*                                              in_value_psi2s_idx_pv_; 
-  
-  const dooselection::reducer::ReducerLeaf<Float_t>*  comparison_leaf_;
-  Float_t*                                            comparison_value_;
-
-  const dooselection::reducer::ReducerLeaf<Float_t>*  pv_x_;
-  const dooselection::reducer::ReducerLeaf<Float_t>*  pv_y_;
-  const dooselection::reducer::ReducerLeaf<Float_t>*  pv_z_;
-  const dooselection::reducer::ReducerLeaf<Float_t>*  pv_x_var_;
-  const dooselection::reducer::ReducerLeaf<Float_t>*  pv_y_var_;
-  const dooselection::reducer::ReducerLeaf<Float_t>*  pv_z_var_;
-  const dooselection::reducer::ReducerLeaf<Float_t>*  pv_true_x_;
-  const dooselection::reducer::ReducerLeaf<Float_t>*  pv_true_y_;
-  const dooselection::reducer::ReducerLeaf<Float_t>*  pv_true_z_;
-
-  // leaves to write
-  dooselection::reducer::ReducerLeaf<Double_t>* out_leaf_;
-  Double_t*                                     out_value_;
-
-  dooselection::reducer::ReducerLeaf<Double_t>* out_leaf_psi2s_;
-  Double_t*                                     out_value_psi2s_;
-
-  dooselection::reducer::ReducerLeaf<Double_t>* pv_res_x_;
-  dooselection::reducer::ReducerLeaf<Double_t>* pv_res_y_;
-  dooselection::reducer::ReducerLeaf<Double_t>* pv_res_z_;
-  dooselection::reducer::ReducerLeaf<Double_t>* pv_pull_x_;
-  dooselection::reducer::ReducerLeaf<Double_t>* pv_pull_y_;
-  dooselection::reducer::ReducerLeaf<Double_t>* pv_pull_z_;
-  
-  Double_t* pv_res_x_val_;
-  Double_t* pv_res_y_val_;
-  Double_t* pv_res_z_val_;
-  Double_t* pv_pull_x_val_;
-  Double_t* pv_pull_y_val_;
-  Double_t* pv_pull_z_val_;
-
-  std::string in_leaf_name_;
-  std::string in_leaf_idx_pv_name_;
-  std::string out_leaf_name_;
-
-  bool debug_mode_;
-};
-
-//------------------------------------------------------------------------------
-//                   WrongPVReducer::CreateSpecialBranches()
-//------------------------------------------------------------------------------
-void WrongPVReducer::CreateSpecialBranches(){
-  // Create/Get new leaves
-  out_leaf_         = &CreateDoubleLeaf(out_leaf_name_);
-  in_leaf_          = &GetInterimLeafByName(in_leaf_name_);
-  in_leaf_flat_     = &GetInterimLeafByName(in_leaf_name_+"_flat");
-  in_leaf_idx_pv_   = &GetInterimLeafByName(in_leaf_idx_pv_name_);
-  // Link branch addresses
-  out_value_        = (Double_t*)out_leaf_->branch_address();
-  in_value_         = (Float_t*)in_leaf_->branch_address();
-  in_value_flat_    = (Float_t*)in_leaf_flat_->branch_address();
-  in_value_idx_pv_  = (Int_t*)in_leaf_idx_pv_->branch_address();
-
-  if (LeafExists("B0_FitPVConst_PV_X_flat")) {
-    pv_x_ = &GetInterimLeafByName("B0_FitPVConst_PV_X_flat");
-    pv_y_ = &GetInterimLeafByName("B0_FitPVConst_PV_Y_flat");
-    pv_z_ = &GetInterimLeafByName("B0_FitPVConst_PV_Z_flat");
-  }
-  if (LeafExists("B0_FitPVConst_PV_XVAR_flat")) {
-    pv_x_var_ = &GetInterimLeafByName("B0_FitPVConst_PV_XVAR_flat");
-    pv_y_var_ = &GetInterimLeafByName("B0_FitPVConst_PV_YVAR_flat");
-    pv_z_var_ = &GetInterimLeafByName("B0_FitPVConst_PV_ZVAR_flat");
-  }
-  if (LeafExists("B0_TRUEORIGINVERTEX_X")) {
-    pv_true_x_ = &GetInterimLeafByName("B0_TRUEORIGINVERTEX_X");
-    pv_true_y_ = &GetInterimLeafByName("B0_TRUEORIGINVERTEX_Y");
-    pv_true_z_ = &GetInterimLeafByName("B0_TRUEORIGINVERTEX_Z");
-  }
-  if (LeafExists("J_psi_1S_MINIPCHI2_OtherPVs_flat")) {
-    comparison_leaf_ = &GetInterimLeafByName("J_psi_1S_MINIPCHI2_OtherPVs_flat");
-    comparison_value_ = (Float_t*)comparison_leaf_->branch_address();
-  }
-
-  if(LeafExists("B0_BKGCAT")) {
-    std::cout << "This is an MC Sample " << std::endl;
-    if(LeafExists("B0_FitPVConst_PV_ZVAR_flat")){
-      sinfo << "B0_FitPVConst_PV_ZVAR_flat" << endmsg;
-      pv_res_x_ = &CreateDoubleLeaf("pv_res_x");
-      pv_res_y_ = &CreateDoubleLeaf("pv_res_y");
-      pv_res_z_ = &CreateDoubleLeaf("pv_res_z");
-      pv_pull_x_ = &CreateDoubleLeaf("pv_pull_x");
-      pv_pull_y_ = &CreateDoubleLeaf("pv_pull_y");
-      pv_pull_z_ = &CreateDoubleLeaf("pv_pull_z");
-      pv_res_x_val_ = (Double_t*)pv_res_x_->branch_address();
-      pv_res_y_val_ = (Double_t*)pv_res_y_->branch_address();
-      pv_res_z_val_ = (Double_t*)pv_res_z_->branch_address();
-      pv_pull_x_val_ = (Double_t*)pv_pull_x_->branch_address();
-      pv_pull_y_val_ = (Double_t*)pv_pull_y_->branch_address();
-      pv_pull_z_val_ = (Double_t*)pv_pull_z_->branch_address();
-      //Filled in UpdateSpecialBranches
-    } else {
-      sinfo << "B0_FitPVConst_PV_ZVAR_flat" << endmsg;
-    }
-  } else {
-    sinfo << "This is a Data Sample" << endmsg;
-  }
-}
-
-//------------------------------------------------------------------------------
-//                   WrongPVReducer::EntryPassesSpecialCuts()
-//------------------------------------------------------------------------------
-bool WrongPVReducer::EntryPassesSpecialCuts() { return true; }
-
-//------------------------------------------------------------------------------
-//                   WrongPVReducer::UpdateSpecialLeaves()
-//------------------------------------------------------------------------------
-void WrongPVReducer::UpdateSpecialLeaves() {
-  unsigned int nPV = in_leaf_->Length();
-  unsigned int idxPV = *in_value_idx_pv_;
-  double ip_chi2 = *in_value_flat_;
-
-  if (debug_mode_) sinfo << "Number of PVs in event: " << nPV << ", PV index of this (B, PV)-pair: " << idxPV << " with an IP chi2: " << ip_chi2 << endmsg;
-
-  // sanity check if IP chi2 is smaller 0, set to -1
-  if (ip_chi2 < 0){
-    *out_value_ = -1;
-    swarn << "IP chi2 <0!" << endmsg;
-  }
-  // if number of PVs is one, set to default value 1e+6
-  else if (nPV == 1){
-    *out_value_ = 1e+12;
-  }
-  else {
-    // start with a reference IP of 1e+12, this also defines the larges possible value the variable can take!
-    double min_ip_chi2 = 1e+12;
-    if (debug_mode_) sinfo.increment_indent(5);
-    for (unsigned int pv = 0; pv < nPV; pv++){
-
-      if (pv != idxPV && debug_mode_) sinfo << "IP chi2 for PV No. " << pv << " is: " << in_leaf_->GetValue(pv) << endmsg;
-      
-      if (pv != idxPV && in_leaf_->GetValue(pv) > 0 && (min_ip_chi2 <= 0 || in_leaf_->GetValue(pv) < min_ip_chi2) ){
-        min_ip_chi2 = in_leaf_->GetValue(pv);
-      }
-    }
-    if (debug_mode_) sinfo.increment_indent(-5);
-    if (debug_mode_) sinfo << "Saved min IP chi2: " << min_ip_chi2 << endmsg;
-    *out_value_ = min_ip_chi2;
-  }
-
-  // if (*out_value_ != *comparison_value_ && nPV > 1 && *comparison_value_ != -6) {
-  //   swarn << "Leaves do not match!" << endmsg;
-  //   swarn << "J_psi_1S_MINIPCHI2_OtherPVs_flat = " << *comparison_value_ << endmsg;
-  //   swarn << "varJpsiMinIPCHI2anyPV            = " << *out_value_ << endmsg;
-  //   swarn << "idxPV                            = " << idxPV << endmsg;
-
-  //   for (unsigned int pv = 0; pv < nPV; pv++) {
-  //     swarn << " pv = " << pv << " - B0_FitDaughtersPVConst_J_psi_1S_IPCHI2_flat = " << in_leaf_->GetValue(pv) << endmsg;
-  //   }
-  // } 
-
-  if(pv_pull_z_) {
-    *pv_res_x_ = pv_x_->GetValue() - pv_true_x_->GetValue();
-    *pv_res_y_ = pv_y_->GetValue() - pv_true_y_->GetValue();
-    *pv_res_z_ = pv_z_->GetValue() - pv_true_z_->GetValue();
-    *pv_pull_x_val_ = pv_res_x_->GetValue()/sqrt(pv_x_var_->GetValue());
-    *pv_pull_y_val_ = pv_res_y_->GetValue()/sqrt(pv_y_var_->GetValue());
-    *pv_pull_z_val_ = pv_res_z_->GetValue()/sqrt(pv_z_var_->GetValue()); 
-  }
-}
-
-//==============================================================================
-//                                   MAIN
-//==============================================================================
 int main(int argc, char * argv[]){
   sinfo << "-info-  \t" << "WrongPVGrimReaper \t" << "Welcome!" << endmsg;
-  std::string inputfile, inputtree, outputfile, outputtree, mode_name;
+  std::string inputfile, inputtree, outputfile, outputtree, config_file_name;
   if (argc == 6){
     inputfile = argv[1];
     inputtree = argv[2];
     outputfile = argv[3];
     outputtree = argv[4];
-    mode_name = argv[5];
+    config_file_name = argv[5];
   }
   else{
     serr << "-ERROR- \t" << "WrongPVGrimReaper \t" << "Parameters needed:" << endmsg;
-    serr << "-ERROR- \t" << "WrongPVGrimReaper \t" << "input_file_name input_tree_name output_file_name output_tree_name mode_name(jpsi,psi2s,b0)" << endmsg;
+    serr << "-ERROR- \t" << "WrongPVGrimReaper \t" << "input_file_name input_tree_name output_file_name output_tree_name config_file_name" << endmsg;
     return 1;
   }
-  WrongPVReducer reducer;
 
-  std::string in_leaf_name = "";
-  std::string out_leaf_name = "";
-  if (mode_name == "jpsi"){
-    in_leaf_name = "B0_FitDaughtersPVConst_J_psi_1S_IPCHI2";
-    out_leaf_name = "varJpsiMinIPCHI2anyPV";
-  }
-  else if (mode_name == "psi2s"){
-    in_leaf_name = "B0_FitDaughtersPVConst_psi_2S_IPCHI2";
-    out_leaf_name = "varpsi2SMinIPCHI2anyPV";
-  }
-  else if (mode_name == "b0"){
-    // in_leaf_name = "B0_FitDaughtersPVConst_IPCHI2";
-    in_leaf_name = "B0_FitwithoutConst_IPCHI2";
-    out_leaf_name = "varB0MinIPCHI2anyPV";
-  }
+  doocore::config::EasyConfig config(config_file_name);
+  std::string chi2_any_leaf_name = config.getString("branches_to_write.chi2_any_leaf");
+  std::string chi2_leaf_name  = config.getString("branches_to_read.chi2_leaf");
+  std::string idxPV_leaf_name = config.getString("branches_to_read.idxPV_leaf");  
+  std::string pv_x_leaf_name = config.getString("branches_to_read.pv_x_leaf");
+  std::string pv_x_var_leaf_name = config.getString("branches_to_read.pv_x_var_leaf");
+  std::string pv_x_true_leaf_name = config.getString("branches_to_read.pv_x_true_leaf");
+  std::string pv_y_leaf_name = config.getString("branches_to_read.pv_y_leaf");
+  std::string pv_y_var_leaf_name = config.getString("branches_to_read.pv_y_var_leaf");
+  std::string pv_y_true_leaf_name = config.getString("branches_to_read.pv_y_true_leaf");
+  std::string pv_z_leaf_name = config.getString("branches_to_read.pv_z_leaf");
+  std::string pv_z_var_leaf_name = config.getString("branches_to_read.pv_z_var_leaf");
+  std::string pv_z_true_leaf_name = config.getString("branches_to_read.pv_z_true_leaf");
+  std::string bkg_cat_leaf_name = config.getString("branches_to_read.bkg_cat_leaf");
 
-  sinfo << "in_leaf_name:  " << in_leaf_name << endmsg;
-  sinfo << "out_leaf_name:  " << out_leaf_name << endmsg;
+
+  sinfo << "chi2_leaf_name:  " << chi2_leaf_name << endmsg;
+  sinfo << "chi2_any_leaf_name:  " << chi2_any_leaf_name << endmsg;
+
+  dooselection::reducer::WrongPVReducer reducer;
 
   reducer.set_input_file_path(inputfile);
   reducer.set_input_tree_path(inputtree);
   reducer.set_output_file_path(outputfile);
   reducer.set_output_tree_path(outputtree);
-  reducer.set_in_leaf_name(in_leaf_name);
-  reducer.set_out_leaf_name(out_leaf_name);
+  reducer.set_chi2_leaf_name(chi2_leaf_name);
+  reducer.set_chi2_any_leaf_name(chi2_any_leaf_name);
+  reducer.set_idxPV_leaf_name(idxPV_leaf_name);
+  reducer.set_pv_x_leaf_name(pv_x_leaf_name);
+  reducer.set_pv_x_var_leaf_name(pv_x_var_leaf_name);
+  reducer.set_pv_x_true_leaf_name(pv_x_true_leaf_name);
+  reducer.set_pv_y_leaf_name(pv_y_leaf_name);
+  reducer.set_pv_y_var_leaf_name(pv_y_var_leaf_name);
+  reducer.set_pv_y_true_leaf_name(pv_y_true_leaf_name);
+  reducer.set_pv_z_leaf_name(pv_z_leaf_name);
+  reducer.set_pv_z_var_leaf_name(pv_z_var_leaf_name);
+  reducer.set_pv_z_true_leaf_name(pv_z_true_leaf_name);
+  reducer.set_bkg_cat_leaf_name(bkg_cat_leaf_name);
 
   reducer.Initialize();
   reducer.Run();
