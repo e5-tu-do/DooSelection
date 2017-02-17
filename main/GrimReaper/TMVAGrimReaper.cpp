@@ -18,18 +18,33 @@
 // from DooCore
 #include "doocore/config/EasyConfig.h"
 #include "doocore/config/Summary.h"
+#include "doocore/io/MsgStream.h"
+
 
 // from DooSelection
 #include "dooselection/reducer/TMVAClassificationReducer.h"
 
-// from here
-
 int main(int argc, char* argv[]){
-  if (argc != 2) {
-    std::cout << "Usage:   " << argv[0] << " 'config_file_name'" << std::endl;
+  doocore::io::sinfo << "-info-  \t" << "TMVAGrimReaper \t" << "Welcome!" << doocore::io::endmsg;
+  std::string inputfile, inputtree, outputfile, outputtree, config_file_name;
+
+  if (argc == 2) {
+    config_file_name = argv[1];
+  }
+  else if (argc == 6) {
+    inputfile = argv[1];
+    inputtree = argv[2];
+    outputfile = argv[3];
+    outputtree = argv[4];
+    config_file_name = argv[5];
+  }
+  else {
+    doocore::io::serr << "-ERROR- \t" << "TMVAGrimReaper \t" << "Parameters needed:" << doocore::io::endmsg;
+    doocore::io::serr << "-ERROR- \t" << "TMVAGrimReaper \t"<< "input_file_name input_tree_name output_file_name output_tree_name config_file_name" << doocore::io::endmsg;
+    doocore::io::serr << "-ERROR- \t" << "TMVAGrimReaper \t"<< "config_file_name" << doocore::io::endmsg;
     return 0;
   }
-  doocore::config::EasyConfig config(argv[1]);
+  doocore::config::EasyConfig config(config_file_name);
 
   doocore::config::Summary& summary = doocore::config::Summary::GetInstance();
   dooselection::reducer::TMVAClassificationReducer reducer;
@@ -38,10 +53,23 @@ int main(int argc, char* argv[]){
   using namespace doocore::io;
   
   TString method(config.getString("method"));
+  std::vector<std::string> methods;
+  boost::property_tree::ptree pt = config.getPTree();
+  if (pt.get_child_optional("methods")) methods = config.getVoStrings("methods");
+
   TString track_type(config.getString("track_type"));
 
   fs::path input_file(config.getString("input_file"));
   fs::path output_file(config.getString("output_file"));
+  TString tree(config.getString("data_tree"));
+  TString output_tree(config.getString("output_tree"));
+
+  if (argc == 6) {
+    input_file = fs::path(inputfile);
+    output_file = fs::path(outputfile);
+    tree = inputtree.c_str();
+    output_tree = outputtree.c_str();
+  }
   
   if (fs::exists(input_file)) {
     // new style input output files without enforcing arbitrary file naming
@@ -71,8 +99,9 @@ int main(int argc, char* argv[]){
   }
   
   TString xml_file(config.getString("xml_file"));
-  TString tree(config.getString("data_tree"));
-  TString output_tree(config.getString("output_tree"));
+  std::vector<std::string> xml_files;
+  if (pt.get_child_optional("xml_files")) xml_files = config.getVoStrings("xml_files");
+
   if (output_tree == ""){
     output_tree = tree;
   }
@@ -102,7 +131,16 @@ int main(int argc, char* argv[]){
   }
 
   // Register MVA method and XML file
-  reducer.SetTMVAMethodAndXMLFile(method, xml_file);
+  if (pt.get_child_optional("methods") && pt.get_child_optional("xml_files")) {
+    if (methods.size() == xml_files.size()) {
+      reducer.SetTMVAMethodsAndXMLFiles(methods, xml_files);
+    }
+    else {
+      std::cout << "The number of methods and xml files differs! Please change!" << std::endl;
+      return 0;
+    }
+  }
+  else reducer.SetTMVAMethodAndXMLFile(method, xml_file);
 
   // Register input file
   reducer.set_input_file_path(input_file.string());
@@ -117,9 +155,12 @@ int main(int argc, char* argv[]){
   // Register input variables
   summary.AddSection("Variables");
 
-  std::vector<std::string> float_variables = config.getVoStrings("variables.float");
-  std::vector<std::string> integer_variables = config.getVoStrings("variables.integer");
-  std::vector<std::string> spectator_variables = config.getVoStrings("variables.spectator");
+  std::vector<std::string> float_variables;
+  if (pt.get_child_optional("variables.float")) float_variables = config.getVoStrings("variables.float");
+  std::vector<std::string> integer_variables;
+  if (pt.get_child_optional("variables.integer")) integer_variables = config.getVoStrings("variables.integer");
+  std::vector<std::string> spectator_variables;
+  if (pt.get_child_optional("variables.spectator")) spectator_variables = config.getVoStrings("variables.spectator");
 
   summary.AddSection("Float");
   for(std::vector<std::string>::iterator it = float_variables.begin(); it != float_variables.end(); it++){

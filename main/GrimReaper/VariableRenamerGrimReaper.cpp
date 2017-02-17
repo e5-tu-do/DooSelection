@@ -32,7 +32,7 @@ int main(int argc, char * argv[]){
   }
 
   doocore::config::EasyConfig config(config_file_name);
-  std::vector<std::string> substitutions = config.getVoStrings("substitutions");
+  std::vector<std::pair<std::string, std::string> > substitutions = config.getVoStringPairs("substitutions");
 
   dooselection::reducer::Reducer reducer;
 
@@ -41,8 +41,9 @@ int main(int argc, char * argv[]){
   reducer.set_output_file_path(outputfile);
   reducer.set_output_tree_path(outputtree);
 
-  for(std::vector<std::string>::const_iterator substitution = substitutions.begin(); substitution != substitutions.end(); substitution++){
-    reducer.AddNameMapping((*substitution).c_str(), config.getString("substitutions."+*substitution));
+  for(std::vector<std::pair<std::string,std::string>>::const_iterator substitution = substitutions.begin(); substitution != substitutions.end(); substitution++){
+    reducer.AddNameMapping((*substitution).first.c_str(), (*substitution).second.c_str());
+    doocore::io::sinfo << "will substitute " << (*substitution).first.c_str() << " for " << (*substitution).second.c_str() << doocore::io::endmsg;
   }
   
   reducer.Initialize();

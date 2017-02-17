@@ -10,9 +10,9 @@
 #include <unistd.h>
 
 // from BOOST
-#ifdef __GNUG__
-#define BOOST_NO_CXX11_SCOPED_ENUMS
-#endif
+//#ifdef __GNUG__
+//#define BOOST_NO_CXX11_SCOPED_ENUMS
+//#endif
 #include <boost/filesystem.hpp>
 #include <boost/uuid/uuid.hpp>            // uuid class
 #include <boost/uuid/uuid_generators.hpp> // generators
@@ -58,7 +58,8 @@ interim_file_(NULL),
 formula_input_tree_(NULL),
 best_candidate_leaf_ptr_(NULL),
 num_events_process_(-1),
-old_style_interim_tree_(false)
+old_style_interim_tree_(false),
+overwrite_existing_leaves_(false)
 {
   GenerateInterimFileName();
 }
@@ -576,7 +577,7 @@ unsigned int Reducer::GetBestCandidate(TTree* tree, unsigned int pos_event_start
     ULong64_t run_number_before          = run_number_leaf_ptr_->GetValue();
     ULong64_t event_number_before        = event_number_leaf_ptr_->GetValue();
     //Float_t best_candidate_value_before = *best_candidate_value_ptr_;
-    Double_t best_candidate_value_before = best_candidate_leaf_ptr_->GetValue();
+    // Double_t best_candidate_value_before = best_candidate_leaf_ptr_->GetValue();
     Double_t best_candidate_value_min    = -1.0;
     Int_t best_candidate                 = -1;
     
@@ -584,7 +585,7 @@ unsigned int Reducer::GetBestCandidate(TTree* tree, unsigned int pos_event_start
     while (i<num_entries && run_number_before == run_number_leaf_ptr_->GetValue() && event_number_before == event_number_leaf_ptr_->GetValue()) {
       run_number_before           = run_number_leaf_ptr_->GetValue();
       event_number_before         = event_number_leaf_ptr_->GetValue();
-      best_candidate_value_before = best_candidate_leaf_ptr_->GetValue();
+      // best_candidate_value_before = best_candidate_leaf_ptr_->GetValue();
       // check if event passes special cuts and if event is better than current
       // best candidate or if there is no best candidate in this event yet
       if ((formula_input_tree_ == NULL || formula_input_tree_->EvalInstance() != 0) && EntryPassesSpecialCuts() && (best_candidate_leaf_ptr_->GetValue() < best_candidate_value_min || best_candidate_value_min == -1)) {
@@ -653,9 +654,19 @@ void Reducer::InitializeInterimLeafMap(TTree* tree, std::vector<ReducerLeaf<Floa
       //sdebug << " leaf: " << leaf_tree->GetName() << " - " << leaf_tree->GetBranch()->TestBit(1024) << endmsg;
       if (!leaf_tree->GetBranch()->TestBit(1024) && !LeafExists(leaf_tree->GetName())) {
         ReducerLeaf<Float_t>* leaf = new ReducerLeaf<Float_t>(leaf_tree);
+
+
+        // for (auto )
+        // leaf->set_name(leaf->name() + "_bla");
+
         leaves->push_back(leaf);
       } else if (LeafExists(leaf_tree->GetName())) {
-        swarn << "Warning in Reducer::InitializeInterimLeafMap(...): Leaf " << leaf_tree->GetName() << " in friend tree " << (*it)->GetName() << " already existing. Will ignore." << endmsg;
+        swarn << "Warning in Reducer::InitializeInterimLeafMap(...): Leaf " << leaf_tree->GetName() << " in friend tree " << (*it)->GetName() << " already existing. Will rename to keep it unique." << endmsg;
+
+        ReducerLeaf<Float_t>* leaf = new ReducerLeaf<Float_t>(leaf_tree);
+        leaf->set_name(leaf->name() + "_1");
+
+        leaves->push_back(leaf);
       }
     }
 
@@ -690,16 +701,21 @@ std::vector<ReducerLeaf<T1>*> Reducer::PurgeOutputBranches(const std::vector<Red
   std::vector<ReducerLeaf<T1>* > purged_leaves;
   for (typename std::vector<ReducerLeaf<T1>* >::const_iterator it = leaves.begin(); it != leaves.end(); ++it) {
     bool found = false;
-    for (typename std::vector<ReducerLeaf<T2>* >::const_iterator it_ex = interim_leaves.begin(); it_ex != interim_leaves.end(); ++it_ex) {
-      if ((*it_ex)->name() == (*it)->name()) {
-        found = true;
-        break;
-      }
-    }
-    if (found) {
-      swarn << "New leaf " << (*it)->name() << " already existing. Will ignore." << endmsg;
-    } else {
+    if (overwrite_existing_leaves_) {
       purged_leaves.push_back(*it);
+    }
+    else {
+      for (typename std::vector<ReducerLeaf<T2>* >::const_iterator it_ex = interim_leaves.begin(); it_ex != interim_leaves.end(); ++it_ex) {
+        if ((*it_ex)->name() == (*it)->name()) {
+          found = true;
+          break;
+        }
+      }
+      if (found) {
+        swarn << "New leaf " << (*it)->name() << " already existing. Will ignore." << endmsg;
+      } else {
+        purged_leaves.push_back(*it);
+      }
     }
   }
   return purged_leaves;

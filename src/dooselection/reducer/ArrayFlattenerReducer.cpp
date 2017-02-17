@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <algorithm>
 
 // from ROOT
 #include "TString.h"
@@ -41,7 +42,7 @@ void ArrayFlattenerReducer::PrepareSpecialBranches() {
     
     if (leaves_array_length_.size() > 1) {
       sinfo << "ArrayFlattenerReducer: More than one length leaf set. Checking for consistency on a small sample of events." << endmsg;
-      int stepping_check = interim_tree_->GetEntries()/1000;
+      int stepping_check = std::max(1,static_cast<int>(interim_tree_->GetEntriesFast()/1000));
       std::vector<std::pair<TBranch*,TLeaf*> > branches_array_length;
       
       for (std::vector<const ReducerLeaf<Float_t>*>::const_iterator it=leaves_array_length_.begin(), end=leaves_array_length_.end(); it != end; ++it) {
@@ -100,9 +101,15 @@ void ArrayFlattenerReducer::PrepareSpecialBranches() {
   }
 }
   
+bool ArrayFlattenerReducer::FlatLeavesPassSpecialCuts() {
+  return true;
+}
+
 void ArrayFlattenerReducer::FillOutputTree() {
   if (leaves_array_length_.size() == 0) {
-    FlushEvent();
+    if (FlatLeavesPassSpecialCuts()) {
+      FlushEvent();
+    }
   } else {
     int num_pvs = leaf_array_length_->GetValue();
     for (int i=0; i<num_pvs; ++i) {
@@ -124,7 +131,11 @@ void ArrayFlattenerReducer::FillOutputTree() {
         //sdebug << " " << it->first->name() << " = " << it->first->GetValue() << endmsg;
       }
       
-      FlushEvent();
+      if(FlatLeavesPassSpecialCuts()) {
+        FlushEvent();
+      } else {
+        //skip this index
+      }
     }
   }
 }

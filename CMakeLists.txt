@@ -6,10 +6,8 @@
 # to Debug prior to calling PROJECT()
 #
 
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -ggdb -pg" CACHE STRING "Debug options." FORCE)
+set(CMAKE_CXX_FLAGS_DBG "-O0 -ggdb -pg" CACHE STRING "Debug options." FORCE)
 set(CMAKE_CXX_FLAGS_RELEASE "-O3" CACHE STRING "Debug options." FORCE)
-
-SET(CMAKE_BUILD_TYPE Profiling)
 SET(CMAKE_CXX_FLAGS_PROFILING "-O3 -pg" CACHE STRING "Debug options." FORCE)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
@@ -32,7 +30,7 @@ if(${APPLE})
 endif(${APPLE})
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   MESSAGE( STATUS "Building for Linux, switching on C++11 flags for Linux/gcc" )
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -pedantic -Wall -Wextra")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -std=c++14 -pedantic -Wall -Wextra")
 ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 install(FILES external/FindDooSelection.cmake DESTINATION cmake/Modules)
@@ -42,7 +40,7 @@ find_package(ROOT REQUIRED)
 find_package(DooCore REQUIRED)
 find_package(DooFit REQUIRED)
 
-include_directories(${Boost_INCLUDE_DIR})
+include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 link_directories(${Boost_LIBRARY_DIR})
 
 include_directories(${DooCore_INCLUDE_DIR})

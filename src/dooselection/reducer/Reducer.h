@@ -215,6 +215,13 @@ class Reducer {
    *  @param omit_regex regular expression for branches to omit
    */
   void AddBranchesOmitRegex(std::string omit_regex) { branches_omit_regex_.push_back(omit_regex); }
+
+  /**
+   *  @brief Enable overwritting of leaves already present in input tree
+   *
+   *  @param overwrite_existing_leaves boolean to control overwritting of existing leaves
+   */
+  void OverwriteExistingLeaves(bool overwrite_existing_leaves) { overwrite_existing_leaves_ = overwrite_existing_leaves; }
   ///@}
   
   /** @name Cut string functions
@@ -984,6 +991,11 @@ class Reducer {
    *  @brief Status bit to request old-style interim tree processing
    */
   bool old_style_interim_tree_;
+
+  /**
+   *  @brief Option to overwrite already existing leaves
+   */
+  bool overwrite_existing_leaves_;
 };
 
 template<class T>
@@ -1000,3 +1012,4 @@ const ReducerLeaf<T>& Reducer::GetLeafByName(const TString& name, const std::vec
 } // namespace dooselection
 
 #endif // DOOSELECTION_REDUCER_REDUCER_H
+
