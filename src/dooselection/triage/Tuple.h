@@ -30,6 +30,10 @@ namespace triage{
 class Tuple{
  public:
   Tuple(const std::string& name, const std::string& path, const std::string& filename, const std::string& treename, const RooArgSet& argset, const std::string& observable_name, double observable_range_min, double observable_range_max):
+    is_mc_(false),
+    is_sw_(false),
+    is_ft_(false),
+    is_absfitter_(false),
     name_(name),
     path_(path),
     filename_(filename),
@@ -40,10 +44,6 @@ class Tuple{
     observable_range_(std::make_pair(observable_range_min,observable_range_max)),
     max_n_sig_events_(0.),
     max_n_bkg_events_(0.),
-    is_mc_(false),
-    is_sw_(false),
-    is_ft_(false),
-    is_absfitter_(false),
     dataset_exists_(false)
   {
     boost::filesystem::path filename_full(boost::filesystem::path(path) / boost::filesystem::path(filename));

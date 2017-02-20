@@ -100,7 +100,7 @@ std::pair<double, double> Triage::NumberOfSigAndBkgEvents(Tuple* tuple, const st
     double bin_center_sig = 0.;
     double bin_center_bkg = 0.;
 
-    for (unsigned int i = 1;i < nbins; ++i){
+    for (int i = 1;i < nbins; ++i){
       bin_content_sig = sig_hist.GetBinContent(i);
       bin_content_bkg = bkg_hist.GetBinContent(i);
       bin_center_sig = sig_hist.GetBinCenter(i);
@@ -274,11 +274,11 @@ std::pair<TH1D, TH1D> Triage::SigAndBkgEventNumbersHistogram(Tuple* tuple, Class
   cut_values.push_back(cut_value);
 
   doocore::io::sinfo << "Signal and background event numbers for tuple '" << tuple->name() << "' and classifier '" << classifier->name().c_str() << "'" << doocore::io::endmsg;
-  for (unsigned int i = 1; i<= nbins; ++i){
+  for (int i = 1; i<= nbins; ++i){
     doocore::io::sinfo << "Triage::SigAndBkgEventNumbersHistogram(...): Analysing classifier cut " << cut_value << doocore::io::endmsg;
     if ((i%1) == 0){
       double frac = static_cast<double> (i)/nbins*100.0;
-      printf("Progress %.2f %         \n", frac);
+      printf("Progress %.2f %%         \n", frac);
       fflush(stdout);
     }
     std::string cut_string = classifier->expression()+classifier->cut_operator()+std::to_string(cut_value);
