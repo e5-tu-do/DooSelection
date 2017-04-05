@@ -39,6 +39,7 @@ FIND_PACKAGE(Boost 1.48 COMPONENTS program_options filesystem regex thread syste
 find_package(ROOT REQUIRED)
 find_package(DooCore REQUIRED)
 find_package(DooFit REQUIRED)
+FIND_PACKAGE(GSL REQUIRED)
 
 include_directories(SYSTEM ${Boost_INCLUDE_DIR})
 link_directories(${Boost_LIBRARY_DIR})
@@ -50,6 +51,9 @@ include_directories(${DooFit_INCLUDE_DIR})
 link_directories(${DooFit_LIBRARY_DIR})
 
 include_directories(${ROOT_INCLUDE_DIR})
+
+include_directories(${GSL_INCLUDE_DIRS})
+link_directories(${GSL_LIBRARY_DIRS})
 
 set(ALL_LIBRARIES ${DooFit_LIBRARIES} ${DooCore_LIBRARIES} ${ROOT_LIBRARIES} ${ROOFIT_LIBRARIES} ${Boost_LIBRARIES} -lTMVA -lMLP)
 
