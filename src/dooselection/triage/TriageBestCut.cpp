@@ -74,10 +74,10 @@ void Triage::BestCutPerformance(Tuple* tuple, Classifier* classifier, PlotStyle 
   double n_signal_events = number_sig_bkg_events.first;
   double n_background_events = number_sig_bkg_events.second;
 
-  double signal_efficiency = FoM::SignalEfficiency(n_signal_events, n_background_events, tuple->max_n_sig_events(), tuple->max_n_bkg_events());
-  double background_rejection = FoM::BackgroundRejection(n_signal_events, n_background_events, tuple->max_n_sig_events(), tuple->max_n_bkg_events());
-  double significance = FoM::Significance(n_signal_events, n_background_events, tuple->max_n_sig_events(), tuple->max_n_bkg_events());
-  double sin2beta = FoM::Sin2Beta(n_signal_events, n_background_events, tuple->max_n_sig_events(), tuple->max_n_bkg_events());
+  double signal_efficiency = FoM::SignalEfficiency(n_signal_events, tuple->max_n_sig_events());
+  double background_rejection = FoM::BackgroundRejection(n_background_events, tuple->max_n_bkg_events());
+  double significance = FoM::Significance(n_signal_events, n_background_events);
+  double sin2beta = FoM::Sin2Beta(n_signal_events, n_background_events);
 
   // plot
   TCanvas* canvas= new TCanvas("canvas", "canvas", 800, 600);

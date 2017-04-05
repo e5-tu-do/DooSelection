@@ -1,4 +1,9 @@
-add_executable(TMVAClassification TMVAClassification.cpp)
+IF (ROOT_INSTALLED_VERSION_TOO_NEW)
+	add_executable(TMVAClassification TMVAClassification_v608.cpp)
+ELSE (ROOT_INSTALLED_VERSION_TOO_NEW)
+    add_executable(TMVAClassification TMVAClassification.cpp)
+ENDIF (ROOT_INSTALLED_VERSION_TOO_NEW)
+
 add_executable(TMVAViewer TMVAViewer.cpp)
 
 target_link_libraries(TMVAClassification ${DooCore_LIBRARIES} ${ROOFIT_LIBRARIES} ${ROOT_LIBRARIES} ${Boost_LIBRARIES})
