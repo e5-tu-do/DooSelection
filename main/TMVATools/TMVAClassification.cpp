@@ -30,7 +30,7 @@ int main(int argc, char * argv[]){
   if (argc != 2) {
     std::cout << "Usage:   " << argv[0] << " config_file_name" << std::endl;
     return 0;
-  } 
+  }
   doocore::config::EasyConfig config(argv[1]);
   doocore::config::Summary& summary = doocore::config::Summary::GetInstance();
   summary.Add("Config file", argv[1]);
@@ -57,6 +57,10 @@ int main(int argc, char * argv[]){
   TString sig_sweight;
   TString bkg_sweight;
   TString sig_cut;
+  TString sig_train_cut;
+  TString sig_test_cut;
+  TString bkg_train_cut;
+  TString bkg_test_cut;
   TString bkg_cut;
 
   if (config.getBool("general.use_single_input_file")){
@@ -73,7 +77,7 @@ int main(int argc, char * argv[]){
     if (config.getBool("general.use_cuts")){
       sig_cut = config.getString("general.input.cuts");
       bkg_cut = config.getString("general.input.cuts");
-      summary.Add("Cut on signal sample", sig_cut); 
+      summary.Add("Cut on signal sample", sig_cut);
       summary.Add("Cut on background sample", bkg_cut);
     }
 
@@ -98,19 +102,20 @@ int main(int argc, char * argv[]){
     summary.Add("Background file name", input_bkg_file_name);
     summary.Add("Background tree name", input_bkg_tree_name);
 
-    sig_sweight = config.getString("general.input.sig_sweight");
-    bkg_sweight = config.getString("general.input.bkg_sweight");
-    if (sig_sweight != "") summary.Add("Signal sWeight", sig_sweight);
-    if (bkg_sweight != "") summary.Add("Background sWeight", bkg_sweight);
-    
     if (config.getBool("general.use_cuts")){
       sig_cut = config.getString("general.input.cuts");
       bkg_cut = config.getString("general.input.cuts");
       summary.Add("Cut on signal sample", sig_cut);
       summary.Add("Cut on background sample", bkg_cut);
     }
+    if (config.getBool("general.use_train_test_cuts")){
+      sig_train_cut = config.getString("general.input.train_cut");
+      sig_test_cut = config.getString("general.input.test_cut");
+      summary.Add("Cut for training sample", sig_train_cut);
+      summary.Add("Cut for testing sample", sig_test_cut);
+    }
   }
-  
+
   summary.AddSection("Output");
   TString output_path("tmva/"+config.getString("general.output.path"));
   summary.Add("Path", output_path);
@@ -151,18 +156,18 @@ int main(int argc, char * argv[]){
   std::vector<std::string> integer_variables = config.getVoStrings("variables.integer");
 
   for(std::vector<std::string>::iterator it = float_variables.begin(); it != float_variables.end(); it++){
-    factory->AddVariable(*it);  
+    factory->AddVariable(*it);
     summary.Add("", *it);
   }
 
   for(std::vector<std::string>::iterator it = integer_variables.begin(); it != integer_variables.end(); it++){
-    factory->AddVariable(*it, 'I');  
+    factory->AddVariable(*it, 'I');
     summary.Add("", *it);
   }
 
   factory->SetWeightExpression(sig_sweight, "Signal");
   factory->SetWeightExpression(bkg_sweight, "Background");
-  
+
   //===========================================================================
   // Specifying classification training data
   //===========================================================================
@@ -170,9 +175,13 @@ int main(int argc, char * argv[]){
   TTree * tree;
   TFile * sig_file = NULL;
   TTree * sig_tree = NULL;
+  TTree * sig_train_tree = NULL;
+  TTree * sig_test_tree = NULL;
   TFile * bkg_file = NULL;
   TTree * bkg_tree = NULL;
-  
+  TTree * bkg_train_tree = NULL;
+  TTree * bkg_test_tree = NULL;
+
   if (config.getBool("general.use_single_input_file")){
     if (debug_mode) doocore::io::serr << "-debug- " << "use single input file" << doocore::io::endmsg;
     //---------------------------------------------------------------------------
@@ -192,12 +201,21 @@ int main(int argc, char * argv[]){
         ++i;
       }
     }
-    
+    if (config.getBool("general.use_train_test_cuts")){
+      TTreeFormula form("form_cut", sig_train_cut, tree);
+      TLeaf* leaf = form.GetLeaf(0);
+      int i = 1;
+      while (leaf != NULL) {
+        cut_variables.push_back(leaf->GetName());
+        leaf = form.GetLeaf(i);
+        ++i;
+      }
+    }
     tree->SetBranchStatus("*", false);
-    
+
     tree->SetBranchStatus(sig_sweight, true);
     tree->SetBranchStatus(bkg_sweight, true);
-    
+
     for (std::vector<std::string>::const_iterator it = float_variables.begin(), end = float_variables.end();
          it != end; ++it) {
       tree->SetBranchStatus(it->c_str(), true);
@@ -213,7 +231,7 @@ int main(int argc, char * argv[]){
       }
     }
 
-    /// ################################################################################################################## 
+    /// ##################################################################################################################
     /// The root of the problem is that TMVA creates a copy of the user trees if a tree is provided with a cut condition.
     /// TMVA uses TTree::CopyTree for this.
     /// If the input tree is very large this might cause memory problems and generate warning messages such as:
@@ -225,7 +243,7 @@ int main(int argc, char * argv[]){
     /// >>  you should do:
     /// >>     TFile *f = new TFile(...)
     /// >>     TTree *T = new TTree(...)
-    /// ################################################################################################################## 
+    /// ##################################################################################################################
 
     // TTree::CopyTree can use this file to temporarily store the TTree
     TFile *interim_file = new TFile("interim_file", "RECREATE");
@@ -244,34 +262,30 @@ int main(int argc, char * argv[]){
     bkg_file = TFile::Open(input_path+input_bkg_file_name);
     bkg_tree = (TTree*)bkg_file->Get(input_bkg_tree_name);
 
-    std::vector<std::string> cut_variables;
-    if (config.getBool("general.use_cuts")){
-      TTreeFormula form("form_cut", sig_cut, sig_tree);
-      TLeaf* leaf = form.GetLeaf(0);
-      int i = 1;
-      while (leaf != NULL) {
-        cut_variables.push_back(leaf->GetName());
-        leaf = form.GetLeaf(i);
-        ++i;
-      }
-    }
-
-
     // Define signal and background weights
     Double_t kSigWeight = 1.0;
     Double_t kBkgWeight = 1.0;
 
     if (!(config.getBool("general.use_cuts"))){
       // Set input trees
-      factory->AddSignalTree(sig_tree, kSigWeight);
-      factory->AddBackgroundTree(bkg_tree, kBkgWeight);
+      if(config.getBool("general.use_train_test_cuts")){
+        sig_train_tree = sig_tree->CopyTree(config.getString("general.input.train_cut").c_str());
+        sig_test_tree = sig_tree->CopyTree(config.getString("general.input.test_cut").c_str());
+        factory->AddSignalTree(sig_train_tree, kSigWeight, "Training");
+        factory->AddSignalTree(sig_test_tree, kSigWeight, "Testing");
+        bkg_train_tree = bkg_tree->CopyTree(config.getString("general.input.train_cut").c_str());
+        bkg_test_tree = bkg_tree->CopyTree(config.getString("general.input.test_cut").c_str());
+        factory->AddBackgroundTree(bkg_train_tree, kBkgWeight, "Training");
+        factory->AddBackgroundTree(bkg_test_tree, kBkgWeight, "Testing");
+      }
+      else{
+        factory->AddSignalTree(sig_tree, kSigWeight);
+        factory->AddBackgroundTree(bkg_tree, kBkgWeight);
+      }
     }
     else {
       sig_tree->SetBranchStatus("*", false);
       bkg_tree->SetBranchStatus("*", false);
-
-      if (sig_sweight != "") sig_tree->SetBranchStatus(sig_sweight, true);
-      if (bkg_sweight != "") bkg_tree->SetBranchStatus(bkg_sweight, true);
 
       for (std::vector<std::string>::const_iterator it = float_variables.begin(), end = float_variables.end(); it != end; ++it) {
         sig_tree->SetBranchStatus(it->c_str(), true);
@@ -281,16 +295,31 @@ int main(int argc, char * argv[]){
         sig_tree->SetBranchStatus(it->c_str(), true);
         bkg_tree->SetBranchStatus(it->c_str(), true);
       }
-      for (std::vector<std::string>::const_iterator it = cut_variables.begin(), end = cut_variables.end(); it != end; ++it) {
-        sig_tree->SetBranchStatus(it->c_str(), true);
-        bkg_tree->SetBranchStatus(it->c_str(), true);
-      }
+
+      sig_tree->SetBranchStatus("Index", true);
+      bkg_tree->SetBranchStatus("Index", true);
 
       TFile *interim_file = new TFile("interim_file", "RECREATE");
 
       // Set input trees
-      factory->AddTree(sig_tree, "Signal", kSigWeight, TCut(sig_cut));
-      factory->AddTree(bkg_tree, "Background", kBkgWeight, TCut(bkg_cut));
+      if(config.getBool("general.use_train_test_cuts")){
+        sig_train_cut = config.getString("general.input.train_cut") + "&&" + sig_cut;
+        sig_test_cut = config.getString("general.input.test_cut") + "&&" + sig_cut;
+        sig_train_tree = sig_tree->CopyTree(sig_train_cut.Data());
+        sig_test_tree = sig_tree->CopyTree(sig_test_cut.Data());
+        factory->AddSignalTree(sig_train_tree, kSigWeight, "Training");
+        factory->AddSignalTree(sig_test_tree, kSigWeight, "Testing");
+        bkg_train_cut = config.getString("general.input.train_cut") + "&&" + bkg_cut;
+        bkg_test_cut = config.getString("general.input.test_cut") + "&&" + bkg_cut;
+        bkg_train_tree = bkg_tree->CopyTree(bkg_train_cut.Data());
+        bkg_test_tree = bkg_tree->CopyTree(bkg_test_cut.Data());
+        factory->AddBackgroundTree(bkg_train_tree, kBkgWeight, "Training");
+        factory->AddBackgroundTree(bkg_test_tree, kBkgWeight, "Testing");
+      }
+      else{
+        factory->AddTree(sig_tree, "Signal", kSigWeight, TCut(sig_cut));
+        factory->AddTree(bkg_tree, "Background", kBkgWeight, TCut(bkg_cut));
+      }
     }
   }
 
@@ -302,7 +331,7 @@ int main(int argc, char * argv[]){
   TStopwatch sw;
   sw.Start();
   factory->PrepareTrainingAndTestTree("", "", split_options);
-  
+
   //===========================================================================
   // Select MVA methods
   //===========================================================================
@@ -336,7 +365,7 @@ int main(int argc, char * argv[]){
       else if (type == "TMVA::Types::kSVM"){method_type = TMVA::Types::kSVM;}
       else if (type == "TMVA::Types::kRuleFit"){method_type = TMVA::Types::kRuleFit;}
       else{doocore::io::serr << "Unknown TMVA method type '" << type << "'! Abort!" << doocore::io::endmsg; return 0;}
-      
+
       factory->BookMethod(method_type, name, options);
       summary.Add(name, options);
     }
@@ -344,7 +373,7 @@ int main(int argc, char * argv[]){
       doocore::io::serr << "RegEx matching failed" << doocore::io::endmsg;
     }
   }
-  
+
   //===========================================================================
   // Train, Test, and Evaluate
   //===========================================================================
@@ -354,20 +383,20 @@ int main(int argc, char * argv[]){
     doocore::io::sinfo << "Optimize all methods" << doocore::io::endmsg;
     factory->OptimizeAllMethods();
     doocore::io::sinfo << "Optimize all methods finished" << doocore::io::endmsg;
-  } 
+  }
   if (debug_mode) doocore::io::serr << "-debug- " << "Start training" << doocore::io::endmsg;
   factory->TrainAllMethods();
   if (debug_mode) doocore::io::serr << "-debug- " << "Start testing" << doocore::io::endmsg;
   factory->TestAllMethods();
   if (debug_mode) doocore::io::serr << "-debug- " << "Start evaluation" << doocore::io::endmsg;
   factory->EvaluateAllMethods();
-  
+
   // Runtime
   sw.Stop();
   doocore::io::sinfo << "RUNTIME: " << sw << doocore::io::endmsg;
-  
+
   output_file->Close();
-  
+
   //summary.Print();
   summary.Write((std::string)output_path+"/"+(std::string)job_name+"/"+"summary.log");
 
@@ -375,9 +404,9 @@ int main(int argc, char * argv[]){
     if (debug_mode) doocore::io::serr << "-debug- " << "Start TMVAGui" << doocore::io::endmsg;
     TApplication* theApp;
     theApp = new TApplication("App", &argc, argv);
-    
+
     TMVAGui(TString(output_path)+"/"+job_name+"/"+"tmva_classification.root");
-    
+
     theApp->Run();
   }
   if (debug_mode) doocore::io::serr << "-debug- " << "End of program" << doocore::io::endmsg;
