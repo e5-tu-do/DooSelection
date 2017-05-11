@@ -155,7 +155,7 @@ namespace dooselection {
         std::map<std::string,std::string>::iterator iter_decay_referencer;
         
         sinfo << "Finished analysing most common decays: " << endmsg;
-        for (int i=0; i < max_number_decays_ && i<decay_string_referencer.size(); ++i) {
+        for (int i=0; i < max_number_decays_ && (unsigned)i<decay_string_referencer.size(); ++i) {
           std::string max_key = "";
           int max_counts = 0;
           for (iter=decay_counter_.begin(); iter!=decay_counter_.end(); iter++) {
@@ -207,7 +207,7 @@ namespace dooselection {
           }
           
           int j = 0;
-          while(j < max_number_decays_ && j < decay_vector_.size() && decaystring != decay_vector_.at(j).second){
+          while(j < max_number_decays_ && (unsigned)j < decay_vector_.size() && decaystring != decay_vector_.at(j).second){
             j++;
           }
           if (j==max_number_decays_){

@@ -48,8 +48,8 @@ void Triage::PerformanceScans(){
   if (debug_mode_) doocore::io::sdebug << "-debug- \t" << "calling void Triage::Performance() \t" << doocore::io::endmsg;
   for(std::vector<TriageHistContainer>::iterator hists_sig_bkg_event = hist_container_list_.begin(); hists_sig_bkg_event != hist_container_list_.end(); hists_sig_bkg_event++){
     PlotROC((*hists_sig_bkg_event).name(), (*hists_sig_bkg_event).hist_number_sig_bkg_events(), (*hists_sig_bkg_event).max_n_sig_events(), (*hists_sig_bkg_event).max_n_bkg_events());
-    PlotSignalEfficiency((*hists_sig_bkg_event).name(), (*hists_sig_bkg_event).hist_number_sig_bkg_events(), (*hists_sig_bkg_event).cut_values(), (*hists_sig_bkg_event).max_n_sig_events(), (*hists_sig_bkg_event).max_n_bkg_events());
-    PlotBackgroundRejection((*hists_sig_bkg_event).name(), (*hists_sig_bkg_event).hist_number_sig_bkg_events(), (*hists_sig_bkg_event).cut_values(), (*hists_sig_bkg_event).max_n_sig_events(), (*hists_sig_bkg_event).max_n_bkg_events());
+    PlotSignalEfficiency((*hists_sig_bkg_event).name(), (*hists_sig_bkg_event).hist_number_sig_bkg_events(), (*hists_sig_bkg_event).cut_values(), (*hists_sig_bkg_event).max_n_sig_events());
+    PlotBackgroundRejection((*hists_sig_bkg_event).name(), (*hists_sig_bkg_event).hist_number_sig_bkg_events(), (*hists_sig_bkg_event).cut_values(), (*hists_sig_bkg_event).max_n_bkg_events());
     PlotEfficiencies((*hists_sig_bkg_event).name(), (*hists_sig_bkg_event).hist_number_sig_bkg_events(), (*hists_sig_bkg_event).cut_values(), (*hists_sig_bkg_event).max_n_sig_events(), (*hists_sig_bkg_event).max_n_bkg_events());
   }
 }
@@ -58,11 +58,11 @@ void Triage::PlotROC(std::string name, std::pair<TH1D, TH1D> hist_number_sig_bkg
   if (debug_mode_) doocore::io::sdebug << "-debug- \t" << "calling void Triage::PlotROC(std::string name, std::pair<TH1D, TH1D> hist_number_sig_bkg_events, double max_n_sig_events, double max_n_bkg_events) \t" << doocore::io::endmsg;
   double signal_efficiency[nbins_];
   double background_rejection[nbins_];
-  for (unsigned int i = 1; i < nbins_; ++i){
+  for (int i = 1; i < nbins_; ++i){
     double n_signal_events = hist_number_sig_bkg_events.first.GetBinContent(i);
     double n_background_events = hist_number_sig_bkg_events.second.GetBinContent(i);   
-    signal_efficiency[i] = FoM::SignalEfficiency(n_signal_events, n_background_events, max_n_sig_events, max_n_bkg_events);
-    background_rejection[i] = FoM::BackgroundRejection(n_signal_events, n_background_events, max_n_sig_events, max_n_bkg_events);
+    signal_efficiency[i] = FoM::SignalEfficiency(n_signal_events, max_n_sig_events);
+    background_rejection[i] = FoM::BackgroundRejection(n_background_events, max_n_bkg_events);
   }
   
   TFile roc_file("roc_curve.root", "recreate");
@@ -90,14 +90,13 @@ void Triage::PlotROC(std::string name, std::pair<TH1D, TH1D> hist_number_sig_bkg
   roc_file.Close();
 }
 
-void Triage::PlotSignalEfficiency(std::string name, std::pair<TH1D, TH1D> hist_number_sig_bkg_events, std::vector<double> cut_values, double max_n_sig_events, double max_n_bkg_events){
-  if (debug_mode_) doocore::io::sdebug << "-debug- \t" << "calling void Triage::PlotSignalEfficiency(std::string name, std::pair<TH1D, TH1D> hist_number_sig_bkg_events, std::vector<double> cut_values, double max_n_sig_events, double max_n_bkg_events) \t" << doocore::io::endmsg;
+void Triage::PlotSignalEfficiency(std::string name, std::pair<TH1D, TH1D> hist_number_sig_bkg_events, std::vector<double> cut_values, double max_n_sig_events){
+  if (debug_mode_) doocore::io::sdebug << "-debug- \t" << "calling void Triage::PlotSignalEfficiency(std::string name, std::pair<TH1D, TH1D> hist_number_sig_bkg_events, std::vector<double> cut_values, double max_n_sig_events) \t" << doocore::io::endmsg;
   double signal_efficiency[nbins_];
   double cut_value[nbins_];
-  double n_background_events(0.); // dummy
-  for (unsigned int i = 1; i < nbins_; ++i){
+  for (int i = 1; i < nbins_; ++i){
     double n_signal_events = hist_number_sig_bkg_events.first.GetBinContent(i);
-    signal_efficiency[i] = FoM::SignalEfficiency(n_signal_events, n_background_events, max_n_sig_events, max_n_bkg_events);
+    signal_efficiency[i] = FoM::SignalEfficiency(n_signal_events, max_n_sig_events);
     cut_value[i] = cut_values.at(i-1);
   }
   TCanvas canvas("canvas", "canvas", 800, 600);
@@ -118,14 +117,13 @@ void Triage::PlotSignalEfficiency(std::string name, std::pair<TH1D, TH1D> hist_n
   doocore::lutils::printPlot (&canvas, "SignalEfficiency_"+name, "PerformanceScans/");
 }
 
-void Triage::PlotBackgroundRejection(std::string name, std::pair<TH1D, TH1D> hist_number_sig_bkg_events, std::vector<double> cut_values, double max_n_sig_events, double max_n_bkg_events){
-  if (debug_mode_) doocore::io::sdebug << "-debug- \t" << "calling void Triage::PlotBackgroundRejection(std::string name, std::pair<TH1D, TH1D> hist_number_sig_bkg_events, std::vector<double> cut_values, double max_n_sig_events, double max_n_bkg_events) \t" << doocore::io::endmsg;
+void Triage::PlotBackgroundRejection(std::string name, std::pair<TH1D, TH1D> hist_number_sig_bkg_events, std::vector<double> cut_values, double max_n_bkg_events){
+  if (debug_mode_) doocore::io::sdebug << "-debug- \t" << "calling void Triage::PlotBackgroundRejection(std::string name, std::pair<TH1D, TH1D> hist_number_sig_bkg_events, std::vector<double> cut_values, double max_n_bkg_events) \t" << doocore::io::endmsg;
   double background_rejection[nbins_];
   double cut_value[nbins_];
-  double n_signal_events(0.); // dummy
-  for (unsigned int i = 1; i < nbins_; ++i){
+  for (int i = 1; i < nbins_; ++i){
     double n_background_events = hist_number_sig_bkg_events.second.GetBinContent(i);
-    background_rejection[i] = FoM::BackgroundRejection(n_signal_events, n_background_events, max_n_sig_events, max_n_bkg_events);
+    background_rejection[i] = FoM::BackgroundRejection(n_background_events, max_n_bkg_events);
     
     using namespace doocore::io;
     swarn << "Background Rejection[" << i << "]: n_bkg = " << n_background_events << "/" << max_n_bkg_events << ", bkg_rej = " << background_rejection[i] << endmsg;
@@ -165,16 +163,16 @@ void Triage::PlotEfficiencies(std::string name, std::pair<TH1D, TH1D> hist_numbe
   std::pair<double, double> purity_max;
   std::pair<double, double> sin2beta_max;
 
-  for (unsigned int i = 1; i < nbins_; ++i){
+  for (int i = 1; i < nbins_; ++i){
     double n_signal_events = hist_number_sig_bkg_events.first.GetBinContent(i);
     double n_background_events = hist_number_sig_bkg_events.second.GetBinContent(i);
 
-    signal_efficiency[i] = FoM::SignalEfficiency(n_signal_events, n_background_events, max_n_sig_events, max_n_bkg_events);
-    background_efficiency[i] = FoM::BackgroundEfficiency(n_signal_events, n_background_events, max_n_sig_events, max_n_bkg_events);
-    significance[i] = FoM::Significance(n_signal_events, n_background_events, max_n_sig_events, max_n_bkg_events);
-    wsignificance[i] = FoM::WeightedSignificance(n_signal_events, n_background_events, max_n_sig_events, max_n_bkg_events);
-    purity[i] = FoM::Purity(n_signal_events, n_background_events, max_n_sig_events, max_n_bkg_events);
-    sin2beta[i] = FoM::Sin2Beta(n_signal_events, n_background_events, max_n_sig_events, max_n_bkg_events);
+    signal_efficiency[i] = FoM::SignalEfficiency(n_signal_events, max_n_sig_events);
+    background_efficiency[i] = FoM::BackgroundEfficiency(n_background_events, max_n_bkg_events);
+    significance[i] = FoM::Significance(n_signal_events, n_background_events);
+    wsignificance[i] = FoM::WeightedSignificance(n_signal_events, n_background_events);
+    purity[i] = FoM::Purity(n_signal_events, n_background_events);
+    sin2beta[i] = FoM::Sin2Beta(n_signal_events, n_background_events);
 
     cut_value[i] = cut_values.at(i-1);
 

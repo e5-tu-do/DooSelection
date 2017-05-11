@@ -65,7 +65,7 @@ Iter safe_advance(Iter& curr, const Iter& end, Incr n)
 {
   Iter next = curr;
   size_t remaining(std::distance(next, end));
-  if (remaining < n)
+  if (remaining < (unsigned)n)
   {
     n = remaining;
   }
@@ -75,12 +75,12 @@ Iter safe_advance(Iter& curr, const Iter& end, Incr n)
 
 RooBinning GetQuantileBinning(RooDataSet* data, TString nameofquantileobservable, int nbins){
   std::vector<double> data_vector;
-  for (unsigned int i = 0; i < data->numEntries(); i++) {
+  for (int i = 0; i < data->numEntries(); i++) {
     data_vector.push_back(data->get(i)->getRealValue(nameofquantileobservable));
   }
   sort(data_vector.begin(), data_vector.end());
   std::vector<double> probability_vector;
-  for (unsigned int i = 1; i < nbins; i++) {
+  for (int i = 1; i < nbins; i++) {
     probability_vector.push_back(1.*i/nbins);
   }
   std::vector<double> xbins(nbins+1,0);
@@ -90,7 +90,7 @@ RooBinning GetQuantileBinning(RooDataSet* data, TString nameofquantileobservable
   
   TMath::Quantiles(data_vector.size(), nbins-1, &data_vector[0], &xbins[1], &probability_vector[0]);
   double* xbinarray = new double[xbins.size()];
-  for (int i = 0; i < xbins.size(); i++) {
+  for (unsigned int i = 0; i < xbins.size(); i++) {
     xbinarray[i] = xbins[i];
   }
   RooBinning Binning(nbins,xbinarray,"Binning_"+nameofquantileobservable);
@@ -119,7 +119,6 @@ std::vector<std::vector<double> > AverageSortedDataSet(const std::vector<std::ve
   std::vector<std::vector<double> >& errors = *errors_ptr;
   int index_set = 0;
   int num_vars = sorted_dataset.size();
-  double ref_val = 0.0;
   int num_events = sorted_dataset[0].size();
   
   for (int index_vars=0; index_vars<num_vars; ++index_vars) {
@@ -312,12 +311,9 @@ void PlotSweightedTuple(const std::vector<TreeTuple>& tuples, const std::vector<
       for (std::vector<DimensionTuple>::const_iterator it_dims=dimensions_packet.begin(); it_dims!=dimensions_packet.end(); ++it_dims) {
         const std::string& dim_name = (*it_dims).get<0>();
         const std::string& dim_desc = (*it_dims).get<1>();
-        const std::string& sw_sig   = (*it_dims).get<2>();
-        const std::string& sw_bkg   = (*it_dims).get<3>();
         const std::string& cut      = (*it_dims).get<4>();
         const std::string& out_name = (*it_dims).get<5>();
         RooArgSet          args     = (*it_dims).get<6>();
-        bool               log_plot = (*it_dims).get<7>();
         
         RooRealVar dim(dim_name.c_str(), dim_desc.c_str(), 0);
         
@@ -445,7 +441,7 @@ void PlotSweightedTuple(const std::vector<TreeTuple>& tuples, const std::vector<
   }
 }
 
-int Bd2JpsiKSSweights(const PlotConfig& pconfig, int argc, char* argv[]) {
+int Bd2JpsiKSSweights(const PlotConfig& pconfig, char* argv[]) {
   std::vector<TreeTuple> tuples;
   
   //  tuples.push_back(TreeTuple("/fhgfs/groups/e5/lhcb/NTuples/Bs2JpsiKS/20121106_BDTPrestudies/Bd2JpsiKS_data_Stripping17_DVv29r3p1_FTr134334_v6_20120219_fkruse_combined_fkruse_tupleA_LLMassWin_sweighted.root", "Bd2JpsiKS", "Bd2JpsiKSLL_v1"));
@@ -510,6 +506,7 @@ int Bd2JpsiKSSweights(const PlotConfig& pconfig, int argc, char* argv[]) {
   delete it;
   
   PlotSweightedTuple(tuples, dimensions, pconfig);
+  return 0;
 }
 
 int main(int argc, char* argv[]) {
@@ -520,6 +517,6 @@ int main(int argc, char* argv[]) {
     sinfo << "Usage: " << argv[0] << " tuple_file tree_name run_identifier sig_sweight_name bkg_sweight_name" << endmsg;
     return 1;
   } else {
-    Bd2JpsiKSSweights(pconfig, argc, argv);
+    Bd2JpsiKSSweights(pconfig, argv);
   }
 }
