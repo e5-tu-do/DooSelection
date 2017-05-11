@@ -140,9 +140,9 @@ class Triage{
   /// Plots the ROC curve
   void PlotROC(std::string name, std::pair<TH1D, TH1D> hist_number_sig_bkg_events, double max_n_sig_events, double max_n_bkg_events);
   /// Plots the signal efficiency distribution
-  void PlotSignalEfficiency(std::string name, std::pair<TH1D, TH1D> hist_number_sig_bkg_events, std::vector<double> cut_steps, double max_n_sig_events, double max_n_bkg_events);
+  void PlotSignalEfficiency(std::string name, std::pair<TH1D, TH1D> hist_number_sig_bkg_events, std::vector<double> cut_steps, double max_n_sig_events);
   /// Plots the background rejection distribution
-  void PlotBackgroundRejection(std::string name, std::pair<TH1D, TH1D> hist_number_sig_bkg_events, std::vector<double> cut_steps, double max_n_sig_events, double max_n_bkg_events);
+  void PlotBackgroundRejection(std::string name, std::pair<TH1D, TH1D> hist_number_sig_bkg_events, std::vector<double> cut_steps, double max_n_bkg_events);
   /// Plots all efficiency distributions
   void PlotEfficiencies(std::string name, std::pair<TH1D, TH1D> hist_number_sig_bkg_events, std::vector<double> cut_steps, double max_n_sig_events, double max_n_bkg_events);
   /// }
@@ -177,13 +177,14 @@ class Triage{
   /// It uses NumberOfSigAndBkgEvents to perform this task.
   std::pair<TH1D, TH1D> SigAndBkgEventNumbersHistogram(Tuple* tuple, Classifier* classifier, const int nbins);
 
-  bool debug_mode_;
-  bool hist_container_list_filled_;
+  TupleList tuple_list_;
+  ClassifierList classifier_list_;
 
   int nbins_;
 
-  TupleList tuple_list_;
-  ClassifierList classifier_list_;
+  bool hist_container_list_filled_;
+  bool debug_mode_;
+
   std::vector<TriageHistContainer> hist_container_list_;
 };
 
