@@ -67,30 +67,30 @@ void MomentumArrayFlattenerReducer::PrepareSpecialBranches() {
         for (std::vector<const ReducerLeaf<Float_t>*>::const_iterator it_four=fourmomentum_array_leaves_.begin(), end=fourmomentum_array_leaves_.end(); it_four != end; ++it_four) {
           if ((*it)->Length() == 4 && (*it)->name().EqualTo((*it_four)->name())) {
             if ((*it)->type() == "Double_t") {
-              ReducerLeaf<Double_t>& E_leaf = CreateDoubleLeaf((*it)->name()+"_E");
               ReducerLeaf<Double_t>& x_leaf = CreateDoubleLeaf((*it)->name()+"_x");
               ReducerLeaf<Double_t>& y_leaf = CreateDoubleLeaf((*it)->name()+"_y");
               ReducerLeaf<Double_t>& z_leaf = CreateDoubleLeaf((*it)->name()+"_z");
+              ReducerLeaf<Double_t>& E_leaf = CreateDoubleLeaf((*it)->name()+"_E");
               four_leaves_map_double_[&E_leaf] = *it;
               four_leaves_map_double_[&x_leaf] = *it;
               four_leaves_map_double_[&y_leaf] = *it;
               four_leaves_map_double_[&z_leaf] = *it;
               // sdebug << "  " << (*it)->name() << " -> " << E_leaf.name() << " (double)" << endmsg;
             } else if ((*it)->type() == "Float_t") {
-              ReducerLeaf<Float_t>& E_leaf = CreateFloatLeaf((*it)->name()+"_E");
               ReducerLeaf<Float_t>& x_leaf = CreateFloatLeaf((*it)->name()+"_x");
               ReducerLeaf<Float_t>& y_leaf = CreateFloatLeaf((*it)->name()+"_y");
               ReducerLeaf<Float_t>& z_leaf = CreateFloatLeaf((*it)->name()+"_z");
+              ReducerLeaf<Float_t>& E_leaf = CreateFloatLeaf((*it)->name()+"_E");
               four_leaves_map_float_[&E_leaf] = *it;
               four_leaves_map_float_[&x_leaf] = *it;
               four_leaves_map_float_[&y_leaf] = *it;
               four_leaves_map_float_[&z_leaf] = *it;
               // sdebug << "  " << (*it)->name() << " -> " << E_leaf.name() << " (float)" << endmsg;
             } else if ((*it)->type() == "Int_t") {
-              ReducerLeaf<Int_t>& E_leaf = CreateIntLeaf((*it)->name()+"_E");
               ReducerLeaf<Int_t>& x_leaf = CreateIntLeaf((*it)->name()+"_x");
               ReducerLeaf<Int_t>& y_leaf = CreateIntLeaf((*it)->name()+"_y");
               ReducerLeaf<Int_t>& z_leaf = CreateIntLeaf((*it)->name()+"_z");
+              ReducerLeaf<Int_t>& E_leaf = CreateIntLeaf((*it)->name()+"_E");
               four_leaves_map_int_[&E_leaf] = *it;
               four_leaves_map_int_[&x_leaf] = *it;
               four_leaves_map_int_[&y_leaf] = *it;

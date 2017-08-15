@@ -22,7 +22,7 @@
  *  This is a Reducer derived from Reducer. It can be used to add individual
  *  leaves for all dimensions originally comprised in an array-based momentum
  *  leaf. Arrays of length three and four can be flattened. The branch will be
- *  appended with (_E,) _x, _y and _z.
+ *  appended with _x, _y, _z (and _E).
  *
  **/
 
