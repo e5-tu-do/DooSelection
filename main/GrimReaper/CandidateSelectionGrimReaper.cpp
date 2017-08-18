@@ -53,6 +53,11 @@ int main(int argc, char * argv[]){
     reducer.SetEventNumberLeaf<Float_t>(reducer.GetInterimLeafByName("eventNumber"));
     reducer.SetRunNumberLeaf<Float_t>(reducer.GetInterimLeafByName("runNumber"));
   }
+  else if (reducer.LeafExists("evt_no")){
+    doocore::io::swarn << "-warning- \t" << "CandidateSelectionGrimReaper: Leaf 'idxEventNumber' does not exists, using 'evt_no' instead." << doocore::io::endmsg;
+    reducer.SetEventNumberLeaf<Float_t>(reducer.GetInterimLeafByName("evt_no"));
+    reducer.SetRunNumberLeaf<Float_t>(reducer.GetInterimLeafByName("run_no"));
+  }
   else{
     doocore::io::serr << "-ERROR- \t" << "CandidateSelectionGrimReaper: Leaves 'idxEventNumber' and 'eventNumber' do not exist!" << doocore::io::endmsg;
     abort();
