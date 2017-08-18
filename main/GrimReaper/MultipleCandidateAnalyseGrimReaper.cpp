@@ -40,6 +40,8 @@ int main(int argc, char * argv[]){
   reducer.AddEventIdentifier("idxRunNumber");
   reducer.AddEventIdentifier("eventNumber");
   reducer.AddEventIdentifier("runNumber");
+  reducer.AddEventIdentifier("evt_no");
+  reducer.AddEventIdentifier("run_no");
   reducer.AddEventCharacteristic("idxPV");
 
   reducer.Initialize();
