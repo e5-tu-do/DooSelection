@@ -22,6 +22,7 @@
 class TLeaf;
 enum ReducerLeafOperations {
   kNoneOperation,
+  kAbsLeaf,
   kAddLeaves,
   kMultiplyLeaves,
   kDivideLeaves,
@@ -245,6 +246,10 @@ public:
    */
   template<class T1, class T2>
   void SetOperation(const ReducerLeaf<T1>& l1, const ReducerLeaf<T2>& l2, ReducerLeafOperations operation, double c1=1.0, double c2=1.0);
+  template<class T1>
+  void Abs(const ReducerLeaf<T1>& l, double c=1.0) {
+    SetOperation<T1,T1>(l,l,kAbsLeaf,c,c);
+  }
   template<class T1, class T2>
   void Add(const ReducerLeaf<T1>& l1, const ReducerLeaf<T2>& l2, double c1=1.0, double c2=1.0) {
     SetOperation<T1,T2>(l1,l2,kAddLeaves,c1,c2);
@@ -600,6 +605,11 @@ bool ReducerLeaf<T>::UpdateValue() {
     // update our leaf pointers which could itself be depending on operations.
     
     switch (leaf_operation_) {
+      case kAbsLeaf:
+        leaf_pointer_one_->UpdateValue();
+        *branch_address_templ_ = TMath::Abs(leaf_factor_one_*leaf_pointer_one_->GetValue());
+        matched = true;
+        break;
       case kAddLeaves:
         leaf_pointer_one_->UpdateValue();
         leaf_pointer_two_->UpdateValue();
@@ -666,6 +676,8 @@ template <class T> template <class T1, class T2>
 void ReducerLeaf<T>::SetOperation(const ReducerLeaf<T1>& l1, const ReducerLeaf<T2>& l2, ReducerLeafOperations operation, double c1, double c2) {
   
   switch (operation) {
+    case kAbsLeaf:
+      std::cout << "Leaf " << name() << " = abs(" << c1 << "*" << l1.name() << ")" << std::endl;
     case kAddLeaves:
       std::cout << "Leaf " << name() << " = (" << c1 << ")*" << l1.name() << "+(" << c2 << ")*" << l2.name() << std::endl;
       break;
