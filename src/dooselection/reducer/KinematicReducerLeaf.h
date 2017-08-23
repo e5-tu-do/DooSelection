@@ -63,6 +63,18 @@ struct KinematicDaughterPropertiesVariableMass {
   ReducerLeaf<T>* leaf_pz_;
   ReducerLeaf<T>* leaf_m_;
 };
+
+template <typename T>
+struct ParticleMomentum {
+  ParticleMomentum(ReducerLeaf<T>* leaf_px,
+                   ReducerLeaf<T>* leaf_py,
+                   ReducerLeaf<T>* leaf_pz)
+  : leaf_px_(leaf_px), leaf_py_(leaf_py), leaf_pz_(leaf_pz) {}
+
+  ReducerLeaf<T>* leaf_px_;
+  ReducerLeaf<T>* leaf_py_;
+  ReducerLeaf<T>* leaf_pz_;
+};
   
 template <typename T>
 class KinematicReducerLeaf : public ReducerLeaf<T> {
@@ -227,6 +239,31 @@ class KinematicReducerLeaf : public ReducerLeaf<T> {
                                                  const ReducerLeaf<T11>& d4_py,
                                                  const ReducerLeaf<T12>& d4_pz,
                                                  double d4_m);
+
+  template<class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9>
+  void DecayAngleTwoDaughters(const ReducerLeaf<T1> m_px,
+                              const ReducerLeaf<T2> m_py,
+                              const ReducerLeaf<T3> m_pz,
+                              const ReducerLeaf<T4> d1_px,
+                              const ReducerLeaf<T5> d1_py,
+                              const ReducerLeaf<T6> d1_pz,
+                              const ReducerLeaf<T7> d2_px,
+                              const ReducerLeaf<T8> d2_py,
+                              const ReducerLeaf<T9> d2_pz);
+
+  template<class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12>
+  void DecayAngleThreeDaughters(const ReducerLeaf<T1> m_px,
+                                const ReducerLeaf<T2> m_py,
+                                const ReducerLeaf<T3> m_pz,
+                                const ReducerLeaf<T4> d1_px,
+                                const ReducerLeaf<T5> d1_py,
+                                const ReducerLeaf<T6> d1_pz,
+                                const ReducerLeaf<T7> d2_px,
+                                const ReducerLeaf<T8> d2_py,
+                                const ReducerLeaf<T9> d2_pz,
+                                const ReducerLeaf<T10> d3_px,
+                                const ReducerLeaf<T11> d3_py,
+                                const ReducerLeaf<T12> d3_pz);
   ///@{
 
  private:
@@ -244,6 +281,11 @@ class KinematicReducerLeaf : public ReducerLeaf<T> {
    *  @brief Vector containing variable mass daughters for mass hypothesis calculation
    */
   std::vector<KinematicDaughterPropertiesVariableMass<T> > daughters_variable_mass_;
+
+  /**
+   *  @brief Vector containing momenta for decay angle calculation
+   */
+  std::vector<ParticleMomentum<T> > momenta_decay_angle_;
 };
 
 template <class T>
@@ -358,6 +400,56 @@ bool KinematicReducerLeaf<T>::UpdateValue() {
           daughters_fixed_mass_[3].leaf_py_->GetValue(),
           daughters_fixed_mass_[3].leaf_pz_->GetValue(),
           daughters_fixed_mass_[3].m_);
+    matched = true;
+  } else if (momenta_decay_angle_.size() == 3) {
+    momenta_decay_angle_[0].leaf_px_->UpdateValue();
+    momenta_decay_angle_[0].leaf_py_->UpdateValue();
+    momenta_decay_angle_[0].leaf_pz_->UpdateValue();
+    momenta_decay_angle_[1].leaf_px_->UpdateValue();
+    momenta_decay_angle_[1].leaf_py_->UpdateValue();
+    momenta_decay_angle_[1].leaf_pz_->UpdateValue();
+    momenta_decay_angle_[2].leaf_px_->UpdateValue();
+    momenta_decay_angle_[2].leaf_py_->UpdateValue();
+    momenta_decay_angle_[2].leaf_pz_->UpdateValue();
+
+    *(this->branch_address_templ_) = TwoBodyDecayAngle(
+          momenta_decay_angle_[0].leaf_px_->GetValue(),
+          momenta_decay_angle_[0].leaf_py_->GetValue(),
+          momenta_decay_angle_[0].leaf_pz_->GetValue(),
+          momenta_decay_angle_[1].leaf_px_->GetValue(),
+          momenta_decay_angle_[1].leaf_py_->GetValue(),
+          momenta_decay_angle_[1].leaf_pz_->GetValue(),
+          momenta_decay_angle_[2].leaf_px_->GetValue(),
+          momenta_decay_angle_[2].leaf_py_->GetValue(),
+          momenta_decay_angle_[2].leaf_pz_->GetValue());
+    matched = true;
+  } else if (momenta_decay_angle_.size() == 4) {
+    momenta_decay_angle_[0].leaf_px_->UpdateValue();
+    momenta_decay_angle_[0].leaf_py_->UpdateValue();
+    momenta_decay_angle_[0].leaf_pz_->UpdateValue();
+    momenta_decay_angle_[1].leaf_px_->UpdateValue();
+    momenta_decay_angle_[1].leaf_py_->UpdateValue();
+    momenta_decay_angle_[1].leaf_pz_->UpdateValue();
+    momenta_decay_angle_[2].leaf_px_->UpdateValue();
+    momenta_decay_angle_[2].leaf_py_->UpdateValue();
+    momenta_decay_angle_[2].leaf_pz_->UpdateValue();
+    momenta_decay_angle_[3].leaf_px_->UpdateValue();
+    momenta_decay_angle_[3].leaf_py_->UpdateValue();
+    momenta_decay_angle_[3].leaf_pz_->UpdateValue();
+
+    *(this->branch_address_templ_) = ThreeBodyDecayAngle(
+          momenta_decay_angle_[0].leaf_px_->GetValue(),
+          momenta_decay_angle_[0].leaf_py_->GetValue(),
+          momenta_decay_angle_[0].leaf_pz_->GetValue(),
+          momenta_decay_angle_[1].leaf_px_->GetValue(),
+          momenta_decay_angle_[1].leaf_py_->GetValue(),
+          momenta_decay_angle_[1].leaf_pz_->GetValue(),
+          momenta_decay_angle_[2].leaf_px_->GetValue(),
+          momenta_decay_angle_[2].leaf_py_->GetValue(),
+          momenta_decay_angle_[2].leaf_pz_->GetValue(),
+          momenta_decay_angle_[3].leaf_px_->GetValue(),
+          momenta_decay_angle_[3].leaf_py_->GetValue(),
+          momenta_decay_angle_[3].leaf_pz_->GetValue());
     matched = true;
   } else {
     *(this->branch_address_templ_) = this->default_value_;
@@ -574,7 +666,112 @@ void KinematicReducerLeaf<T>::FixedMassDaughtersFourBodyDecayMotherMass(const Re
   daughters_fixed_mass_[3].leaf_py_->branch_address_ = d4_py.branch_address();
   daughters_fixed_mass_[3].leaf_pz_->branch_address_ = d4_pz.branch_address();
 }
+
+template <class T> template<class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9>
+void KinematicReducerLeaf<T>::DecayAngleTwoDaughters(const ReducerLeaf<T1> m_px,
+                                                       const ReducerLeaf<T2> m_py,
+                                                       const ReducerLeaf<T3> m_pz,
+                                                       const ReducerLeaf<T4> d1_px,
+                                                       const ReducerLeaf<T5> d1_py,
+                                                       const ReducerLeaf<T6> d1_pz,
+                                                       const ReducerLeaf<T7> d2_px,
+                                                       const ReducerLeaf<T8> d2_py,
+                                                       const ReducerLeaf<T9> d2_pz) {
+  using namespace doocore::io;
+
+  sout  << "Leaf " << this->name() << ": cosine of angle between ("
+        <<  m_px.name() << ", " <<  m_py.name() << ", " <<  m_pz.name() << ") and ("
+        << d1_px.name() << ", " << d1_py.name() << ", " << d1_pz.name() << ") and ("
+        << d2_px.name() << ", " << d2_py.name() << ", " << d2_pz.name() << ")." << endmsg;
+
+  EmptyDependantVectors();
+  momenta_decay_angle_.push_back(ParticleMomentum<T>(
+      new ReducerLeaf<T>(m_px.name(), m_px.title(), m_px.type(), m_px.tree()),
+      new ReducerLeaf<T>(m_py.name(), m_py.title(), m_py.type(), m_py.tree()),
+      new ReducerLeaf<T>(m_pz.name(), m_pz.title(), m_pz.type(), m_pz.tree())));
+
+  momenta_decay_angle_[0].leaf_px_->branch_address_ = m_px.branch_address();
+  momenta_decay_angle_[0].leaf_py_->branch_address_ = m_py.branch_address();
+  momenta_decay_angle_[0].leaf_pz_->branch_address_ = m_pz.branch_address();
+
+  momenta_decay_angle_.push_back(ParticleMomentum<T>(
+      new ReducerLeaf<T>(d1_px.name(), d1_px.title(), d1_px.type(), d1_px.tree()),
+      new ReducerLeaf<T>(d1_py.name(), d1_py.title(), d1_py.type(), d1_py.tree()),
+      new ReducerLeaf<T>(d1_pz.name(), d1_pz.title(), d1_pz.type(), d1_pz.tree())));
+
+  momenta_decay_angle_[1].leaf_px_->branch_address_ = d1_px.branch_address();
+  momenta_decay_angle_[1].leaf_py_->branch_address_ = d1_py.branch_address();
+  momenta_decay_angle_[1].leaf_pz_->branch_address_ = d1_pz.branch_address();
   
+  momenta_decay_angle_.push_back(ParticleMomentum<T>(
+      new ReducerLeaf<T>(d2_px.name(), d2_px.title(), d2_px.type(), d2_px.tree()),
+      new ReducerLeaf<T>(d2_py.name(), d2_py.title(), d2_py.type(), d2_py.tree()),
+      new ReducerLeaf<T>(d2_pz.name(), d2_pz.title(), d2_pz.type(), d2_pz.tree())));
+
+  momenta_decay_angle_[2].leaf_px_->branch_address_ = d2_px.branch_address();
+  momenta_decay_angle_[2].leaf_py_->branch_address_ = d2_py.branch_address();
+  momenta_decay_angle_[2].leaf_pz_->branch_address_ = d2_pz.branch_address();
+}
+
+template <class T> template<class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12>
+void KinematicReducerLeaf<T>::DecayAngleThreeDaughters(const ReducerLeaf<T1> m_px,
+                                                       const ReducerLeaf<T2> m_py,
+                                                       const ReducerLeaf<T3> m_pz,
+                                                       const ReducerLeaf<T4> d1_px,
+                                                       const ReducerLeaf<T5> d1_py,
+                                                       const ReducerLeaf<T6> d1_pz,
+                                                       const ReducerLeaf<T7> d2_px,
+                                                       const ReducerLeaf<T8> d2_py,
+                                                       const ReducerLeaf<T9> d2_pz,
+                                                       const ReducerLeaf<T10> d3_px,
+                                                       const ReducerLeaf<T11> d3_py,
+                                                       const ReducerLeaf<T12> d3_pz) {
+  using namespace doocore::io;
+
+  sout  << "Leaf " << this->name() << ": cosine of angle between ("
+        <<  m_px.name() << ", " <<  m_py.name() << ", " <<  m_pz.name() << ") and ("
+        << d1_px.name() << ", " << d1_py.name() << ", " << d1_pz.name() << ") and ("
+        << d2_px.name() << ", " << d2_py.name() << ", " << d2_pz.name() << ") and ("
+        << d3_px.name() << ", " << d3_py.name() << ", " << d3_pz.name() << ")." << endmsg;
+
+  EmptyDependantVectors();
+  momenta_decay_angle_.push_back(ParticleMomentum<T>(
+      new ReducerLeaf<T>(m_px.name(), m_px.title(), m_px.type(), m_px.tree()),
+      new ReducerLeaf<T>(m_py.name(), m_py.title(), m_py.type(), m_py.tree()),
+      new ReducerLeaf<T>(m_pz.name(), m_pz.title(), m_pz.type(), m_pz.tree())));
+
+  momenta_decay_angle_[0].leaf_px_->branch_address_ = m_px.branch_address();
+  momenta_decay_angle_[0].leaf_py_->branch_address_ = m_py.branch_address();
+  momenta_decay_angle_[0].leaf_pz_->branch_address_ = m_pz.branch_address();
+
+  momenta_decay_angle_.push_back(ParticleMomentum<T>(
+      new ReducerLeaf<T>(d1_px.name(), d1_px.title(), d1_px.type(), d1_px.tree()),
+      new ReducerLeaf<T>(d1_py.name(), d1_py.title(), d1_py.type(), d1_py.tree()),
+      new ReducerLeaf<T>(d1_pz.name(), d1_pz.title(), d1_pz.type(), d1_pz.tree())));
+
+  momenta_decay_angle_[1].leaf_px_->branch_address_ = d1_px.branch_address();
+  momenta_decay_angle_[1].leaf_py_->branch_address_ = d1_py.branch_address();
+  momenta_decay_angle_[1].leaf_pz_->branch_address_ = d1_pz.branch_address();
+
+  momenta_decay_angle_.push_back(ParticleMomentum<T>(
+      new ReducerLeaf<T>(d2_px.name(), d2_px.title(), d2_px.type(), d2_px.tree()),
+      new ReducerLeaf<T>(d2_py.name(), d2_py.title(), d2_py.type(), d2_py.tree()),
+      new ReducerLeaf<T>(d2_pz.name(), d2_pz.title(), d2_pz.type(), d2_pz.tree())));
+
+  momenta_decay_angle_[2].leaf_px_->branch_address_ = d2_px.branch_address();
+  momenta_decay_angle_[2].leaf_py_->branch_address_ = d2_py.branch_address();
+  momenta_decay_angle_[2].leaf_pz_->branch_address_ = d2_pz.branch_address();
+
+  momenta_decay_angle_.push_back(ParticleMomentum<T>(
+      new ReducerLeaf<T>(d3_px.name(), d3_px.title(), d3_px.type(), d3_px.tree()),
+      new ReducerLeaf<T>(d3_py.name(), d3_py.title(), d3_py.type(), d3_py.tree()),
+      new ReducerLeaf<T>(d3_pz.name(), d3_pz.title(), d3_pz.type(), d3_pz.tree())));
+
+  momenta_decay_angle_[3].leaf_px_->branch_address_ = d3_px.branch_address();
+  momenta_decay_angle_[3].leaf_py_->branch_address_ = d3_py.branch_address();
+  momenta_decay_angle_[3].leaf_pz_->branch_address_ = d3_pz.branch_address();
+}
+
 template <class T>
 void KinematicReducerLeaf<T>::EmptyDependantVectors() {
   using namespace doocore::io;
@@ -596,6 +793,15 @@ void KinematicReducerLeaf<T>::EmptyDependantVectors() {
     delete it->leaf_m_;
   }
   daughters_variable_mass_.clear();
+
+  for (typename std::vector<ParticleMomentum<T> >::iterator
+       it = momenta_decay_angle_.begin(), end = momenta_decay_angle_.end();
+       it != end; ++it) {
+    delete it->leaf_px_;
+    delete it->leaf_py_;
+    delete it->leaf_pz_;
+  }
+  momenta_decay_angle_.clear();
 }
   
 } // namespace reducer
