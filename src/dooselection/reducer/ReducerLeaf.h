@@ -32,7 +32,8 @@ enum ReducerLeafOperations {
   kMinimum,
   kMaximum,
   kConditionsMap,
-  kDoNotUpdate
+  kDoNotUpdate,
+  kSumSquaredLeaves
 };
 
 // Haha, this is why I like C++: The function below needs to be declared for the
@@ -277,6 +278,10 @@ public:
   template<class T1>
   void Log(const ReducerLeaf<T1>& l, double c=1.0) {
     SetOperation<T1,T1>(l,l,kLogLeaf,c,c);
+  }
+  template<class T1, class T2>
+  void SumSquared(const ReducerLeaf<T1>& l1, const ReducerLeaf<T2>& l2) {
+    SetOperation<T1,T2>(l1,l2,kSumSquaredLeaves,1.0,1.0);
   }
 
   /**
@@ -654,6 +659,12 @@ bool ReducerLeaf<T>::UpdateValue() {
         *branch_address_templ_ = random_generator_->Rndm()*1073741824.0;
         matched = true;
         break;
+      case kSumSquaredLeaves:
+        leaf_pointer_one_->UpdateValue();
+        leaf_pointer_two_->UpdateValue();
+        *branch_address_templ_ = TMath::Sqrt(leaf_factor_one_*pow(leaf_pointer_one_->GetValue(),2) + leaf_factor_two_*pow(leaf_pointer_two_->GetValue(),2));
+        matched = true;
+        break;
       case kConditionsMap:
         if (!conditions_map_.empty()) {
           return EvalConditions();
@@ -701,6 +712,9 @@ void ReducerLeaf<T>::SetOperation(const ReducerLeaf<T1>& l1, const ReducerLeaf<T
       break;
     case kRandomizeLeaf:
       std::cout << "Leaf " << name() << " = random number" << std::endl;
+      break;
+    case kSumSquaredLeaves:
+      std::cout << "Leaf " << name() << " = sqrt(" << l1.name() << "^2 + " << l2.name() << "^2)" << std::endl;
       break;
     default:
       break;
