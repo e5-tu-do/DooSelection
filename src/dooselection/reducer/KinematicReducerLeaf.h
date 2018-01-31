@@ -322,6 +322,20 @@ class KinematicReducerLeaf : public ReducerLeaf<T> {
                                              const ReducerLeaf<T8> gd2_py,
                                              const ReducerLeaf<T9> gd2_pz,
                                              double gd2_m);
+
+  template<class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9>
+  void OpeningAngleInMotherRestFrame(const ReducerLeaf<T1> m_px,
+                                     const ReducerLeaf<T2> m_py,
+                                     const ReducerLeaf<T3> m_pz,
+                                     double m_m,
+                                     const ReducerLeaf<T4> d1_px,
+                                     const ReducerLeaf<T5> d1_py,
+                                     const ReducerLeaf<T6> d1_pz,
+                                     double d1_m,
+                                     const ReducerLeaf<T7> d2_px,
+                                     const ReducerLeaf<T8> d2_py,
+                                     const ReducerLeaf<T9> d2_pz,
+                                     double d2_m);
   ///@{
 
  private:
@@ -354,6 +368,11 @@ class KinematicReducerLeaf : public ReducerLeaf<T> {
    *  @brief Vector containing momenta for calculation of azimuthal angle in decay plane
    */
   std::vector<KinematicDaughterPropertiesFixedMass<T> > momenta_azimuthal_decay_plane_angle_;
+
+  /**
+   *  @brief Vector containing momenta for calculation of opening angle in mother particle's rest frame
+   */
+  std::vector<KinematicDaughterPropertiesFixedMass<T> > momenta_opening_angle_;
 };
 
 template <class T>
@@ -586,6 +605,7 @@ bool KinematicReducerLeaf<T>::UpdateValue() {
     momenta_azimuthal_decay_plane_angle_[1].leaf_pz_->UpdateValue();
     momenta_azimuthal_decay_plane_angle_[2].leaf_px_->UpdateValue();
     momenta_azimuthal_decay_plane_angle_[2].leaf_py_->UpdateValue();
+    momenta_azimuthal_decay_plane_angle_[2].leaf_pz_->UpdateValue();
 
     *(this->branch_address_templ_) = AzimuthalAngleInDecayPlane(
           fixed_mother_properties_[0].px_,
@@ -604,6 +624,31 @@ bool KinematicReducerLeaf<T>::UpdateValue() {
           momenta_azimuthal_decay_plane_angle_[2].leaf_py_->GetValue(),
           momenta_azimuthal_decay_plane_angle_[2].leaf_pz_->GetValue(),
           momenta_azimuthal_decay_plane_angle_[2].m_);
+    matched = true;
+  } else if(momenta_opening_angle_.size() == 3) {
+    momenta_opening_angle_[0].leaf_px_->UpdateValue();
+    momenta_opening_angle_[0].leaf_py_->UpdateValue();
+    momenta_opening_angle_[0].leaf_pz_->UpdateValue();
+    momenta_opening_angle_[1].leaf_px_->UpdateValue();
+    momenta_opening_angle_[1].leaf_py_->UpdateValue();
+    momenta_opening_angle_[1].leaf_pz_->UpdateValue();
+    momenta_opening_angle_[2].leaf_px_->UpdateValue();
+    momenta_opening_angle_[2].leaf_py_->UpdateValue();
+    momenta_opening_angle_[2].leaf_pz_->UpdateValue();
+
+    *(this->branch_address_templ_) = OpeningAngleInRestFrame(
+          momenta_opening_angle_[0].leaf_px_->GetValue(),
+          momenta_opening_angle_[0].leaf_py_->GetValue(),
+          momenta_opening_angle_[0].leaf_pz_->GetValue(),
+          momenta_opening_angle_[0].m_,
+          momenta_opening_angle_[1].leaf_px_->GetValue(),
+          momenta_opening_angle_[1].leaf_py_->GetValue(),
+          momenta_opening_angle_[1].leaf_pz_->GetValue(),
+          momenta_opening_angle_[1].m_,
+          momenta_opening_angle_[2].leaf_px_->GetValue(),
+          momenta_opening_angle_[2].leaf_py_->GetValue(),
+          momenta_opening_angle_[2].leaf_pz_->GetValue(),
+          momenta_opening_angle_[2].m_);
     matched = true;
   } else {
     *(this->branch_address_templ_) = this->default_value_;
@@ -1077,6 +1122,53 @@ void KinematicReducerLeaf<T>::FixedMotherAzimuthalAngleInDecayPlane(double m_px,
   momenta_azimuthal_decay_plane_angle_[2].leaf_pz_->branch_address_ = gd2_pz.branch_address();
 }
 
+template <class T> template<class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9>
+void KinematicReducerLeaf<T>::OpeningAngleInMotherRestFrame(const ReducerLeaf<T1> m_px,
+                                                            const ReducerLeaf<T2> m_py,
+                                                            const ReducerLeaf<T3> m_pz,
+                                                            double m_m,
+                                                            const ReducerLeaf<T4> d1_px,
+                                                            const ReducerLeaf<T5> d1_py,
+                                                            const ReducerLeaf<T6> d1_pz,
+                                                            double d1_m,
+                                                            const ReducerLeaf<T7> d2_px,
+                                                            const ReducerLeaf<T8> d2_py,
+                                                            const ReducerLeaf<T9> d2_pz,
+                                                            double d2_m) {
+  using namespace doocore::io;
+
+  EmptyDependantVectors();
+  momenta_opening_angle_.push_back(KinematicDaughterPropertiesFixedMass<T>(
+      new ReducerLeaf<T>(m_px.name(), m_px.title(), m_px.type(), m_px.tree()),
+      new ReducerLeaf<T>(m_py.name(), m_py.title(), m_py.type(), m_py.tree()),
+      new ReducerLeaf<T>(m_pz.name(), m_pz.title(), m_pz.type(), m_pz.tree()),
+      m_m));
+
+  momenta_opening_angle_[0].leaf_px_->branch_address_ = m_px.branch_address();
+  momenta_opening_angle_[0].leaf_py_->branch_address_ = m_py.branch_address();
+  momenta_opening_angle_[0].leaf_pz_->branch_address_ = m_pz.branch_address();
+
+  momenta_opening_angle_.push_back(KinematicDaughterPropertiesFixedMass<T>(
+      new ReducerLeaf<T>(d1_px.name(), d1_px.title(), d1_px.type(), d1_px.tree()),
+      new ReducerLeaf<T>(d1_py.name(), d1_py.title(), d1_py.type(), d1_py.tree()),
+      new ReducerLeaf<T>(d1_pz.name(), d1_pz.title(), d1_pz.type(), d1_pz.tree()),
+      d1_m));
+
+  momenta_opening_angle_[1].leaf_px_->branch_address_ = d1_px.branch_address();
+  momenta_opening_angle_[1].leaf_py_->branch_address_ = d1_py.branch_address();
+  momenta_opening_angle_[1].leaf_pz_->branch_address_ = d1_pz.branch_address();
+
+  momenta_opening_angle_.push_back(KinematicDaughterPropertiesFixedMass<T>(
+      new ReducerLeaf<T>(d2_px.name(), d2_px.title(), d2_px.type(), d2_px.tree()),
+      new ReducerLeaf<T>(d2_py.name(), d2_py.title(), d2_py.type(), d2_py.tree()),
+      new ReducerLeaf<T>(d2_pz.name(), d2_pz.title(), d2_pz.type(), d2_pz.tree()),
+      d2_m));
+
+  momenta_opening_angle_[2].leaf_px_->branch_address_ = d2_px.branch_address();
+  momenta_opening_angle_[2].leaf_py_->branch_address_ = d2_py.branch_address();
+  momenta_opening_angle_[2].leaf_pz_->branch_address_ = d2_pz.branch_address();
+}
+
 template <class T>
 void KinematicReducerLeaf<T>::EmptyDependantVectors() {
   using namespace doocore::io;
@@ -1116,6 +1208,15 @@ void KinematicReducerLeaf<T>::EmptyDependantVectors() {
     delete it->leaf_pz_;
   }
   momenta_azimuthal_decay_plane_angle_.clear();
+
+  for (typename std::vector<KinematicDaughterPropertiesFixedMass<T> >::iterator
+       it = momenta_opening_angle_.begin(), end = momenta_opening_angle_.end();
+       it != end; ++it) {
+    delete it->leaf_px_;
+    delete it->leaf_py_;
+    delete it->leaf_pz_;
+  }
+  momenta_opening_angle_.clear();
 }
   
 } // namespace reducer
