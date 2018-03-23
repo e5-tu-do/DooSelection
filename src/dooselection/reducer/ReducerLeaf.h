@@ -33,7 +33,8 @@ enum ReducerLeafOperations {
   kMaximum,
   kConditionsMap,
   kDoNotUpdate,
-  kSumSquaredLeaves
+  kSumSquaredLeaves,
+  kCombinePValues
 };
 
 // Haha, this is why I like C++: The function below needs to be declared for the
@@ -282,6 +283,10 @@ public:
   template<class T1, class T2>
   void SumSquared(const ReducerLeaf<T1>& l1, const ReducerLeaf<T2>& l2) {
     SetOperation<T1,T2>(l1,l2,kSumSquaredLeaves,1.0,1.0);
+  }
+  template<class T1, class T2>
+  void TwoDimPvalue(const ReducerLeaf<T1>& l1, const ReducerLeaf<T2>& l2) {
+    SetOperation<T1,T2>(l1,l2,kCombinePValues,1.0,1.0);
   }
 
   /**
@@ -665,6 +670,12 @@ bool ReducerLeaf<T>::UpdateValue() {
         *branch_address_templ_ = TMath::Sqrt(leaf_factor_one_*pow(leaf_pointer_one_->GetValue(),2) + leaf_factor_two_*pow(leaf_pointer_two_->GetValue(),2));
         matched = true;
         break;
+      case kCombinePValues:
+        leaf_pointer_one_->UpdateValue();
+        leaf_pointer_two_->UpdateValue();
+        *branch_address_templ_ = leaf_factor_one_*leaf_pointer_one_->GetValue() * leaf_factor_two_*leaf_pointer_two_->GetValue() * (1 - TMath::Log(leaf_pointer_one_->GetValue() * leaf_pointer_two_->GetValue()));
+        matched = true;
+        break;
       case kConditionsMap:
         if (!conditions_map_.empty()) {
           return EvalConditions();
@@ -716,6 +727,8 @@ void ReducerLeaf<T>::SetOperation(const ReducerLeaf<T1>& l1, const ReducerLeaf<T
     case kSumSquaredLeaves:
       std::cout << "Leaf " << name() << " = sqrt(" << l1.name() << "^2 + " << l2.name() << "^2)" << std::endl;
       break;
+    case kCombinePValues:
+      std::cout << "Leaf " << name() << " = " << l1.name() << " * " << l2.name() << " * (1 - log(" << l1.name() << " * " << l2.name() << "))" << std::endl;
     default:
       break;
   }

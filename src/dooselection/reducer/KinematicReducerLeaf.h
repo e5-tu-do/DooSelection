@@ -76,6 +76,18 @@ struct KinematicMotherProperties {
   double pz_;
   double m_;
 };
+
+template <typename T>
+struct ThreeMomentum {
+  ThreeMomentum(ReducerLeaf<T>* leaf_x,
+                ReducerLeaf<T>* leaf_y,
+                ReducerLeaf<T>* leaf_z)
+  : leaf_x_(leaf_x), leaf_y_(leaf_y), leaf_z_(leaf_z) {}
+
+  ReducerLeaf<T>* leaf_x_;
+  ReducerLeaf<T>* leaf_y_;
+  ReducerLeaf<T>* leaf_z_;
+};
   
 template <typename T>
 class KinematicReducerLeaf : public ReducerLeaf<T> {
@@ -336,6 +348,17 @@ class KinematicReducerLeaf : public ReducerLeaf<T> {
                                      const ReducerLeaf<T9> d2_py,
                                      const ReducerLeaf<T10> d2_pz,
                                      double d2_m);
+
+  template<class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9>
+  void PointingAngle(const ReducerLeaf<T1> x_pv,
+                     const ReducerLeaf<T2> y_pv,
+                     const ReducerLeaf<T3> z_pv,
+                     const ReducerLeaf<T4> x_sv,
+                     const ReducerLeaf<T5> y_sv,
+                     const ReducerLeaf<T6> z_sv,
+                     const ReducerLeaf<T7> px,
+                     const ReducerLeaf<T8> py,
+                     const ReducerLeaf<T9> pz);
   ///@{
 
  private:
@@ -373,6 +396,11 @@ class KinematicReducerLeaf : public ReducerLeaf<T> {
    *  @brief Vector containing momenta for calculation of opening angle in mother particle's rest frame
    */
   std::vector<KinematicDaughterPropertiesFixedMass<T> > momenta_opening_angle_;
+
+  /**
+   *  @brief Vector containing momenta for calculation of pointing angle
+   */
+  std::vector<ThreeMomentum<T> > momenta_pointing_angle_;
 };
 
 template <class T>
@@ -656,6 +684,28 @@ bool KinematicReducerLeaf<T>::UpdateValue() {
           momenta_opening_angle_[1].leaf_py_->GetValue(),
           momenta_opening_angle_[1].leaf_pz_->GetValue(),
           momenta_opening_angle_[1].m_);
+    matched = true;
+  } else if (momenta_pointing_angle_.size() == 3) {
+    momenta_pointing_angle_[0].leaf_x_->UpdateValue();
+    momenta_pointing_angle_[0].leaf_y_->UpdateValue();
+    momenta_pointing_angle_[0].leaf_z_->UpdateValue();
+    momenta_pointing_angle_[1].leaf_x_->UpdateValue();
+    momenta_pointing_angle_[1].leaf_y_->UpdateValue();
+    momenta_pointing_angle_[1].leaf_z_->UpdateValue();
+    momenta_pointing_angle_[2].leaf_x_->UpdateValue();
+    momenta_pointing_angle_[2].leaf_y_->UpdateValue();
+    momenta_pointing_angle_[2].leaf_z_->UpdateValue();
+
+    *(this->branch_address_templ_) = PointingAngleBetweenVertices(
+          momenta_pointing_angle_[0].leaf_x_->GetValue(),
+          momenta_pointing_angle_[0].leaf_y_->GetValue(),
+          momenta_pointing_angle_[0].leaf_z_->GetValue(),
+          momenta_pointing_angle_[1].leaf_x_->GetValue(),
+          momenta_pointing_angle_[1].leaf_y_->GetValue(),
+          momenta_pointing_angle_[1].leaf_z_->GetValue(),
+          momenta_pointing_angle_[2].leaf_x_->GetValue(),
+          momenta_pointing_angle_[2].leaf_y_->GetValue(),
+          momenta_pointing_angle_[2].leaf_z_->GetValue());
     matched = true;
   } else {
     *(this->branch_address_templ_) = this->default_value_;
@@ -1183,6 +1233,47 @@ void KinematicReducerLeaf<T>::OpeningAngleInMotherRestFrame(const ReducerLeaf<T1
   momenta_opening_angle_[1].leaf_pz_->branch_address_ = d2_pz.branch_address();
 }
 
+template <class T> template<class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9>
+void KinematicReducerLeaf<T>::PointingAngle(const ReducerLeaf<T1> x_pv,
+                                            const ReducerLeaf<T2> y_pv,
+                                            const ReducerLeaf<T3> z_pv,
+                                            const ReducerLeaf<T4> x_sv,
+                                            const ReducerLeaf<T5> y_sv,
+                                            const ReducerLeaf<T6> z_sv,
+                                            const ReducerLeaf<T7> px,
+                                            const ReducerLeaf<T8> py,
+                                            const ReducerLeaf<T9> pz) {
+  using namespace doocore::io;
+
+  EmptyDependantVectors();
+  momenta_pointing_angle_.push_back(ThreeMomentum<T>(
+      new ReducerLeaf<T>(x_pv.name(), x_pv.title(), x_pv.type(), x_pv.tree()),
+      new ReducerLeaf<T>(y_pv.name(), y_pv.title(), y_pv.type(), y_pv.tree()),
+      new ReducerLeaf<T>(z_pv.name(), z_pv.title(), z_pv.type(), z_pv.tree())));
+
+  momenta_pointing_angle_[0].leaf_x_->branch_address_ = x_pv.branch_address();
+  momenta_pointing_angle_[0].leaf_y_->branch_address_ = y_pv.branch_address();
+  momenta_pointing_angle_[0].leaf_z_->branch_address_ = z_pv.branch_address();
+
+  momenta_pointing_angle_.push_back(ThreeMomentum<T>(
+      new ReducerLeaf<T>(x_sv.name(), x_sv.title(), x_sv.type(), x_sv.tree()),
+      new ReducerLeaf<T>(y_sv.name(), y_sv.title(), y_sv.type(), y_sv.tree()),
+      new ReducerLeaf<T>(z_sv.name(), z_sv.title(), z_sv.type(), z_sv.tree())));
+
+  momenta_pointing_angle_[1].leaf_x_->branch_address_ = x_sv.branch_address();
+  momenta_pointing_angle_[1].leaf_y_->branch_address_ = y_sv.branch_address();
+  momenta_pointing_angle_[1].leaf_z_->branch_address_ = z_sv.branch_address();
+
+  momenta_pointing_angle_.push_back(ThreeMomentum<T>(
+      new ReducerLeaf<T>(px.name(), px.title(), px.type(), px.tree()),
+      new ReducerLeaf<T>(py.name(), py.title(), py.type(), py.tree()),
+      new ReducerLeaf<T>(pz.name(), pz.title(), pz.type(), pz.tree())));
+
+  momenta_pointing_angle_[2].leaf_x_->branch_address_ = px.branch_address();
+  momenta_pointing_angle_[2].leaf_y_->branch_address_ = py.branch_address();
+  momenta_pointing_angle_[2].leaf_z_->branch_address_ = pz.branch_address();
+}
+
 template <class T>
 void KinematicReducerLeaf<T>::EmptyDependantVectors() {
   using namespace doocore::io;
@@ -1231,6 +1322,15 @@ void KinematicReducerLeaf<T>::EmptyDependantVectors() {
     delete it->leaf_pz_;
   }
   momenta_opening_angle_.clear();
+
+  for (typename std::vector<ThreeMomentum<T> >::iterator
+       it = momenta_pointing_angle_.begin(), end = momenta_pointing_angle_.end();
+       it != end; ++it) {
+    delete it->leaf_x_;
+    delete it->leaf_y_;
+    delete it->leaf_z_;
+  }
+  momenta_pointing_angle_.clear();
 }
   
 } // namespace reducer
