@@ -131,7 +131,7 @@
  * name of output tree (no backslashes!), config file name
  *
  * See an example of a config file:
- * @verbinclude examples/GrimReapger/ArrayFlattenerGrimReaper.cfg
+ * @verbinclude ArrayFlattenerGrimReaper.cfg
  *
  * @section exec_CandidateSelectionGrimReaper CandidateSelectionGrimReaper
  * The CandidateSelectionGrimReaper removes multiple candidates depending on a
