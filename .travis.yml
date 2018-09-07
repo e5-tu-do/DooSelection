@@ -13,10 +13,10 @@ branches:
   only:
   - master
 script:
-  - cd .. && git clone https://github.com/alexbirne/deploy_doxygen.git
+  - cd .. && git clone https://github.com/alexbirne/Dockerfiles.git
   - cd DooSelection && doxygen doxygen.conf
-  - mv html ../deploy_doxygen
-  - cp id_rsa_dooselection.enc ../deploy_doxygen
-  - cd ../deploy_doxygen
+  - mv html ../Dockerfiles/deploy_doxygen
+  - cp id_rsa_dooselection.enc ../Dockerfiles/deploy_doxygen
+  - cd ../Dockerfiles/deploy_doxygen
   - docker build --build-arg DECRYPTED_KEY=id_rsa_dooselection.enc -t quick_doxygen_uploader .
   - docker run -e DEPLOY_HOST=$DEPLOY_HOST -e DEPLOY_USER=$DEPLOY_USER -e DEPLOY_PATH=$DEPLOY_PATH -e DECRYPTED_SSH_KEY=id_rsa_dooselection.enc -e decrypted_key=$encrypted_c02697bda573_key -e encrypted_iv=$encrypted_c02697bda573_iv quick_doxygen_uploader:latest
