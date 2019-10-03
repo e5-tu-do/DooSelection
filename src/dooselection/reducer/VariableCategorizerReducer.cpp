@@ -1,4 +1,5 @@
 #include "VariableCategorizerReducer.h"
+#include "doocore/io/Progress.h"
 
 // from ROOT
 #include "TMath.h"
@@ -8,8 +9,6 @@
 
 namespace dooselection {
 namespace reducer {
-
-using namespace dooselection::reducer;
 
 VariableCategorizerReducer::VariableCategorizerReducer(const std::string& prefix_name):
   prefix_name_(prefix_name),
@@ -68,17 +67,14 @@ void VariableCategorizerReducer::PrepareSpecialBranches(){
     interim_tree_->SetBranchStatus("*", false);
     interim_tree_->SetBranchStatus(variable_name.c_str(), true);
     double value;
+    doocore::io::Progress p("", nevents);
     for (Int_t ev = 0; ev < nevents; ev++){
-      double frac = static_cast<double>(ev)/nevents;
-      if (isatty(fileno(stdout))){
-        if ( (ev%100) == 0 ) printf("Progress %.2f %% \xd", frac*100.0);
-      }
       interim_tree_->GetEvent(ev);
       value = *std::get<7>(variable);
       if ((value > variable_range_min) && (value < variable_range_max)) data_points.push_back(value);
-      fflush(stdout);
+      ++p;
     }
-    std::cout << std::endl;
+    p.Finish();
     interim_tree_->SetBranchStatus("*", true);
     sort(data_points.begin(), data_points.end());
 
